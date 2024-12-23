@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Einsatzverwaltungssystem">
+    <title>Besatzung zuweisen</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Besatzung zuweisen</h1>
+    </header>
+    <main>
+        <section id="besatzung-zuweisen">
+            <h2>Besatzungsrollen verwalten</h2>
+            <form action="besatzung_zuweisen.php" method="POST">
+                <?php
+                require 'db.php';
+
+                // Besatzungsrollen definieren
+                $roles = [
+                    'stf' => 'Staffel-Führer (StF)',
+                    'ma' => 'Maschinist (MA)',
+                    'atf' => 'Atemschutz-Führer (AtF)',
+                    'atm' => 'Atemschutz-Mann (AtM)',
+                    'wtf' => 'Wachtrupp-Führer (WtF)',
+                    'wtm' => 'Wachtrupp-Mann (WtM)',
+                    'prakt' => 'Praktikant (Prakt)'
+                ];
+
+                foreach ($roles as $key => $label) {
+                    echo "<label for='$key'>$label:</label>";
+
+                    // Prüfen, ob eine Person bereits zugewiesen ist
+                    $stmt = $pdo->prepare("SELECT p.id, CONCAT(p.vorname, ' ', p.nachname) AS name FROM Personal p JOIN Besatzung b ON p.id = b.{$key}_id LIMIT 1");
+                    $stmt->execute();
+                    $assigned = $stmt->fetch();
+
+                    if ($assigned) {
+                        // Wenn jemand zugewiesen ist, wird der Name angezeigt
+                        echo "<p>Aktuell zugewiesen: {$assigned['name']}</p>";
+                    } else {
+                        // Wenn niemand zugewiesen ist, Dropdown anzeigen
+                        echo "<select id='$key' name='$key'>";
+                        $stmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal");
+                        while ($row = $stmt->fetch()) {
+                            echo "<option value='{$row['id']}'>{$row['name']}</option>";
+                        }
+                        echo "</select><br>";
+                    }
+                }
+                ?>
+                <button type="submit">Zuweisungen speichern</button>
+            </form>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Besatzungsverwaltung. Alle Rechte vorbehalten.</p>
+    </footer>
+</body>
+</html>
