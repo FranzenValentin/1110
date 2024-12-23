@@ -85,6 +85,7 @@ require 'db.php';
     
     <nav>
         <ul>
+            <li><a href="neuer_Benutzer.php">Neuer Benutzer</a></li>
             <li><a href="besatzung.php">Besatzung verwalten</a></li>
             <li><a href="einsatz.php">Einsätze hinzufügen</a></li>
             <li><a href="stichworte.php">Stichworte verwalten</a></li>
