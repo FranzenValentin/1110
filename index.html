@@ -22,14 +22,20 @@
         <!-- Einsatz hinzufügen -->
         <section id="einsatz-form">
             <h2>Neuen Einsatz hinzufügen</h2>
-            <form action="/einsatz_hinzufuegen" method="POST">
+            <form action="einsatz_hinzufuegen.php" method="POST">
                 <label for="einsatznummer">Einsatznummer LTS:</label>
                 <input type="number" id="einsatznummer" name="einsatznummer" required>
                 <br>
 
                 <label for="stichwort">Stichwort:</label>
                 <select id="stichwort" name="stichwort">
-                    <!-- Dynamisch mit Stichworte aus der Datenbank gefüllt -->
+                    <?php
+                    require 'db.php';
+                    $stmt = $pdo->query("SELECT id, stichwort FROM Stichworte");
+                    while ($row = $stmt->fetch()) {
+                        echo "<option value='{$row['id']}'>{$row['stichwort']}</option>";
+                    }
+                    ?>
                 </select>
                 <br>
 
@@ -47,7 +53,12 @@
 
                 <label for="fahrzeug">Fahrzeug:</label>
                 <select id="fahrzeug" name="fahrzeug">
-                    <!-- Dynamisch mit Fahrzeugen aus der Datenbank gefüllt -->
+                    <?php
+                    $stmt = $pdo->query("SELECT id, name FROM Fahrzeuge");
+                    while ($row = $stmt->fetch()) {
+                        echo "<option value='{$row['id']}'>{$row['name']}</option>";
+                    }
+                    ?>
                 </select>
                 <br>
 
@@ -58,49 +69,20 @@
         <!-- Besatzung verwalten -->
         <section id="besatzung-form">
             <h2>Besatzung verwalten</h2>
-            <form action="/besatzung_verwalten" method="POST">
-                <label for="stf">Staffel-Führer (StF):</label>
-                <select id="stf" name="stf">
-                    <!-- Dynamisch mit Personal aus der Datenbank gefüllt -->
-                </select>
-                <br>
-
-                <label for="ma">Maschinist (MA):</label>
-                <select id="ma" name="ma">
-                    <!-- Dynamisch mit Personal aus der Datenbank gefüllt -->
-                </select>
-                <br>
-
-                <label for="atf">Atemschutz-Führer (AtF):</label>
-                <select id="atf" name="atf">
-                    <!-- Dynamisch mit Personal aus der Datenbank gefüllt -->
-                </select>
-                <br>
-
-                <label for="atm">Atemschutz-Mann (AtM):</label>
-                <select id="atm" name="atm">
-                    <!-- Dynamisch mit Personal aus der Datenbank gefüllt -->
-                </select>
-                <br>
-
-                <label for="wtf">Wachtrupp-Führer (WtF):</label>
-                <select id="wtf" name="wtf">
-                    <!-- Dynamisch mit Personal aus der Datenbank gefüllt -->
-                </select>
-                <br>
-
-                <label for="wtm">Wachtrupp-Mann (WtM):</label>
-                <select id="wtm" name="wtm">
-                    <!-- Dynamisch mit Personal aus der Datenbank gefüllt -->
-                </select>
-                <br>
-
-                <label for="prakt">Praktikant (Prakt):</label>
-                <select id="prakt" name="prakt">
-                    <!-- Dynamisch mit Personal aus der Datenbank gefüllt -->
-                </select>
-                <br>
-
+            <form action="besatzung_verwalten.php" method="POST">
+                <?php
+                $roles = ['stf' => 'Staffel-Führer (StF)', 'ma' => 'Maschinist (MA)', 'atf' => 'Atemschutz-Führer (AtF)',
+                          'atm' => 'Atemschutz-Mann (AtM)', 'wtf' => 'Wachtrupp-Führer (WtF)', 'wtm' => 'Wachtrupp-Mann (WtM)', 'prakt' => 'Praktikant (Prakt)'];
+                foreach ($roles as $key => $label) {
+                    echo "<label for='$key'>$label:</label>";
+                    echo "<select id='$key' name='$key'>";
+                    $stmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal");
+                    while ($row = $stmt->fetch()) {
+                        echo "<option value='{$row['id']}'>{$row['name']}</option>";
+                    }
+                    echo "</select><br>";
+                }
+                ?>
                 <button type="submit">Besatzung speichern</button>
             </form>
         </section>
@@ -108,7 +90,7 @@
         <!-- Stichworte verwalten -->
         <section id="stichwort-form">
             <h2>Stichworte verwalten</h2>
-            <form action="/stichwort_hinzufuegen" method="POST">
+            <form action="stichwort_hinzufuegen.php" method="POST">
                 <label for="kategorie">Kategorie:</label>
                 <select id="kategorie" name="kategorie">
                     <option value="TH">Technische Hilfe (TH)</option>
