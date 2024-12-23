@@ -3,18 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Grundgerüst einer HTML-Website">
-    <title>Hallo Welt</title>
+    <meta name="description" content="Einsatzverwaltungssystem">
+    <title>Einsatzverwaltung</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
-        <h1>Hallo Welt</h1>
+        <h1>Einsatzverwaltung</h1>
     </header>
+    <nav>
+        <ul>
+            <li><a href="#einsatz-form">Einsatz hinzufügen</a></li>
+            <li><a href="#besatzung-form">Besatzung verwalten</a></li>
+            <li><a href="#stichwort-form">Stichworte verwalten</a></li>
+        </ul>
+    </nav>
     <main>
-        <p>Willkommen auf meiner ersten Website!</p>
+        <!-- Einsatz hinzufügen -->
+        <section id="einsatz-form">
+            <h2>Neuen Einsatz hinzufügen</h2>
+            <form action="/einsatz_hinzufuegen" method="POST">
+                <label for="einsatznummer">Einsatznummer LTS:</label>
+                <input type="number" id="einsatznummer" name="einsatznummer" required>
+                <br>
+
+                <label for="stichwort">Stichwort:</label>
+                <select id="stichwort" name="stichwort">
+                    <!-- Dynamisch mit Stichworte aus der Datenbank gefüllt -->
+                </select>
+                <br>
+
+                <label for="alarmuhrzeit">Alarmuhrzeit:</label>
+                <input type="datetime-local" id="alarmuhrzeit" name="alarmuhrzeit" required>
+                <br>
+
+                <label for="zurueckzeit">Zurückzeit:</label>
+                <input type="datetime-local" id="zurueckzeit" name="zurueckzeit">
+                <br>
+
+                <label for="adresse">Adresse:</label>
+                <input type="text" id="adresse" name="adresse" required>
+                <br>
+
+                <label for="fahrzeug">Fahrzeug:</label>
+                <select id="fahrzeug" name="fahrzeug">
+                    <!-- Dynamisch mit Fahrzeugen aus der Datenbank gefüllt -->
+                </select>
+                <br>
+
+                <button type="submit">Einsatz speichern</button>
+            </form>
+        </section>
+
+        <!-- Besatzung verwalten -->
+        <section id="besatzung-form">
+            <h2>Besatzung verwalten</h2>
+            <form action="/besatzung_verwalten" method="POST">
+                <label for="stf">Staffel-Führer (StF):</label>
+                <select id="stf" name="stf">
+                    <!-- Dynamisch mit Personal aus der Datenbank gefüllt -->
+                </select>
+                <br>
+
+                <label for="ma">Maschinist (MA):</label>
+                <select id="ma" name="ma">
+                    <!-- Dynamisch mit Personal aus der Datenbank gefüllt -->
+                </select>
+                <br>
+
+                <label for="atf">Atemschutz-Führer (AtF):</label>
+                <select id="atf" name="atf">
+                    <!-- Dynamisch mit Personal aus der Datenbank gefüllt -->
+                </select>
+                <br>
+
+                <label for="atm">Atemschutz-Mann (AtM):</label>
+                <select id="atm" name="atm">
+                    <!-- Dynamisch mit Personal aus der Datenbank gefüllt -->
+                </select>
+                <br>
+
+                <label for="wtf">Wachtrupp-Führer (WtF):</label>
+                <select id="wtf" name="wtf">
+                    <!-- Dynamisch mit Personal aus der Datenbank gefüllt -->
+                </select>
+                <br>
+
+                <label for="wtm">Wachtrupp-Mann (WtM):</label>
+                <select id="wtm" name="wtm">
+                    <!-- Dynamisch mit Personal aus der Datenbank gefüllt -->
+                </select>
+                <br>
+
+                <label for="prakt">Praktikant (Prakt):</label>
+                <select id="prakt" name="prakt">
+                    <!-- Dynamisch mit Personal aus der Datenbank gefüllt -->
+                </select>
+                <br>
+
+                <button type="submit">Besatzung speichern</button>
+            </form>
+        </section>
+
+        <!-- Stichworte verwalten -->
+        <section id="stichwort-form">
+            <h2>Stichworte verwalten</h2>
+            <form action="/stichwort_hinzufuegen" method="POST">
+                <label for="kategorie">Kategorie:</label>
+                <select id="kategorie" name="kategorie">
+                    <option value="TH">Technische Hilfe (TH)</option>
+                    <option value="BRAND">Brand</option>
+                    <option value="RD">Rettungsdienst (RD)</option>
+                </select>
+                <br>
+
+                <label for="stichwort">Stichwort:</label>
+                <input type="text" id="stichwort" name="stichwort" required>
+                <br>
+
+                <button type="submit">Stichwort hinzufügen</button>
+            </form>
+        </section>
     </main>
     <footer>
-        <p>&copy; 2024 Meine Website. Alle Rechte vorbehalten.</p>
+        <p>&copy; 2024 Einsatzverwaltung. Alle Rechte vorbehalten.</p>
     </footer>
 </body>
 </html>
