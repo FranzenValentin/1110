@@ -15,30 +15,70 @@ require 'db.php';
         <h1>Besatzung verwalten</h1>
     </header>
     <main>
-        <form action="save_besatzung.php" method="POST">
-            <?php
-            $roles = [
-                'stf' => 'Staffel-Führer (StF)',
-                'ma' => 'Maschinist (MA)',
-                'atf' => 'Atemschutz-Führer (AtF)',
-                'atm' => 'Atemschutz-Mann (AtM)',
-                'wtf' => 'Wachtrupp-Führer (WtF)',
-                'wtm' => 'Wachtrupp-Mann (WtM)',
-                'prakt' => 'Praktikant (Prakt)'
-            ];
+        <section id="aktuelle-besatzung">
+            <h2>Besatzungsrollen und Zuweisungen</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Funktion</th>
+                        <th>Aktuell zugewiesen</th>
+                        <th>Aktion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    // Besatzungsrollen definieren
+                    $roles = [
+                        'stf' => 'Staffel-Führer',
+                        'ma' => 'Maschinist',
+                        'atf' => 'Atemschutz-Führer',
+                        'atm' => 'Atemschutz-Mann',
+                        'wtf' => 'Wachtrupp-Führer',
+                        'wtm' => 'Wachtrupp-Mann',
+                        'prakt' => 'Praktikant'
+                    ];
 
-            foreach ($roles as $key => $label) {
-                echo "<label for='$key'>$label:</label>";
-                echo "<select id='$key' name='$key'>";
-                $stmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal");
-                while ($row = $stmt->fetch()) {
-                    echo "<option value='{$row['id']}'>{$row['name']}</option>";
-                }
-                echo "</select><br>";
-            }
-            ?>
-            <button type="submit">Besatzung speichern</button>
-        </form>
+                    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['role'], $_POST['person_id'])) {
+                        $role = $_POST['role'];
+                        $person_id = $_POST['person_id'];
+                        $updateStmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = :person_id");
+                        $updateStmt->execute([':person_id' => $person_id]);
+                    }
+
+                    foreach ($roles as $key => $label) {
+                        echo "<tr>";
+                        echo "<td>$label</td>";
+
+                        // Prüfen, ob eine Person bereits zugewiesen ist
+                        $stmt = $pdo->prepare("SELECT p.id, CONCAT(p.vorname, ' ', p.nachname) AS name FROM Personal p JOIN Besatzung b ON p.id = b.{$key}_id LIMIT 1");
+                        $stmt->execute();
+                        $assigned = $stmt->fetch();
+
+                        if ($assigned) {
+                            // Wenn jemand zugewiesen ist, wird der Name angezeigt
+                            echo "<td>{$assigned['name']}</td>";
+                        } else {
+                            // Wenn niemand zugewiesen ist, Hinweis anzeigen
+                            echo "<td><em>Keine Zuweisung</em></td>";
+                        }
+
+                        // Dropdown zur Änderung der Zuweisung
+                        echo "<td><form method='POST'>";
+                        echo "<input type='hidden' name='role' value='$key'>";
+                        echo "<select name='person_id'>";
+                        $stmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal");
+                        while ($row = $stmt->fetch()) {
+                            echo "<option value='{$row['id']}'>{$row['name']}</option>";
+                        }
+                        echo "</select>";
+                        echo "<button type='submit'>Ändern</button>";
+                        echo "</form></td>";
+                        echo "</tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </section>
     </main>
 </body>
 </html>
