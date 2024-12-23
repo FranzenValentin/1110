@@ -39,6 +39,14 @@ require 'db.php';
                         'prakt' => 'Praktikant (Prakt)'
                     ];
 
+                    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['role'], $_POST['person_id'])) {
+                        $role = $_POST['role'];
+                        $person_id = $_POST['person_id'];
+                        $updateStmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = :person_id");
+                        $updateStmt->execute([':person_id' => $person_id]);
+                        echo "<p>Die Besatzung wurde erfolgreich aktualisiert.</p>";
+                    }
+
                     foreach ($roles as $key => $label) {
                         echo "<tr>";
                         echo "<td>$label</td>";
@@ -57,7 +65,7 @@ require 'db.php';
                         }
 
                         // Dropdown zur Änderung der Zuweisung
-                        echo "<td><form action='update_besatzung.php' method='POST'>";
+                        echo "<td><form method='POST'>";
                         echo "<input type='hidden' name='role' value='$key'>";
                         echo "<select name='person_id'>";
                         $stmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal");
@@ -67,7 +75,6 @@ require 'db.php';
                         echo "</select>";
                         echo "<button type='submit'>Ändern</button>";
                         echo "</form></td>";
-
                         echo "</tr>";
                     }
                     ?>
