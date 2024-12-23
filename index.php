@@ -14,6 +14,68 @@ require 'db.php';
     <header>
         <h1>Einsatzverwaltungssystem</h1>
     </header>
+
+    <main>
+        <section id="aktuelle-besatzung">
+            <h2>Besatzungsrollen und Zuweisungen</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rolle</th>
+                        <th>Aktuell zugewiesen</th>
+                        <th>Aktion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    // Besatzungsrollen definieren
+                    $roles = [
+                        'stf' => 'Staffel-Führer (StF)',
+                        'ma' => 'Maschinist (MA)',
+                        'atf' => 'Atemschutz-Führer (AtF)',
+                        'atm' => 'Atemschutz-Mann (AtM)',
+                        'wtf' => 'Wachtrupp-Führer (WtF)',
+                        'wtm' => 'Wachtrupp-Mann (WtM)',
+                        'prakt' => 'Praktikant (Prakt)'
+                    ];
+
+                    foreach ($roles as $key => $label) {
+                        echo "<tr>";
+                        echo "<td>$label</td>";
+
+                        // Prüfen, ob eine Person bereits zugewiesen ist
+                        $stmt = $pdo->prepare("SELECT p.id, CONCAT(p.vorname, ' ', p.nachname) AS name FROM Personal p JOIN Besatzung b ON p.id = b.{$key}_id LIMIT 1");
+                        $stmt->execute();
+                        $assigned = $stmt->fetch();
+
+                        if ($assigned) {
+                            // Wenn jemand zugewiesen ist, wird der Name angezeigt
+                            echo "<td>{$assigned['name']}</td>";
+                        } else {
+                            // Wenn niemand zugewiesen ist, Hinweis anzeigen
+                            echo "<td><em>Keine Zuweisung</em></td>";
+                        }
+
+                        // Dropdown zur Änderung der Zuweisung
+                        echo "<td><form action='update_besatzung.php' method='POST'>";
+                        echo "<input type='hidden' name='role' value='$key'>";
+                        echo "<select name='person_id'>";
+                        $stmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal");
+                        while ($row = $stmt->fetch()) {
+                            echo "<option value='{$row['id']}'>{$row['name']}</option>";
+                        }
+                        echo "</select>";
+                        echo "<button type='submit'>Ändern</button>";
+                        echo "</form></td>";
+
+                        echo "</tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </section>
+    </main>
+    
     <nav>
         <ul>
             <li><a href="besatzung.php">Besatzung verwalten</a></li>
@@ -21,9 +83,6 @@ require 'db.php';
             <li><a href="stichworte.php">Stichworte verwalten</a></li>
         </ul>
     </nav>
-    <main>
-        <p>Willkommen im Einsatzverwaltungssystem. Wählen Sie eine Option aus dem Menü.</p>
-    </main>
     <footer>
         <p>&copy; 2024 Einsatzverwaltung. Alle Rechte vorbehalten.</p>
     </footer>
