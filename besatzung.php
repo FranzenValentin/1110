@@ -1,5 +1,28 @@
 <?php
 require 'db.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['save'])) {
+        // Besatzung speichern
+        $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
+        foreach ($roles as $role) {
+            if (isset($_POST[$role])) {
+                $person_id = $_POST[$role];
+                $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = :person_id");
+                $stmt->execute([':person_id' => $person_id]);
+            }
+        }
+        $message = "Besatzung erfolgreich aktualisiert.";
+    } elseif (isset($_POST['clear'])) {
+        // Alle Zuordnungen löschen
+        $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
+        foreach ($roles as $role) {
+            $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = NULL");
+            $stmt->execute();
+        }
+        $message = "Alle Zuordnungen wurden gelöscht.";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -17,67 +40,63 @@ require 'db.php';
     <main>
         <section id="aktuelle-besatzung">
             <h2>Besatzungsrollen und Zuweisungen</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Funktion</th>
-                        <th>Aktuell zugewiesen</th>
-                        <th>Aktion</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    // Besatzungsrollen definieren
-                    $roles = [
-                        'stf' => 'Staffel-Führer',
-                        'ma' => 'Maschinist',
-                        'atf' => 'Atemschutz-Führer',
-                        'atm' => 'Atemschutz-Mann',
-                        'wtf' => 'Wachtrupp-Führer',
-                        'wtm' => 'Wachtrupp-Mann',
-                        'prakt' => 'Praktikant'
-                    ];
+            <?php if (isset($message)) { echo "<p>$message</p>"; } ?>
+            <form method="POST">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Funktion</th>
+                            <th>Aktuell zugewiesen</th>
+                            <th>Neue Auswahl</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $roles = [
+                            'stf' => 'Staffel-Führer',
+                            'ma' => 'Maschinist',
+                            'atf' => 'Atemschutz-Führer',
+                            'atm' => 'Atemschutz-Mann',
+                            'wtf' => 'Wachtrupp-Führer',
+                            'wtm' => 'Wachtrupp-Mann',
+                            'prakt' => 'Praktikant'
+                        ];
 
-                    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['role'], $_POST['person_id'])) {
-                        $role = $_POST['role'];
-                        $person_id = $_POST['person_id'];
-                        $updateStmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = :person_id");
-                        $updateStmt->execute([':person_id' => $person_id]);
-                    }
+                        foreach ($roles as $key => $label) {
+                            echo "<tr>";
+                            echo "<td>$label</td>";
 
-                    foreach ($roles as $key => $label) {
-                        echo "<tr>";
-                        echo "<td>$label</td>";
+                            // Prüfen, ob eine Person bereits zugewiesen ist
+                            $stmt = $pdo->prepare("SELECT p.id, CONCAT(p.vorname, ' ', p.nachname) AS name FROM Personal p JOIN Besatzung b ON p.id = b.{$key}_id LIMIT 1");
+                            $stmt->execute();
+                            $assigned = $stmt->fetch();
 
-                        // Prüfen, ob eine Person bereits zugewiesen ist
-                        $stmt = $pdo->prepare("SELECT p.id, CONCAT(p.vorname, ' ', p.nachname) AS name FROM Personal p JOIN Besatzung b ON p.id = b.{$key}_id LIMIT 1");
-                        $stmt->execute();
-                        $assigned = $stmt->fetch();
+                            if ($assigned) {
+                                echo "<td>{$assigned['name']}</td>";
+                            } else {
+                                echo "<td><em>Keine Zuweisung</em></td>";
+                            }
 
-                        if ($assigned) {
-                            // Wenn jemand zugewiesen ist, wird der Name angezeigt
-                            echo "<td>{$assigned['name']}</td>";
-                        } else {
-                            // Wenn niemand zugewiesen ist, Hinweis anzeigen
-                            echo "<td><em>Keine Zuweisung</em></td>";
+                            // Dropdown zur Auswahl
+                            echo "<td><select name='$key'>";
+                            echo "<option value=''>Keine Auswahl</option>";
+                            $stmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal");
+                            while ($row = $stmt->fetch()) {
+                                $selected = ($assigned && $assigned['id'] == $row['id']) ? 'selected' : '';
+                                echo "<option value='{$row['id']}' $selected>{$row['name']}</option>";
+                            }
+                            echo "</select></td>";
+                            echo "</tr>";
                         }
-
-                        // Dropdown zur Änderung der Zuweisung
-                        echo "<td><form method='POST'>";
-                        echo "<input type='hidden' name='role' value='$key'>";
-                        echo "<select name='person_id'>";
-                        $stmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal");
-                        while ($row = $stmt->fetch()) {
-                            echo "<option value='{$row['id']}'>{$row['name']}</option>";
-                        }
-                        echo "</select>";
-                        echo "<button type='submit'>Ändern</button>";
-                        echo "</form></td>";
-                        echo "</tr>";
-                    }
-                    ?>
-                </tbody>
-            </table>
+                        ?>
+                    </tbody>
+                </table>
+                <div>
+                    <button type="submit" name="save">Speichern</button>
+                    <button type="submit" name="clear">Alle löschen</button>
+                </div>
+            </form>
+            <a href="index.php">Zurück zur Startseite</a>
         </section>
     </main>
 </body>
