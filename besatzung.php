@@ -3,6 +3,11 @@ require 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['save'])) {
+        // Neue Spalte erstellen
+        $timestamp = date('Y_m_d_His');
+        $newColumn = "change_log_$timestamp";
+        $pdo->exec("ALTER TABLE Besatzung ADD COLUMN `$newColumn` TEXT");
+
         // Besatzung speichern
         $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
         $changes = [];
@@ -11,23 +16,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $person_id = $_POST[$role];
                 $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = :person_id");
                 $stmt->execute([':person_id' => $person_id]);
-                $changes[] = "$role: $person_id";
+                $changes[$role] = $person_id;
             } else {
                 // Wenn keine Person ausgewählt wurde, setzen wir NULL für die Rolle
                 $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = NULL");
                 $stmt->execute();
-                $changes[] = "$role: NULL";
+                $changes[$role] = null;
             }
         }
 
+        // Änderungen in der neuen Spalte speichern
         if (!empty($changes)) {
-            // Neue Spalte erstellen
-            $timestamp = date('Y_m_d_His');
-            $newColumn = "change_log_$timestamp";
-            $pdo->exec("ALTER TABLE Besatzung ADD COLUMN `$newColumn` TEXT");
-
-            // Änderungen in der neuen Spalte speichern
-            $changesSerialized = implode(", ", $changes);
+            $changesSerialized = json_encode($changes);
             $pdo->exec("UPDATE Besatzung SET `$newColumn` = '$changesSerialized'");
         }
 
