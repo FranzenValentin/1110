@@ -78,3 +78,67 @@ em {
     color: #999;
     font-style: italic;
 }
+
+
+
+.einsatz-tabelle {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.einsatz-tabelle td {
+    padding: 10px;
+    vertical-align: middle;
+}
+
+.einsatz-tabelle label {
+    font-weight: bold;
+}
+
+.einsatz-tabelle input, 
+.einsatz-tabelle select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.einsatz-tabelle button {
+    padding: 5px 10px;
+    margin-left: 10px;
+    font-size: 14px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.einsatz-tabelle button:hover {
+    background-color: #0056b3;
+}
+
+.form-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.form-buttons .btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    color: white;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-buttons .btn:hover {
+    background-color: #0056b3;
+}
