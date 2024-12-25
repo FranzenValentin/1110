@@ -127,6 +127,8 @@ require 'db.php';
                     ':fahrzeug_name' => $fahrzeug_name,
                     ':besatzung_id' => $besatzung_id
                 ]);
+
+                echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
             } catch (Exception $e) {
                 echo "<p style='color: red;'>Fehler: " . $e->getMessage() . "</p>";
             }
@@ -141,7 +143,7 @@ require 'db.php';
             const day = String(now.getDate()).padStart(2, '0');
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById(fieldId).value = ${day}.${month}.${year} ${hours}:${minutes};
+            document.getElementById(fieldId).value = `${day}.${month}.${year} ${hours}:${minutes}`;
         }
     </script>
 
