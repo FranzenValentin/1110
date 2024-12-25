@@ -134,6 +134,10 @@ require 'db.php';
                 echo "<p>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
             }
         }
+        //Stichworte sortieren
+        $stichworteStmt = $pdo->prepare("SELECT id, stichwort FROM Stichworte ORDER BY stichwort ASC");
+        $stichworteStmt->execute();
+        $stichworte = $stichworteStmt->fetchAll(PDO::FETCH_ASSOC);
     ?>
 
     <form method="POST">
@@ -149,11 +153,12 @@ require 'db.php';
                         <select id="stichwort_id" name="stichwort_id">
                             <?php foreach ($stichworte as $stichwort): ?>
                                 <option value="<?= htmlspecialchars($stichwort['id']) ?>">
-                                    <?= htmlspecialchars($stichwort['kategorie'] . ' - ' . $stichwort['stichwort']) ?>
+                                    <?= htmlspecialchars($stichwort['stichwort']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
                     </td>
+
                     <!-- Alarmzeit -->
                     <td>
                         <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm (Alarm)">
