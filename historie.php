@@ -39,11 +39,10 @@ require 'db.php';
                     <?php
                     // SQL-Abfrage: Abrufen der letzten Einsätze mit allen relevanten Daten
                     $stmt = $pdo->query("
-                        SELECT e.interne_einsatznummer, e.einsatznummer_lts, e.alarmuhrzeit, e.zurueckzeit, e.fahrzeug_name, e.adresse, s.stichwort,
+                        SELECT e.interne_einsatznummer, e.einsatznummer_lts, e.alarmuhrzeit, e.zurueckzeit, e.fahrzeug_name, e.adresse, e.stichwort,
                             p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf,
                             p4.nachname AS atm, p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
                         FROM Einsaetze e
-                        LEFT JOIN Stichworte s ON e.stichwort_id = s.id
                         LEFT JOIN Besatzung b ON e.besatzung_id = b.id
                         LEFT JOIN Personal p1 ON b.stf_id = p1.id
                         LEFT JOIN Personal p2 ON b.ma_id = p2.id
