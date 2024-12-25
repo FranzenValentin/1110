@@ -16,51 +16,6 @@ require 'db.php';
     </header>
 
     <main>
-        <!-- Aktuelle Besatzung -->
-        <section id="aktuelle-besatzung">
-            <h2>Aktuelle Besatzung</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Funktion</th>
-                        <th>Aktuell zugewiesen</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    // Abfrage für die aktuelle Besatzung
-                    $roles = [
-                        'stf' => 'Staffel-Führer',
-                        'ma' => 'Maschinist',
-                        'atf' => 'Atemschutz-Führer',
-                        'atm' => 'Atemschutz-Mann',
-                        'wtf' => 'Wassertrupp-Führer',
-                        'wtm' => 'Wassertrupp-Mann',
-                        'prakt' => 'Praktikant'
-                    ];
-
-                    $besatzungStmt = $pdo->query("SELECT * FROM Besatzung ORDER BY id DESC LIMIT 1");
-                    $latestBesatzung = $besatzungStmt->fetch();
-
-                    foreach ($roles as $key => $label) {
-                        echo "<tr><td>$label</td>";
-                        if ($latestBesatzung && $latestBesatzung[$key . '_id']) {
-                            $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM Personal WHERE id = :id");
-                            $personStmt->execute([':id' => $latestBesatzung[$key . '_id']]);
-                            $person = $personStmt->fetch();
-                            echo "<td>" . ($person['name'] ?? '<em>NICHT BESETZT</em>') . "</td>";
-                        } else {
-                            echo "<td><em>NICHT BESETZT</em></td>";
-                        }
-                        echo "</tr>";
-                    }
-                    ?>
-                </tbody>
-            </table>
-            <div class="button-container">
-                <button onclick="location.href='besatzung.php'">Besatzung ändern</button>
-            </div>
-        </section>
 
 <!-- Neuer Alarm -->
 <section id="neuer-alarm">
@@ -206,6 +161,51 @@ require 'db.php';
     }
 </script>
 
+        <!-- Aktuelle Besatzung -->
+        <section id="aktuelle-besatzung">
+            <h2>Aktuelle Besatzung</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Funktion</th>
+                        <th>Aktuell zugewiesen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    // Abfrage für die aktuelle Besatzung
+                    $roles = [
+                        'stf' => 'Staffel-Führer',
+                        'ma' => 'Maschinist',
+                        'atf' => 'Atemschutz-Führer',
+                        'atm' => 'Atemschutz-Mann',
+                        'wtf' => 'Wassertrupp-Führer',
+                        'wtm' => 'Wassertrupp-Mann',
+                        'prakt' => 'Praktikant'
+                    ];
+
+                    $besatzungStmt = $pdo->query("SELECT * FROM Besatzung ORDER BY id DESC LIMIT 1");
+                    $latestBesatzung = $besatzungStmt->fetch();
+
+                    foreach ($roles as $key => $label) {
+                        echo "<tr><td>$label</td>";
+                        if ($latestBesatzung && $latestBesatzung[$key . '_id']) {
+                            $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM Personal WHERE id = :id");
+                            $personStmt->execute([':id' => $latestBesatzung[$key . '_id']]);
+                            $person = $personStmt->fetch();
+                            echo "<td>" . ($person['name'] ?? '<em>NICHT BESETZT</em>') . "</td>";
+                        } else {
+                            echo "<td><em>NICHT BESETZT</em></td>";
+                        }
+                        echo "</tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+            <div class="button-container">
+                <button onclick="location.href='besatzung.php'">Besatzung ändern</button>
+            </div>
+        </section>
 
         <!-- Letzte Einsätze -->
         <section id="letzte-einsaetze">
