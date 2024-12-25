@@ -68,7 +68,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: " . $_SERVER['PHP_SELF']); // Seite neu laden
         exit;
     } elseif (isset($_POST['clear'])) {
-        // Auswahl in der Oberfläche zurücksetzen, ohne zu speichern
+        // Alle Rollen auf NULL setzen
+        $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
+        foreach ($roles as $role) {
+            $_POST[$role] = '';
+        }
         $message = "Auswahl zurückgesetzt. Bitte speichern, um Änderungen zu übernehmen.";
     }
 }
