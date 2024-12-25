@@ -1,6 +1,11 @@
 <?php
 require 'db.php'; // Datenbankverbindung laden
 
+// Fehleranzeigen aktivieren
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Werte aus dem Formular abrufen
@@ -10,6 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $zurueckzeit = !empty($_POST['zurueckzeit']) ? $_POST['zurueckzeit'] : null;
         $adresse = !empty($_POST['adresse']) ? $_POST['adresse'] : null;
         $fahrzeug = !empty($_POST['fahrzeug']) ? $_POST['fahrzeug'] : null;
+
+        // Eingabedaten validieren (z. B. Datumsformat prüfen)
+        if (!preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $alarmuhrzeit)) {
+            throw new Exception("Alarmuhrzeit hat ein ungültiges Format.");
+        }
+        if (!preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $zurueckzeit)) {
+            throw new Exception("Zurückzeit hat ein ungültiges Format.");
+        }
 
         // Aktuellste Besatzung abrufen
         $stmt = $conn->prepare("SELECT id FROM Besatzung ORDER BY id DESC LIMIT 1");
@@ -71,11 +84,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label>Einsatznummer LTS: <input type="text" name="einsatznummer_lts"></label><br>
             <label>Stichwort ID: <input type="number" name="stichwort_id"></label><br>
             <label>Alarmuhrzeit: 
-                <input type="text" name="alarmuhrzeit" id="alarmuhrzeit">
+                <input type="text" name="alarmuhrzeit" id="alarmuhrzeit" placeholder="YYYY-MM-DD HH:MM:SS">
                 <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Aktuelle Zeit</button>
             </label><br>
             <label>Zurückzeit: 
-                <input type="text" name="zurueckzeit" id="zurueckzeit">
+                <input type="text" name="zurueckzeit" id="zurueckzeit" placeholder="YYYY-MM-DD HH:MM:SS">
                 <button type="button" onclick="setCurrentTime('zurueckzeit')">Aktuelle Zeit</button>
             </label><br>
             <label>Adresse: <input type="text" name="adresse"></label><br>
