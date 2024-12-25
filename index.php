@@ -103,32 +103,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_einsatz'])) {
             </table>
         </section>
 
-        <section id="neuer-einsatz">
-            <h2>Neuen Einsatz anlegen</h2>
-            <?php if (isset($message)) { echo "<p>$message</p>"; } ?>
-            <form method="POST">
-                <div>
-                    <label for="einsatznummer">Einsatznummer:</label>
-                    <input type="text" id="einsatznummer" name="einsatznummer" required>
-                </div>
-                <div>
-                    <label for="alarmzeit">Alarmzeit:</label>
-                    <input type="datetime-local" id="alarmzeit" name="alarmzeit" required>
-                </div>
-                <div>
-                    <label for="zurueckzeit">Zurückzeit:</label>
-                    <input type="datetime-local" id="zurueckzeit" name="zurueckzeit">
-                </div>
-                <div>
-                    <label for="stichwort">Stichwort:</label>
-                    <input type="text" id="stichwort" name="stichwort" required>
-                </div>
-                <div>
-                    <label for="adresse">Adresse:</label>
-                    <input type="text" id="adresse" name="adresse" required>
-                </div>
-                <button type="submit" name="add_einsatz">Einsatz speichern</button>
-            </form>
+        <section id="letzte-einsaetze">
+            <h2>Letzte Alarme</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Interne Einsatznummer</th>
+                        <th>Stichwort</th>
+                        <th>Besatzung</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $stmt = $pdo->query("
+                        SELECT e.einsatznummer, e.stichwort,
+                               CONCAT_WS(', ',
+                                   p1.vorname, p1.nachname,
+                                   p2.vorname, p2.nachname,
+                                   p3.vorname, p3.nachname,
+                                   p4.vorname, p4.nachname,
+                                   p5.vorname, p5.nachname,
+                                   p6.vorname, p6.nachname,
+                                   p7.vorname, p7.nachname
+                               ) AS besatzung
+                        FROM Einsaetze e
+                        LEFT JOIN Personal p1 ON e.stf_id = p1.id
+                        LEFT JOIN Personal p2 ON e.ma_id = p2.id
+                        LEFT JOIN Personal p3 ON e.atf_id = p3.id
+                        LEFT JOIN Personal p4 ON e.atm_id = p4.id
+                        LEFT JOIN Personal p5 ON e.wtf_id = p5.id
+                        LEFT JOIN Personal p6 ON e.wtm_id = p6.id
+                        LEFT JOIN Personal p7 ON e.prakt_id = p7.id
+                        ORDER BY e.id DESC LIMIT 10
+                    ");
+                    while ($row = $stmt->fetch()) {
+                        echo "<tr>
+                                <td>" . htmlspecialchars($row['einsatznummer']) . "</td>
+                                <td>" . htmlspecialchars($row['stichwort']) . "</td>
+                                <td>" . htmlspecialchars($row['besatzung'] ?: '<em>Keine Besatzung</em>') . "</td>
+                              </tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
         </section>
     </main>
 
