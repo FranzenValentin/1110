@@ -28,7 +28,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $alarmuhrzeit = !empty($_POST['alarmuhrzeit']) ? $_POST['alarmuhrzeit'] : null;
         $zurueckzeit = !empty($_POST['zurueckzeit']) ? $_POST['zurueckzeit'] : null;
         $adresse = !empty($_POST['adresse']) ? $_POST['adresse'] : null;
-        $fahrzeug_id = !empty($_POST['fahrzeug_id']) ? (int) $_POST['fahrzeug_id'] : null;
+        $fahrzeug_id = !empty($_POST['fahrzeug_id']) ? (int) $_POST['fahrzeug_id'] : 1; // Standardfahrzeug ID = 1
+
+        // Fahrzeugname anhand der ID ermitteln
+        $fahrzeug_name = null;
+        foreach ($fahrzeuge as $fahrzeug) {
+            if ($fahrzeug['id'] === $fahrzeug_id) {
+                $fahrzeug_name = $fahrzeug['name'];
+                break;
+            }
+        }
+        if (!$fahrzeug_name) {
+            throw new Exception("Ungültige Fahrzeug-ID ausgewählt.");
+        }
 
         // Eingabedaten validieren
         if (!preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $alarmuhrzeit)) {
@@ -50,8 +62,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // SQL-Statement vorbereiten
         $sql = "INSERT INTO Einsaetze 
-                (einsatznummer_lts, stichwort_id, alarmuhrzeit, zurueckzeit, adresse, fahrzeug_id, besatzung_id)
-                VALUES (:einsatznummer_lts, :stichwort_id, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug_id, :besatzung_id)";
+                (einsatznummer_lts, stichwort_id, alarmuhrzeit, zurueckzeit, adresse, fahrzeug_name, besatzung_id)
+                VALUES (:einsatznummer_lts, :stichwort_id, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug_name, :besatzung_id)";
         $stmt = $pdo->prepare($sql);
 
         // SQL-Parameter binden und ausführen
@@ -61,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':alarmuhrzeit' => $alarmuhrzeit,
             ':zurueckzeit' => $zurueckzeit,
             ':adresse' => $adresse,
-            ':fahrzeug_id' => $fahrzeug_id ?? 1, // Standardfahrzeug LHF 1110/1
+            ':fahrzeug_name' => $fahrzeug_name,
             ':besatzung_id' => $besatzung_id
         ]);
 
@@ -118,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <select name="fahrzeug_id">
                     <?php foreach ($fahrzeuge as $fahrzeug): ?>
                         <option value="<?= htmlspecialchars($fahrzeug['id']) ?>" 
-                                <?= $fahrzeug['name'] === 'LHF 1110/1' ? 'selected' : '' ?>>
+                                <?= $fahrzeug['id'] === 1 ? 'selected' : '' ?>>
                             <?= htmlspecialchars($fahrzeug['name']) ?>
                         </option>
                     <?php endforeach; ?>
