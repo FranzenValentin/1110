@@ -12,8 +12,8 @@ try {
     $fahrzeugeStmt->execute();
     $fahrzeuge = $fahrzeugeStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Stichworte laden
-    $stichworteStmt = $pdo->prepare("SELECT id, art, bezeichnung FROM Stichworte ORDER BY art, bezeichnung");
+    // Stichworte laden, sortiert nach Kategorie und Stichwort
+    $stichworteStmt = $pdo->prepare("SELECT id, kategorie, stichwort FROM Stichworte ORDER BY kategorie, stichwort");
     $stichworteStmt->execute();
     $stichworte = $stichworteStmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <select name="stichwort_id">
                     <?php foreach ($stichworte as $stichwort): ?>
                         <option value="<?= htmlspecialchars($stichwort['id']) ?>">
-                            <?= htmlspecialchars($stichwort['art'] . ' - ' . $stichwort['bezeichnung']) ?>
+                            <?= htmlspecialchars($stichwort['kategorie'] . ' - ' . $stichwort['stichwort']) ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
