@@ -82,12 +82,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             if ($assigned) {
                                 echo "<td>{$assigned['name']}</td>";
                             } else {
-                                echo "<td><em>Keine Zuweisung</em></td>";
+                                echo "<td><em>NICHT BESETZT</em></td>";
                             }
 
                             // Dropdown zur Auswahl
                             echo "<td><select name='$key'>";
-                            echo "<option value=''>Keine Auswahl</option>";
+                            echo "<option value=''>NICHT BESETZT</option>";
                             $stmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal");
                             while ($row = $stmt->fetch()) {
                                 $selected = ($assigned && $assigned['id'] == $row['id']) ? 'selected' : '';
