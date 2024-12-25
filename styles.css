@@ -86,6 +86,6 @@ input, select {
     border: 1px solid #ccc; /* Standardrahmen */
     border-radius: 5px; /* Gleiche abgerundeten Ecken wie Buttons */
     font-size: 1em; /* Einheitliche Schriftgröße */
-    box-sizing: border-box; /* Sorgt für korrektes Padding */
+    box-sizing: content-box; /* Sorgt für korrektes Padding */
     vertical-align: middle; /* Zentriert den Text vertikal */
 }
