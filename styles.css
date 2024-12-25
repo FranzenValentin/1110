@@ -82,7 +82,7 @@ em {
 
 input, select {
     height: 38px; /* Passt zur Höhe von Buttons */
-    padding: 5px 10px; /* Gleiche Innenabstände wie bei Buttons */
+    padding: 5px 5px; /* Gleiche Innenabstände wie bei Buttons */
     border: 1px solid #ccc; /* Standardrahmen */
     border-radius: 5px; /* Gleiche abgerundeten Ecken wie Buttons */
     font-size: 1em; /* Einheitliche Schriftgröße */
