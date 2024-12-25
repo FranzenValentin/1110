@@ -85,18 +85,16 @@ require 'db.php';
                 <td>
                     <label for="alarmuhrzeit">Alarmuhrzeit:</label>
                     <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm">
-                    <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Aktuelle Zeit</button>
+                    <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Zeit</button>
                 </td>
-            </tr>
-            <tr>
                 <td>
                     <label for="zurueckzeit">Zurückzeit:</label>
                     <input type="text" id="zurueckzeit" name="zurueckzeit" placeholder="dd.mm.yy hh:mm">
-                    <button type="button" onclick="setCurrentTime('zurueckzeit')">Aktuelle Zeit</button>
+                    <button type="button" onclick="setCurrentTime('zurueckzeit')">Zeit</button>
                 </td>
                 <td>
                     <label for="adresse">Adresse:</label>
-                    <input type="text" id="adresse" name="adresse" placeholder="Adresse des Einsatzortes">
+                    <input type="text" id="adresse" name="adresse" placeholder="Adresse">
                 </td>
                 <td>
                     <label for="fahrzeug_id">Fahrzeug:</label>
@@ -109,15 +107,15 @@ require 'db.php';
                         <?php endforeach; ?>
                     </select>
                 </td>
+                <td>
+                    <button type="submit" name="save" class="btn">Speichern</button>
+                    <button type="submit" name="save_and_back" class="btn">Zurück</button>
+                </td>
             </tr>
         </table>
-        <div class="form-buttons">
-            <button type="submit" name="save" class="btn">Speichern</button>
-            <button type="submit" name="save_and_back" class="btn">Speichern und zurück</button>
-            <button type="submit" name="back" class="btn">Zurück</button>
-        </div>
     </form>
 </section>
+
          
 
 
