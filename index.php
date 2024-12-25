@@ -71,12 +71,12 @@ require 'db.php';
 
                 // SQL-Statement vorbereiten und ausführen
                 $sql = "INSERT INTO Einsaetze 
-                        (einsatznummer_lts, stichwort_id, alarmuhrzeit, zurueckzeit, adresse, fahrzeug_name, besatzung_id)
-                        VALUES (:einsatznummer_lts, :stichwort_id, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug_name, :besatzung_id)";
+                        (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, fahrzeug_name, besatzung_id)
+                        VALUES (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug_name, :besatzung_id)";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
                     ':einsatznummer_lts' => $einsatznummer_lts,
-                    ':stichwort_id' => $stichwort_id,
+                    ':stichwort' => $stichwort,
                     ':alarmuhrzeit' => $alarmuhrzeit,
                     ':zurueckzeit' => $zurueckzeit,
                     ':adresse' => $adresse,
@@ -105,7 +105,7 @@ require 'db.php';
                     </td>
                     <!-- Stichwort -->
                     <td>
-                        <input list="stichwort_liste" id="stichwort_id" name="stichwort_id" placeholder="Stichwort eingeben oder auswählen">
+                        <input list="stichwort_liste" id="stichwort" name="stichwort" placeholder="Stichwort eingeben oder auswählen">
                         <datalist id="stichwort_liste">
                             <?php foreach ($stichworte as $stichwort): ?>
                                 <option value="<?= htmlspecialchars($stichwort['stichwort']) ?>"></option>
@@ -223,11 +223,10 @@ require 'db.php';
                     <?php
                     // SQL-Abfrage: Abrufen der letzten 15 Einsätze mit Besatzung und Personal
                     $stmt = $pdo->query("
-                        SELECT e.interne_einsatznummer, e.alarmuhrzeit, e.fahrzeug_name, s.stichwort,
+                        SELECT e.interne_einsatznummer, e.alarmuhrzeit, e.fahrzeug_name, e.stichwort,
                             p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf,
                             p4.nachname AS atm, p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
                         FROM Einsaetze e
-                        LEFT JOIN Stichworte s ON e.stichwort_id = s.id
                         LEFT JOIN Besatzung b ON e.besatzung_id = b.id
                         LEFT JOIN Personal p1 ON b.stf_id = p1.id
                         LEFT JOIN Personal p2 ON b.ma_id = p2.id
