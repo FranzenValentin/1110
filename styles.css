@@ -25,7 +25,7 @@ main {
 
 /* Tabelle */
 table {
-    width: 100%;
+    width: auto;
     border-collapse: collapse;
     margin-bottom: 20px;
 }
@@ -33,7 +33,7 @@ table {
 table th, table td {
     border: 1px solid #ddd;
     padding: 10px;
-    text-align: left;
+    text-align: center;
 }
 
 table th {
@@ -82,10 +82,10 @@ em {
 
 input, select {
     height: 38px; /* Passt zur Höhe von Buttons */
-    padding: 5px 5px; /* Gleiche Innenabstände wie bei Buttons */
+    padding: 5px 10px; /* Gleiche Innenabstände wie bei Buttons */
     border: 1px solid #ccc; /* Standardrahmen */
     border-radius: 5px; /* Gleiche abgerundeten Ecken wie Buttons */
     font-size: 1em; /* Einheitliche Schriftgröße */
-    box-sizing: content-box; /* Sorgt für korrektes Padding */
+    box-sizing: border-box; /* Sorgt für korrektes Padding */
     vertical-align: middle; /* Zentriert den Text vertikal */
 }
