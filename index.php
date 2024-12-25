@@ -82,7 +82,7 @@ require 'db.php';
         </thead>
         <tbody>
             <?php
-            // SQL-Abfrage: Abrufen der letzten Einsätze mit Besatzung und Personal
+            // SQL-Abfrage: Abrufen der letzten 20 Einsätze mit Besatzung und Personal
             $stmt = $pdo->query("
                 SELECT e.interne_einsatznummer, e.alarmuhrzeit, e.fahrzeug_name, s.stichwort,
                     p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf,
@@ -97,7 +97,7 @@ require 'db.php';
                 LEFT JOIN Personal p5 ON b.wtf_id = p5.id
                 LEFT JOIN Personal p6 ON b.wtm_id = p6.id
                 LEFT JOIN Personal p7 ON b.prakt_id = p7.id
-                ORDER BY e.id DESC LIMIT 10
+                ORDER BY e.id DESC LIMIT 20
             ");
 
             // Ergebnisse anzeigen
@@ -129,6 +129,7 @@ require 'db.php';
         </tbody>
     </table>
 </section>
+
 
 
     </main>
