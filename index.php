@@ -27,7 +27,7 @@ require 'db.php';
     <main>
         <!-- Aktuelle Besatzung -->
         <section id="aktuelle-besatzung">
-            <h2>Besatzungsrollen und Zuweisungen</h2>
+            <h2>Aktuelle Besatzung</h2>
             <table>
                 <thead>
                     <tr>

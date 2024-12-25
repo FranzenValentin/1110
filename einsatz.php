@@ -31,10 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $adresse = !empty($_POST['adresse']) ? $_POST['adresse'] : null;
             $fahrzeug_id = !empty($_POST['fahrzeug_id']) ? (int) $_POST['fahrzeug_id'] : 1; // Standardfahrzeug ID = 1
 
-            // Format prüfen (optional, falls weitere Validierungen benötigt werden)
-            if (!preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $alarmuhrzeit) || 
-                !preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $zurueckzeit)) {
-                throw new Exception("Das Datum muss im Format YYYY-MM-DD HH:MM vorliegen.");
+            // Format prüfen (dd.mm.yy hh:mm)
+            if (!preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $alarmuhrzeit) || 
+                !preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $zurueckzeit)) {
+                throw new Exception("Die Uhrzeiten müssen im Format dd.mm.yy hh:mm vorliegen.");
             }
 
             // Fahrzeugname anhand der ID ermitteln
@@ -105,13 +105,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script>
         function setCurrentTime(fieldId) {
             const now = new Date();
-            const year = now.getFullYear();
+            const year = String(now.getFullYear()).slice(-2); // Jahr zweistellig
             const month = String(now.getMonth() + 1).padStart(2, '0'); // Monat mit führender Null
             const day = String(now.getDate()).padStart(2, '0'); // Tag mit führender Null
             const hours = String(now.getHours()).padStart(2, '0'); // Stunde mit führender Null
             const minutes = String(now.getMinutes()).padStart(2, '0'); // Minute mit führender Null
 
-            const formattedTime = `${year}-${month}-${day} ${hours}:${minutes}`; // Format YYYY-MM-DD HH:MM
+            const formattedTime = `${day}.${month}.${year} ${hours}:${minutes}`; // Format dd.mm.yy hh:mm
             document.getElementById(fieldId).value = formattedTime;
         }
     </script>
@@ -133,11 +133,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </label><br>
             <label>Alarmuhrzeit: 
-                <input type="text" name="alarmuhrzeit" id="alarmuhrzeit" placeholder="YYYY-MM-DD HH:MM">
+                <input type="text" name="alarmuhrzeit" id="alarmuhrzeit" placeholder="dd.mm.yy hh:mm">
                 <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Aktuelle Zeit</button>
             </label><br>
             <label>Zurückzeit: 
-                <input type="text" name="zurueckzeit" id="zurueckzeit" placeholder="YYYY-MM-DD HH:MM">
+                <input type="text" name="zurueckzeit" id="zurueckzeit" placeholder="dd.mm.yy hh:mm">
                 <button type="button" onclick="setCurrentTime('zurueckzeit')">Aktuelle Zeit</button>
             </label><br>
             <label>Adresse: <input type="text" name="adresse"></label><br>
