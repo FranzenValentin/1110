@@ -69,7 +69,7 @@ require 'db.php';
         </section>
 
         <section id="letzte-einsaetze">
-    <h2>Letzte Alarme</h2>
+    <h2>Letzte 20 Alarme</h2>
     <table>
         <thead>
             <tr>
