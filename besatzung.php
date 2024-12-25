@@ -3,11 +3,6 @@ require 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['save'])) {
-        // Neue Spalte erstellen
-        $timestamp = date('Y_m_d_His');
-        $newColumn = "change_log_$timestamp";
-        $pdo->exec("ALTER TABLE Besatzung ADD COLUMN `$newColumn` TEXT");
-
         // Besatzung speichern
         $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
         $changes = [];
@@ -15,23 +10,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach ($roles as $role) {
             if (isset($_POST[$role]) && $_POST[$role] !== '') {
                 $person_id = $_POST[$role];
-<<<<<<< HEAD
                 $changes[$role] = $person_id;
             } else {
-=======
-                $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = :person_id");
-                $stmt->execute([':person_id' => $person_id]);
-                $changes[$role] = $person_id;
-            } else {
-                // Wenn keine Person ausgewählt wurde, setzen wir NULL für die Rolle
-                $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = NULL");
-                $stmt->execute();
->>>>>>> eed93cc (vielleicht ja jetzt)
                 $changes[$role] = null;
             }
         }
 
-<<<<<<< HEAD
         // Neue Zeile mit den Änderungen erstellen
         $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) VALUES (:stf, :ma, :atf, :atm, :wtf, :wtm, :prakt)");
         $stmt->execute([
@@ -43,13 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':wtm' => $changes['wtm'],
             ':prakt' => $changes['prakt']
         ]);
-=======
-        // Änderungen in der neuen Spalte speichern
-        if (!empty($changes)) {
-            $changesSerialized = json_encode($changes);
-            $pdo->exec("UPDATE Besatzung SET `$newColumn` = '$changesSerialized'");
-        }
->>>>>>> eed93cc (vielleicht ja jetzt)
 
         $message = "Besatzung erfolgreich aktualisiert.";
         header("Location: " . $_SERVER['PHP_SELF']); // Seite neu laden
