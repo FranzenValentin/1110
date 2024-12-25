@@ -57,6 +57,9 @@ require 'db.php';
                     ?>
                 </tbody>
             </table>
+            <div class="button-container">
+                <button onclick="location.href='besatzung.php'">Besatzung ändern</button>
+            </div>
         </section>
 
         <!-- Letzte Einsätze -->
@@ -120,15 +123,16 @@ require 'db.php';
                     ?>
                 </tbody>
             </table>
+            <div class="button-container">
+                <button onclick="location.href='historie.php'">Alle Alarme</button>
+            </div>
         </section>
 
         <!-- Navigation als Buttons -->
         <section id="navigation-buttons">
-            <h2>Navigation</h2>
+            <h2>Einstellungen</h2>
             <div class="button-container">
                 <button onclick="location.href='neuer_benutzer.php'">Neuer Benutzer</button>
-                <button onclick="location.href='besatzung.php'">Besatzung verwalten</button>
-                <button onclick="location.href='einsatz.php'">Einsätze hinzufügen</button>
                 <button onclick="location.href='stichworte.php'">Stichworte verwalten</button>
             </div>
         </section>
