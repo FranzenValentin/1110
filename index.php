@@ -156,12 +156,12 @@ require 'db.php';
                     </td>
                     <!-- Alarmzeit -->
                     <td>
-                        <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm">
+                        <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm (Alarm)">
                         <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Jetzt</button>
                     </td>
                     <!-- Zurückzeit -->
                     <td>
-                        <input type="text" id="zurueckzeit" name="zurueckzeit" placeholder="dd.mm.yy hh:mm">
+                        <input type="text" id="zurueckzeit" name="zurueckzeit" placeholder="dd.mm.yy hh:mm (Zurück)">
                         <button type="button" onclick="setCurrentTime('zurueckzeit')">Jetzt</button>
                     </td>
                     <!-- Adresse -->
