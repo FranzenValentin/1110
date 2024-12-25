@@ -71,10 +71,13 @@ require 'db.php';
     
     <nav>
         <ul>
-            <li><a href="neuer_benutzer.php">Neuer Benutzer</a></li>
-            <li><a href="besatzung.php">Besatzung verwalten</a></li>
-            <li><a href="einsatz.php">Einsätze hinzufügen</a></li>
-            <li><a href="stichworte.php">Stichworte verwalten</a></li>
+        <div class="button-container">
+    <a href="neuer_benutzer.php" class="button">Neuer Benutzer</a>
+    <a href="besatzung.php" class="button">Besatzung verwalten</a>
+    <a href="einsatz.php" class="button">Einsätze hinzufügen</a>
+    <a href="stichworte.php" class="button">Stichworte verwalten</a>
+</div>
+
         </ul>
     </nav>
     <footer>
