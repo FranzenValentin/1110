@@ -76,6 +76,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':fahrzeug_name' => $fahrzeug_name,
             ':besatzung_id' => $besatzung_id
         ]);
+
+        echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
+
+        // Weiterleitung zu index.php, falls der "Speichern und zurück"-Button gedrückt wurde
+        if (isset($_POST['save_and_back'])) {
+            header("Location: index.php");
+            exit;
+        }
     } catch (Exception $e) {
         // Fehler ausgeben
         echo "<p style='color: red;'>Fehler: " . $e->getMessage() . "</p>";
@@ -135,7 +143,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </label><br>
             <div>
-                <button type="submit">Einsatz speichern</button>
+                <button type="submit" name="save">Speichern</button>
+                <button type="submit" name="save_and_back">Speichern und zurück</button>
             </div>
         </form>
     </main>
