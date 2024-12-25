@@ -127,8 +127,6 @@ require 'db.php';
                     ':fahrzeug_name' => $fahrzeug_name,
                     ':besatzung_id' => $besatzung_id
                 ]);
-
-                echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
             } catch (Exception $e) {
                 echo "<p style='color: red;'>Fehler: " . $e->getMessage() . "</p>";
             }
