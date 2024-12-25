@@ -5,25 +5,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['save'])) {
         // Besatzung speichern
         $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
+        $changes = [];
         foreach ($roles as $role) {
             if (isset($_POST[$role]) && $_POST[$role] !== '') { // Sicherstellen, dass die Auswahl existiert und nicht leer ist
                 $person_id = $_POST[$role];
                 $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = :person_id");
                 $stmt->execute([':person_id' => $person_id]);
-
-                // Neue Spalte in der Datenbank hinzufügen, wenn sich etwas ändert
-                $alterTableStmt = $pdo->prepare("ALTER TABLE Besatzung ADD COLUMN IF NOT EXISTS `change_log_{$role}_id` INT AFTER {$role}_id");
-                $alterTableStmt->execute();
-
-                // Log der Änderung speichern
-                $logStmt = $pdo->prepare("UPDATE Besatzung SET change_log_{$role}_id = :person_id");
-                $logStmt->execute([':person_id' => $person_id]);
+                $changes[] = "$role: $person_id";
             } else {
                 // Wenn keine Person ausgewählt wurde, setzen wir NULL für die Rolle
                 $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = NULL");
                 $stmt->execute();
+                $changes[] = "$role: NULL";
             }
         }
+
+        if (!empty($changes)) {
+            // Neue Spalte erstellen
+            $timestamp = date('Y_m_d_His');
+            $newColumn = "change_log_$timestamp";
+            $pdo->exec("ALTER TABLE Besatzung ADD COLUMN `$newColumn` TEXT");
+
+            // Änderungen in der neuen Spalte speichern
+            $changesSerialized = implode(", ", $changes);
+            $pdo->exec("UPDATE Besatzung SET `$newColumn` = '$changesSerialized'");
+        }
+
         $message = "Besatzung erfolgreich aktualisiert.";
         header("Location: " . $_SERVER['PHP_SELF']); // Seite neu laden
         exit;
