@@ -2,31 +2,29 @@
 require 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $einsatznummer = $_POST['einsatznummer'];
-    $alarmzeit = $_POST['alarmzeit'];
+    $interne_einsatznummer = $_POST['interne_einsatznummer'];
+    $einsatznummer_lts = $_POST['einsatznummer_lts'];
+    $stichwort_id = $_POST['stichwort_id'];
+    $alarmuhrzeit = $_POST['alarmuhrzeit'];
     $zurueckzeit = $_POST['zurueckzeit'] ?: null;
-    $stichwort = $_POST['stichwort'];
     $adresse = $_POST['adresse'];
-    
+    $fahrzeug = $_POST['fahrzeug'];
+
     // Aktuellste Besatzung abrufen
-    $stmt = $conn->prepare("SELECT * FROM Besatzung ORDER BY id DESC LIMIT 1");
+    $stmt = $conn->prepare("SELECT id FROM Besatzung ORDER BY id DESC LIMIT 1");
     $stmt->execute();
-    $besatzung = $stmt->fetch(PDO::FETCH_ASSOC);
+    $besatzung_id = $stmt->fetchColumn();
 
     // Einsatz einfügen
-    $sql = "INSERT INTO Einsaetze (einsatznummer, alarmzeit, zurueckzeit, stichwort, adresse, stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO Einsaetze (interne_einsatznummer, einsatznummer_lts, stichwort_id, alarmuhrzeit, zurueckzeit, adresse, fahrzeug, besatzung_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
     $stmt->execute([
-        $einsatznummer, $alarmzeit, $zurueckzeit, $stichwort, $adresse,
-        $besatzung['stf_id'], $besatzung['ma_id'], $besatzung['atf_id'], 
-        $besatzung['atm_id'], $besatzung['wtf_id'], $besatzung['wtm_id'], 
-        $besatzung['prakt_id']
+        $interne_einsatznummer, $einsatznummer_lts, $stichwort_id, $alarmuhrzeit, $zurueckzeit, $adresse, $fahrzeug, $besatzung_id
     ]);
 
     echo "<p>Einsatz erfolgreich eingetragen!</p>";
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -50,17 +48,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </header>
     <main>
         <form method="POST">
-            <label>Einsatznummer: <input type="text" name="einsatznummer" required></label><br>
-            <label>Alarmzeit: 
-                <input type="text" name="alarmzeit" id="alarmzeit" required>
-                <button type="button" onclick="setCurrentTime('alarmzeit')">Aktuelle Zeit</button>
+            <label>Interne Einsatznummer: <input type="text" name="interne_einsatznummer" required></label><br>
+            <label>Einsatznummer LTS: <input type="text" name="einsatznummer_lts" required></label><br>
+            <label>Stichwort ID: <input type="number" name="stichwort_id" required></label><br>
+            <label>Alarmuhrzeit: 
+                <input type="text" name="alarmuhrzeit" id="alarmuhrzeit" required>
+                <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Aktuelle Zeit</button>
             </label><br>
             <label>Zurückzeit: 
                 <input type="text" name="zurueckzeit" id="zurueckzeit">
                 <button type="button" onclick="setCurrentTime('zurueckzeit')">Aktuelle Zeit</button>
             </label><br>
-            <label>Stichwort: <input type="text" name="stichwort" required></label><br>
             <label>Adresse: <input type="text" name="adresse" required></label><br>
+            <label>Fahrzeug: <input type="text" name="fahrzeug" required></label><br>
             <div>
                 <button type="submit">Einsatz speichern</button>
             </div>
