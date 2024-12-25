@@ -18,24 +18,28 @@ require 'db.php';
     <main>
         <!-- Letzte Einsätze -->
         <section id="letzte-einsaetze">
-        <div class="button-container">
+            <div class="button-container">
                 <button onclick="location.href='index.php'">Zurück</button>
             </div>
+            
             <table>
                 <thead>
                     <tr>
                         <th>Interne Einsatznummer</th>
+                        <th>Einsatznummer</th>
                         <th>Stichwort</th>
                         <th>Alarmzeit</th>
+                        <th>Zurückzeit</th>
                         <th>Fahrzeug</th>
+                        <th>Adresse</th>
                         <th>Personal</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    // SQL-Abfrage: Abrufen der letzten 15 Einsätze mit Besatzung und Personal
+                    // SQL-Abfrage: Abrufen der letzten Einsätze mit allen relevanten Daten
                     $stmt = $pdo->query("
-                        SELECT e.interne_einsatznummer, e.alarmuhrzeit, e.fahrzeug_name, s.stichwort,
+                        SELECT e.interne_einsatznummer, e.einsatznummer_lts, e.alarmuhrzeit, e.zurueckzeit, e.fahrzeug_name, e.adresse, s.stichwort,
                             p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf,
                             p4.nachname AS atm, p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
                         FROM Einsaetze e
@@ -65,9 +69,12 @@ require 'db.php';
 
                         echo "<tr>
                                 <td>" . htmlspecialchars($row['interne_einsatznummer']) . "</td>
+                                <td>" . htmlspecialchars($row['einsatznummer_lts']) . "</td>
                                 <td>" . htmlspecialchars($row['stichwort']) . "</td>
                                 <td>" . htmlspecialchars($row['alarmuhrzeit']) . "</td>
+                                <td>" . htmlspecialchars($row['zurueckzeit']) . "</td>
                                 <td>" . htmlspecialchars($row['fahrzeug_name']) . "</td>
+                                <td>" . htmlspecialchars($row['adresse']) . "</td>
                                 <td>
                                     <details>
                                         <summary>Details anzeigen</summary>
