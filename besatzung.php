@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </tbody>
                 </table>
                 <div>
-                    <button type="submit" name="save" formaction="index.php">Speichern und zurück</button>
+                    <button type="submit" name="save" >Speichern</button>
                     <button type="submit" name="clear">Alle löschen</button>
                     <button type="button" onclick="window.location.href='index.php';">Zurück zur Startseite</button>
                 </div>
