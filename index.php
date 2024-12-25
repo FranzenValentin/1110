@@ -1,43 +1,5 @@
 <?php
 require 'db.php';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_einsatz'])) {
-    // Eingabedaten erfassen
-    $einsatznummer = $_POST['einsatznummer'];
-    $alarmzeit = $_POST['alarmzeit'];
-    $zurueckzeit = $_POST['zurueckzeit'];
-    $stichwort = $_POST['stichwort'];
-    $adresse = $_POST['adresse'];
-
-    // Die aktuellste Besatzung abrufen
-    $stmt = $pdo->query("SELECT * FROM Besatzung ORDER BY id DESC LIMIT 1");
-    $currentBesatzung = $stmt->fetch();
-
-    if ($currentBesatzung) {
-        // Einsatz in die Datenbank einfügen
-        $stmt = $pdo->prepare("
-            INSERT INTO Einsaetze (einsatznummer, alarmzeit, zurueckzeit, stichwort, adresse, stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id)
-            VALUES (:einsatznummer, :alarmzeit, :zurueckzeit, :stichwort, :adresse, :stf_id, :ma_id, :atf_id, :atm_id, :wtf_id, :wtm_id, :prakt_id)
-        ");
-        $stmt->execute([
-            ':einsatznummer' => $einsatznummer,
-            ':alarmzeit' => $alarmzeit,
-            ':zurueckzeit' => $zurueckzeit,
-            ':stichwort' => $stichwort,
-            ':adresse' => $adresse,
-            ':stf_id' => $currentBesatzung['stf_id'],
-            ':ma_id' => $currentBesatzung['ma_id'],
-            ':atf_id' => $currentBesatzung['atf_id'],
-            ':atm_id' => $currentBesatzung['atm_id'],
-            ':wtf_id' => $currentBesatzung['wtf_id'],
-            ':wtm_id' => $currentBesatzung['wtm_id'],
-            ':prakt_id' => $currentBesatzung['prakt_id']
-        ]);
-        $message = "Einsatz erfolgreich hinzugefügt.";
-    } else {
-        $message = "Keine Besatzung vorhanden. Der Einsatz konnte nicht gespeichert werden.";
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -63,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_einsatz'])) {
     </nav>
 
     <main>
+        <!-- Aktuelle Besatzung -->
         <section id="aktuelle-besatzung">
             <h2>Besatzungsrollen und Zuweisungen</h2>
             <table>
@@ -83,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_einsatz'])) {
                         'wtm' => 'Wachtrupp-Mann',
                         'prakt' => 'Praktikant'
                     ];
+
                     $stmt = $pdo->query("SELECT * FROM Besatzung ORDER BY id DESC LIMIT 1");
                     $latestBesatzung = $stmt->fetch();
 
@@ -103,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_einsatz'])) {
             </table>
         </section>
 
+        <!-- Letzte Alarme -->
         <section id="letzte-einsaetze">
             <h2>Letzte Alarme</h2>
             <table>
@@ -126,14 +91,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_einsatz'])) {
                         echo "<tr>
                                 <td>" . htmlspecialchars($row['einsatznummer']) . "</td>
                                 <td>" . htmlspecialchars($row['stichwort']) . "</td>
-                            </tr>";
+                              </tr>";
                     }
                     ?>
                 </tbody>
             </table>
         </section>
-
-
     </main>
 
     <footer>
