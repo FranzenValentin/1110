@@ -2,38 +2,45 @@
 require 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Eingabewerte aus dem Formular abrufen und leere Felder als NULL setzen
-    $interne_einsatznummer = $_POST['interne_einsatznummer'] ?: null;
-    $einsatznummer_lts = $_POST['einsatznummer_lts'] ?: null;
-    $stichwort_id = $_POST['stichwort_id'] ?: null;
-    $alarmuhrzeit = $_POST['alarmuhrzeit'] ?: null;
-    $zurueckzeit = $_POST['zurueckzeit'] ?: null;
-    $adresse = $_POST['adresse'] ?: null;
-    $fahrzeug = $_POST['fahrzeug'] ?: null;
+    try {
+        // Eingabewerte aus dem Formular abrufen, leere Werte in NULL konvertieren
+        $interne_einsatznummer = !empty($_POST['interne_einsatznummer']) ? $_POST['interne_einsatznummer'] : null;
+        $einsatznummer_lts = !empty($_POST['einsatznummer_lts']) ? $_POST['einsatznummer_lts'] : null;
+        $stichwort_id = !empty($_POST['stichwort_id']) ? $_POST['stichwort_id'] : null;
+        $alarmuhrzeit = !empty($_POST['alarmuhrzeit']) ? $_POST['alarmuhrzeit'] : null;
+        $zurueckzeit = !empty($_POST['zurueckzeit']) ? $_POST['zurueckzeit'] : null;
+        $adresse = !empty($_POST['adresse']) ? $_POST['adresse'] : null;
+        $fahrzeug = !empty($_POST['fahrzeug']) ? $_POST['fahrzeug'] : null;
 
-    // Aktuellste Besatzung abrufen
-    $stmt = $conn->prepare("SELECT id FROM Besatzung ORDER BY id DESC LIMIT 1");
-    $stmt->execute();
-    $besatzung_id = $stmt->fetchColumn();
+        // Aktuellste Besatzung abrufen
+        $stmt = $conn->prepare("SELECT id FROM Besatzung ORDER BY id DESC LIMIT 1");
+        $stmt->execute();
+        $besatzung_id = $stmt->fetchColumn();
 
-    // Einsatz einfügen
-    $sql = "INSERT INTO Einsaetze (interne_einsatznummer, einsatznummer_lts, stichwort_id, alarmuhrzeit, zurueckzeit, adresse, fahrzeug, besatzung_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
+        // Sicherstellen, dass eine Besatzung vorhanden ist
+        if (!$besatzung_id) {
+            throw new Exception("Keine gültige Besatzung gefunden.");
+        }
 
-    // Übergabe der Parameter und Berücksichtigung von NULL-Werten
-    $stmt->execute([
-        $interne_einsatznummer, 
-        $einsatznummer_lts, 
-        $stichwort_id, 
-        $alarmuhrzeit, 
-        $zurueckzeit, 
-        $adresse, 
-        $fahrzeug, 
-        $besatzung_id
-    ]);
+        // Einsatz einfügen
+        $sql = "INSERT INTO Einsaetze (interne_einsatznummer, einsatznummer_lts, stichwort_id, alarmuhrzeit, zurueckzeit, adresse, fahrzeug, besatzung_id)
+                VALUES (:interne_einsatznummer, :einsatznummer_lts, :stichwort_id, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug, :besatzung_id)";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([
+            ':interne_einsatznummer' => $interne_einsatznummer,
+            ':einsatznummer_lts' => $einsatznummer_lts,
+            ':stichwort_id' => $stichwort_id,
+            ':alarmuhrzeit' => $alarmuhrzeit,
+            ':zurueckzeit' => $zurueckzeit,
+            ':adresse' => $adresse,
+            ':fahrzeug' => $fahrzeug,
+            ':besatzung_id' => $besatzung_id,
+        ]);
 
-    echo "<p>Einsatz erfolgreich eingetragen!</p>";
+        echo "<p>Einsatz erfolgreich eingetragen!</p>";
+    } catch (Exception $e) {
+        echo "<p style='color: red;'>Fehler: " . $e->getMessage() . "</p>";
+    }
 }
 ?>
 
