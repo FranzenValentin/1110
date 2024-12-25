@@ -15,15 +15,6 @@ require 'db.php';
         <h1>Einsatzverwaltungssystem</h1>
     </header>
 
-    <nav>
-        <ul>
-            <li><a href="neuer_benutzer.php">Neuer Benutzer</a></li>
-            <li><a href="besatzung.php">Besatzung verwalten</a></li>
-            <li><a href="einsatz.php">Einsätze hinzufügen</a></li>
-            <li><a href="stichworte.php">Stichworte verwalten</a></li>
-        </ul>
-    </nav>
-
     <main>
         <!-- Aktuelle Besatzung -->
         <section id="aktuelle-besatzung">
@@ -68,70 +59,79 @@ require 'db.php';
             </table>
         </section>
 
+        <!-- Letzte Einsätze -->
         <section id="letzte-einsaetze">
-    <h2>Letzte 15 Alarme</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Interne Einsatznummer</th>
-                <th>Stichwort</th>
-                <th>Alarmzeit</th>
-                <th>Fahrzeug</th>
-                <th>Personal</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            // SQL-Abfrage: Abrufen der letzten 15 Einsätze mit Besatzung und Personal
-            $stmt = $pdo->query("
-                SELECT e.interne_einsatznummer, e.alarmuhrzeit, e.fahrzeug_name, s.stichwort,
-                    p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf,
-                    p4.nachname AS atm, p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
-                FROM Einsaetze e
-                LEFT JOIN Stichworte s ON e.stichwort_id = s.id
-                LEFT JOIN Besatzung b ON e.besatzung_id = b.id
-                LEFT JOIN Personal p1 ON b.stf_id = p1.id
-                LEFT JOIN Personal p2 ON b.ma_id = p2.id
-                LEFT JOIN Personal p3 ON b.atf_id = p3.id
-                LEFT JOIN Personal p4 ON b.atm_id = p4.id
-                LEFT JOIN Personal p5 ON b.wtf_id = p5.id
-                LEFT JOIN Personal p6 ON b.wtm_id = p6.id
-                LEFT JOIN Personal p7 ON b.prakt_id = p7.id
-                ORDER BY e.id DESC LIMIT 15 
-            "); //wie viele Alarme sollen angezeigt werden
+            <h2>Letzte 15 Alarme</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Interne Einsatznummer</th>
+                        <th>Stichwort</th>
+                        <th>Alarmzeit</th>
+                        <th>Fahrzeug</th>
+                        <th>Personal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    // SQL-Abfrage: Abrufen der letzten 15 Einsätze mit Besatzung und Personal
+                    $stmt = $pdo->query("
+                        SELECT e.interne_einsatznummer, e.alarmuhrzeit, e.fahrzeug_name, s.stichwort,
+                            p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf,
+                            p4.nachname AS atm, p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
+                        FROM Einsaetze e
+                        LEFT JOIN Stichworte s ON e.stichwort_id = s.id
+                        LEFT JOIN Besatzung b ON e.besatzung_id = b.id
+                        LEFT JOIN Personal p1 ON b.stf_id = p1.id
+                        LEFT JOIN Personal p2 ON b.ma_id = p2.id
+                        LEFT JOIN Personal p3 ON b.atf_id = p3.id
+                        LEFT JOIN Personal p4 ON b.atm_id = p4.id
+                        LEFT JOIN Personal p5 ON b.wtf_id = p5.id
+                        LEFT JOIN Personal p6 ON b.wtm_id = p6.id
+                        LEFT JOIN Personal p7 ON b.prakt_id = p7.id
+                        ORDER BY e.id DESC LIMIT 15 
+                    ");
 
-            // Ergebnisse anzeigen
-            while ($row = $stmt->fetch()) {
-                // Personal zusammenstellen
-                $personal = [];
-                if ($row['stf']) $personal[] = "StF: " . htmlspecialchars($row['stf']);
-                if ($row['ma']) $personal[] = "Ma: " . htmlspecialchars($row['ma']);
-                if ($row['atf']) $personal[] = "AtF: " . htmlspecialchars($row['atf']);
-                if ($row['atm']) $personal[] = "AtM: " . htmlspecialchars($row['atm']);
-                if ($row['wtf']) $personal[] = "WtF: " . htmlspecialchars($row['wtf']);
-                if ($row['wtm']) $personal[] = "WtM: " . htmlspecialchars($row['wtm']);
-                if ($row['prakt']) $personal[] = "Prakt: " . htmlspecialchars($row['prakt']);
+                    // Ergebnisse anzeigen
+                    while ($row = $stmt->fetch()) {
+                        // Personal zusammenstellen
+                        $personal = [];
+                        if ($row['stf']) $personal[] = "StF: " . htmlspecialchars($row['stf']);
+                        if ($row['ma']) $personal[] = "Ma: " . htmlspecialchars($row['ma']);
+                        if ($row['atf']) $personal[] = "AtF: " . htmlspecialchars($row['atf']);
+                        if ($row['atm']) $personal[] = "AtM: " . htmlspecialchars($row['atm']);
+                        if ($row['wtf']) $personal[] = "WtF: " . htmlspecialchars($row['wtf']);
+                        if ($row['wtm']) $personal[] = "WtM: " . htmlspecialchars($row['wtm']);
+                        if ($row['prakt']) $personal[] = "Prakt: " . htmlspecialchars($row['prakt']);
 
-                echo "<tr>
-                        <td>" . htmlspecialchars($row['interne_einsatznummer']) . "</td>
-                        <td>" . htmlspecialchars($row['stichwort']) . "</td>
-                        <td>" . htmlspecialchars($row['alarmuhrzeit']) . "</td>
-                        <td>" . htmlspecialchars($row['fahrzeug_name']) . "</td>
-                        <td>
-                            <details>
-                                <summary>Details anzeigen</summary>
-                                " . implode('<br>', $personal) . "
-                            </details>
-                        </td>
-                      </tr>";
-            }
-            ?>
-        </tbody>
-    </table>
-</section>
+                        echo "<tr>
+                                <td>" . htmlspecialchars($row['interne_einsatznummer']) . "</td>
+                                <td>" . htmlspecialchars($row['stichwort']) . "</td>
+                                <td>" . htmlspecialchars($row['alarmuhrzeit']) . "</td>
+                                <td>" . htmlspecialchars($row['fahrzeug_name']) . "</td>
+                                <td>
+                                    <details>
+                                        <summary>Details anzeigen</summary>
+                                        " . implode('<br>', $personal) . "
+                                    </details>
+                                </td>
+                              </tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </section>
 
-
-
+        <!-- Navigation als Buttons -->
+        <section id="navigation-buttons">
+            <h2>Navigation</h2>
+            <div class="button-container">
+                <button onclick="location.href='neuer_benutzer.php'">Neuer Benutzer</button>
+                <button onclick="location.href='besatzung.php'">Besatzung verwalten</button>
+                <button onclick="location.href='einsatz.php'">Einsätze hinzufügen</button>
+                <button onclick="location.href='stichworte.php'">Stichworte verwalten</button>
+            </div>
+        </section>
     </main>
 
     <footer>
