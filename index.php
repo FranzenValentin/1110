@@ -64,6 +64,21 @@ require 'db.php';
 
 <!-- Neuer Alarm -->
 <section id="neuer-alarm">
+<?php
+try {
+    // Fahrzeuge laden
+    $fahrzeugeStmt = $pdo->prepare("SELECT id, name FROM Fahrzeuge ORDER BY name");
+    $fahrzeugeStmt->execute();
+    $fahrzeuge = $fahrzeugeStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Stichworte laden, sortiert nach Kategorie und Stichwort
+    $stichworteStmt = $pdo->prepare("SELECT id, kategorie, stichwort FROM Stichworte ORDER BY kategorie, stichwort");
+    $stichworteStmt->execute();
+    $stichworte = $stichworteStmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Fehler beim Laden der Daten: " . $e->getMessage());
+}
+?>
     <h2>Neuen Einsatz eintragen</h2>
     <form method="POST" class="einsatz-form">
         <table class="einsatz-tabelle">
