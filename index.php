@@ -79,139 +79,113 @@ require 'db.php';
             die("Fehler beim Laden der Daten: " . $e->getMessage());
         }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($_POST['save']) || isset($_POST['save_and_back'])) {
-                try {
-                    // Werte aus dem Formular abrufen
-                    $einsatznummer_lts = !empty($_POST['einsatznummer_lts']) ? $_POST['einsatznummer_lts'] : null;
-                    $stichwort_id = !empty($_POST['stichwort_id']) ? (int) $_POST['stichwort_id'] : null;
-                    $alarmuhrzeit = !empty($_POST['alarmuhrzeit']) ? $_POST['alarmuhrzeit'] : null;
-                    $zurueckzeit = !empty($_POST['zurueckzeit']) ? $_POST['zurueckzeit'] : null;
-                    $adresse = !empty($_POST['adresse']) ? $_POST['adresse'] : null;
-                    $fahrzeug_id = !empty($_POST['fahrzeug_id']) ? (int) $_POST['fahrzeug_id'] : 1; // Standardfahrzeug ID = 1
-        
-                    // Format prüfen (dd.mm.yy hh:mm)
-                    if (!preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $alarmuhrzeit) || 
-                        !preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $zurueckzeit)) {
-                        throw new Exception("Die Uhrzeiten müssen im Format dd.mm.yy hh:mm vorliegen.");
-                    }
-        
-                    // Fahrzeugname anhand der ID ermitteln
-                    $fahrzeug_name = null;
-                    foreach ($fahrzeuge as $fahrzeug) {
-                        if ($fahrzeug['id'] === $fahrzeug_id) {
-                            $fahrzeug_name = $fahrzeug['name'];
-                            break;
-                        }
-                    }
-                    if (!$fahrzeug_name) {
-                        throw new Exception("Ungültige Fahrzeug-ID ausgewählt.");
-                    }
-        
-                    // Aktuellste Besatzung abrufen
-                    $stmt = $pdo->prepare("SELECT id FROM Besatzung ORDER BY id DESC LIMIT 1");
-                    $stmt->execute();
-                    $besatzung_id = $stmt->fetchColumn();
-        
-                    // Sicherstellen, dass eine gültige Besatzung existiert
-                    if (!$besatzung_id) {
-                        throw new Exception("Es konnte keine gültige Besatzung gefunden werden.");
-                    }
-        
-                    // SQL-Statement vorbereiten
-                    $sql = "INSERT INTO Einsaetze 
-                            (einsatznummer_lts, stichwort_id, alarmuhrzeit, zurueckzeit, adresse, fahrzeug_name, besatzung_id)
-                            VALUES (:einsatznummer_lts, :stichwort_id, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug_name, :besatzung_id)";
-                    $stmt = $pdo->prepare($sql);
-        
-                    // SQL-Parameter binden und ausführen
-                    $stmt->execute([
-                        ':einsatznummer_lts' => $einsatznummer_lts,
-                        ':stichwort_id' => $stichwort_id,
-                        ':alarmuhrzeit' => $alarmuhrzeit,
-                        ':zurueckzeit' => $zurueckzeit,
-                        ':adresse' => $adresse,
-                        ':fahrzeug_name' => $fahrzeug_name,
-                        ':besatzung_id' => $besatzung_id
-                    ]);
-        
-                    echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
-        
-                    // Weiterleitung zu index.php, falls der "Speichern und zurück"-Button gedrückt wurde
-                    if (isset($_POST['save_and_back'])) {
-                        header("Location: index.php");
-                        exit;
-                    }
-                } catch (Exception $e) {
-                    // Fehler ausgeben
-                    echo "<p style='color: red;'>Fehler: " . $e->getMessage() . "</p>";
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
+            try {
+                // Werte aus dem Formular abrufen
+                $einsatznummer_lts = $_POST['einsatznummer_lts'] ?? null;
+                $stichwort_id = $_POST['stichwort_id'] ?? null;
+                $alarmuhrzeit = $_POST['alarmuhrzeit'] ?? null;
+                $zurueckzeit = $_POST['zurueckzeit'] ?? null;
+                $adresse = $_POST['adresse'] ?? null;
+                $fahrzeug_id = $_POST['fahrzeug_id'] ?? 1;
+
+                // Format prüfen (dd.mm.yy hh:mm)
+                if (!preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $alarmuhrzeit) || 
+                    !preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $zurueckzeit)) {
+                    throw new Exception("Die Uhrzeiten müssen im Format dd.mm.yy hh:mm vorliegen.");
                 }
-            } elseif (isset($_POST['back'])) {
-                // Weiterleitung zu index.php, falls der "Zurück"-Button gedrückt wurde
-                header("Location: index.php");
-                exit;
+
+                // Fahrzeugname anhand der ID ermitteln
+                $fahrzeug_name = null;
+                foreach ($fahrzeuge as $fahrzeug) {
+                    if ($fahrzeug['id'] === (int)$fahrzeug_id) {
+                        $fahrzeug_name = $fahrzeug['name'];
+                        break;
+                    }
+                }
+
+                // Aktuellste Besatzung abrufen
+                $stmt = $pdo->prepare("SELECT id FROM Besatzung ORDER BY id DESC LIMIT 1");
+                $stmt->execute();
+                $besatzung_id = $stmt->fetchColumn();
+
+                if (!$besatzung_id) {
+                    throw new Exception("Keine gültige Besatzung gefunden.");
+                }
+
+                // SQL-Statement vorbereiten und ausführen
+                $sql = "INSERT INTO Einsaetze 
+                        (einsatznummer_lts, stichwort_id, alarmuhrzeit, zurueckzeit, adresse, fahrzeug_name, besatzung_id)
+                        VALUES (:einsatznummer_lts, :stichwort_id, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug_name, :besatzung_id)";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    ':einsatznummer_lts' => $einsatznummer_lts,
+                    ':stichwort_id' => $stichwort_id,
+                    ':alarmuhrzeit' => $alarmuhrzeit,
+                    ':zurueckzeit' => $zurueckzeit,
+                    ':adresse' => $adresse,
+                    ':fahrzeug_name' => $fahrzeug_name,
+                    ':besatzung_id' => $besatzung_id
+                ]);
+
+                echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
+            } catch (Exception $e) {
+                echo "<p style='color: red;'>Fehler: " . $e->getMessage() . "</p>";
             }
         }
-    ?>  
+    ?>
 
     <script>
-                function setCurrentTime(fieldId) {
-                    const now = new Date();
-                    const year = String(now.getFullYear()).slice(-2); // Jahr zweistellig
-                    const month = String(now.getMonth() + 1).padStart(2, '0'); // Monat mit führender Null
-                    const day = String(now.getDate()).padStart(2, '0'); // Tag mit führender Null
-                    const hours = String(now.getHours()).padStart(2, '0'); // Stunde mit führender Null
-                    const minutes = String(now.getMinutes()).padStart(2, '0'); // Minute mit führender Null
-
-                    const formattedTime = `${day}.${month}.${year} ${hours}:${minutes}`; // Format dd.mm.yy hh:mm
-                    document.getElementById(fieldId).value = formattedTime;
-                }
+        function setCurrentTime(fieldId) {
+            const now = new Date();
+            const year = String(now.getFullYear()).slice(-2); // Jahr zweistellig
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById(fieldId).value = `${day}.${month}.${year} ${hours}:${minutes}`;
+        }
     </script>
 
     <h2>Neuen Einsatz eintragen</h2>
     <form method="POST" class="einsatz-form">
         <table class="einsatz-tabelle">
             <tr>
+                <td><input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS"></td>
                 <td>
-                    <input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS">
-                </td>
-                <td>
-                    <select id="stichwort_id" name="stichwort_id" placeholder="Stichwort">
+                    <select id="stichwort_id" name="stichwort_id">
                         <?php foreach ($stichworte as $stichwort): ?>
                             <option value="<?= htmlspecialchars($stichwort['id']) ?>">
-                            <?= htmlspecialchars($stichwort['kategorie'] . ' - ' . $stichwort['stichwort']) ?>
-                        </option>
+                                <?= htmlspecialchars($stichwort['kategorie'] . ' - ' . $stichwort['stichwort']) ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </td>
                 <td>
-                    <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="Alarm: dd.mm.yy hh:mm">
+                    <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="Alarmzeit: dd.mm.yy hh:mm">
                     <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Jetzt</button>
                 </td>
                 <td>
-                    <input type="text" id="zurueckzeit" name="zurueckzeit" placeholder="Zurück: dd.mm.yy hh:mm">
+                    <input type="text" id="zurueckzeit" name="zurueckzeit" placeholder="Zurückzeit: dd.mm.yy hh:mm">
                     <button type="button" onclick="setCurrentTime('zurueckzeit')">Jetzt</button>
                 </td>
-                <td>
-                    <input type="text" id="adresse" name="adresse" placeholder="Adresse">
-                </td>
+                <td><input type="text" id="adresse" name="adresse" placeholder="Adresse"></td>
                 <td>
                     <select id="fahrzeug_id" name="fahrzeug_id">
                         <?php foreach ($fahrzeuge as $fahrzeug): ?>
                             <option value="<?= htmlspecialchars($fahrzeug['id']) ?>" 
                                 <?= $fahrzeug['id'] === 1 ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($fahrzeug['name']) ?>
-                        </option>
+                                <?= htmlspecialchars($fahrzeug['name']) ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </td>
-                <td>
-                    <button type="submit" name="save" class="btn">Speichern</button>
-                </td>
+                <td><button type="submit" name="save" class="btn">Speichern</button></td>
             </tr>
         </table>
     </form>
 </section>
+
 
          
 
