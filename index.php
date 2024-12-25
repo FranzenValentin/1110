@@ -140,16 +140,13 @@ require 'db.php';
                         </select>
                     </td>
                     <!-- Aktionen -->
-                    <td>
-                        <button type="submit" name="save">Speichern</button>
-                    </td>
                 </tr>
             </tbody>
-        </table>
+        </table>      
+    </form>
             <div class="button-container">
                 <button type="submit" name="save">Speichern</button>
             </div>
-    </form>
 </section>
 
 <script>
