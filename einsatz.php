@@ -76,8 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':fahrzeug_name' => $fahrzeug_name,
             ':besatzung_id' => $besatzung_id
         ]);
-
-        echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
     } catch (Exception $e) {
         // Fehler ausgeben
         echo "<p style='color: red;'>Fehler: " . $e->getMessage() . "</p>";
