@@ -32,9 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Prüfen, ob die letzte Zeile nur NULL enthält
             $stmt = $pdo->query("SELECT * FROM Besatzung ORDER BY id DESC LIMIT 1");
             $lastRow = $stmt->fetch();
-            $lastRowIsNull = ($lastRow && empty(array_filter($lastRow, function ($value) {
-                return $value !== null;
-            })));
+            $lastRowIsNull = ($lastRow && $lastRow['stf_id'] === null && $lastRow['ma_id'] === null && $lastRow['atf_id'] === null && $lastRow['atm_id'] === null && $lastRow['wtf_id'] === null && $lastRow['wtm_id'] === null && $lastRow['prakt_id'] === null);
 
             if ($lastRowIsNull) {
                 // Letzte Zeile überschreiben
