@@ -100,10 +100,19 @@ table input, table select, table button {
 
 
 #Jetzt {
-    width: 25%;
+    width: 20%;
 }
 
 #alarmuhrzeit,
 #zurueckzeit {
-    width: 75%;
+    width: 80%;
+}
+
+
+#dünn {
+    width: 10%;
+}
+
+#dick {
+    width: 20%;
 }

@@ -100,11 +100,12 @@ require 'db.php';
             <tbody>
                 <tr>
                     <!-- Einsatznummer LTS -->
-                    <td>
+                    <td id="dünn">
+                        
                         <input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS">
                     </td>
                     <!-- Stichwort -->
-                    <td>
+                    <td id="dick">
                         <input list="stichwort_liste" id="stichwort" name="stichwort" placeholder="Stichwort eingeben oder auswählen">
                         <datalist id="stichwort_liste">
                             <?php foreach ($stichworte as $stichwort): ?>
@@ -115,21 +116,21 @@ require 'db.php';
 
 
                     <!-- Alarmzeit -->
-                    <td>
+                    <td id="dick">
                         <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm (Alarm)">
                         <button type="button" onclick="setCurrentTime('alarmuhrzeit')" id="Jetzt">Jetzt </button>
                     </td>
                     <!-- Zurückzeit -->
-                    <td>
+                    <td id="dick">
                         <input type="text" id="zurueckzeit" name="zurueckzeit" placeholder="dd.mm.yy hh:mm (Zurück)">
                         <button type="button" onclick="setCurrentTime('zurueckzeit')" id="Jetzt">Jetzt</button>
                     </td>
                     <!-- Adresse -->
-                    <td>
+                    <td id="dick">
                         <input type="text" id="adresse" name="adresse" placeholder="Linienstraße 128, Mitte (Adresse)">
                     </td>
                     <!-- Fahrzeug -->
-                    <td>
+                    <td id="dünn">
                         <select id="fahrzeug_id" name="fahrzeug_id">
                             <?php foreach ($fahrzeuge as $fahrzeug): ?>
                                 <option value="<?= htmlspecialchars($fahrzeug['id']) ?>" 
