@@ -110,32 +110,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_einsatz'])) {
                     <tr>
                         <th>Interne Einsatznummer</th>
                         <th>Stichwort</th>
-                        <th>Besatzung</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    // SQL-Abfrage: Abrufen der letzten Einsätze und Zuordnung der Besatzung
+                    // SQL-Abfrage: Abrufen der letzten Einsätze
                     $stmt = $pdo->query("
-                        SELECT e.einsatznummer, e.stichwort,
-                            CONCAT_WS(', ',
-                                p1.vorname, p1.nachname,
-                                p2.vorname, p2.nachname,
-                                p3.vorname, p3.nachname,
-                                p4.vorname, p4.nachname,
-                                p5.vorname, p5.nachname,
-                                p6.vorname, p6.nachname,
-                                p7.vorname, p7.nachname
-                            ) AS besatzung
-                        FROM Einsaetze e
-                        LEFT JOIN Personal p1 ON e.stf_id = p1.id
-                        LEFT JOIN Personal p2 ON e.ma_id = p2.id
-                        LEFT JOIN Personal p3 ON e.atf_id = p3.id
-                        LEFT JOIN Personal p4 ON e.atm_id = p4.id
-                        LEFT JOIN Personal p5 ON e.wtf_id = p5.id
-                        LEFT JOIN Personal p6 ON e.wtm_id = p6.id
-                        LEFT JOIN Personal p7 ON e.prakt_id = p7.id
-                        ORDER BY e.id DESC LIMIT 10
+                        SELECT einsatznummer, stichwort
+                        FROM Einsaetze
+                        ORDER BY id DESC LIMIT 10
                     ");
 
                     // Ergebnisse anzeigen
@@ -143,13 +126,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_einsatz'])) {
                         echo "<tr>
                                 <td>" . htmlspecialchars($row['einsatznummer']) . "</td>
                                 <td>" . htmlspecialchars($row['stichwort']) . "</td>
-                                <td>" . htmlspecialchars($row['besatzung'] ?: '<em>Keine Besatzung</em>') . "</td>
                             </tr>";
                     }
                     ?>
                 </tbody>
             </table>
         </section>
+
 
     </main>
 
