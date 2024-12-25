@@ -68,7 +68,7 @@ require 'db.php';
             </table>
         </section>
 
-<section id="letzte-einsaetze">
+        <section id="letzte-einsaetze">
     <h2>Letzte Alarme</h2>
     <table>
         <thead>
@@ -82,20 +82,21 @@ require 'db.php';
         </thead>
         <tbody>
             <?php
-            // SQL-Abfrage: Abrufen der letzten Einsätze
+            // SQL-Abfrage: Abrufen der letzten Einsätze mit Besatzung und Personal
             $stmt = $pdo->query("
                 SELECT e.interne_einsatznummer, e.alarmuhrzeit, e.fahrzeug_name, s.stichwort,
                     p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf,
                     p4.nachname AS atm, p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
                 FROM Einsaetze e
                 LEFT JOIN Stichworte s ON e.stichwort_id = s.id
-                LEFT JOIN Personal p1 ON e.stf_id = p1.id
-                LEFT JOIN Personal p2 ON e.ma_id = p2.id
-                LEFT JOIN Personal p3 ON e.atf_id = p3.id
-                LEFT JOIN Personal p4 ON e.atm_id = p4.id
-                LEFT JOIN Personal p5 ON e.wtf_id = p5.id
-                LEFT JOIN Personal p6 ON e.wtm_id = p6.id
-                LEFT JOIN Personal p7 ON e.prakt_id = p7.id
+                LEFT JOIN Besatzung b ON e.besatzung_id = b.id
+                LEFT JOIN Personal p1 ON b.stf_id = p1.id
+                LEFT JOIN Personal p2 ON b.ma_id = p2.id
+                LEFT JOIN Personal p3 ON b.atf_id = p3.id
+                LEFT JOIN Personal p4 ON b.atm_id = p4.id
+                LEFT JOIN Personal p5 ON b.wtf_id = p5.id
+                LEFT JOIN Personal p6 ON b.wtm_id = p6.id
+                LEFT JOIN Personal p7 ON b.prakt_id = p7.id
                 ORDER BY e.id DESC LIMIT 10
             ");
 
