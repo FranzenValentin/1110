@@ -62,6 +62,53 @@ require 'db.php';
             </div>
         </section>
 
+<!-- Neuer Alarm -->
+<section id="neuer-alarm">
+    <h2>Neuen Einsatz eintragen</h2>
+    <form method="POST" class="einsatz-form">
+        <label for="einsatznummer_lts">Einsatznummer LTS:</label>
+        <input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer"><br>
+
+        <label for="stichwort_id">Stichwort:</label>
+        <select id="stichwort_id" name="stichwort_id">
+            <?php foreach ($stichworte as $stichwort): ?>
+                <option value="<?= htmlspecialchars($stichwort['id']) ?>">
+                    <?= htmlspecialchars($stichwort['kategorie'] . ' - ' . $stichwort['stichwort']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select><br>
+
+        <label for="alarmuhrzeit">Alarmuhrzeit:</label>
+        <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm">
+        <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Aktuelle Zeit</button><br>
+
+        <label for="zurueckzeit">Zurückzeit:</label>
+        <input type="text" id="zurueckzeit" name="zurueckzeit" placeholder="dd.mm.yy hh:mm">
+        <button type="button" onclick="setCurrentTime('zurueckzeit')">Aktuelle Zeit</button><br>
+
+        <label for="adresse">Adresse:</label>
+        <input type="text" id="adresse" name="adresse" placeholder="Adresse des Einsatzortes"><br>
+
+        <label for="fahrzeug_id">Fahrzeug:</label>
+        <select id="fahrzeug_id" name="fahrzeug_id">
+            <?php foreach ($fahrzeuge as $fahrzeug): ?>
+                <option value="<?= htmlspecialchars($fahrzeug['id']) ?>" 
+                        <?= $fahrzeug['id'] === 1 ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($fahrzeug['name']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select><br>
+
+        <div class="form-buttons">
+            <button type="submit" name="save" class="btn">Speichern</button>
+            <button type="submit" name="save_and_back" class="btn">Speichern und zurück</button>
+            <button type="submit" name="back" class="btn">Zurück</button>
+        </div>
+    </form>
+</section>
+                
+
+
         <!-- Letzte Einsätze -->
         <section id="letzte-einsaetze">
             <h2>Letzte 15 Alarme</h2>
