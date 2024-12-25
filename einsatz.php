@@ -105,13 +105,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="styles.css">
     <title>Einsatz eintragen</title>
     <script>
-        // Funktion, um die aktuelle Uhrzeit in das Feld einzufügen
-        function setCurrentTime(fieldId) {
-            const now = new Date();
-            const formattedTime = now.toISOString().slice(0, 19).replace('T', ' ');
-            document.getElementById(fieldId).value = formattedTime;
-        }
-    </script>
+    function setCurrentTime(fieldId) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0'); // Monat mit führender Null
+        const day = String(now.getDate()).padStart(2, '0'); // Tag mit führender Null
+        const hours = String(now.getHours()).padStart(2, '0'); // Stunde mit führender Null
+        const minutes = String(now.getMinutes()).padStart(2, '0'); // Minute mit führender Null
+
+        const formattedTime = `${year}-${month}-${day} ${hours}:${minutes}`; // Format YYYY-MM-DD HH:MM
+        document.getElementById(fieldId).value = formattedTime;
+    }
+</script>
+
 </head>
 <body>
     <header>
