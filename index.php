@@ -78,6 +78,80 @@ require 'db.php';
         } catch (PDOException $e) {
             die("Fehler beim Laden der Daten: " . $e->getMessage());
         }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (isset($_POST['save']) || isset($_POST['save_and_back'])) {
+                try {
+                    // Werte aus dem Formular abrufen
+                    $einsatznummer_lts = !empty($_POST['einsatznummer_lts']) ? $_POST['einsatznummer_lts'] : null;
+                    $stichwort_id = !empty($_POST['stichwort_id']) ? (int) $_POST['stichwort_id'] : null;
+                    $alarmuhrzeit = !empty($_POST['alarmuhrzeit']) ? $_POST['alarmuhrzeit'] : null;
+                    $zurueckzeit = !empty($_POST['zurueckzeit']) ? $_POST['zurueckzeit'] : null;
+                    $adresse = !empty($_POST['adresse']) ? $_POST['adresse'] : null;
+                    $fahrzeug_id = !empty($_POST['fahrzeug_id']) ? (int) $_POST['fahrzeug_id'] : 1; // Standardfahrzeug ID = 1
+        
+                    // Format prüfen (dd.mm.yy hh:mm)
+                    if (!preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $alarmuhrzeit) || 
+                        !preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $zurueckzeit)) {
+                        throw new Exception("Die Uhrzeiten müssen im Format dd.mm.yy hh:mm vorliegen.");
+                    }
+        
+                    // Fahrzeugname anhand der ID ermitteln
+                    $fahrzeug_name = null;
+                    foreach ($fahrzeuge as $fahrzeug) {
+                        if ($fahrzeug['id'] === $fahrzeug_id) {
+                            $fahrzeug_name = $fahrzeug['name'];
+                            break;
+                        }
+                    }
+                    if (!$fahrzeug_name) {
+                        throw new Exception("Ungültige Fahrzeug-ID ausgewählt.");
+                    }
+        
+                    // Aktuellste Besatzung abrufen
+                    $stmt = $pdo->prepare("SELECT id FROM Besatzung ORDER BY id DESC LIMIT 1");
+                    $stmt->execute();
+                    $besatzung_id = $stmt->fetchColumn();
+        
+                    // Sicherstellen, dass eine gültige Besatzung existiert
+                    if (!$besatzung_id) {
+                        throw new Exception("Es konnte keine gültige Besatzung gefunden werden.");
+                    }
+        
+                    // SQL-Statement vorbereiten
+                    $sql = "INSERT INTO Einsaetze 
+                            (einsatznummer_lts, stichwort_id, alarmuhrzeit, zurueckzeit, adresse, fahrzeug_name, besatzung_id)
+                            VALUES (:einsatznummer_lts, :stichwort_id, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug_name, :besatzung_id)";
+                    $stmt = $pdo->prepare($sql);
+        
+                    // SQL-Parameter binden und ausführen
+                    $stmt->execute([
+                        ':einsatznummer_lts' => $einsatznummer_lts,
+                        ':stichwort_id' => $stichwort_id,
+                        ':alarmuhrzeit' => $alarmuhrzeit,
+                        ':zurueckzeit' => $zurueckzeit,
+                        ':adresse' => $adresse,
+                        ':fahrzeug_name' => $fahrzeug_name,
+                        ':besatzung_id' => $besatzung_id
+                    ]);
+        
+                    echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
+        
+                    // Weiterleitung zu index.php, falls der "Speichern und zurück"-Button gedrückt wurde
+                    if (isset($_POST['save_and_back'])) {
+                        header("Location: index.php");
+                        exit;
+                    }
+                } catch (Exception $e) {
+                    // Fehler ausgeben
+                    echo "<p style='color: red;'>Fehler: " . $e->getMessage() . "</p>";
+                }
+            } elseif (isset($_POST['back'])) {
+                // Weiterleitung zu index.php, falls der "Zurück"-Button gedrückt wurde
+                header("Location: index.php");
+                exit;
+            }
+        }
     ?>  
 
     <script>
