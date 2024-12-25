@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $adresse = !empty($_POST['adresse']) ? $_POST['adresse'] : null;
         $fahrzeug = !empty($_POST['fahrzeug']) ? $_POST['fahrzeug'] : null;
 
-        // Eingabedaten validieren (z. B. Datumsformat prüfen)
+        // Eingabedaten validieren
         if (!preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $alarmuhrzeit)) {
             throw new Exception("Alarmuhrzeit hat ein ungültiges Format.");
         }
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Aktuellste Besatzung abrufen
-        $stmt = $conn->prepare("SELECT id FROM Besatzung ORDER BY id DESC LIMIT 1");
+        $stmt = $pdo->prepare("SELECT id FROM Besatzung ORDER BY id DESC LIMIT 1");
         $stmt->execute();
         $besatzung_id = $stmt->fetchColumn();
 
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "INSERT INTO Einsaetze 
                 (einsatznummer_lts, stichwort_id, alarmuhrzeit, zurueckzeit, adresse, fahrzeug, besatzung_id)
                 VALUES (:einsatznummer_lts, :stichwort_id, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug, :besatzung_id)";
-        $stmt = $conn->prepare($sql);
+        $stmt = $pdo->prepare($sql);
 
         // SQL-Parameter binden und ausführen
         $stmt->execute([
