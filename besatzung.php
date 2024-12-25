@@ -3,19 +3,33 @@ require 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['save'])) {
-        // Neue Zeile erstellen
+        // Neue Zeile erstellen oder vorhandene mit NULL überschreiben, wenn nötig
         $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
         $changes = [];
+        $allNull = true;
+
         foreach ($roles as $role) {
-            if (isset($_POST[$role]) && $_POST[$role] !== '') { // Sicherstellen, dass die Auswahl existiert und nicht leer ist
+            if (isset($_POST[$role]) && $_POST[$role] !== '') {
                 $person_id = $_POST[$role];
                 $changes[$role] = $person_id;
+                $allNull = false; // Nicht alle Felder sind NULL
             } else {
                 $changes[$role] = null;
             }
         }
 
-        if (!empty($changes)) {
+        if ($allNull) {
+            // Prüfen, ob bereits eine Zeile mit nur NULL existiert
+            $stmt = $pdo->query("SELECT * FROM Besatzung WHERE stf_id IS NULL AND ma_id IS NULL AND atf_id IS NULL AND atm_id IS NULL AND wtf_id IS NULL AND wtm_id IS NULL AND prakt_id IS NULL LIMIT 1");
+            $existingNullRow = $stmt->fetch();
+
+            if (!$existingNullRow) {
+                // Neue Zeile mit nur NULL einfügen
+                $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) VALUES (NULL, NULL, NULL, NULL, NULL, NULL, NULL)");
+                $stmt->execute();
+            }
+        } else {
+            // Neue Zeile mit den Änderungen erstellen
             $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) VALUES (:stf, :ma, :atf, :atm, :wtf, :wtm, :prakt)");
             $stmt->execute([
                 ':stf' => $changes['stf'],
@@ -32,7 +46,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: " . $_SERVER['PHP_SELF']); // Seite neu laden
         exit;
     } elseif (isset($_POST['clear'])) {
-        // Alle Felder leeren, aber nichts speichern
+        // Neue Zeile mit nur NULL erstellen
+        $stmt = $pdo->query("SELECT * FROM Besatzung WHERE stf_id IS NULL AND ma_id IS NULL AND atf_id IS NULL AND atm_id IS NULL AND wtf_id IS NULL AND wtm_id IS NULL AND prakt_id IS NULL LIMIT 1");
+        $existingNullRow = $stmt->fetch();
+
+        if (!$existingNullRow) {
+            $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) VALUES (NULL, NULL, NULL, NULL, NULL, NULL, NULL)");
+            $stmt->execute();
+        }
+
         $message = "Auswahl zurückgesetzt. Bitte speichern, um Änderungen zu übernehmen.";
     }
 }
