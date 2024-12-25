@@ -146,6 +146,9 @@ require 'db.php';
                 </tr>
             </tbody>
         </table>
+            <div class="button-container">
+                <button type="submit" name="save">Speichern</button>
+            </div>
     </form>
 </section>
 
