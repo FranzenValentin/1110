@@ -78,17 +78,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             'prakt' => 'Praktikant'
                         ];
 
+                        // Die letzte Besatzungszeile abrufen
+                        $stmt = $pdo->query("SELECT * FROM Besatzung ORDER BY id DESC LIMIT 1");
+                        $latestBesatzung = $stmt->fetch();
+
                         foreach ($roles as $key => $label) {
                             echo "<tr>";
                             echo "<td>$label</td>";
 
                             // Prüfen, ob eine Person bereits zugewiesen ist
-                            $stmt = $pdo->prepare("SELECT p.id, CONCAT(p.vorname, ' ', p.nachname) AS name FROM Personal p JOIN Besatzung b ON p.id = b.{$key}_id LIMIT 1");
-                            $stmt->execute();
-                            $assigned = $stmt->fetch();
-
-                            if ($assigned) {
-                                echo "<td>{$assigned['name']}</td>";
+                            if ($latestBesatzung && $latestBesatzung[$key . '_id']) {
+                                $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM Personal WHERE id = :id");
+                                $personStmt->execute([':id' => $latestBesatzung[$key . '_id']]);
+                                $person = $personStmt->fetch();
+                                echo "<td>" . ($person['name'] ?? '<em>Keine Zuweisung</em>') . "</td>";
                             } else {
                                 echo "<td><em>Keine Zuweisung</em></td>";
                             }
@@ -98,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             echo "<option value=''>Keine Auswahl</option>";
                             $stmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal");
                             while ($row = $stmt->fetch()) {
-                                $selected = ($assigned && $assigned['id'] == $row['id']) ? 'selected' : '';
+                                $selected = ($latestBesatzung && $latestBesatzung[$key . '_id'] == $row['id']) ? 'selected' : '';
                                 echo "<option value='{$row['id']}' $selected>{$row['name']}</option>";
                             }
                             echo "</select></td>";
