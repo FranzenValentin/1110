@@ -69,41 +69,35 @@ require 'db.php';
         <table class="einsatz-tabelle">
             <tr>
                 <td>
-                    <label for="einsatznummer_lts">Einsatznummer LTS:</label>
-                    <input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer">
+                    <input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS">
                 </td>
                 <td>
-                    <label for="stichwort_id">Stichwort:</label>
-                    <select id="stichwort_id" name="stichwort_id">
+                    <select id="stichwort_id" name="stichwort_id" placeholder="Stichwort">
                         <?php foreach ($stichworte as $stichwort): ?>
                             <option value="<?= htmlspecialchars($stichwort['id']) ?>">
-                                <?= htmlspecialchars($stichwort['kategorie'] . ' - ' . $stichwort['stichwort']) ?>
-                            </option>
+                            <?= htmlspecialchars($stichwort['kategorie'] . ' - ' . $stichwort['stichwort']) ?>
+                        </option>
                         <?php endforeach; ?>
                     </select>
                 </td>
                 <td>
-                    <label for="alarmuhrzeit">Alarmuhrzeit:</label>
-                    <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm">
-                    <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Zeit</button>
+                    <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="Alarm: dd.mm.yy hh:mm">
+                    <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Jetzt</button>
                 </td>
                 <td>
-                    <label for="zurueckzeit">Zurückzeit:</label>
-                    <input type="text" id="zurueckzeit" name="zurueckzeit" placeholder="dd.mm.yy hh:mm">
-                    <button type="button" onclick="setCurrentTime('zurueckzeit')">Zeit</button>
+                    <input type="text" id="zurueckzeit" name="zurueckzeit" placeholder="Zurück: dd.mm.yy hh:mm">
+                    <button type="button" onclick="setCurrentTime('zurueckzeit')">Jetzt</button>
                 </td>
                 <td>
-                    <label for="adresse">Adresse:</label>
                     <input type="text" id="adresse" name="adresse" placeholder="Adresse">
                 </td>
                 <td>
-                    <label for="fahrzeug_id">Fahrzeug:</label>
                     <select id="fahrzeug_id" name="fahrzeug_id">
                         <?php foreach ($fahrzeuge as $fahrzeug): ?>
                             <option value="<?= htmlspecialchars($fahrzeug['id']) ?>" 
-                                    <?= $fahrzeug['id'] === 1 ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($fahrzeug['name']) ?>
-                            </option>
+                                <?= $fahrzeug['id'] === 1 ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($fahrzeug['name']) ?>
+                        </option>
                         <?php endforeach; ?>
                     </select>
                 </td>
