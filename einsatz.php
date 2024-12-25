@@ -44,10 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // Eingabedaten validieren
-            if (!preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}', $alarmuhrzeit)) {
+            if (!preg_match('/\d{2}.\d{2}.\d{4} \d{2}:\d{2}', $alarmuhrzeit)) {
                 throw new Exception("Alarmuhrzeit hat ein ungültiges Format.");
             }
-            if (!preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}', $zurueckzeit)) {
+            if (!preg_match('/\d{2}.\d{2}.\d{4} \d{2}:\d{2}', $zurueckzeit)) {
                 throw new Exception("Zurückzeit hat ein ungültiges Format.");
             }
 
@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         const hours = String(now.getHours()).padStart(2, '0'); // Stunde mit führender Null
         const minutes = String(now.getMinutes()).padStart(2, '0'); // Minute mit führender Null
 
-        const formattedTime = `${year}-${month}-${day} ${hours}:${minutes}`; // Format YYYY-MM-DD HH:MM
+        const formattedTime = `${day}.${month}.${year} ${hours}:${minutes}`; // Format YYYY-MM-DD HH:MM
         document.getElementById(fieldId).value = formattedTime;
     }
 </script>
@@ -136,11 +136,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </label><br>
             <label>Alarmuhrzeit: 
-                <input type="text" name="alarmuhrzeit" id="alarmuhrzeit" placeholder="YYYY-MM-DD HH:MM">
+                <input type="text" name="alarmuhrzeit" id="alarmuhrzeit" placeholder="DD.MM.YYYY HH:MM">
                 <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Aktuelle Zeit</button>
             </label><br>
             <label>Zurückzeit: 
-                <input type="text" name="zurueckzeit" id="zurueckzeit" placeholder="YYYY-MM-DD HH:MM">
+                <input type="text" name="zurueckzeit" id="zurueckzeit" placeholder="DD.MM.YYYY HH:MM">
                 <button type="button" onclick="setCurrentTime('zurueckzeit')">Aktuelle Zeit</button>
             </label><br>
             <label>Adresse: <input type="text" name="adresse"></label><br>
