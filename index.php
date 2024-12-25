@@ -105,14 +105,14 @@ require 'db.php';
                     </td>
                     <!-- Stichwort -->
                     <td>
-                        <select id="stichwort_id" name="stichwort_id">
+                        <input list="stichwort_liste" id="stichwort_id" name="stichwort_id" placeholder="Stichwort eingeben oder auswählen">
+                        <datalist id="stichwort_liste">
                             <?php foreach ($stichworte as $stichwort): ?>
-                                <option value="<?= htmlspecialchars($stichwort['id']) ?>">
-                                    <?= htmlspecialchars($stichwort['stichwort']) ?>
-                                </option>
+                                <option value="<?= htmlspecialchars($stichwort['stichwort']) ?>"></option>
                             <?php endforeach; ?>
-                        </select>
+                        </datalist>
                     </td>
+
 
                     <!-- Alarmzeit -->
                     <td>
