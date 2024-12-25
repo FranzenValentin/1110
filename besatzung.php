@@ -6,14 +6,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Besatzung speichern
         $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
         foreach ($roles as $role) {
-            if (isset($_POST[$role])) { // Sicherstellen, dass die Auswahl existiert
+            if (isset($_POST[$role]) && $_POST[$role] !== '') { // Sicherstellen, dass die Auswahl existiert und nicht leer ist
                 $person_id = $_POST[$role];
                 $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = :person_id");
                 $stmt->execute([':person_id' => $person_id]);
             } else {
                 // Wenn keine Person ausgewählt wurde, setzen wir NULL für die Rolle
                 $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = NULL");
-                $stmt->execute([':person_id' => $person_id]);
+                $stmt->execute();
             }
         }
         $message = "Besatzung erfolgreich aktualisiert.";
