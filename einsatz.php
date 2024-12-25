@@ -130,11 +130,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </label><br>
             <label>Alarmuhrzeit: 
-                <input type="text" name="alarmuhrzeit" id="alarmuhrzeit" placeholder="YYYY-MM-DD HH:MM:SS">
+                <input type="text" name="alarmuhrzeit" id="alarmuhrzeit" placeholder="YYYY-MM-DD HH:MM">
                 <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Aktuelle Zeit</button>
             </label><br>
             <label>Zurückzeit: 
-                <input type="text" name="zurueckzeit" id="zurueckzeit" placeholder="YYYY-MM-DD HH:MM:SS">
+                <input type="text" name="zurueckzeit" id="zurueckzeit" placeholder="YYYY-MM-DD HH:MM">
                 <button type="button" onclick="setCurrentTime('zurueckzeit')">Aktuelle Zeit</button>
             </label><br>
             <label>Adresse: <input type="text" name="adresse"></label><br>
