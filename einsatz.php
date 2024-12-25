@@ -44,10 +44,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // Eingabedaten validieren
-            if (!preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $alarmuhrzeit)) {
+            if (!preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}', $alarmuhrzeit)) {
                 throw new Exception("Alarmuhrzeit hat ein ungültiges Format.");
             }
-            if (!preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $zurueckzeit)) {
+            if (!preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}', $zurueckzeit)) {
                 throw new Exception("Zurückzeit hat ein ungültiges Format.");
             }
 
