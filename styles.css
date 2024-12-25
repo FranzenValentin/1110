@@ -90,3 +90,8 @@ input, select {
     box-sizing: border-box; /* Sorgt für korrektes Padding */
     vertical-align: middle; /* Zentriert den Text vertikal */
 }
+
+table input, table select, table button {
+    width: 100%;
+    box-sizing: border-box; /* Damit Padding berücksichtigt wird */
+}
