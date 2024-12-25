@@ -143,10 +143,11 @@ require 'db.php';
                 </tr>
             </tbody>
         </table>      
-    </form>
             <div class="button-container">
                 <button type="submit" name="save">Speichern</button>
-            </div>
+            </div> 
+        </form>
+            
 </section>
 
 <script>
