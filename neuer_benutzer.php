@@ -49,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <br>
 
                 <button type="submit">Benutzer hinzufügen</button>
+                <button type="button" onclick="window.location.href='index.php';">Zurück zur Startseite</button>
             </form>
         </section>
     </main>
