@@ -39,7 +39,7 @@ require 'db.php';
             try {
                 // Werte aus dem Formular abrufen
                 $einsatznummer_lts = $_POST['einsatznummer_lts'] ?? null;
-                $stichwort_id = $_POST['stichwort_id'] ?? null;
+                $stichwort = $_POST['stichwort'] ?? null;
                 $alarmuhrzeit = $_POST['alarmuhrzeit'] ?? null;
                 $zurueckzeit = $_POST['zurueckzeit'] ?? null;
                 $adresse = $_POST['adresse'] ?? null;
