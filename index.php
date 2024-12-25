@@ -139,10 +139,7 @@ require 'db.php';
             SELECT id, stichwort
             FROM Stichworte
             ORDER BY 
-                CASE
-                    WHEN stichwort LIKE '% %' THEN 2 -- Stichworte mit Leerzeichen sortieren später
-                    ELSE 1 -- Stichworte ohne Leerzeichen zuerst
-                END,
+                FIELD(stichwort, 'TH M', 'TH 1', 'TH 1 + NOTF', 'TH 2') ASC,
                 stichwort ASC
         ");
         $stichworteStmt->execute();
