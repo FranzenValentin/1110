@@ -27,7 +27,8 @@ main {
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;table-layout: fixed;
+    margin-bottom: 20px;
+    table-layout: fixed;
     
 }
 
