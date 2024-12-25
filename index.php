@@ -66,18 +66,13 @@ require 'db.php';
                 </tbody>
             </table>
         </section>
-        <li><a href="besatzung.php">Besatzung ändern</a></li>
+        <button type="button" onclick="window.location.href='besatzung.php';">Besatzung ändern</button>
     </main>
     
     <nav>
         <ul>
-        <div class="button-container">
-    <a href="neuer_benutzer.php" class="button">Neuer Benutzer</a>
-    <a href="besatzung.php" class="button">Besatzung verwalten</a>
-    <a href="einsatz.php" class="button">Einsätze hinzufügen</a>
-    <a href="stichworte.php" class="button">Stichworte verwalten</a>
-</div>
-
+            <button type="button" onclick="window.location.href='neuer_benutzer.php';">Neuer Benutzer</button>
+            <button type="button" onclick="window.location.href='stichworte.php';">Stichworte verwalten</button>
         </ul>
     </nav>
     <footer>
