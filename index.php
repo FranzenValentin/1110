@@ -44,25 +44,28 @@ require 'db.php';
                         $updateStmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = :person_id");
                         $updateStmt->execute([':person_id' => $person_id]);
                     }
-
                     foreach ($roles as $key => $label) {
                         echo "<tr>";
                         echo "<td>$label</td>";
 
-                        // Prüfen, ob eine Person bereits zugewiesen ist
-                        $stmt = $pdo->prepare("SELECT p.id, CONCAT(p.vorname, ' ', p.nachname) AS name FROM Personal p JOIN Besatzung b ON p.id = b.{$key}_id LIMIT 1");
-                        $stmt->execute();
-                        $assigned = $stmt->fetch();
+                        // Die neueste Besatzungszeile abrufen
+                        $stmt = $pdo->query("SELECT * FROM Besatzung ORDER BY id DESC LIMIT 1");
+                        $latestBesatzung = $stmt->fetch();
 
-                        if ($assigned) {
-                            // Wenn jemand zugewiesen ist, wird der Name angezeigt
-                            echo "<td>{$assigned['name']}</td>";
+                        if ($latestBesatzung && $latestBesatzung[$key . '_id']) {
+                            // Die zugewiesene Person abrufen
+                            $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM Personal WHERE id = :id");
+                            $personStmt->execute([':id' => $latestBesatzung[$key . '_id']]);
+                            $person = $personStmt->fetch();
+                            echo "<td>" . ($person['name'] ?? '<em>NICHT BESETZT</em>') . "</td>";
                         } else {
-                            // Wenn niemand zugewiesen ist, Hinweis anzeigen
                             echo "<td><em>NICHT BESETZT</em></td>";
                         }
+
+                        echo "</tr>";
                     }
-                    ?>
+?>
+
                 </tbody>
             </table>
         </section>
