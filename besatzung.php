@@ -16,47 +16,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Prüfen, ob die letzte Zeile nur NULL enthält
-        $stmt = $pdo->query("SELECT * FROM Besatzung ORDER BY id DESC LIMIT 1");
-        $lastRow = $stmt->fetch();
-        $lastRowIsNull = ($lastRow && is_null($lastRow['stf_id']) && is_null($lastRow['ma_id']) && is_null($lastRow['atf_id']) && is_null($lastRow['atm_id']) && is_null($lastRow['wtf_id']) && is_null($lastRow['wtm_id']) && is_null($lastRow['prakt_id']));
-
-        if ($lastRowIsNull) {
-            // Letzte Zeile überschreiben
-            $stmt = $pdo->prepare("UPDATE Besatzung SET stf_id = :stf, ma_id = :ma, atf_id = :atf, atm_id = :atm, wtf_id = :wtf, wtm_id = :wtm, prakt_id = :prakt WHERE id = :id");
-            $stmt->execute([
-                ':stf' => $changes['stf'],
-                ':ma' => $changes['ma'],
-                ':atf' => $changes['atf'],
-                ':atm' => $changes['atm'],
-                ':wtf' => $changes['wtf'],
-                ':wtm' => $changes['wtm'],
-                ':prakt' => $changes['prakt'],
-                ':id' => $lastRow['id']
-            ]);
-        } else {
-            // Neue Zeile mit den Änderungen erstellen
-            $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) VALUES (:stf, :ma, :atf, :atm, :wtf, :wtm, :prakt)");
-            $stmt->execute([
-                ':stf' => $changes['stf'],
-                ':ma' => $changes['ma'],
-                ':atf' => $changes['atf'],
-                ':atm' => $changes['atm'],
-                ':wtf' => $changes['wtf'],
-                ':wtm' => $changes['wtm'],
-                ':prakt' => $changes['prakt']
-            ]);
-        }
+        // Neue Zeile mit den Änderungen erstellen
+        $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) VALUES (:stf, :ma, :atf, :atm, :wtf, :wtm, :prakt)");
+        $stmt->execute([
+            ':stf' => $changes['stf'],
+            ':ma' => $changes['ma'],
+            ':atf' => $changes['atf'],
+            ':atm' => $changes['atm'],
+            ':wtf' => $changes['wtf'],
+            ':wtm' => $changes['wtm'],
+            ':prakt' => $changes['prakt']
+        ]);
 
         $message = "Besatzung erfolgreich aktualisiert.";
         header("Location: " . $_SERVER['PHP_SELF']); // Seite neu laden
         exit;
     } elseif (isset($_POST['clear'])) {
-        // Alle Rollen auf NULL setzen
-        $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
-        foreach ($roles as $role) {
-            $_POST[$role] = '';
-        }
+        // Neue Zeile mit nur NULL einfügen
+        $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) VALUES (NULL, NULL, NULL, NULL, NULL, NULL, NULL)");
+        $stmt->execute();
+
         $message = "Auswahl zurückgesetzt. Bitte speichern, um Änderungen zu übernehmen.";
     }
 }
