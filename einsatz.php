@@ -4,7 +4,6 @@ require 'db.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Eingabewerte aus dem Formular abrufen, leere Werte in NULL konvertieren
-        $interne_einsatznummer = !empty($_POST['interne_einsatznummer']) ? $_POST['interne_einsatznummer'] : null;
         $einsatznummer_lts = !empty($_POST['einsatznummer_lts']) ? $_POST['einsatznummer_lts'] : null;
         $stichwort_id = !empty($_POST['stichwort_id']) ? $_POST['stichwort_id'] : null;
         $alarmuhrzeit = !empty($_POST['alarmuhrzeit']) ? $_POST['alarmuhrzeit'] : null;
@@ -23,11 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Einsatz einfügen
-        $sql = "INSERT INTO Einsaetze (interne_einsatznummer, einsatznummer_lts, stichwort_id, alarmuhrzeit, zurueckzeit, adresse, fahrzeug, besatzung_id)
-                VALUES (:interne_einsatznummer, :einsatznummer_lts, :stichwort_id, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug, :besatzung_id)";
+        $sql = "INSERT INTO Einsaetze (einsatznummer_lts, stichwort_id, alarmuhrzeit, zurueckzeit, adresse, fahrzeug, besatzung_id)
+                VALUES (:einsatznummer_lts, :stichwort_id, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug, :besatzung_id)";
         $stmt = $conn->prepare($sql);
         $stmt->execute([
-            ':interne_einsatznummer' => $interne_einsatznummer,
             ':einsatznummer_lts' => $einsatznummer_lts,
             ':stichwort_id' => $stichwort_id,
             ':alarmuhrzeit' => $alarmuhrzeit,
@@ -65,7 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </header>
     <main>
         <form method="POST">
-            <label>Interne Einsatznummer: <input type="text" name="interne_einsatznummer"></label><br>
             <label>Einsatznummer LTS: <input type="text" name="einsatznummer_lts"></label><br>
             <label>Stichwort ID: <input type="number" name="stichwort_id"></label><br>
             <label>Alarmuhrzeit: 
