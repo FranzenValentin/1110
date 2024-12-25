@@ -12,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([':person_id' => $person_id]);
             }
         }
-        $message = "Besatzung erfolgreich aktualisiert.";
     } elseif (isset($_POST['clear'])) {
         // Alle Zuordnungen löschen
         $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
@@ -20,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = NULL");
             $stmt->execute();
         }
-        $message = "Alle Zuordnungen wurden gelöscht.";
     }
 }
 ?>
@@ -40,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main>
         <section id="aktuelle-besatzung">
             <h2>Besatzungsrollen und Zuweisungen</h2>
-            <?php if (isset($message)) { echo "<p>$message</p>"; } ?>
             <form method="POST">
                 <table>
                     <thead>
@@ -74,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             if ($assigned) {
                                 echo "<td>{$assigned['name']}</td>";
                             } else {
-                                echo "<td><em>Keine Zuweisung</em></td>";
+                                echo "<td><em>NICHT BESETZT</em></td>";
                             }
 
                             // Dropdown zur Auswahl
