@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 // Wenn keine Person ausgewählt wurde, setzen wir NULL für die Rolle
                 $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = NULL");
-                $stmt->execute();
+                $stmt->execute([':person_id' => $person_id]);
             }
         }
         $message = "Besatzung erfolgreich aktualisiert.";
