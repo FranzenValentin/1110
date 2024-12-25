@@ -6,6 +6,20 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+try {
+    // Fahrzeuge laden
+    $fahrzeugeStmt = $pdo->prepare("SELECT id, name FROM Fahrzeuge ORDER BY name");
+    $fahrzeugeStmt->execute();
+    $fahrzeuge = $fahrzeugeStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Stichworte laden
+    $stichworteStmt = $pdo->prepare("SELECT id, art, bezeichnung FROM Stichworte ORDER BY art, bezeichnung");
+    $stichworteStmt->execute();
+    $stichworte = $stichworteStmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Fehler beim Laden der Daten: " . $e->getMessage());
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         // Werte aus dem Formular abrufen
@@ -14,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $alarmuhrzeit = !empty($_POST['alarmuhrzeit']) ? $_POST['alarmuhrzeit'] : null;
         $zurueckzeit = !empty($_POST['zurueckzeit']) ? $_POST['zurueckzeit'] : null;
         $adresse = !empty($_POST['adresse']) ? $_POST['adresse'] : null;
-        $fahrzeug = !empty($_POST['fahrzeug']) ? $_POST['fahrzeug'] : null;
+        $fahrzeug_id = !empty($_POST['fahrzeug_id']) ? (int) $_POST['fahrzeug_id'] : null;
 
         // Eingabedaten validieren
         if (!preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $alarmuhrzeit)) {
@@ -36,8 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // SQL-Statement vorbereiten
         $sql = "INSERT INTO Einsaetze 
-                (einsatznummer_lts, stichwort_id, alarmuhrzeit, zurueckzeit, adresse, fahrzeug, besatzung_id)
-                VALUES (:einsatznummer_lts, :stichwort_id, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug, :besatzung_id)";
+                (einsatznummer_lts, stichwort_id, alarmuhrzeit, zurueckzeit, adresse, fahrzeug_id, besatzung_id)
+                VALUES (:einsatznummer_lts, :stichwort_id, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug_id, :besatzung_id)";
         $stmt = $pdo->prepare($sql);
 
         // SQL-Parameter binden und ausführen
@@ -47,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':alarmuhrzeit' => $alarmuhrzeit,
             ':zurueckzeit' => $zurueckzeit,
             ':adresse' => $adresse,
-            ':fahrzeug' => $fahrzeug,
+            ':fahrzeug_id' => $fahrzeug_id ?? 1, // Standardfahrzeug LHF 1110/1
             ':besatzung_id' => $besatzung_id
         ]);
 
@@ -82,7 +96,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main>
         <form method="POST">
             <label>Einsatznummer LTS: <input type="text" name="einsatznummer_lts"></label><br>
-            <label>Stichwort ID: <input type="number" name="stichwort_id"></label><br>
+            <label>Stichwort:
+                <select name="stichwort_id">
+                    <?php foreach ($stichworte as $stichwort): ?>
+                        <option value="<?= htmlspecialchars($stichwort['id']) ?>">
+                            <?= htmlspecialchars($stichwort['art'] . ' - ' . $stichwort['bezeichnung']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </label><br>
             <label>Alarmuhrzeit: 
                 <input type="text" name="alarmuhrzeit" id="alarmuhrzeit" placeholder="YYYY-MM-DD HH:MM:SS">
                 <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Aktuelle Zeit</button>
@@ -92,7 +114,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <button type="button" onclick="setCurrentTime('zurueckzeit')">Aktuelle Zeit</button>
             </label><br>
             <label>Adresse: <input type="text" name="adresse"></label><br>
-            <label>Fahrzeug: <input type="text" name="fahrzeug"></label><br>
+            <label>Fahrzeug:
+                <select name="fahrzeug_id">
+                    <?php foreach ($fahrzeuge as $fahrzeug): ?>
+                        <option value="<?= htmlspecialchars($fahrzeug['id']) ?>" 
+                                <?= $fahrzeug['name'] === 'LHF 1110/1' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($fahrzeug['name']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </label><br>
             <div>
                 <button type="submit">Einsatz speichern</button>
             </div>
