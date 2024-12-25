@@ -1,93 +1,98 @@
-/* Allgemeine Regeln */
+/* Allgemeine Stile */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f9f9f9;
     color: #333;
-    line-height: 1.6;
 }
 
 header {
-    text-align: center;
-    padding: 20px;
-    background-color: #ff4d4d;
+    background-color: #ff4d4d; /* Rot */
     color: white;
+    padding: 20px;
+    text-align: center;
 }
 
-/* Tabellen-Stil */
+h1 {
+    margin: 0;
+    font-size: 2em;
+}
+
+main {
+    padding: 20px;
+}
+
+/* Tabelle */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
+    margin-bottom: 20px;table-layout: fixed;
+    
 }
 
 table th, table td {
     border: 1px solid #ddd;
     padding: 10px;
-    text-align: left;
-    word-wrap: break-word;
+    text-align: center;
+    white-space: nowrap;
 }
 
 table th {
-    background-color: #ffcccc;
+    background-color: #ffcccc; /* Heller Rotton */
 }
 
-/* Formularelemente */
-form input, form select, form button {
-    width: 100%;
-    padding: 10px;
-    margin: 5px 0;
-    box-sizing: border-box;
+tr:nth-child(even) {
+    background-color: #f2f2f2;
 }
 
-/* Button-Stile */
+tr:hover {
+    background-color: #ffdddd; /* Dezentes Highlight */
+}
+
+/* Buttons */
 button {
-    background-color: #ff4d4d;
+    background-color: #ff4d4d; /* Rot */
     color: white;
     border: none;
-    padding: 10px;
+    padding: 10px 15px;
     cursor: pointer;
     border-radius: 5px;
-    width: 100%;
+    font-size: 1em;
 }
 
 button:hover {
-    background-color: #e60000;
+    background-color: #e60000; /* Dunkler Rotton */
 }
 
-/* Responsive Regeln */
-@media (max-width: 768px) {
-    table, thead, tbody, th, td, tr {
-        display: block;
-    }
-
-    table tr {
-        margin-bottom: 15px;
-    }
-
-    table th, table td {
-        text-align: left;
-        display: block;
-        width: 100%;
-    }
-
-    table th {
-        background-color: transparent;
-        color: #333;
-        font-weight: bold;
-        text-transform: uppercase;
-        padding-top: 10px;
-    }
-
-    table td {
-        border: none;
-    }
-
-    button {
-        font-size: 1em;
-    }
+/* Formular */
+form div {
+    margin-top: 20px;
+    text-align: right;
 }
 
+p {
+    color: green;
+    font-weight: bold;
+}
 
+/* Spezifische Elemente */
+em {
+    color: #999;
+    font-style: italic;
+}
 
+input, select {
+    height: 38px; /* Passt zur Höhe von Buttons */
+    padding: 5px 10px; /* Gleiche Innenabstände wie bei Buttons */
+    border: 1px solid #ccc; /* Standardrahmen */
+    border-radius: 5px; /* Gleiche abgerundeten Ecken wie Buttons */
+    font-size: 1em; /* Einheitliche Schriftgröße */
+    box-sizing: border-box; /* Sorgt für korrektes Padding */
+    vertical-align: middle; /* Zentriert den Text vertikal */
+}
+
+table input, table select, table button {
+    width: 100%;
+    box-sizing: border-box; /* Damit Padding berücksichtigt wird */
+}
