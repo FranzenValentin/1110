@@ -64,21 +64,36 @@ require 'db.php';
 
 <!-- Neuer Alarm -->
 <section id="neuer-alarm">
-<?php
-try {
-    // Fahrzeuge laden
-    $fahrzeugeStmt = $pdo->prepare("SELECT id, name FROM Fahrzeuge ORDER BY name");
-    $fahrzeugeStmt->execute();
-    $fahrzeuge = $fahrzeugeStmt->fetchAll(PDO::FETCH_ASSOC);
+    <?php
+        try {
+            // Fahrzeuge laden
+            $fahrzeugeStmt = $pdo->prepare("SELECT id, name FROM Fahrzeuge ORDER BY name");
+            $fahrzeugeStmt->execute();
+            $fahrzeuge = $fahrzeugeStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Stichworte laden, sortiert nach Kategorie und Stichwort
-    $stichworteStmt = $pdo->prepare("SELECT id, kategorie, stichwort FROM Stichworte ORDER BY kategorie, stichwort");
-    $stichworteStmt->execute();
-    $stichworte = $stichworteStmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Fehler beim Laden der Daten: " . $e->getMessage());
-}
-?>
+            // Stichworte laden, sortiert nach Kategorie und Stichwort
+            $stichworteStmt = $pdo->prepare("SELECT id, kategorie, stichwort FROM Stichworte ORDER BY kategorie, stichwort");
+            $stichworteStmt->execute();
+            $stichworte = $stichworteStmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die("Fehler beim Laden der Daten: " . $e->getMessage());
+        }
+    ?>  
+
+    <script>
+                function setCurrentTime(fieldId) {
+                    const now = new Date();
+                    const year = String(now.getFullYear()).slice(-2); // Jahr zweistellig
+                    const month = String(now.getMonth() + 1).padStart(2, '0'); // Monat mit führender Null
+                    const day = String(now.getDate()).padStart(2, '0'); // Tag mit führender Null
+                    const hours = String(now.getHours()).padStart(2, '0'); // Stunde mit führender Null
+                    const minutes = String(now.getMinutes()).padStart(2, '0'); // Minute mit führender Null
+
+                    const formattedTime = `${day}.${month}.${year} ${hours}:${minutes}`; // Format dd.mm.yy hh:mm
+                    document.getElementById(fieldId).value = formattedTime;
+                }
+    </script>
+
     <h2>Neuen Einsatz eintragen</h2>
     <form method="POST" class="einsatz-form">
         <table class="einsatz-tabelle">
@@ -118,7 +133,6 @@ try {
                 </td>
                 <td>
                     <button type="submit" name="save" class="btn">Speichern</button>
-                    <button type="submit" name="save_and_back" class="btn">Zurück</button>
                 </td>
             </tr>
         </table>
