@@ -133,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_einsatz'])) {
     </main>
 
     <footer>
-        <p>&copy; 2024 Einsatzverwaltung. Alle Rechte vorbehalten.</p>
+        <p>&copy; 2025 Einsatzverwaltung. Alle Rechte vorbehalten.</p>
     </footer>
 </body>
 </html>
