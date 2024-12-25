@@ -171,7 +171,7 @@ require 'db.php';
                     </td>
                     <!-- Adresse -->
                     <td>
-                        <input type="text" id="adresse" name="adresse" placeholder="Adresse">
+                        <input type="text" id="adresse" name="adresse" placeholder="Linienstraße 128, Mitte (Adresse)">
                     </td>
                     <!-- Fahrzeug -->
                     <td>
