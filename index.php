@@ -135,7 +135,16 @@ require 'db.php';
             }
         }
         //Stichworte sortieren
-        $stichworteStmt = $pdo->prepare("SELECT id, stichwort FROM Stichworte ORDER BY stichwort ASC");
+        $stichworteStmt = $pdo->prepare("
+            SELECT id, stichwort
+            FROM Stichworte
+            ORDER BY 
+                CASE
+                    WHEN stichwort LIKE '% %' THEN 2 -- Stichworte mit Leerzeichen sortieren später
+                    ELSE 1 -- Stichworte ohne Leerzeichen zuerst
+                END,
+                stichwort ASC
+        ");
         $stichworteStmt->execute();
         $stichworte = $stichworteStmt->fetchAll(PDO::FETCH_ASSOC);
     ?>
