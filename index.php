@@ -117,13 +117,19 @@ require 'db.php';
                         <td>" . htmlspecialchars($row['stichwort']) . "</td>
                         <td>" . htmlspecialchars($row['alarmuhrzeit']) . "</td>
                         <td>" . htmlspecialchars($row['fahrzeug_name']) . "</td>
-                        <td>" . implode('<br>', $personal) . "</td>
+                        <td>
+                            <details>
+                                <summary>Details anzeigen</summary>
+                                " . implode('<br>', $personal) . "
+                            </details>
+                        </td>
                       </tr>";
             }
             ?>
         </tbody>
     </table>
 </section>
+
 
     </main>
 
