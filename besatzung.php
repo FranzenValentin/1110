@@ -32,12 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: " . $_SERVER['PHP_SELF']); // Seite neu laden
         exit;
     } elseif (isset($_POST['clear'])) {
-        // Alle Zuordnungen löschen
-        $stmt = $pdo->prepare("DELETE FROM Besatzung");
-        $stmt->execute();
-        $message = "Alle Zuordnungen wurden gelöscht.";
-        header("Location: " . $_SERVER['PHP_SELF']); // Seite neu laden
-        exit;
+        // Alle Felder leeren, aber nichts speichern
+        $message = "Auswahl zurückgesetzt. Bitte speichern, um Änderungen zu übernehmen.";
     }
 }
 ?>
