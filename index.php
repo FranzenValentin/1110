@@ -37,6 +37,7 @@ require 'db.php';
                 </thead>
                 <tbody>
                     <?php
+                    // Abfrage für die aktuelle Besatzung
                     $roles = [
                         'stf' => 'Staffel-Führer',
                         'ma' => 'Maschinist',
@@ -47,8 +48,8 @@ require 'db.php';
                         'prakt' => 'Praktikant'
                     ];
 
-                    $stmt = $pdo->query("SELECT * FROM Besatzung ORDER BY id DESC LIMIT 1");
-                    $latestBesatzung = $stmt->fetch();
+                    $besatzungStmt = $pdo->query("SELECT * FROM Besatzung ORDER BY id DESC LIMIT 1");
+                    $latestBesatzung = $besatzungStmt->fetch();
 
                     foreach ($roles as $key => $label) {
                         echo "<tr><td>$label</td>";
@@ -79,15 +80,15 @@ require 'db.php';
                 </thead>
                 <tbody>
                     <?php
-                    // SQL-Abfrage: Abrufen der letzten Einsätze
-                    $stmt = $pdo->query("
+                    // Abfrage für die letzten Einsätze
+                    $einsaetzeStmt = $pdo->query("
                         SELECT einsatznummer, stichwort
                         FROM Einsaetze
                         ORDER BY id DESC LIMIT 10
                     ");
 
                     // Ergebnisse anzeigen
-                    while ($row = $stmt->fetch()) {
+                    while ($row = $einsaetzeStmt->fetch()) {
                         echo "<tr>
                                 <td>" . htmlspecialchars($row['einsatznummer']) . "</td>
                                 <td>" . htmlspecialchars($row['stichwort']) . "</td>
