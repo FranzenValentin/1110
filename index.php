@@ -68,12 +68,12 @@ require 'db.php';
     <form method="POST" class="einsatz-form">
         <table class="einsatz-tabelle">
             <tr>
-                <td><label for="einsatznummer_lts">Einsatznummer LTS:</label></td>
-                <td><input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer"></td>
-            </tr>
-            <tr>
-                <td><label for="stichwort_id">Stichwort:</label></td>
                 <td>
+                    <label for="einsatznummer_lts">Einsatznummer LTS:</label>
+                    <input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer">
+                </td>
+                <td>
+                    <label for="stichwort_id">Stichwort:</label>
                     <select id="stichwort_id" name="stichwort_id">
                         <?php foreach ($stichworte as $stichwort): ?>
                             <option value="<?= htmlspecialchars($stichwort['id']) ?>">
@@ -82,28 +82,24 @@ require 'db.php';
                         <?php endforeach; ?>
                     </select>
                 </td>
-            </tr>
-            <tr>
-                <td><label for="alarmuhrzeit">Alarmuhrzeit:</label></td>
                 <td>
+                    <label for="alarmuhrzeit">Alarmuhrzeit:</label>
                     <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm">
                     <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Aktuelle Zeit</button>
                 </td>
             </tr>
             <tr>
-                <td><label for="zurueckzeit">Zurückzeit:</label></td>
                 <td>
+                    <label for="zurueckzeit">Zurückzeit:</label>
                     <input type="text" id="zurueckzeit" name="zurueckzeit" placeholder="dd.mm.yy hh:mm">
                     <button type="button" onclick="setCurrentTime('zurueckzeit')">Aktuelle Zeit</button>
                 </td>
-            </tr>
-            <tr>
-                <td><label for="adresse">Adresse:</label></td>
-                <td><input type="text" id="adresse" name="adresse" placeholder="Adresse des Einsatzortes"></td>
-            </tr>
-            <tr>
-                <td><label for="fahrzeug_id">Fahrzeug:</label></td>
                 <td>
+                    <label for="adresse">Adresse:</label>
+                    <input type="text" id="adresse" name="adresse" placeholder="Adresse des Einsatzortes">
+                </td>
+                <td>
+                    <label for="fahrzeug_id">Fahrzeug:</label>
                     <select id="fahrzeug_id" name="fahrzeug_id">
                         <?php foreach ($fahrzeuge as $fahrzeug): ?>
                             <option value="<?= htmlspecialchars($fahrzeug['id']) ?>" 
@@ -122,7 +118,7 @@ require 'db.php';
         </div>
     </form>
 </section>
-              
+         
 
 
         <!-- Letzte Einsätze -->

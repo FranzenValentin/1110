@@ -89,16 +89,12 @@ em {
 
 .einsatz-tabelle td {
     padding: 10px;
-    vertical-align: middle;
+    vertical-align: top;
 }
 
-.einsatz-tabelle label {
-    font-weight: bold;
-}
-
-.einsatz-tabelle input, 
+.einsatz-tabelle input,
 .einsatz-tabelle select {
-    width: 100%;
+    width: 90%; /* Passt in eine Zelle */
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -106,8 +102,8 @@ em {
 }
 
 .einsatz-tabelle button {
+    margin-top: 5px;
     padding: 5px 10px;
-    margin-left: 10px;
     font-size: 14px;
     background-color: #007BFF;
     color: white;
