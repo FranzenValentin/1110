@@ -10,6 +10,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $person_id = $_POST[$role];
                 $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = :person_id");
                 $stmt->execute([':person_id' => $person_id]);
+
+                // Neue Spalte in der Datenbank hinzufügen, wenn sich etwas ändert
+                $alterTableStmt = $pdo->prepare("ALTER TABLE Besatzung ADD COLUMN IF NOT EXISTS `change_log_{$role}_id` INT AFTER {$role}_id");
+                $alterTableStmt->execute();
+
+                // Log der Änderung speichern
+                $logStmt = $pdo->prepare("UPDATE Besatzung SET change_log_{$role}_id = :person_id");
+                $logStmt->execute([':person_id' => $person_id]);
             } else {
                 // Wenn keine Person ausgewählt wurde, setzen wir NULL für die Rolle
                 $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = NULL");
@@ -82,12 +90,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             if ($assigned) {
                                 echo "<td>{$assigned['name']}</td>";
                             } else {
-                                echo "<td><em>NICHT BESETZT</em></td>";
+                                echo "<td><em>Keine Zuweisung</em></td>";
                             }
 
                             // Dropdown zur Auswahl
                             echo "<td><select name='$key'>";
-                            echo "<option value=''>NICHT BESETZT</option>";
+                            echo "<option value=''>Keine Auswahl</option>";
                             $stmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal");
                             while ($row = $stmt->fetch()) {
                                 $selected = ($assigned && $assigned['id'] == $row['id']) ? 'selected' : '';
