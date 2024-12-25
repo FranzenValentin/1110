@@ -31,6 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $adresse = !empty($_POST['adresse']) ? $_POST['adresse'] : null;
             $fahrzeug_id = !empty($_POST['fahrzeug_id']) ? (int) $_POST['fahrzeug_id'] : 1; // Standardfahrzeug ID = 1
 
+            // Format prüfen (optional, falls weitere Validierungen benötigt werden)
+            if (!preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $alarmuhrzeit) || 
+                !preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/', $zurueckzeit)) {
+                throw new Exception("Das Datum muss im Format YYYY-MM-DD HH:MM vorliegen.");
+            }
+
             // Fahrzeugname anhand der ID ermitteln
             $fahrzeug_name = null;
             foreach ($fahrzeuge as $fahrzeug) {
@@ -42,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$fahrzeug_name) {
                 throw new Exception("Ungültige Fahrzeug-ID ausgewählt.");
             }
-
 
             // Aktuellste Besatzung abrufen
             $stmt = $pdo->prepare("SELECT id FROM Besatzung ORDER BY id DESC LIMIT 1");
@@ -98,19 +103,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="styles.css">
     <title>Einsatz eintragen</title>
     <script>
-    function setCurrentTime(fieldId) {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0'); // Monat mit führender Null
-        const day = String(now.getDate()).padStart(2, '0'); // Tag mit führender Null
-        const hours = String(now.getHours()).padStart(2, '0'); // Stunde mit führender Null
-        const minutes = String(now.getMinutes()).padStart(2, '0'); // Minute mit führender Null
+        function setCurrentTime(fieldId) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0'); // Monat mit führender Null
+            const day = String(now.getDate()).padStart(2, '0'); // Tag mit führender Null
+            const hours = String(now.getHours()).padStart(2, '0'); // Stunde mit führender Null
+            const minutes = String(now.getMinutes()).padStart(2, '0'); // Minute mit führender Null
 
-        const formattedTime = `${day}.${month}.${year} ${hours}:${minutes}`; // Format YYYY-MM-DD HH:MM
-        document.getElementById(fieldId).value = formattedTime;
-    }
-</script>
-
+            const formattedTime = `${year}-${month}-${day} ${hours}:${minutes}`; // Format YYYY-MM-DD HH:MM
+            document.getElementById(fieldId).value = formattedTime;
+        }
+    </script>
 </head>
 <body>
     <header>
@@ -129,11 +133,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </label><br>
             <label>Alarmuhrzeit: 
-                <input type="text" name="alarmuhrzeit" id="alarmuhrzeit" placeholder="DD.MM.YYYY HH:MM">
+                <input type="text" name="alarmuhrzeit" id="alarmuhrzeit" placeholder="YYYY-MM-DD HH:MM">
                 <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Aktuelle Zeit</button>
             </label><br>
             <label>Zurückzeit: 
-                <input type="text" name="zurueckzeit" id="zurueckzeit" placeholder="DD.MM.YYYY HH:MM">
+                <input type="text" name="zurueckzeit" id="zurueckzeit" placeholder="YYYY-MM-DD HH:MM">
                 <button type="button" onclick="setCurrentTime('zurueckzeit')">Aktuelle Zeit</button>
             </label><br>
             <label>Adresse: <input type="text" name="adresse"></label><br>
