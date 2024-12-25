@@ -97,3 +97,13 @@ table input, table select, table button {
     width: 100%;
     box-sizing: border-box; /* Damit Padding berücksichtigt wird */
 }
+
+
+#Jetzt {
+    width: 25%;
+}
+
+#alarmuhrzeit,
+#zurueckzeit {
+    width: 75%;
+}
