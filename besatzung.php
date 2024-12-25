@@ -3,32 +3,29 @@ require 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['save'])) {
-        // Neue Spalte erstellen
-        $timestamp = date('Y_m_d_His');
-        $newColumn = "change_log_$timestamp";
-        $pdo->exec("ALTER TABLE Besatzung ADD COLUMN `$newColumn` TEXT");
-
-        // Besatzung speichern
+        // Neue Zeile erstellen
         $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
         $changes = [];
         foreach ($roles as $role) {
             if (isset($_POST[$role]) && $_POST[$role] !== '') { // Sicherstellen, dass die Auswahl existiert und nicht leer ist
                 $person_id = $_POST[$role];
-                $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = :person_id");
-                $stmt->execute([':person_id' => $person_id]);
                 $changes[$role] = $person_id;
             } else {
-                // Wenn keine Person ausgewählt wurde, setzen wir NULL für die Rolle
-                $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = NULL");
-                $stmt->execute();
                 $changes[$role] = null;
             }
         }
 
-        // Änderungen in der neuen Spalte speichern
         if (!empty($changes)) {
-            $changesSerialized = json_encode($changes);
-            $pdo->exec("UPDATE Besatzung SET `$newColumn` = '$changesSerialized'");
+            $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) VALUES (:stf, :ma, :atf, :atm, :wtf, :wtm, :prakt)");
+            $stmt->execute([
+                ':stf' => $changes['stf'],
+                ':ma' => $changes['ma'],
+                ':atf' => $changes['atf'],
+                ':atm' => $changes['atm'],
+                ':wtf' => $changes['wtf'],
+                ':wtm' => $changes['wtm'],
+                ':prakt' => $changes['prakt']
+            ]);
         }
 
         $message = "Besatzung erfolgreich aktualisiert.";
@@ -36,11 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     } elseif (isset($_POST['clear'])) {
         // Alle Zuordnungen löschen
-        $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
-        foreach ($roles as $role) {
-            $stmt = $pdo->prepare("UPDATE Besatzung SET {$role}_id = NULL");
-            $stmt->execute();
-        }
+        $stmt = $pdo->prepare("DELETE FROM Besatzung");
+        $stmt->execute();
         $message = "Alle Zuordnungen wurden gelöscht.";
         header("Location: " . $_SERVER['PHP_SELF']); // Seite neu laden
         exit;
