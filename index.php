@@ -135,13 +135,7 @@ require 'db.php';
             }
         }
         //Stichworte sortieren
-        $stichworteStmt = $pdo->prepare("
-            SELECT id, stichwort
-            FROM Stichworte
-            ORDER BY 
-                FIELD(stichwort, 'TH M', 'TH 1', 'TH 1 + NOTF', 'TH 2') ASC,
-                stichwort ASC
-        ");
+        ichworteStmt = $pdo->prepare("SELECT id, stichwort FROM Stichworte ORDER BY stichwort ASC");
         $stichworteStmt->execute();
         $stichworte = $stichworteStmt->fetchAll(PDO::FETCH_ASSOC);
     ?>
