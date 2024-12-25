@@ -34,8 +34,8 @@ require 'db.php';
                         'ma' => 'Maschinist',
                         'atf' => 'Atemschutz-Führer',
                         'atm' => 'Atemschutz-Mann',
-                        'wtf' => 'Wachtrupp-Führer',
-                        'wtm' => 'Wachtrupp-Mann',
+                        'wtf' => 'Wassertrupp-Führer',
+                        'wtm' => 'Wassertrupp-Mann',
                         'prakt' => 'Praktikant'
                     ];
 
