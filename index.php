@@ -128,9 +128,9 @@ require 'db.php';
                     ':besatzung_id' => $besatzung_id
                 ]);
 
-                echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
+                echo "Einsatz wurde erfolgreich gespeichert.";
             } catch (Exception $e) {
-                echo "<p style='color: red;'>Fehler: " . $e->getMessage() . "</p>";
+                echo "Fehler: " . $e->getMessage();
             }
         }
     ?>
@@ -148,8 +148,8 @@ require 'db.php';
     </script>
 
     <h2>Neuen Einsatz eintragen</h2>
-    <form method="POST" class="einsatz-form">
-        <table class="einsatz-tabelle">
+    <form method="POST">
+        <table>
             <tr>
                 <td><input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS"></td>
                 <td>
@@ -180,11 +180,12 @@ require 'db.php';
                         <?php endforeach; ?>
                     </select>
                 </td>
-                <td><button type="submit" name="save" class="btn">Speichern</button></td>
+                <td><button type="submit" name="save">Speichern</button></td>
             </tr>
         </table>
     </form>
 </section>
+
 
         <!-- Letzte Einsätze -->
         <section id="letzte-einsaetze">
