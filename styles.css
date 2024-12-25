@@ -88,3 +88,46 @@ button:hover {
         font-size: 1em;
     }
 }
+
+
+
+
+
+/* Standard-Layout: Tabelle mit einer Zeile */
+#neuer-alarm table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#neuer-alarm td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    vertical-align: top;
+}
+
+/* Responsive Layout für kleinere Bildschirme */
+@media (max-width: 768px) {
+    #neuer-alarm table, 
+    #neuer-alarm tr, 
+    #neuer-alarm td {
+        display: block;
+        width: 100%;
+        border: none;
+    }
+
+    #neuer-alarm td {
+        margin-bottom: 10px;
+        padding: 5px 0;
+    }
+
+    #neuer-alarm input, 
+    #neuer-alarm select, 
+    #neuer-alarm button {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    #neuer-alarm button {
+        margin-top: 10px;
+    }
+}
