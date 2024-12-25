@@ -64,6 +64,7 @@ require 'db.php';
 
 <!-- Neuer Alarm -->
 <section id="neuer-alarm">
+    <h2>Neuen Einsatz eintragen</h2>
     <?php
         try {
             // Fahrzeuge laden
@@ -128,63 +129,77 @@ require 'db.php';
                     ':besatzung_id' => $besatzung_id
                 ]);
 
-                echo "Einsatz wurde erfolgreich gespeichert.";
+                echo "<p>Einsatz wurde erfolgreich gespeichert.</p>";
             } catch (Exception $e) {
-                echo "Fehler: " . $e->getMessage();
+                echo "<p>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
             }
         }
     ?>
 
-    <script>
-        function setCurrentTime(fieldId) {
-            const now = new Date();
-            const year = String(now.getFullYear()).slice(-2); // Jahr zweistellig
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById(fieldId).value = `${day}.${month}.${year} ${hours}:${minutes}`;
-        }
-    </script>
-
-    <h2>Neuen Einsatz eintragen</h2>
     <form method="POST">
         <table>
-            <tr>
-                <td><input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS"></td>
-                <td>
-                    <select id="stichwort_id" name="stichwort_id">
-                        <?php foreach ($stichworte as $stichwort): ?>
-                            <option value="<?= htmlspecialchars($stichwort['id']) ?>">
-                                <?= htmlspecialchars($stichwort['kategorie'] . ' - ' . $stichwort['stichwort']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </td>
-                <td>
-                    <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="Alarmzeit: dd.mm.yy hh:mm">
-                    <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Jetzt</button>
-                </td>
-                <td>
-                    <input type="text" id="zurueckzeit" name="zurueckzeit" placeholder="Zurückzeit: dd.mm.yy hh:mm">
-                    <button type="button" onclick="setCurrentTime('zurueckzeit')">Jetzt</button>
-                </td>
-                <td><input type="text" id="adresse" name="adresse" placeholder="Adresse"></td>
-                <td>
-                    <select id="fahrzeug_id" name="fahrzeug_id">
-                        <?php foreach ($fahrzeuge as $fahrzeug): ?>
-                            <option value="<?= htmlspecialchars($fahrzeug['id']) ?>" 
-                                <?= $fahrzeug['id'] === 1 ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($fahrzeug['name']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </td>
-                <td><button type="submit" name="save">Speichern</button></td>
-            </tr>
+            <tbody>
+                <tr>
+                    <!-- Einsatznummer LTS -->
+                    <td>
+                        <input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS">
+                    </td>
+                    <!-- Stichwort -->
+                    <td>
+                        <select id="stichwort_id" name="stichwort_id">
+                            <?php foreach ($stichworte as $stichwort): ?>
+                                <option value="<?= htmlspecialchars($stichwort['id']) ?>">
+                                    <?= htmlspecialchars($stichwort['kategorie'] . ' - ' . $stichwort['stichwort']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+                    <!-- Alarmzeit -->
+                    <td>
+                        <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm">
+                        <button type="button" onclick="setCurrentTime('alarmuhrzeit')">Jetzt</button>
+                    </td>
+                    <!-- Zurückzeit -->
+                    <td>
+                        <input type="text" id="zurueckzeit" name="zurueckzeit" placeholder="dd.mm.yy hh:mm">
+                        <button type="button" onclick="setCurrentTime('zurueckzeit')">Jetzt</button>
+                    </td>
+                    <!-- Adresse -->
+                    <td>
+                        <input type="text" id="adresse" name="adresse" placeholder="Adresse">
+                    </td>
+                    <!-- Fahrzeug -->
+                    <td>
+                        <select id="fahrzeug_id" name="fahrzeug_id">
+                            <?php foreach ($fahrzeuge as $fahrzeug): ?>
+                                <option value="<?= htmlspecialchars($fahrzeug['id']) ?>" 
+                                    <?= $fahrzeug['id'] === 1 ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($fahrzeug['name']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+                    <!-- Aktionen -->
+                    <td>
+                        <button type="submit" name="save">Speichern</button>
+                    </td>
+                </tr>
+            </tbody>
         </table>
     </form>
 </section>
+
+<script>
+    function setCurrentTime(fieldId) {
+        const now = new Date();
+        const year = String(now.getFullYear()).slice(-2); // Jahr zweistellig
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById(fieldId).value = `${day}.${month}.${year} ${hours}:${minutes}`;
+    }
+</script>
 
 
         <!-- Letzte Einsätze -->
