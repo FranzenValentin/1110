@@ -104,13 +104,13 @@ require 'db.php';
             while ($row = $stmt->fetch()) {
                 // Personal zusammenstellen
                 $personal = [];
-                if ($row['stf']) $personal[] = "Staffel-Führer: " . htmlspecialchars($row['stf']);
-                if ($row['ma']) $personal[] = "Maschinist: " . htmlspecialchars($row['ma']);
-                if ($row['atf']) $personal[] = "Atemschutz-Führer: " . htmlspecialchars($row['atf']);
-                if ($row['atm']) $personal[] = "Atemschutz-Mann: " . htmlspecialchars($row['atm']);
-                if ($row['wtf']) $personal[] = "Wachtrupp-Führer: " . htmlspecialchars($row['wtf']);
-                if ($row['wtm']) $personal[] = "Wachtrupp-Mann: " . htmlspecialchars($row['wtm']);
-                if ($row['prakt']) $personal[] = "Praktikant: " . htmlspecialchars($row['prakt']);
+                if ($row['stf']) $personal[] = "StF: " . htmlspecialchars($row['stf']);
+                if ($row['ma']) $personal[] = "Ma: " . htmlspecialchars($row['ma']);
+                if ($row['atf']) $personal[] = "AtF: " . htmlspecialchars($row['atf']);
+                if ($row['atm']) $personal[] = "AtM: " . htmlspecialchars($row['atm']);
+                if ($row['wtf']) $personal[] = "WtF: " . htmlspecialchars($row['wtf']);
+                if ($row['wtm']) $personal[] = "WtM: " . htmlspecialchars($row['wtm']);
+                if ($row['prakt']) $personal[] = "Prakt: " . htmlspecialchars($row['prakt']);
 
                 echo "<tr>
                         <td>" . htmlspecialchars($row['interne_einsatznummer']) . "</td>
