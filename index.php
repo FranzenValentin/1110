@@ -170,18 +170,16 @@ require 'db.php';
     }
 </script>
 
-        <!-- Aktuelle Besatzung -->
+<!-- Aktuelle Besatzung -->
 <section id="aktuelle-besatzung">
-    <div class="header-with-switch">
-        <h2>Aktuelle Besatzung</h2>
-        <form method="GET" class="switch-form">
-            <label class="switch">
-                <input type="checkbox" name="fahrzeug" value="2" <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2) ? 'checked' : ''; ?> onchange="this.form.submit()">
-                <span class="slider"></span>
-            </label>
-            <span class="fahrzeug-label"><?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2) ? 'LHF 1110/2' : 'LHF 1110/1'; ?></span>
-        </form>
-    </div>
+    <h2>Aktuelle Besatzung</h2>
+    <form method="GET" class="switch-form">
+        <label class="switch">
+            <input type="checkbox" name="fahrzeug" value="2" <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2) ? 'checked' : ''; ?> onchange="this.form.submit()">
+            <span class="slider"></span>
+        </label>
+        <span class="fahrzeug-label"><?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2) ? 'LHF 1110/2' : 'LHF 1110/1'; ?></span>
+    </form>
     <table>
         <thead>
             <tr>
@@ -191,24 +189,42 @@ require 'db.php';
         </thead>
         <tbody>
             <?php
-            // Fahrzeug auswählen (Standard ist LHF 1110/1)
-            $fahrzeugId = (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2) ? 2 : 1;
+            // Besatzungsrollen definieren
+            $roles = [
+                'stf' => 'Staffel-Führer',
+                'ma' => 'Maschinist',
+                'atf' => 'Atemschutz-Führer',
+                'atm' => 'Atemschutz-Mann',
+                'wtf' => 'Wassertrupp-Führer',
+                'wtm' => 'Wassertrupp-Mann',
+                'prakt' => 'Praktikant'
+            ];
 
-            // Abfrage für die aktuelle Besatzung des ausgewählten Fahrzeugs
+            // Fahrzeug-ID bestimmen (Standard: LHF 1110/1)
+            $fahrzeugId = isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2 ? 2 : 1;
+
+            // Abfrage der aktuellen Besatzung basierend auf der Fahrzeug-ID
             $besatzungStmt = $pdo->prepare("SELECT * FROM Besatzung WHERE fahrzeug_id = :fahrzeugId ORDER BY id DESC LIMIT 1");
             $besatzungStmt->execute([':fahrzeugId' => $fahrzeugId]);
             $latestBesatzung = $besatzungStmt->fetch();
 
             foreach ($roles as $key => $label) {
-                echo "<tr><td>$label</td>";
+                echo "<tr>";
+                echo "<td>$label</td>";
+
                 if ($latestBesatzung && $latestBesatzung[$key . '_id']) {
+                    // Zuweisung der Person abrufen
                     $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM Personal WHERE id = :id");
                     $personStmt->execute([':id' => $latestBesatzung[$key . '_id']]);
                     $person = $personStmt->fetch();
+
+                    // Name anzeigen, falls vorhanden
                     echo "<td>" . ($person['name'] ?? '<em>NICHT BESETZT</em>') . "</td>";
                 } else {
+                    // Kein Name zugewiesen
                     echo "<td><em>NICHT BESETZT</em></td>";
                 }
+
                 echo "</tr>";
             }
             ?>
@@ -218,6 +234,7 @@ require 'db.php';
         <button onclick="location.href='besatzung.php'">Besatzung ändern</button>
     </div>
 </section>
+
 
 
         <!-- Letzte Einsätze -->
