@@ -121,10 +121,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 echo "<td><em>Keine Zuweisung</em></td>";
                             }
 
-                            // Dropdown zur Auswahl
+                            // Dropdown zur Auswahl, nach Alphabet sortiert
                             echo "<td><select name='$key'>";
                             echo "<option value=''>Keine Auswahl</option>";
-                            $stmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal");
+                            $stmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal ORDER BY nachname, vorname ASC");
                             while ($row = $stmt->fetch()) {
                                 $selected = ($latestBesatzung && $latestBesatzung[$key . '_id'] == $row['id']) ? 'selected' : '';
                                 echo "<option value='{$row['id']}' $selected>{$row['name']}</option>";
