@@ -60,28 +60,19 @@ require 'db.php';
                     throw new Exception("Die Uhrzeiten müssen im Format dd.mm.yy hh:mm vorliegen.");
                 }
 
-                // Fahrzeugname anhand der ID ermitteln
-                $fahrzeug_name = null;
-                foreach ($fahrzeuge as $fahrzeug) {
-                    if ($fahrzeug['id'] === (int)$fahrzeug_id) {
-                        $fahrzeug_name = $fahrzeug['name'];
-                        break;
-                    }
-                }
-
-                // Aktuellste Besatzung abrufen
-                $stmt = $pdo->prepare("SELECT id FROM Besatzung ORDER BY id DESC LIMIT 1");
-                $stmt->execute();
+                // Aktuellste Besatzung für das ausgewählte Fahrzeug abrufen
+                $stmt = $pdo->prepare("SELECT id FROM Besatzung WHERE fahrzeug_id = :fahrzeug_id ORDER BY id DESC LIMIT 1");
+                $stmt->execute([':fahrzeug_id' => $fahrzeug_id]);
                 $besatzung_id = $stmt->fetchColumn();
 
                 if (!$besatzung_id) {
-                    throw new Exception("Keine gültige Besatzung gefunden.");
+                    throw new Exception("Keine gültige Besatzung für das ausgewählte Fahrzeug gefunden.");
                 }
 
                 // SQL-Statement vorbereiten und ausführen
                 $sql = "INSERT INTO Einsaetze 
-                        (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, fahrzeug_name, besatzung_id)
-                        VALUES (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug_name, :besatzung_id)";
+                        (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, fahrzeug_id, besatzung_id)
+                        VALUES (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug_id, :besatzung_id)";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
                     ':einsatznummer_lts' => $einsatznummer_lts,
@@ -89,7 +80,7 @@ require 'db.php';
                     ':alarmuhrzeit' => $alarmuhrzeit,
                     ':zurueckzeit' => $zurueckzeit,
                     ':adresse' => $adresse,
-                    ':fahrzeug_name' => $fahrzeug_name,
+                    ':fahrzeug_id' => $fahrzeug_id,
                     ':besatzung_id' => $besatzung_id
                 ]);
 
@@ -98,10 +89,6 @@ require 'db.php';
                 echo "<p>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
             }
         }
-        //Stichworte sortieren
-        $stichworteStmt = $pdo->prepare("SELECT id, stichwort FROM Stichworte ORDER BY stichwort ASC");
-        $stichworteStmt->execute();
-        $stichworte = $stichworteStmt->fetchAll(PDO::FETCH_ASSOC);
     ?>
 
     <form method="POST">
@@ -110,7 +97,6 @@ require 'db.php';
                 <tr>
                     <!-- Einsatznummer LTS -->
                     <td id="dünn">
-                        
                         <input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS">
                     </td>
                     <!-- Stichwort -->
@@ -122,12 +108,10 @@ require 'db.php';
                             <?php endforeach; ?>
                         </datalist>
                     </td>
-
-
                     <!-- Alarmzeit -->
                     <td id="dick">
                         <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm (Alarm)">
-                        <button type="button" onclick="setCurrentTime('alarmuhrzeit')" id="Jetzt">Jetzt </button>
+                        <button type="button" onclick="setCurrentTime('alarmuhrzeit')" id="Jetzt">Jetzt</button>
                     </td>
                     <!-- Zurückzeit -->
                     <td id="dick">
@@ -149,13 +133,11 @@ require 'db.php';
                             <?php endforeach; ?>
                         </select>
                     </td>
-                    <!-- Aktionen -->
                 </tr>
             </tbody>
-        </table>      
-                <button type="submit" name="save">Speichern</button>
-        </form>
-            
+        </table>
+        <button type="submit" name="save">Speichern</button>
+    </form>
 </section>
 
 <script>
