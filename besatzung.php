@@ -82,9 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <header>
         <h1>Besatzung verwalten
-            <form method="POST" action="logout.php" class="logout-form">
+        <form method="POST" action="logout.php" class="logout-form">
             <button type="submit">Logout</button>
-        </form> 
+        </form>
         </h1>
         
     </header>
