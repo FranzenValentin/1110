@@ -60,10 +60,19 @@ require 'db.php';
                     throw new Exception("Die Uhrzeiten müssen im Format dd.mm.yy hh:mm vorliegen.");
                 }
 
-                // Aktuellste Besatzung für das ausgewählte Fahrzeug abrufen
-                $stmt = $pdo->prepare("SELECT id FROM Besatzung WHERE fahrzeug_id = :fahrzeug_id ORDER BY id DESC LIMIT 1");
-                $stmt->execute([':fahrzeug_id' => $fahrzeug_id]);
-                $besatzung_id = $stmt->fetchColumn();
+                // Fahrzeugname anhand der ID ermitteln
+                $fahrzeug_name = null;
+                foreach ($fahrzeuge as $fahrzeug) {
+                    if ($fahrzeug['id'] === (int)$fahrzeug_id) {
+                        $fahrzeug_name = $fahrzeug['name'];
+                        break;
+                    }
+                }
+
+                // Besatzung für das ausgewählte Fahrzeug abrufen
+                $besatzungStmt = $pdo->prepare("SELECT id FROM Besatzung WHERE fahrzeug_id = :fahrzeug_id ORDER BY id DESC LIMIT 1");
+                $besatzungStmt->execute([':fahrzeug_id' => $fahrzeug_id]);
+                $besatzung_id = $besatzungStmt->fetchColumn();
 
                 if (!$besatzung_id) {
                     throw new Exception("Keine gültige Besatzung für das ausgewählte Fahrzeug gefunden.");
@@ -140,17 +149,6 @@ require 'db.php';
     </form>
 </section>
 
-<script>
-    function setCurrentTime(fieldId) {
-        const now = new Date();
-        const year = String(now.getFullYear()).slice(-2); // Jahr zweistellig
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        document.getElementById(fieldId).value = `${day}.${month}.${year} ${hours}:${minutes}`;
-    }
-</script>
 
 
 
