@@ -100,7 +100,7 @@ require 'db.php';
     <form method="POST">
         <table>
             <tbody>
-                <tr>
+                  <tr>
                     <!-- Einsatznummer LTS -->
                     <td id="dünn">
                         <input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS">
