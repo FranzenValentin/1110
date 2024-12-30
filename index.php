@@ -170,20 +170,20 @@ require 'db.php';
     }
 </script>
 
+
+
+
 <!-- Aktuelle Besatzung -->
 <section id="aktuelle-besatzung">
-    <h2>Aktuelle Besatzung</h2>
-    <form method="GET" class="onoffswitch-form">
-        <div class="onoffswitch">
-            <input type="checkbox" name="fahrzeug" class="onoffswitch-checkbox" id="myonoffswitch" value="2" 
-                <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2) ? 'checked' : ''; ?> 
-                onchange="this.form.submit()">
-            <label class="onoffswitch-label" for="myonoffswitch">
-                <span class="onoffswitch-inner"></span>
-                <span class="onoffswitch-switch"></span>
-            </label>
-        </div>
-    </form>
+    <h2>
+        Aktuelle Besatzung
+        <form method="GET" class="dropdown-form" style="display: inline;">
+            <select name="fahrzeug" onchange="this.form.submit()">
+                <option value="1" <?php echo (!isset($_GET['fahrzeug']) || $_GET['fahrzeug'] == 1) ? 'selected' : ''; ?>>LHF 1110/1</option>
+                <option value="2" <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2) ? 'selected' : ''; ?>>LHF 1110/2</option>
+            </select>
+        </form>
+    </h2>
     <table>
         <thead>
             <tr>
