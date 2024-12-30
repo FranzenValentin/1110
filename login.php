@@ -2,7 +2,7 @@
 session_start();
 
 // Definiere den Zugangscode
-define('ACCESS_CODE', '12345');
+define('ACCESS_CODE', '2098');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $code = $_POST['access_code'];
