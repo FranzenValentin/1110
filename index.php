@@ -16,9 +16,13 @@ require 'db.php';
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
+<header>
         <h1>Einsatzverwaltungssystem</h1>
+        <form method="POST" action="logout.php" class="logout-form">
+            <button type="submit">Logout</button>
+        </form>
     </header>
+
 
     <main>
 
