@@ -82,16 +82,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <header>
         <h1>Besatzung verwalten</h1>
-        <form method="GET" style="display: inline;">
+        
+    </header>
+    <main>
+        <section id="aktuelle-besatzung">
+            <h2>Besatzungsrollen und Zuweisungen
+                <form method="GET" style="display: inline;">
             <select name="fahrzeug" onchange="this.form.submit()">
                 <option value="1" <?php echo ($fahrzeugId == 1) ? 'selected' : ''; ?>>LHF 1110/1</option>
                 <option value="2" <?php echo ($fahrzeugId == 2) ? 'selected' : ''; ?>>LHF 1110/2</option>
             </select>
         </form>
-    </header>
-    <main>
-        <section id="aktuelle-besatzung">
-            <h2>Besatzungsrollen und Zuweisungen</h2>
+    </h2>
             <?php if (isset($message)) { echo "<p>$message</p>"; } ?>
             <form method="POST">
                 <table>
