@@ -134,6 +134,19 @@ require 'db.php';
                         </select>
                     </td>
                 </tr>
+                <script>
+    function setCurrentTime(inputId) {
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = String(now.getFullYear()).slice(-2);
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const formattedTime = `${day}.${month}.${year} ${hours}:${minutes}`;
+        document.getElementById(inputId).value = formattedTime;
+    }
+</script>
+
             </tbody>
         </table>
         <button type="submit" name="save">Speichern</button>
