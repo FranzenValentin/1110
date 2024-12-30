@@ -185,3 +185,50 @@ table input, table select, table button {
 .logout-form button:hover {
     background-color: #e60000; /* Dunkler Rotton */
 }
+
+
+/* Feedback-Meldungen */
+.success {
+    color: green;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+/* Formular Styling */
+form div {
+    margin-bottom: 15px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+form input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+form button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+form button:hover {
+    background-color: #45a049;
+}

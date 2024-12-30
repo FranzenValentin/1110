@@ -7,8 +7,8 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 require 'db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $vorname = $_POST['vorname'] ?? '';
-    $nachname = $_POST['nachname'] ?? '';
+    $vorname = trim($_POST['vorname'] ?? '');
+    $nachname = trim($_POST['nachname'] ?? '');
 
     if (!empty($vorname) && !empty($nachname)) {
         try {
@@ -17,13 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':vorname' => $vorname,
                 ':nachname' => $nachname
             ]);
-
-            echo "<p>Benutzer erfolgreich hinzugefügt: $vorname $nachname</p>";
+            $message = "Benutzer erfolgreich hinzugefügt: $vorname $nachname";
         } catch (PDOException $e) {
-            echo "<p>Fehler beim Hinzufügen des Benutzers: " . $e->getMessage() . "</p>";
+            $error = "Fehler beim Hinzufügen des Benutzers: " . $e->getMessage();
         }
     } else {
-        echo "<p>Bitte Vorname und Nachname ausfüllen.</p>";
+        $error = "Bitte füllen Sie alle Felder aus.";
     }
 }
 ?>
@@ -40,21 +39,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <header>
         <h1>Neuen Benutzer hinzufügen</h1>
+        <form method="POST" action="logout.php" class="logout-form">
+            <button type="submit">Logout</button>
+        </form>
     </header>
     <main>
         <section id="benutzer-hinzufuegen">
             <h2>Benutzerinformationen</h2>
+            <?php if (isset($message)) { echo "<p class='success'>$message</p>"; } ?>
+            <?php if (isset($error)) { echo "<p class='error'>$error</p>"; } ?>
             <form action="" method="POST">
-                <label for="vorname">Vorname:</label>
-                <input type="text" id="vorname" name="vorname" required>
-                <br>
-
-                <label for="nachname">Nachname:</label>
-                <input type="text" id="nachname" name="nachname" required>
-                <br>
-
-                <button type="submit">Benutzer hinzufügen</button>
-                <button type="button" onclick="window.location.href='index.php';">Zurück zur Startseite</button>
+                <div>
+                    <label for="vorname">Vorname:</label>
+                    <input type="text" id="vorname" name="vorname" required>
+                </div>
+                <div>
+                    <label for="nachname">Nachname:</label>
+                    <input type="text" id="nachname" name="nachname" required>
+                </div>
+                <div>
+                    <button type="submit">Benutzer hinzufügen</button>
+                    <button type="button" onclick="window.location.href='index.php';">Zurück zur Startseite</button>
+                </div>
             </form>
         </section>
     </main>
