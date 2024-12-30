@@ -173,18 +173,19 @@ require 'db.php';
 <!-- Aktuelle Besatzung -->
 <section id="aktuelle-besatzung">
     <h2>Aktuelle Besatzung</h2>
-    
-    <form method="GET" class="switch-form">
-    <div class="onoffswitch">
-    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" tabindex="0" checked>
-    <label class="onoffswitch-label" for="myonoffswitch">
-        <span class="onoffswitch-inner"></span>
-        <span class="onoffswitch-switch"></span>
-    </label>
-    </div>
+    <form method="GET" class="onoffswitch-form">
+        <div class="onoffswitch">
+            <input type="checkbox" name="fahrzeug" class="onoffswitch-checkbox" id="myonoffswitch" value="2" 
+                <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2) ? 'checked' : ''; ?> 
+                onchange="this.form.submit()">
+            <label class="onoffswitch-label" for="myonoffswitch">
+                <span class="onoffswitch-inner">
+                    <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2) ? 'LHF 1110/2' : 'LHF 1110/1'; ?>
+                </span>
+                <span class="onoffswitch-switch"></span>
+            </label>
+        </div>
     </form>
-
-
     <table>
         <thead>
             <tr>
@@ -239,6 +240,7 @@ require 'db.php';
         <button onclick="location.href='besatzung.php'">Besatzung ändern</button>
     </div>
 </section>
+
 
 
 
