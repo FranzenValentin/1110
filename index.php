@@ -26,13 +26,13 @@ require 'db.php';
 
     <main>
 
-<!-- Neuer Alarm -->
+    <!-- Neuer Alarm -->
 <section id="neuer-alarm">
     <h2>Neuen Einsatz eintragen</h2>
     <?php
         try {
             // Fahrzeuge laden
-            $fahrzeugeStmt = $pdo->prepare("SELECT id, name FROM Fahrzeuge ORDER BY name");
+            $fahrzeugeStmt = $pdo->prepare("SELECT name FROM Fahrzeuge ORDER BY name");
             $fahrzeugeStmt->execute();
             $fahrzeuge = $fahrzeugeStmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -52,7 +52,7 @@ require 'db.php';
                 $alarmuhrzeit = $_POST['alarmuhrzeit'] ?? null;
                 $zurueckzeit = $_POST['zurueckzeit'] ?? null;
                 $adresse = $_POST['adresse'] ?? null;
-                $fahrzeug_id = $_POST['fahrzeug_id'] ?? 1;
+                $fahrzeug_name = $_POST['fahrzeug_name'] ?? null;
 
                 // Format prüfen (dd.mm.yy hh:mm)
                 if (!preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $alarmuhrzeit) || 
@@ -60,10 +60,16 @@ require 'db.php';
                     throw new Exception("Die Uhrzeiten müssen im Format dd.mm.yy hh:mm vorliegen.");
                 }
 
-                // Aktuellste Besatzung für das ausgewählte Fahrzeug abrufen
-                $stmt = $pdo->prepare("SELECT id FROM Besatzung WHERE fahrzeug_id = :fahrzeug_id ORDER BY id DESC LIMIT 1");
-                $stmt->execute([':fahrzeug_id' => $fahrzeug_id]);
-                $besatzung_id = $stmt->fetchColumn();
+                // Besatzung für das ausgewählte Fahrzeug abrufen
+                $besatzungStmt = $pdo->prepare("
+                    SELECT b.id 
+                    FROM Besatzung b 
+                    JOIN Fahrzeuge f ON f.name = :fahrzeug_name 
+                    WHERE b.fahrzeug_id = f.id 
+                    ORDER BY b.id DESC LIMIT 1
+                ");
+                $besatzungStmt->execute([':fahrzeug_name' => $fahrzeug_name]);
+                $besatzung_id = $besatzungStmt->fetchColumn();
 
                 if (!$besatzung_id) {
                     throw new Exception("Keine gültige Besatzung für das ausgewählte Fahrzeug gefunden.");
@@ -71,8 +77,8 @@ require 'db.php';
 
                 // SQL-Statement vorbereiten und ausführen
                 $sql = "INSERT INTO Einsaetze 
-                        (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, fahrzeug_id, besatzung_id)
-                        VALUES (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug_id, :besatzung_id)";
+                        (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, fahrzeug_name, besatzung_id)
+                        VALUES (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug_name, :besatzung_id)";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
                     ':einsatznummer_lts' => $einsatznummer_lts,
@@ -80,7 +86,7 @@ require 'db.php';
                     ':alarmuhrzeit' => $alarmuhrzeit,
                     ':zurueckzeit' => $zurueckzeit,
                     ':adresse' => $adresse,
-                    ':fahrzeug_id' => $fahrzeug_id,
+                    ':fahrzeug_name' => $fahrzeug_name,
                     ':besatzung_id' => $besatzung_id
                 ]);
 
@@ -124,17 +130,16 @@ require 'db.php';
                     </td>
                     <!-- Fahrzeug -->
                     <td id="dünn">
-                        <select id="fahrzeug_id" name="fahrzeug_id">
+                        <select id="fahrzeug_name" name="fahrzeug_name">
                             <?php foreach ($fahrzeuge as $fahrzeug): ?>
-                                <option value="<?= htmlspecialchars($fahrzeug['id']) ?>" 
-                                    <?= $fahrzeug['id'] === 1 ? 'selected' : '' ?>>
+                                <option value="<?= htmlspecialchars($fahrzeug['name']) ?>">
                                     <?= htmlspecialchars($fahrzeug['name']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
                     </td>
                 </tr>
-                <script>
+                 <script>
     function setCurrentTime(inputId) {
         const now = new Date();
         const day = String(now.getDate()).padStart(2, '0');
@@ -146,12 +151,13 @@ require 'db.php';
         document.getElementById(inputId).value = formattedTime;
     }
 </script>
-
             </tbody>
         </table>
         <button type="submit" name="save">Speichern</button>
     </form>
 </section>
+
+               
 
 
 
