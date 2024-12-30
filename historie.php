@@ -17,10 +17,10 @@ require 'db.php';
 </head>
 <body>
     <header>
-        <h1>Einsatz Historie
+        <h1>Einsatz Historie</h1>
         <form method="POST" action="logout.php" class="logout-form">
         <button type="submit">Logout</button>
-        </h1>
+        
     </header>
 
     <main>
