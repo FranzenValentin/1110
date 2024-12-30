@@ -179,9 +179,7 @@ require 'db.php';
                 <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2) ? 'checked' : ''; ?> 
                 onchange="this.form.submit()">
             <label class="onoffswitch-label" for="myonoffswitch">
-                <span class="onoffswitch-inner">
-                    <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2); ?>
-                </span>
+                <span class="onoffswitch-inner"></span>
                 <span class="onoffswitch-switch"></span>
             </label>
         </div>
@@ -240,6 +238,7 @@ require 'db.php';
         <button onclick="location.href='besatzung.php'">Besatzung ändern</button>
     </div>
 </section>
+
 
 
 
