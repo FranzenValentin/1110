@@ -60,19 +60,10 @@ require 'db.php';
                     throw new Exception("Die Uhrzeiten müssen im Format dd.mm.yy hh:mm vorliegen.");
                 }
 
-                // Fahrzeugname anhand der ID ermitteln
-                $fahrzeug_name = null;
-                foreach ($fahrzeuge as $fahrzeug) {
-                    if ($fahrzeug['id'] === (int)$fahrzeug_id) {
-                        $fahrzeug_name = $fahrzeug['name'];
-                        break;
-                    }
-                }
-
-                // Besatzung für das ausgewählte Fahrzeug abrufen
-                $besatzungStmt = $pdo->prepare("SELECT id FROM Besatzung WHERE fahrzeug_id = :fahrzeug_id ORDER BY id DESC LIMIT 1");
-                $besatzungStmt->execute([':fahrzeug_id' => $fahrzeug_id]);
-                $besatzung_id = $besatzungStmt->fetchColumn();
+                // Aktuellste Besatzung für das ausgewählte Fahrzeug abrufen
+                $stmt = $pdo->prepare("SELECT id FROM Besatzung WHERE fahrzeug_id = :fahrzeug_id ORDER BY id DESC LIMIT 1");
+                $stmt->execute([':fahrzeug_id' => $fahrzeug_id]);
+                $besatzung_id = $stmt->fetchColumn();
 
                 if (!$besatzung_id) {
                     throw new Exception("Keine gültige Besatzung für das ausgewählte Fahrzeug gefunden.");
