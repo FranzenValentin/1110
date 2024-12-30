@@ -187,66 +187,52 @@ table input, table select, table button {
 }
 
 
-.switch-form {
-    display: inline-block;
-    margin-top: 10px;
+/* LHF 1 oder 2 */
+.onoffswitch {
+    position: relative; width: 122px;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
 }
-
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 120px;
-    height: 30px;
-}
-
-.switch input {
+.onoffswitch-checkbox {
+    position: absolute;
     opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: 0.4s;
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9em;
-    font-weight: bold;
-    color: white;
-}
-
-.slider:before {
-    content: "";
-    position: absolute;
-    height: 20px;
-    width: 20px;
-    background-color: white;
-    border-radius: 50%;
-    left: 5px;
-    bottom: 5px;
-    transition: 0.4s;
-}
-
-input:checked + .slider {
-    background-color: #4CAF50;
-}
-
-input:checked + .slider:before {
-    transform: translateX(80px); /* Verschiebt den Schalter */
-}
-
-.fahrzeug-text {
-    position: absolute;
-    width: 100%;
-    text-align: center;
-    z-index: 1;
     pointer-events: none;
+}
+.onoffswitch-label {
+    display: block; overflow: hidden; cursor: pointer;
+    border: 2px solid #DDDDDD; border-radius: 20px;
+}
+.onoffswitch-inner {
+    display: block; width: 200%; margin-left: -100%;
+    transition: margin 0.3s ease-in 0s;
+}
+
+.onoffswitch-inner:before, .onoffswitch-inner:after {
+    display: block; float: left; width: 50%; height: 30px; padding: 0; line-height: 30px;
+    font-size: 14px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+    box-sizing: border-box;
+}
+.onoffswitch-inner:before {
+    content: "LHF 1110/1";
+    padding-left: 10px;
+    background-color: #FF4D4D; color: #FFFFFF;
+}
+.onoffswitch-inner:after {
+    content: "LHF 1110/2";
+    padding-right: 10px;
+    background-color: #FF4D4D; color: #FFFFFF;
+    text-align: right;
+}
+.onoffswitch-switch {
+    display: block; width: 18px; margin: 6px;
+    background: #DDDDDD;
+    position: absolute; top: 0; bottom: 0;
+    right: 88px;
+    border: 2px solid #DDDDDD; border-radius: 20px;
+    transition: all 0.3s ease-in 0s; 
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+    margin-left: 0;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+    right: 0px; 
 }
