@@ -175,7 +175,7 @@ table input, table select, table button {
 .logout-form button {
     background-color: #ff4d4d; /* Rot */
     color: white;
-    border: none;
+    border: 1px solid #ddd;
     padding: 10px 15px;
     cursor: pointer;
     border-radius: 5px;
