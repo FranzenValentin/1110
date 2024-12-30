@@ -6,6 +6,9 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 }
 require 'db.php';
 
+// Standardfahrzeug (LHF 1110/1)
+$fahrzeugId = isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2 ? 2 : 1;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['save'])) {
         // Besatzung speichern
@@ -21,8 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Prüfen, ob die letzte Zeile nur NULL enthält
-        $stmt = $pdo->query("SELECT * FROM Besatzung ORDER BY id DESC LIMIT 1");
+        // Prüfen, ob die letzte Zeile nur NULL enthält und zur aktuellen Fahrzeug-ID gehört
+        $stmt = $pdo->prepare("SELECT * FROM Besatzung WHERE fahrzeug_id = :fahrzeugId ORDER BY id DESC LIMIT 1");
+        $stmt->execute([':fahrzeugId' => $fahrzeugId]);
         $lastRow = $stmt->fetch();
         $lastRowIsNull = ($lastRow && is_null($lastRow['stf_id']) && is_null($lastRow['ma_id']) && is_null($lastRow['atf_id']) && is_null($lastRow['atm_id']) && is_null($lastRow['wtf_id']) && is_null($lastRow['wtm_id']) && is_null($lastRow['prakt_id']));
 
@@ -41,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
         } else {
             // Neue Zeile mit den Änderungen erstellen
-            $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) VALUES (:stf, :ma, :atf, :atm, :wtf, :wtm, :prakt)");
+            $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id, fahrzeug_id) VALUES (:stf, :ma, :atf, :atm, :wtf, :wtm, :prakt, :fahrzeugId)");
             $stmt->execute([
                 ':stf' => $changes['stf'],
                 ':ma' => $changes['ma'],
@@ -49,17 +53,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':atm' => $changes['atm'],
                 ':wtf' => $changes['wtf'],
                 ':wtm' => $changes['wtm'],
-                ':prakt' => $changes['prakt']
+                ':prakt' => $changes['prakt'],
+                ':fahrzeugId' => $fahrzeugId
             ]);
         }
 
         $message = "Besatzung erfolgreich aktualisiert.";
-        header("Location: " . $_SERVER['PHP_SELF']); // Seite neu laden
+        header("Location: " . $_SERVER['PHP_SELF'] . "?fahrzeug=" . $fahrzeugId); // Seite neu laden
         exit;
     } elseif (isset($_POST['clear'])) {
-        // Neue Zeile mit nur NULL einfügen
-        $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) VALUES (NULL, NULL, NULL, NULL, NULL, NULL, NULL)");
-        $stmt->execute();
+        // Neue Zeile mit nur NULL für das ausgewählte Fahrzeug einfügen
+        $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id, fahrzeug_id) VALUES (NULL, NULL, NULL, NULL, NULL, NULL, NULL, :fahrzeugId)");
+        $stmt->execute([':fahrzeugId' => $fahrzeugId]);
 
         $message = "Auswahl zurückgesetzt. Bitte speichern, um Änderungen zu übernehmen.";
     }
@@ -77,6 +82,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <header>
         <h1>Besatzung verwalten</h1>
+        <form method="GET" style="display: inline;">
+            <select name="fahrzeug" onchange="this.form.submit()">
+                <option value="1" <?php echo ($fahrzeugId == 1) ? 'selected' : ''; ?>>LHF 1110/1</option>
+                <option value="2" <?php echo ($fahrzeugId == 2) ? 'selected' : ''; ?>>LHF 1110/2</option>
+            </select>
+        </form>
     </header>
     <main>
         <section id="aktuelle-besatzung">
@@ -103,8 +114,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             'prakt' => 'Praktikant'
                         ];
 
-                        // Die letzte Besatzungszeile abrufen
-                        $stmt = $pdo->query("SELECT * FROM Besatzung ORDER BY id DESC LIMIT 1");
+                        // Die letzte Besatzungszeile für das aktuelle Fahrzeug abrufen
+                        $stmt = $pdo->prepare("SELECT * FROM Besatzung WHERE fahrzeug_id = :fahrzeugId ORDER BY id DESC LIMIT 1");
+                        $stmt->execute([':fahrzeugId' => $fahrzeugId]);
                         $latestBesatzung = $stmt->fetch();
 
                         foreach ($roles as $key => $label) {
@@ -121,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 echo "<td><em>Keine Zuweisung</em></td>";
                             }
 
-                            // Dropdown zur Auswahl, nach Alphabet sortiert
+                            // Dropdown zur Auswahl
                             echo "<td><select name='$key'>";
                             echo "<option value=''>Keine Auswahl</option>";
                             $stmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal ORDER BY nachname, vorname ASC");
