@@ -33,7 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Benutzer hinzufügen">
-    <title>Neuen Benutzer hinzufügen</title>
+    <title>Neuen Benutzer hinzufügen
+        <form method="POST" action="logout.php" class="logout-form">
+        <button type="submit">Logout</button>
+    </title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
