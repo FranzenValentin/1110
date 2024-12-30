@@ -163,3 +163,25 @@ table input, table select, table button {
     margin-top: 10px;
     text-align: center;
 }
+
+
+/* Logout-Button */
+.logout-form {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.logout-form button {
+    background-color: #ff4d4d; /* Rot */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.logout-form button:hover {
+    background-color: #e60000; /* Dunkler Rotton */
+}
