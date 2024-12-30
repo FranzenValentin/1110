@@ -180,7 +180,7 @@ require 'db.php';
                 onchange="this.form.submit()">
             <label class="onoffswitch-label" for="myonoffswitch">
                 <span class="onoffswitch-inner">
-                    <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2) ? 'LHF 1110/2' : 'LHF 1110/1'; ?>
+                    <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2); ?>
                 </span>
                 <span class="onoffswitch-switch"></span>
             </label>
