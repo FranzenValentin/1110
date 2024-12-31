@@ -109,7 +109,7 @@ require 'db.php';
                 </td>
                 <!-- Stichwort -->
                 <td id="dick">
-    <div class="text-container">
+    <div>
         <input list="stichwort_liste" id="stichwort" name="stichwort" 
                placeholder="Stichwort eingeben oder auswählen">
         <datalist id="stichwort_liste">
