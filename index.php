@@ -109,7 +109,7 @@ require 'db.php';
                 </td>
                 <!-- Stichwort -->
                 <td id="dick">
-                    <div style="position: relative; overflow: hidden; width: 100%;">
+                    <div style="position: relative; overflow: hidden; width: 100%;" class="text-container">
                         <input list="stichwort_liste" id="stichwort" name="stichwort" placeholder="Stichwort eingeben oder auswählen" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                         <datalist id="stichwort_liste">
                             <?php foreach ($stichworte as $stichwort): ?>

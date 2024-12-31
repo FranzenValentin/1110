@@ -195,22 +195,24 @@ form button {
 /* Eingabefeld mit durchlaufendem Text */
 .text-container {
     position: relative;
-    width: 100%;
-    overflow: hidden; /* Text außerhalb der Box wird nicht angezeigt */
-    box-sizing: border-box;
-    display: inline-block;
+    width: 100%; /* Box passt sich an die Breite der Zelle an */
+    overflow: hidden; /* Text außerhalb der Box wird verborgen */
     white-space: nowrap; /* Kein Zeilenumbruch */
     height: 1.5em; /* Passt sich an die Schriftgröße an */
+    border: 1px solid #ccc; /* Optionaler Rahmen */
+    padding: 5px 10px;
+    box-sizing: border-box;
 }
 
 .text-container span {
     display: inline-block;
     animation: marquee 15s linear infinite; /* Animation für durchlaufenden Text */
-    white-space: nowrap; /* Text bleibt in einer Zeile */
+    white-space: nowrap; /* Kein Zeilenumbruch */
+    padding-left: 100%; /* Startposition außerhalb der Box */
 }
 
 /* Animation für den Text */
 @keyframes marquee {
-    0% { transform: translateX(100%); }
+    0% { transform: translateX(0%); }
     100% { transform: translateX(-100%); }
 }
