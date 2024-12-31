@@ -187,8 +187,8 @@ require 'db.php';
             $roles = [
                 'stf' => 'Staffel-Führer',
                 'ma' => 'Maschinist',
-                'atf' => 'Atemschutz-Führer',
-                'atm' => 'Atemschutz-Mann',
+                'atf' => 'Angriffstrupp-Führer',
+                'atm' => 'Angriffstrupp-Mann',
                 'wtf' => 'Wassertrupp-Führer',
                 'wtm' => 'Wassertrupp-Mann',
                 'prakt' => 'Praktikant'
