@@ -29,7 +29,6 @@ table {
     border-collapse: collapse;
     margin-bottom: 20px;
     table-layout: fixed;
-    
 }
 
 table th, table td {
@@ -37,6 +36,7 @@ table th, table td {
     padding: 10px;
     text-align: center;
     white-space: nowrap;
+    font-size: 0.95em; /* Etwas kleinere Schriftgröße für iPads */
 }
 
 table th {
@@ -98,7 +98,6 @@ table input, table select, table button {
     box-sizing: border-box; /* Damit Padding berücksichtigt wird */
 }
 
-
 #Jetzt {
     width: 20%;
 }
@@ -108,7 +107,6 @@ table input, table select, table button {
     width: 80%;
 }
 
-
 #dünn {
     width: 10%;
 }
@@ -116,7 +114,6 @@ table input, table select, table button {
 #dick {
     width: 20%;
 }
-
 
 /* Login-Formular */
 .login-form {
@@ -164,7 +161,6 @@ table input, table select, table button {
     text-align: center;
 }
 
-
 /* Logout-Button */
 .logout-form {
     position: absolute;
@@ -186,4 +182,50 @@ table input, table select, table button {
     background-color: #e60000; /* Dunkler Rotton */
 }
 
+/* Optimierung für iPad 9. Generation */
+@media screen and (max-width: 1024px) {
+    header {
+        padding: 15px;
+        font-size: 1.8em; /* Etwas kleinere Schrift für schmaleren Bildschirm */
+    }
 
+    h1 {
+        font-size: 1.8em;
+    }
+
+    table th, table td {
+        padding: 8px;
+        font-size: 0.85em; /* Kleinere Schriftgröße für Tabelle */
+    }
+
+    button {
+        padding: 8px 10px;
+        font-size: 0.9em;
+    }
+
+    #Jetzt {
+        width: 30%; /* Vergrößert den Button für bessere Klickbarkeit */
+    }
+
+    #alarmuhrzeit,
+    #zurueckzeit {
+        width: 70%;
+    }
+
+    #dünn {
+        width: 15%;
+    }
+
+    #dick {
+        width: 25%;
+    }
+
+    .login-form {
+        max-width: 90%; /* Breitere Login-Form für iPad */
+        margin: 20px auto;
+    }
+
+    form div {
+        text-align: center; /* Zentrierte Formular-Buttons */
+    }
+}
