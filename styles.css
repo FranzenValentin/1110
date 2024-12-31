@@ -192,24 +192,24 @@ form button {
 
 
 
-/* Eingabefelder mit durchlaufendem Text */
-input[type="text"], select {
+/* Eingabefeld mit durchlaufendem Text */
+.text-container {
     position: relative;
-    overflow: hidden; /* Verhindert, dass Text außerhalb der Box sichtbar ist */
-    white-space: nowrap; /* Kein Zeilenumbruch */
-    text-overflow: ellipsis; /* Fügt "..." hinzu, wenn Text abgeschnitten wird */
-    display: block;
-    width: 100%; /* Passt die Box an die verfügbare Breite an */
-    box-sizing: border-box; /* Bezieht Padding in die Breite ein */
-}
-
-/* Platzhalter und Text bewegen */
-input[type="text"]::placeholder, select option {
+    width: 100%;
+    overflow: hidden; /* Text außerhalb der Box wird nicht angezeigt */
+    box-sizing: border-box;
     display: inline-block;
-    animation: marquee 15s linear infinite; /* Animation für den durchlaufenden Text */
+    white-space: nowrap; /* Kein Zeilenumbruch */
+    height: 1.5em; /* Passt sich an die Schriftgröße an */
 }
 
-/* Animation für durchlaufenden Text */
+.text-container span {
+    display: inline-block;
+    animation: marquee 15s linear infinite; /* Animation für durchlaufenden Text */
+    white-space: nowrap; /* Text bleibt in einer Zeile */
+}
+
+/* Animation für den Text */
 @keyframes marquee {
     0% { transform: translateX(100%); }
     100% { transform: translateX(-100%); }
