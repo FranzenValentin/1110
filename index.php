@@ -97,49 +97,66 @@ require 'db.php';
         }
     ?>
 
-    <form method="POST">
-        <table>
-            <tbody>
-                  <tr>
-                    <!-- Einsatznummer LTS -->
-                    <td id="dünn">
-                        <input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS">
-                    </td>
-                    <!-- Stichwort -->
-                    <td id="dick">
-                        <input list="stichwort_liste" id="stichwort" name="stichwort" placeholder="Stichwort eingeben oder auswählen">
+<form method="POST">
+    <table>
+        <tbody>
+            <tr>
+                <!-- Einsatznummer LTS -->
+                <td id="dünn">
+                    <div style="position: relative; overflow: hidden; width: 100%;">
+                        <input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    </div>
+                </td>
+                <!-- Stichwort -->
+                <td id="dick">
+                    <div style="position: relative; overflow: hidden; width: 100%;">
+                        <input list="stichwort_liste" id="stichwort" name="stichwort" placeholder="Stichwort eingeben oder auswählen" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                         <datalist id="stichwort_liste">
                             <?php foreach ($stichworte as $stichwort): ?>
                                 <option value="<?= htmlspecialchars($stichwort['stichwort']) ?>"></option>
                             <?php endforeach; ?>
                         </datalist>
-                    </td>
-                    <!-- Alarmzeit -->
-                    <td id="dick">
-                        <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm (Alarm)">
+                    </div>
+                </td>
+                <!-- Alarmzeit -->
+                <td id="dick">
+                    <div style="position: relative; overflow: hidden; width: 100%;">
+                        <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm (Alarm)" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                         <button type="button" onclick="setCurrentTime('alarmuhrzeit')" id="Jetzt">🕙</button>
-                    </td>
-                    <!-- Zurückzeit -->
-                    <td id="dick">
-                        <input type="text" id="zurueckzeit" name="zurueckzeit" placeholder="dd.mm.yy hh:mm (Zurück)">
+                    </div>
+                </td>
+                <!-- Zurückzeit -->
+                <td id="dick">
+                    <div style="position: relative; overflow: hidden; width: 100%;">
+                        <input type="text" id="zurueckzeit" name="zurueckzeit" placeholder="dd.mm.yy hh:mm (Zurück)" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                         <button type="button" onclick="setCurrentTime('zurueckzeit')" id="Jetzt">🕙</button>
-                    </td>
-                    <!-- Adresse -->
-                    <td id="dick">
-                        <input type="text" id="adresse" name="adresse" placeholder="Linienstraße 128, Mitte (Adresse)">
-                    </td>
-                    <!-- Fahrzeug -->
-                    <td id="dünn">
-                        <select id="fahrzeug_name" name="fahrzeug_name">
+                    </div>
+                </td>
+                <!-- Adresse -->
+                <td id="dick">
+                    <div style="position: relative; overflow: hidden; width: 100%;">
+                        <input type="text" id="adresse" name="adresse" placeholder="Linienstraße 128, Mitte (Adresse)" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    </div>
+                </td>
+                <!-- Fahrzeug -->
+                <td id="dünn">
+                    <div style="position: relative; overflow: hidden; width: 100%;">
+                        <select id="fahrzeug_name" name="fahrzeug_name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             <?php foreach ($fahrzeuge as $fahrzeug): ?>
                                 <option value="<?= htmlspecialchars($fahrzeug['name']) ?>">
                                     <?= htmlspecialchars($fahrzeug['name']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                    </td>
-                </tr>
-                 <script>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <button class="button-container" type="submit" name="save">Speichern</button>
+</form>
+
+<script>
     function setCurrentTime(inputId) {
         const now = new Date();
         const day = String(now.getDate()).padStart(2, '0');
@@ -151,10 +168,7 @@ require 'db.php';
         document.getElementById(inputId).value = formattedTime;
     }
 </script>
-            </tbody>
-        </table>
-        <button class="button-container" type="submit" name="save">Speichern</button>
-    </form>
+
 </section>
 
                

@@ -190,3 +190,25 @@ form button {
     background-color: #e60000; /* Dunkler Rotton */
 }
 
+/* Eingabefelder und Selects */
+input, select {
+    width: 100%; /* Eingabefelder nehmen die gesamte Breite der Zelle ein */
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 0.9em;
+    box-sizing: border-box;
+    white-space: nowrap; /* Kein Zeilenumbruch */
+    overflow: hidden; /* Verhindert sichtbaren Überlauf */
+    text-overflow: ellipsis; /* Zeigt "..." bei Überlänge */
+}
+
+/* Durchlaufender Text in Eingabefeldern */
+input[type="text"], select {
+    animation: marquee 15s linear infinite; /* Marquee-Animation für durchlaufenden Text */
+}
+
+@keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
