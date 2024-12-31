@@ -56,7 +56,7 @@ button {
     background-color: #ff4d4d; /* Rot */
     color: white;
     border: none;
-    padding: none;
+    padding: 8px 10px;
     cursor: pointer;
     border-radius: 5px;
     font-size: 0.9em; /* Kleinere Schrift für Buttons */
