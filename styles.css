@@ -27,7 +27,7 @@ main {
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 0px;
+    margin-bottom: 20px;
     table-layout: fixed;
 }
 
@@ -73,7 +73,7 @@ form {
 }
 
 form div {
-    margin-top: 20px;
+    margin-top: 0px;
     text-align: right;
 }
 
