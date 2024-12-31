@@ -92,6 +92,13 @@ form select {
     width: 100%; /* Eingabefelder nehmen die gesamte Breite der Zelle ein */
 }
 
+/* Stichwort-Feld */
+#stichwort {
+    width: 100%; /* Dynamische Breite */
+    max-width: 100%; /* Verhindert Überlauf */
+    box-sizing: border-box; /* Padding und Border in Breitenberechnung einbeziehen */
+}
+
 form button {
     padding: 8px 10px;
     font-size: 0.9em;
