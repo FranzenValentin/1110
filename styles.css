@@ -100,7 +100,7 @@ form select {
 }
 
 form button {
-    padding: 8px 10px;
+    padding: none;
     font-size: 0.9em;
 }
 
