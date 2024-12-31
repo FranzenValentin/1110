@@ -153,7 +153,7 @@ require 'db.php';
 </script>
             </tbody>
         </table>
-        <button type="submit" name="save">Speichern</button>
+        <button class="button-container" type="submit" name="save">Speichern</button>
     </form>
 </section>
 
