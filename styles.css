@@ -36,7 +36,7 @@ table th, table td {
     padding: 10px;
     text-align: center;
     white-space: nowrap;
-    font-size: 0.95em; /* Etwas kleinere Schriftgröße für iPads */
+    font-size: 0.9em; /* Kleinere Schrift für Tabellen */
 }
 
 table th {
@@ -56,10 +56,10 @@ button {
     background-color: #ff4d4d; /* Rot */
     color: white;
     border: none;
-    padding: 10px 15px;
+    padding: 8px 12px;
     cursor: pointer;
     border-radius: 5px;
-    font-size: 1em;
+    font-size: 0.9em; /* Kleinere Schrift für Buttons */
 }
 
 button:hover {
@@ -67,44 +67,43 @@ button:hover {
 }
 
 /* Formular */
+form {
+    font-size: 0.9em; /* Allgemein kleinere Schrift für Formulare */
+}
+
 form div {
     margin-top: 20px;
     text-align: right;
 }
 
-p {
-    color: green;
-    font-weight: bold;
+form input,
+form select {
+    height: 30px; /* Kleinere Eingabefelder */
+    padding: 5px 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 0.9em; /* Kleinere Schrift für Eingabefelder */
+    box-sizing: border-box;
+    vertical-align: middle;
 }
 
-/* Spezifische Elemente */
-em {
-    color: #999;
-    font-style: italic;
+form input[type="text"],
+form select {
+    width: 100%; /* Eingabefelder nehmen die gesamte Breite der Zelle ein */
 }
 
-input, select {
-    height: 38px; /* Passt zur Höhe von Buttons */
-    padding: 5px 10px; /* Gleiche Innenabstände wie bei Buttons */
-    border: 1px solid #ccc; /* Standardrahmen */
-    border-radius: 5px; /* Gleiche abgerundeten Ecken wie Buttons */
-    font-size: 1em; /* Einheitliche Schriftgröße */
-    box-sizing: border-box; /* Sorgt für korrektes Padding */
-    vertical-align: middle; /* Zentriert den Text vertikal */
-}
-
-table input, table select, table button {
-    width: 100%;
-    box-sizing: border-box; /* Damit Padding berücksichtigt wird */
+form button {
+    padding: 8px 10px;
+    font-size: 0.9em;
 }
 
 #Jetzt {
-    width: 20%;
+    width: 30%; /* Vergrößert den Button für bessere Klickbarkeit */
 }
 
 #alarmuhrzeit,
 #zurueckzeit {
-    width: 80%;
+    width: 70%;
 }
 
 #dünn {
@@ -200,16 +199,16 @@ table input, table select, table button {
 
     button {
         padding: 8px 10px;
-        font-size: 0.9em;
+        font-size: 0.85em; /* Kleinere Schriftgröße für Buttons */
     }
 
     #Jetzt {
-        width: 30%; /* Vergrößert den Button für bessere Klickbarkeit */
+        width: 35%; /* Vergrößert den Button für bessere Klickbarkeit */
     }
 
     #alarmuhrzeit,
     #zurueckzeit {
-        width: 70%;
+        width: 65%;
     }
 
     #dünn {
@@ -227,5 +226,11 @@ table input, table select, table button {
 
     form div {
         text-align: center; /* Zentrierte Formular-Buttons */
+    }
+
+    form input, form select {
+        font-size: 0.85em; /* Noch kleinere Eingabefelder für iPad */
+        padding: 4px 6px;
+        height: 28px; /* Reduzierte Höhe der Felder */
     }
 }
