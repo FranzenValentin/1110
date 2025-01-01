@@ -90,8 +90,8 @@ form select {
 }
 
 /* Stichwort-Feld */
-#einsatznummer_lts
-#stichwort 
+#einsatznummer_lts,
+#stichwort, 
 #Adresse {
     width: 100%; /* Dynamische Breite */
     max-width: 100%; /* Verhindert Überlauf */
