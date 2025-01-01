@@ -87,6 +87,7 @@ form select {
     box-sizing: border-box;
     vertical-align: middle;
     width: inherit;
+    height: 38px;
 }
 
 /* Stichwort-Feld */
