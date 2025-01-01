@@ -86,6 +86,7 @@ form select {
     font-size: 0.9em; /* Kleinere Schrift für Eingabefelder */
     box-sizing: border-box;
     vertical-align: middle;
+    width: inherit;
 }
 
 /* Stichwort-Feld */
