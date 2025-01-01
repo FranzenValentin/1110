@@ -320,7 +320,29 @@ require 'db.php';
             <div class="button-container">
                 <button onclick="location.href='neuer_benutzer.php'">Neuer Benutzer</button>
                 <button onclick="location.href='stichworte.php'">Stichworte verwalten</button>
-                <button onclick="location.href='export_einsaetze.php'">Einsätze xportieren</button>
+                <form action="export_einsaetze.php" method="post">
+                    <label for="monat">Monat:</label>
+                    <select id="monat" name="monat" required>
+                        <option value="01">Januar</option>
+                        <option value="02">Februar</option>
+                        <option value="03">März</option>
+                        <option value="04">April</option>
+                        <option value="05">Mai</option>
+                        <option value="06">Juni</option>
+                        <option value="07">Juli</option>
+                        <option value="08">August</option>
+                        <option value="09">September</option>
+                        <option value="10">Oktober</option>
+                        <option value="11">November</option>
+                        <option value="12">Dezember</option>
+                    </select>
+
+                    <label for="jahr">Jahr:</label>
+                    <input type="number" id="jahr" name="jahr" value="<?= date('Y') ?>" required>
+
+                    <button type="submit">Einsätze exportieren</button>
+                </form>
+
             </div>
         </section>
     </main>
