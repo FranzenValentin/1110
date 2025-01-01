@@ -5,104 +5,126 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     exit;
 }
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 require 'db.php';
-require 'vendor/autoload.php';
 
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+// Monat und Jahr abrufen
+$monat = $_POST['monat'];
+$jahr = $_POST['jahr'];
 
-try {
-    // Monat und Jahr abrufen
-    $monat = $_POST['monat'];
-    $jahr = $_POST['jahr'];
-
-    // Neues Spreadsheet erstellen
-    $spreadsheet = new Spreadsheet();
-    $sheet = $spreadsheet->getActiveSheet();
-    $sheet->setTitle("Einsätze");
-
-    // Spaltenüberschriften
-    $sheet->setCellValue('A1', 'Interne Einsatznummer')
-          ->setCellValue('B1', 'Einsatznummer')
-          ->setCellValue('C1', 'Stichwort')
-          ->setCellValue('D1', 'Alarmzeit')
-          ->setCellValue('E1', 'Zurückzeit')
-          ->setCellValue('F1', 'Fahrzeug')
-          ->setCellValue('G1', 'Adresse')
-          ->setCellValue('H1', 'StF')
-          ->setCellValue('I1', 'Ma')
-          ->setCellValue('J1', 'AtF')
-          ->setCellValue('K1', 'AtM')
-          ->setCellValue('L1', 'WtF')
-          ->setCellValue('M1', 'WtM')
-          ->setCellValue('N1', 'Praktikant');
-
-    // Datenbankabfrage
-    $query = "
-        SELECT 
-            e.interne_einsatznummer,
-            e.einsatznummer_lts,
-            e.stichwort,
-            e.alarmuhrzeit,
-            e.zurueckzeit,
-            e.fahrzeug_name,
-            e.adresse,
-            p1.nachname AS stf,
-            p2.nachname AS ma,
-            p3.nachname AS atf,
-            p4.nachname AS atm,
-            p5.nachname AS wtf,
-            p6.nachname AS wtm,
-            p7.nachname AS praktikant
-        FROM Einsaetze e
-        LEFT JOIN Besatzung b ON e.besatzung_id = b.id
-        LEFT JOIN Personal p1 ON b.stf_id = p1.id
-        LEFT JOIN Personal p2 ON b.ma_id = p2.id
-        LEFT JOIN Personal p3 ON b.atf_id = p3.id
-        LEFT JOIN Personal p4 ON b.atm_id = p4.id
-        LEFT JOIN Personal p5 ON b.wtf_id = p5.id
-        LEFT JOIN Personal p6 ON b.wtm_id = p6.id
-        LEFT JOIN Personal p7 ON b.prakt_id = p7.id
-        WHERE 
-            MONTH(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i')) = :monat 
-            AND YEAR(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i')) = :jahr
-        ORDER BY e.id DESC
-    ";
-
-    $stmt = $pdo->prepare($query);
-    $stmt->execute(['monat' => $monat, 'jahr' => $jahr]);
-
-    // Zeilen füllen
-    $rowIndex = 2;
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $sheet->setCellValue("A$rowIndex", $row['interne_einsatznummer'])
-              ->setCellValue("B$rowIndex", $row['einsatznummer_lts'])
-              ->setCellValue("C$rowIndex", $row['stichwort'])
-              ->setCellValue("D$rowIndex", $row['alarmuhrzeit'])
-              ->setCellValue("E$rowIndex", $row['zurueckzeit'])
-              ->setCellValue("F$rowIndex", $row['fahrzeug_name'])
-              ->setCellValue("G$rowIndex", $row['adresse'])
-              ->setCellValue("H$rowIndex", $row['stf'])
-              ->setCellValue("I$rowIndex", $row['ma'])
-              ->setCellValue("J$rowIndex", $row['atf'])
-              ->setCellValue("K$rowIndex", $row['atm'])
-              ->setCellValue("L$rowIndex", $row['wtf'])
-              ->setCellValue("M$rowIndex", $row['wtm'])
-              ->setCellValue("N$rowIndex", $row['praktikant']);
-        $rowIndex++;
-    }
-
-    // Datei streamen
-    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header("Content-Disposition: attachment; filename=einsaetze_{$monat}_{$jahr}.xlsx");
-    $writer = new Xlsx($spreadsheet);
-    $writer->save('php://output');
-    exit;
-} catch (Exception $e) {
-    die("Fehler: " . $e->getMessage());
-}
 ?>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Einsatzübersicht - <?= htmlspecialchars($monat) ?>/<?= htmlspecialchars($jahr) ?></title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #000;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        @media print {
+            button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Einsatzübersicht - <?= htmlspecialchars($monat) ?>/<?= htmlspecialchars($jahr) ?></h1>
+    <button onclick="window.print()">PDF Speichern/Drucken</button>
+    <table>
+        <thead>
+            <tr>
+                <th>Interne Einsatznummer</th>
+                <th>Einsatznummer</th>
+                <th>Stichwort</th>
+                <th>Alarmzeit</th>
+                <th>Zurückzeit</th>
+                <th>Fahrzeug</th>
+                <th>Adresse</th>
+                <th>StF</th>
+                <th>Ma</th>
+                <th>AtF</th>
+                <th>AtM</th>
+                <th>WtF</th>
+                <th>WtM</th>
+                <th>Praktikant</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            // Datenbankabfrage
+            $query = "
+                SELECT 
+                    e.interne_einsatznummer,
+                    e.einsatznummer_lts,
+                    e.stichwort,
+                    e.alarmuhrzeit,
+                    e.zurueckzeit,
+                    e.fahrzeug_name,
+                    e.adresse,
+                    p1.nachname AS stf,
+                    p2.nachname AS ma,
+                    p3.nachname AS atf,
+                    p4.nachname AS atm,
+                    p5.nachname AS wtf,
+                    p6.nachname AS wtm,
+                    p7.nachname AS praktikant
+                FROM Einsaetze e
+                LEFT JOIN Besatzung b ON e.besatzung_id = b.id
+                LEFT JOIN Personal p1 ON b.stf_id = p1.id
+                LEFT JOIN Personal p2 ON b.ma_id = p2.id
+                LEFT JOIN Personal p3 ON b.atf_id = p3.id
+                LEFT JOIN Personal p4 ON b.atm_id = p4.id
+                LEFT JOIN Personal p5 ON b.wtf_id = p5.id
+                LEFT JOIN Personal p6 ON b.wtm_id = p6.id
+                LEFT JOIN Personal p7 ON b.prakt_id = p7.id
+                WHERE MONTH(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i')) = :monat 
+                  AND YEAR(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i')) = :jahr
+                ORDER BY e.id DESC
+            ";
+            $stmt = $pdo->prepare($query);
+            $stmt->execute(['monat' => $monat, 'jahr' => $jahr]);
+
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                echo '<tr>';
+                echo '<td>' . htmlspecialchars($row['interne_einsatznummer']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['einsatznummer_lts']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['stichwort']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['alarmuhrzeit']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['zurueckzeit']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['fahrzeug_name']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['adresse']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['stf']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['ma']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['atf']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['atm']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['wtf']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['wtm']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['praktikant']) . '</td>';
+                echo '</tr>';
+            }
+            ?>
+        </tbody>
+    </table>
+</body>
+</html>
