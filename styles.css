@@ -88,13 +88,11 @@ form select {
     vertical-align: middle;
 }
 
-form input[type="text"],
-form select {
-    width: 100%; /* Eingabefelder nehmen die gesamte Breite der Zelle ein */
-}
 
 /* Stichwort-Feld */
-#stichwort {
+#einsatznummer_lts
+#stichwort 
+#Adresse {
     width: 100%; /* Dynamische Breite */
     max-width: 100%; /* Verhindert Überlauf */
     box-sizing: border-box; /* Padding und Border in Breitenberechnung einbeziehen */
