@@ -61,9 +61,12 @@ $query = "
     LEFT JOIN Personal p5 ON b.wtf_id = p5.id
     LEFT JOIN Personal p6 ON b.wtm_id = p6.id
     LEFT JOIN Personal p7 ON b.prakt_id = p7.id
-    WHERE MONTH(e.alarmuhrzeit) = :monat AND YEAR(e.alarmuhrzeit) = :jahr
+    WHERE 
+        MONTH(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i')) = :monat 
+        AND YEAR(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i')) = :jahr
     ORDER BY e.id DESC
 ";
+
 
 $stmt = $pdo->prepare($query);
 $stmt->execute(['monat' => $monat, 'jahr' => $jahr]);
