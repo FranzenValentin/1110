@@ -321,6 +321,8 @@ require 'db.php';
                 <button onclick="location.href='neuer_benutzer.php'">Neuer Benutzer</button>
                 <button onclick="location.href='stichworte.php'">Stichworte verwalten</button>
                 <form action="export_einsaetze.php" method="post">
+                <form action="export_einsaetze.php" method="post">
+                <form action="export_einsaetze.php" method="post">
                     <label for="monat">Monat:</label>
                     <select id="monat" name="monat" required>
                         <option value="01">Januar</option>

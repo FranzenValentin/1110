@@ -6,7 +6,7 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 }
 
 require 'db.php'; // Datenbankverbindung
-require 'vendor/autoload.php'; // PhpSpreadsheet (Composer) einbinden
+require 'vendor/autoload.php'; // PhpSpreadsheet einbinden
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -20,7 +20,7 @@ $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
 $sheet->setTitle("Einsätze");
 
-// Spaltenüberschriften
+// Spaltenüberschriften hinzufügen
 $sheet->setCellValue('A1', 'Interne Einsatznummer')
       ->setCellValue('B1', 'Einsatznummer')
       ->setCellValue('C1', 'Stichwort')
@@ -36,7 +36,7 @@ $sheet->setCellValue('A1', 'Interne Einsatznummer')
       ->setCellValue('M1', 'WtM')
       ->setCellValue('N1', 'Praktikant');
 
-// Datenbankabfrage für Einsätze im angegebenen Monat und Jahr
+// Datenbankabfrage: Einsätze für den gewählten Monat und Jahr abrufen
 $query = "
     SELECT 
         e.interne_einsatznummer,
@@ -72,7 +72,7 @@ $stmt = $pdo->prepare($query);
 $stmt->execute(['monat' => $monat, 'jahr' => $jahr]);
 
 // Daten in die Excel-Datei schreiben
-$rowIndex = 2; // Start bei der zweiten Zeile (nach den Überschriften)
+$rowIndex = 2; // Daten beginnen in der zweiten Zeile
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $sheet->setCellValue("A$rowIndex", $row['interne_einsatznummer'])
           ->setCellValue("B$rowIndex", $row['einsatznummer_lts'])
