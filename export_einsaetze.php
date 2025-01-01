@@ -5,43 +5,36 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     exit;
 }
 
-require 'db.php';
+require 'db.php'; // Datenbankverbindung
+require 'vendor/autoload.php'; // PhpSpreadsheet (Composer) einbinden
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 // Monat und Jahr aus dem Formular abrufen
 $monat = $_POST['monat'];
 $jahr = $_POST['jahr'];
 
-// Header für den Download setzen
-header("Content-Type: application/vnd.ms-excel");
-header("Content-Disposition: attachment; filename=FF1110_einsaetze_{$monat}_{$jahr}.xlsx");
-
-// XML-Daten beginnen
-echo '<?xml version="1.0"?>';
-echo '<?mso-application progid="Excel.Sheet"?>';
-echo '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
-               xmlns:x="urn:schemas-microsoft-com:office:excel"
-               xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">';
-
-echo '<Worksheet ss:Name="Einsätze">';
-echo '<Table>';
+// Neues Spreadsheet erstellen
+$spreadsheet = new Spreadsheet();
+$sheet = $spreadsheet->getActiveSheet();
+$sheet->setTitle("Einsätze");
 
 // Spaltenüberschriften
-echo '<Row>';
-echo '<Cell><Data ss:Type="String">Interne Einsatznummer</Data></Cell>';
-echo '<Cell><Data ss:Type="String">Einsatznummer</Data></Cell>';
-echo '<Cell><Data ss:Type="String">Stichwort</Data></Cell>';
-echo '<Cell><Data ss:Type="String">Alarmzeit</Data></Cell>';
-echo '<Cell><Data ss:Type="String">Zurückzeit</Data></Cell>';
-echo '<Cell><Data ss:Type="String">Fahrzeug</Data></Cell>';
-echo '<Cell><Data ss:Type="String">Adresse</Data></Cell>';
-echo '<Cell><Data ss:Type="String">StF</Data></Cell>';
-echo '<Cell><Data ss:Type="String">Ma</Data></Cell>';
-echo '<Cell><Data ss:Type="String">AtF</Data></Cell>';
-echo '<Cell><Data ss:Type="String">AtM</Data></Cell>';
-echo '<Cell><Data ss:Type="String">WtF</Data></Cell>';
-echo '<Cell><Data ss:Type="String">WtM</Data></Cell>';
-echo '<Cell><Data ss:Type="String">Praktikant</Data></Cell>';
-echo '</Row>';
+$sheet->setCellValue('A1', 'Interne Einsatznummer')
+      ->setCellValue('B1', 'Einsatznummer')
+      ->setCellValue('C1', 'Stichwort')
+      ->setCellValue('D1', 'Alarmzeit')
+      ->setCellValue('E1', 'Zurückzeit')
+      ->setCellValue('F1', 'Fahrzeug')
+      ->setCellValue('G1', 'Adresse')
+      ->setCellValue('H1', 'StF')
+      ->setCellValue('I1', 'Ma')
+      ->setCellValue('J1', 'AtF')
+      ->setCellValue('K1', 'AtM')
+      ->setCellValue('L1', 'WtF')
+      ->setCellValue('M1', 'WtM')
+      ->setCellValue('N1', 'Praktikant');
 
 // Datenbankabfrage für Einsätze im angegebenen Monat und Jahr
 $query = "
@@ -78,18 +71,30 @@ $query = "
 $stmt = $pdo->prepare($query);
 $stmt->execute(['monat' => $monat, 'jahr' => $jahr]);
 
-// Datenzeilen schreiben
+// Daten in die Excel-Datei schreiben
+$rowIndex = 2; // Start bei der zweiten Zeile (nach den Überschriften)
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    echo '<Row>';
-    foreach ($row as $cell) {
-        echo '<Cell><Data ss:Type="String">' . htmlspecialchars($cell) . '</Data></Cell>';
-    }
-    echo '</Row>';
+    $sheet->setCellValue("A$rowIndex", $row['interne_einsatznummer'])
+          ->setCellValue("B$rowIndex", $row['einsatznummer_lts'])
+          ->setCellValue("C$rowIndex", $row['stichwort'])
+          ->setCellValue("D$rowIndex", $row['alarmuhrzeit'])
+          ->setCellValue("E$rowIndex", $row['zurueckzeit'])
+          ->setCellValue("F$rowIndex", $row['fahrzeug_name'])
+          ->setCellValue("G$rowIndex", $row['adresse'])
+          ->setCellValue("H$rowIndex", $row['stf'])
+          ->setCellValue("I$rowIndex", $row['ma'])
+          ->setCellValue("J$rowIndex", $row['atf'])
+          ->setCellValue("K$rowIndex", $row['atm'])
+          ->setCellValue("L$rowIndex", $row['wtf'])
+          ->setCellValue("M$rowIndex", $row['wtm'])
+          ->setCellValue("N$rowIndex", $row['praktikant']);
+    $rowIndex++;
 }
 
-// XML-Daten beenden
-echo '</Table>';
-echo '</Worksheet>';
-echo '</Workbook>';
+// Writer erstellen und Datei streamen
+$writer = new Xlsx($spreadsheet);
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header("Content-Disposition: attachment; filename=einsaetze_{$monat}_{$jahr}.xlsx");
+$writer->save('php://output');
 exit;
 ?>
