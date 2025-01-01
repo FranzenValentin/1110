@@ -11,29 +11,37 @@ require 'db.php';
 $monat = $_POST['monat'];
 $jahr = $_POST['jahr'];
 
-header('Content-Type: text/csv; charset=utf-8');
-header('Content-Disposition: attachment; filename=einsaetze_' . $monat . '_' . $jahr . '.csv');
+// Header für den Download setzen
+header("Content-Type: application/vnd.ms-excel");
+header("Content-Disposition: attachment; filename=einsaetze_{$monat}_{$jahr}.xls");
 
-// CSV-Ausgabe starten
-$output = fopen('php://output', 'w');
+// XML-Daten beginnen
+echo '<?xml version="1.0"?>';
+echo '<?mso-application progid="Excel.Sheet"?>';
+echo '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+               xmlns:x="urn:schemas-microsoft-com:office:excel"
+               xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">';
 
-// Spaltenüberschriften schreiben
-fputcsv($output, [
-    'Interne Einsatznummer',
-    'Einsatznummer',
-    'Stichwort',
-    'Alarmzeit',
-    'Zurückzeit',
-    'Fahrzeug',
-    'Adresse',
-    'StF',
-    'Ma',
-    'AtF',
-    'AtM',
-    'WtF',
-    'WtM',
-    'Praktikant'
-]);
+echo '<Worksheet ss:Name="Einsätze">';
+echo '<Table>';
+
+// Spaltenüberschriften
+echo '<Row>';
+echo '<Cell><Data ss:Type="String">Interne Einsatznummer</Data></Cell>';
+echo '<Cell><Data ss:Type="String">Einsatznummer</Data></Cell>';
+echo '<Cell><Data ss:Type="String">Stichwort</Data></Cell>';
+echo '<Cell><Data ss:Type="String">Alarmzeit</Data></Cell>';
+echo '<Cell><Data ss:Type="String">Zurückzeit</Data></Cell>';
+echo '<Cell><Data ss:Type="String">Fahrzeug</Data></Cell>';
+echo '<Cell><Data ss:Type="String">Adresse</Data></Cell>';
+echo '<Cell><Data ss:Type="String">StF</Data></Cell>';
+echo '<Cell><Data ss:Type="String">Ma</Data></Cell>';
+echo '<Cell><Data ss:Type="String">AtF</Data></Cell>';
+echo '<Cell><Data ss:Type="String">AtM</Data></Cell>';
+echo '<Cell><Data ss:Type="String">WtF</Data></Cell>';
+echo '<Cell><Data ss:Type="String">WtM</Data></Cell>';
+echo '<Cell><Data ss:Type="String">Praktikant</Data></Cell>';
+echo '</Row>';
 
 // Datenbankabfrage für Einsätze im angegebenen Monat und Jahr
 $query = "
@@ -67,16 +75,21 @@ $query = "
     ORDER BY e.id DESC
 ";
 
-
 $stmt = $pdo->prepare($query);
 $stmt->execute(['monat' => $monat, 'jahr' => $jahr]);
 
-// Daten in CSV schreiben
+// Datenzeilen schreiben
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    fputcsv($output, $row);
+    echo '<Row>';
+    foreach ($row as $cell) {
+        echo '<Cell><Data ss:Type="String">' . htmlspecialchars($cell) . '</Data></Cell>';
+    }
+    echo '</Row>';
 }
 
-// Stream schließen
-fclose($output);
+// XML-Daten beenden
+echo '</Table>';
+echo '</Worksheet>';
+echo '</Workbook>';
 exit;
 ?>
