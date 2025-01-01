@@ -13,7 +13,7 @@ $jahr = $_POST['jahr'];
 
 // Header für den Excel-Export
 header("Content-Type: application/vnd.ms-excel");
-header("Content-Disposition: attachment; filename=einsaetze_{$monat}_{$jahr}.xls");
+header("Content-Disposition: attachment; filename=FF1110_einsaetze_{$monat}_{$jahr}.xls");
 
 // Start der Excel-Datei (HTML-basierte Tabelle)
 echo '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
@@ -26,7 +26,7 @@ echo '<style>
       </style>';
 echo '</head>';
 echo '<body>';
-echo "<h1>Einsatzübersicht - $monat/$jahr</h1>";
+echo "<h1>FF 1110 - Einsatzübersicht - $monat/$jahr</h1>";
 echo '<table>';
 echo '<tr>
         <th>Interne Einsatznummer</th>
