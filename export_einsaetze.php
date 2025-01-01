@@ -11,20 +11,22 @@ require 'db.php';
 $monat = $_POST['monat'];
 $jahr = $_POST['jahr'];
 
-// HTTP-Header für echte .xls-Datei setzen
+// Header für den Excel-Export
 header("Content-Type: application/vnd.ms-excel");
 header("Content-Disposition: attachment; filename=einsaetze_{$monat}_{$jahr}.xls");
 
-// Echte .xls-Dateistruktur initialisieren
-echo pack("CCC", 0xD0, 0xCF, 0x11); // Begin der XLS-Struktur (OLE Header)
-echo pack("CCC", 0xE0, 0xA1, 0xB1); // Fortsetzung der Header-Struktur
-
-// Einfacher Inhalt als echtes XLS-Dokument
-echo pack("CCC", 0x09, 0x04, 0x06); // Begin der Inhaltsstruktur
-echo "Einsatzübersicht $monat/$jahr"; // Beispiel-Inhalt
-echo pack("CCC", 0x00, 0x10, 0x0A); // Markierung des Endes
-
-// Inhalte generieren
+// Start der Excel-Datei (HTML-basierte Tabelle)
+echo '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+echo '<head>';
+echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />';
+echo '<style>
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+      </style>';
+echo '</head>';
+echo '<body>';
+echo "<h1>Einsatzübersicht - $monat/$jahr</h1>";
 echo '<table>';
 echo '<tr>
         <th>Interne Einsatznummer</th>
@@ -78,14 +80,26 @@ $query = "
 $stmt = $pdo->prepare($query);
 $stmt->execute(['monat' => $monat, 'jahr' => $jahr]);
 
+// Datenzeilen einfügen
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     echo '<tr>';
-    foreach ($row as $value) {
-        echo '<td>' . htmlspecialchars($value) . '</td>';
-    }
+    echo '<td>' . htmlspecialchars($row['interne_einsatznummer']) . '</td>';
+    echo '<td>' . htmlspecialchars($row['einsatznummer_lts']) . '</td>';
+    echo '<td>' . htmlspecialchars($row['stichwort']) . '</td>';
+    echo '<td>' . htmlspecialchars($row['alarmuhrzeit']) . '</td>';
+    echo '<td>' . htmlspecialchars($row['zurueckzeit']) . '</td>';
+    echo '<td>' . htmlspecialchars($row['fahrzeug_name']) . '</td>';
+    echo '<td>' . htmlspecialchars($row['adresse']) . '</td>';
+    echo '<td>' . htmlspecialchars($row['stf']) . '</td>';
+    echo '<td>' . htmlspecialchars($row['ma']) . '</td>';
+    echo '<td>' . htmlspecialchars($row['atf']) . '</td>';
+    echo '<td>' . htmlspecialchars($row['atm']) . '</td>';
+    echo '<td>' . htmlspecialchars($row['wtf']) . '</td>';
+    echo '<td>' . htmlspecialchars($row['wtm']) . '</td>';
+    echo '<td>' . htmlspecialchars($row['praktikant']) . '</td>';
     echo '</tr>';
 }
-echo '</table>';
 
-exit();
-?>
+echo '</table>';
+echo '</body>';
+echo '</html>';
