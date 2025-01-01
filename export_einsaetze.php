@@ -13,7 +13,7 @@ $jahr = $_POST['jahr'];
 
 // Header für den Download setzen
 header("Content-Type: application/vnd.ms-excel");
-header("Content-Disposition: attachment; filename=einsaetze_{$monat}_{$jahr}.xls");
+header("Content-Disposition: attachment; filename=FF1110_einsaetze_{$monat}_{$jahr}.xlsx");
 
 // XML-Daten beginnen
 echo '<?xml version="1.0"?>';
