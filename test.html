@@ -37,7 +37,7 @@
             const query = this.value;
 
             if (query.length > 2) { // Nur bei mehr als 2 Zeichen Vorschläge anzeigen
-                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&viewbox=13.0884,52.6755,13.7611,52.3383&bounded=1`)
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ', Berlin')}&addressdetails=1&viewbox=13.0884,52.6755,13.7611,52.3383&bounded=1`)
                     .then(response => response.json())
                     .then(data => {
                         const vorschlaege = document.getElementById('vorschlaege');
@@ -47,16 +47,18 @@
                             // Adressformat festlegen
                             const address = formatAddress(item.address);
 
-                            const li = document.createElement('li');
-                            li.textContent = address;
+                            if (address) { // Nur Adressen anzeigen, die sinnvoll formatiert wurden
+                                const li = document.createElement('li');
+                                li.textContent = address;
 
-                            // Klick auf Vorschlag setzt die Adresse und schließt die Liste
-                            li.addEventListener('click', () => {
-                                document.getElementById('adresse').value = address;
-                                vorschlaege.innerHTML = ''; // Vorschläge ausblenden
-                            });
+                                // Klick auf Vorschlag setzt die Adresse und schließt die Liste
+                                li.addEventListener('click', () => {
+                                    document.getElementById('adresse').value = address;
+                                    vorschlaege.innerHTML = ''; // Vorschläge ausblenden
+                                });
 
-                            vorschlaege.appendChild(li);
+                                vorschlaege.appendChild(li);
+                            }
                         });
                     })
                     .catch(error => console.error('Fehler beim Abrufen der Adressdaten:', error));
@@ -78,9 +80,13 @@
             const houseNumber = address.house_number || '';
             const district = address.suburb || address.city_district || '';
 
-            // Kombinierte Adresse zurückgeben
-            return `${road} ${houseNumber}, ${district}`.trim();
+            // Kombinierte Adresse zurückgeben, wenn Straße und Hausnummer vorhanden sind
+            if (road && houseNumber) {
+                return `${road} ${houseNumber}, ${district}`.trim();
+            }
+            return null; // Ungültige Adressen ignorieren
         }
+
 
 
         // Klicken außerhalb der Vorschlagsliste schließt sie
