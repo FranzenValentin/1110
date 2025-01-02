@@ -169,6 +169,7 @@ if ($personId) {
                 });
             </script>
         <?php else: ?>
+            <p>Keine Funktionen für diesen Zeitraum gefunden.</p>
         <?php endif; ?>
     </section>
 
@@ -181,7 +182,6 @@ if ($personId) {
             <?php endif; ?>
     </h2>
     <?php if ($personId): ?>
-        <p>Zeitraum: <?= htmlspecialchars($startdatum) ?> bis <?= htmlspecialchars($enddatum) ?></p>
         <?php if (count($einsaetze) > 0): ?>
             <table>
                 <thead>
