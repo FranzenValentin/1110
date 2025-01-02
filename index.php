@@ -53,13 +53,21 @@ require 'db.php';
                 $zurueckzeit = $_POST['zurueckzeit'] ?? null;
                 $adresse = $_POST['adresse'] ?? null;
                 $fahrzeug_name = $_POST['fahrzeug_name'] ?? null;
-
-                // Format prüfen (dd.mm.yyyy hh:mm)
-                if (!preg_match('/^\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $alarmuhrzeit) || 
-                    !preg_match('/^\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $zurueckzeit)) {
+        
+                // Konvertierung des Formats (ISO -> dd.mm.yy hh:mm)
+                if ($alarmuhrzeit) {
+                    $alarmuhrzeit = DateTime::createFromFormat('Y-m-d\TH:i', $alarmuhrzeit)->format('d.m.y H:i');
+                }
+                if ($zurueckzeit) {
+                    $zurueckzeit = DateTime::createFromFormat('Y-m-d\TH:i', $zurueckzeit)->format('d.m.y H:i');
+                }
+        
+                // Format prüfen (dd.mm.yy hh:mm)
+                if (!preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $alarmuhrzeit) || 
+                    ($zurueckzeit && !preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $zurueckzeit))) {
                     throw new Exception("Die Uhrzeiten müssen im Format dd.mm.yy hh:mm vorliegen.");
                 }
-
+        
                 // Besatzung für das ausgewählte Fahrzeug abrufen
                 $besatzungStmt = $pdo->prepare("
                     SELECT b.id 
@@ -70,11 +78,11 @@ require 'db.php';
                 ");
                 $besatzungStmt->execute([':fahrzeug_name' => $fahrzeug_name]);
                 $besatzung_id = $besatzungStmt->fetchColumn();
-
+        
                 if (!$besatzung_id) {
                     throw new Exception("Keine gültige Besatzung für das ausgewählte Fahrzeug gefunden.");
                 }
-
+        
                 // SQL-Statement vorbereiten und ausführen
                 $sql = "INSERT INTO Einsaetze 
                         (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, fahrzeug_name, besatzung_id)
@@ -89,12 +97,13 @@ require 'db.php';
                     ':fahrzeug_name' => $fahrzeug_name,
                     ':besatzung_id' => $besatzung_id
                 ]);
-
+        
                 echo "<p>Einsatz wurde erfolgreich gespeichert.</p>";
             } catch (Exception $e) {
                 echo "<p>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
             }
         }
+        
     ?>
 
 <form method="POST">
@@ -185,9 +194,6 @@ require 'db.php';
 </form>
 
 </section>
-
-               
-
 
 
 
