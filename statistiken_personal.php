@@ -54,14 +54,12 @@ if ($personId) {
 
     // Verteilung der Funktionen abrufen
     $funktionenStmt = $pdo->prepare("
-        SELECT 
+      SELECT 
             CASE
                 WHEN b.stf_id = :personId THEN 'Staffel-Führer'
                 WHEN b.ma_id = :personId THEN 'Maschinist'
-                WHEN b.atf_id = :personId THEN 'Angriffstrupp-Führer'
-                WHEN b.atm_id = :personId THEN 'Angriffstrupp-Mann'
-                WHEN b.wtf_id = :personId THEN 'Wassertrupp-Führer'
-                WHEN b.wtm_id = :personId THEN 'Wassertrupp-Mann'
+                WHEN b.atf_id = :personId OR b.atm_id = :personId THEN 'Angriffstrupp'
+                WHEN b.wtf_id = :personId OR b.wtm_id = :personId THEN 'Wassertrupp'
                 WHEN b.prakt_id = :personId THEN 'Praktikant'
                 ELSE 'Unbekannt'
             END AS funktion,
@@ -69,9 +67,10 @@ if ($personId) {
         FROM Einsaetze e
         LEFT JOIN Besatzung b ON e.besatzung_id = b.id
         WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-          AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
+        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
         GROUP BY funktion
     ");
+
     $funktionenStmt->execute([
         ':personId' => $personId,
         ':startdatum' => $startdatum,
