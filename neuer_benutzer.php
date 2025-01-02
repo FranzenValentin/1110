@@ -54,12 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php if (isset($error)) { echo "<p class='error'>$error</p>"; } ?>
             <form action="" method="POST">
                 <div>
-                    <label for="vorname">Vorname:</label>
-                    <input type="text" id="vorname" name="vorname" required>
-                </div>
-                <div>
-                    <label for="nachname">Nachname:</label>
-                    <input type="text" id="nachname" name="nachname" required>
+                    <input type="text" id="vorname" name="vorname" placeholder="Vorname" required>
+                    <input type="text" id="nachname" name="nachname" placeholder="Nachname" required>
                 </div>
                 <div>
                     <button type="submit">Benutzer hinzufügen</button>
