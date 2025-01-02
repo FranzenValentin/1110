@@ -108,7 +108,7 @@ require 'db.php';
                     </div>
                 </td>
                 <!-- Stichwort -->
-                <td id="dick">
+                <td id="mittel">
                     <div>
                         <input list="stichwort_liste" id="stichwort" name="stichwort" 
                             placeholder="Stichwort eingeben oder auswählen">
