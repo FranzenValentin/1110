@@ -122,6 +122,7 @@ try {
             const stichwortData = <?= json_encode(array_column($stichworte, 'anzahl')) ?>;
 
             new Chart(document.getElementById('stichwortChart'), {
+                label: 'Häufigsten Stichworte'
                 type: 'bar',
                 data: {
                     labels: stichwortLabels,
