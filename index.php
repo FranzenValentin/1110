@@ -127,23 +127,13 @@ require 'db.php';
                             type="datetime-local" 
                             id="alarmuhrzeit" 
                             name="alarmuhrzeit" 
-                            onfocus="hidePlaceholder(this)" 
-                            onblur="showPlaceholder(this)" 
+                            onfocus="hidePlaceholder('alarmPlaceholder')" 
+                            onblur="showPlaceholder('alarmPlaceholder', this)" 
                             style="padding-left: 5px;">
-                        <span id="placeholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Alarmzeit</span>
+                        <span id="alarmPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Alarmzeit</span>
                     </div>
-                        <script>
-                            function hidePlaceholder(input) {
-                                document.getElementById('placeholder').style.display = 'none';
-                            }
-
-                            function showPlaceholder(input) {
-                                if (!input.value) {
-                                    document.getElementById('placeholder').style.display = 'block';
-                                }
-                            }
-                        </script>
                 </td>
+
                 <!-- Zurückzeit -->
                 <td id="dünn">
                     <div style="position: relative;">
@@ -151,23 +141,25 @@ require 'db.php';
                             type="datetime-local" 
                             id="zurueckzeit" 
                             name="zurueckzeit" 
-                            onfocus="hidePlaceholde(this)" 
-                            onblur="showPlaceholder(this)" 
+                            onfocus="hidePlaceholder('returnPlaceholder')" 
+                            onblur="showPlaceholder('returnPlaceholder', this)" 
                             style="padding-left: 5px;">
-                        <span id="placeholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Zurückzeit</span>
+                        <span id="returnPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Zurückzeit</span>
                     </div>
-                        <script>
-                            function hidePlaceholder(input) {
-                                document.getElementById('placeholder').style.display = 'none';
-                            }
-
-                            function showPlaceholder(input) {
-                                if (!input.value) {
-                                    document.getElementById('placeholder').style.display = 'block';
-                                }
-                            }
-                        </script>
                 </td>
+
+                <script>
+                    function hidePlaceholder(placeholderId) {
+                        document.getElementById(placeholderId).style.display = 'none';
+                    }
+
+                    function showPlaceholder(placeholderId, input) {
+                        if (!input.value) {
+                            document.getElementById(placeholderId).style.display = 'block';
+                        }
+                    }
+                </script>
+
                 <!-- Adresse -->
                 <td id="dick">
                    <div>
