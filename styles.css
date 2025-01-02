@@ -34,9 +34,9 @@ table {
 table th, table td {
     border: 1px solid #ddd;
     padding: 10px 8px;
-    text-align: center;
     white-space: nowrap;
-    font-size: 0.9em; /* Kleinere Schrift für Tabellen */
+    font-size: 0.8em; /* Kleinere Schrift für Tabellen */
+    overflow: auto;
 }
 
 table th {
