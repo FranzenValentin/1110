@@ -1,42 +1,60 @@
 <?php
 session_start();
 if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-    header('Location: login.php');
+    header('Location: login.php'); // Weiterleitung zur Login-Seite
     exit;
 }
 require 'db.php';
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Standardwerte für den Zeitraum
-$currentDate = new DateTime();
-$startdatum = $_GET['startdatum'] ?? $currentDate->format('Y-m-01');
-$enddatum = $_GET['enddatum'] ?? $currentDate->format('Y-m-t');
-$personId = $_GET['person_id'] ?? null;
-
-// Variablen initialisieren
-$personal = [];
-$einsaetze = [];
-$funktionenVerteilung = [];
-$kategorien = [];
-$gesamtAnzahl = 0;
+// Standardwerte für den Zeitraum (aktuelles Jahr)
+if (!isset($_GET['startdatum']) || !isset($_GET['enddatum'])) {
+    $currentDate = new DateTime();
+    $startdatum = $currentDate->format('Y-m-01'); // Erster Tag des aktuellen Monats
+    $enddatum = $currentDate->format('Y-m-t');   // Letzter Tag des aktuellen Monats
+} else {
+    $startdatum = $_GET['startdatum'];
+    $enddatum = $_GET['enddatum'];
+}
+$personId = isset($_GET['person_id']) ? $_GET['person_id'] : null;
 
 // Personal laden
-try {
-    $personalStmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal ORDER BY nachname");
-    $personal = $personalStmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Fehler beim Laden des Personals: " . $e->getMessage());
-}
+$personalStmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal ORDER BY nachname");
+$personal = $personalStmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Abfragen nur bei ausgewählter Person ausführen
+// Einsätze abrufen, wenn eine Person ausgewählt ist
+$einsaetze = [];
+$funktionenVerteilung = [];
 if ($personId) {
-    try {
-        // Einsätze laden
-        $einsaetzeStmt = $pdo->prepare("
-            SELECT e.interne_einsatznummer, e.stichwort, e.alarmuhrzeit, e.fahrzeug_name,
+    $einsaetzeStmt = $pdo->prepare("
+        SELECT 
+            e.interne_einsatznummer, e.stichwort, e.alarmuhrzeit, e.fahrzeug_name,
+            CASE
+                WHEN b.stf_id = :personId THEN 'Staffel-Führer'
+                WHEN b.ma_id = :personId THEN 'Maschinist'
+                WHEN b.atf_id = :personId THEN 'Angriffstrupp-Führer'
+                WHEN b.atm_id = :personId THEN 'Angriffstrupp-Mann'
+                WHEN b.wtf_id = :personId THEN 'Wassertrupp-Führer'
+                WHEN b.wtm_id = :personId THEN 'Wassertrupp-Mann'
+                WHEN b.prakt_id = :personId THEN 'Praktikant'
+                ELSE 'Unbekannt'
+            END AS funktion
+        FROM Einsaetze e
+        LEFT JOIN Besatzung b ON e.besatzung_id = b.id
+        WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
+        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
+        ORDER BY e.alarmuhrzeit DESC
+    ");
+
+    $einsaetzeStmt->execute([
+        ':personId' => $personId,
+        ':startdatum' => $startdatum,
+        ':enddatum' => $enddatum
+    ]);
+    $einsaetze = $einsaetzeStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Verteilung der Funktionen abrufen
+    $funktionenStmt = $pdo->prepare("
+      SELECT 
             CASE
                 WHEN b.stf_id = :personId THEN 'Staffel-Führer'
                 WHEN b.ma_id = :personId THEN 'Maschinist'
@@ -44,61 +62,23 @@ if ($personId) {
                 WHEN b.wtf_id = :personId OR b.wtm_id = :personId THEN 'Wassertrupp'
                 WHEN b.prakt_id = :personId THEN 'Praktikant'
                 ELSE 'Unbekannt'
-            END AS funktion
-            FROM Einsaetze e
-            LEFT JOIN Besatzung b ON e.besatzung_id = b.id
-            WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-              AND e.alarmuhrzeit BETWEEN :startdatum AND :enddatum
-            ORDER BY e.alarmuhrzeit DESC
-        ");
-        $einsaetzeStmt->execute([':personId' => $personId, ':startdatum' => $startdatum, ':enddatum' => $enddatum]);
-        $einsaetze = $einsaetzeStmt->fetchAll(PDO::FETCH_ASSOC);
+            END AS funktion,
+            COUNT(*) AS anzahl
+        FROM Einsaetze e
+        LEFT JOIN Besatzung b ON e.besatzung_id = b.id
+        WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
+        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
+        GROUP BY funktion
+    ");
 
-        // Funktionenverteilung laden
-        $funktionenStmt = $pdo->prepare("
-            SELECT CASE
-                WHEN b.stf_id = :personId THEN 'Staffel-Führer'
-                WHEN b.ma_id = :personId THEN 'Maschinist'
-                WHEN b.atf_id = :personId OR b.atm_id = :personId THEN 'Angriffstrupp'
-                WHEN b.wtf_id = :personId OR b.wtm_id = :personId THEN 'Wassertrupp'
-                WHEN b.prakt_id = :personId THEN 'Praktikant'
-                ELSE 'Unbekannt'
-            END AS funktion, COUNT(*) AS anzahl
-            FROM Einsaetze e
-            LEFT JOIN Besatzung b ON e.besatzung_id = b.id
-            WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-              AND e.alarmuhrzeit BETWEEN :startdatum AND :enddatum
-            GROUP BY funktion
-        ");
-        $funktionenStmt->execute([':personId' => $personId, ':startdatum' => $startdatum, ':enddatum' => $enddatum]);
-        $funktionenVerteilung = $funktionenStmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Kategorien laden
-        $kategorienStmt = $pdo->prepare("
-            SELECT e.stichwort, COUNT(*) AS anzahl
-            FROM Einsaetze e
-            LEFT JOIN Besatzung b ON e.besatzung_id = b.id
-            WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-              AND e.alarmuhrzeit BETWEEN :startdatum AND :enddatum
-            GROUP BY e.stichwort
-        ");
-        $kategorienStmt->execute([':personId' => $personId, ':startdatum' => $startdatum, ':enddatum' => $enddatum]);
-        $kategorien = $kategorienStmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Gesamtanzahl laden
-        $gesamtAnzahlStmt = $pdo->prepare("
-            SELECT COUNT(*) AS gesamtanzahl
-            FROM Einsaetze e
-            LEFT JOIN Besatzung b ON e.besatzung_id = b.id
-            WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-              AND e.alarmuhrzeit BETWEEN :startdatum AND :enddatum
-        ");
-        $gesamtAnzahlStmt->execute([':personId' => $personId, ':startdatum' => $startdatum, ':enddatum' => $enddatum]);
-        $gesamtAnzahl = $gesamtAnzahlStmt->fetchColumn();
-    } catch (PDOException $e) {
-        die("Fehler bei den Abfragen: " . $e->getMessage());
-    }
+    $funktionenStmt->execute([
+        ':personId' => $personId,
+        ':startdatum' => $startdatum,
+        ':enddatum' => $enddatum
+    ]);
+    $funktionenVerteilung = $funktionenStmt->fetchAll(PDO::FETCH_ASSOC);
 }
+?>
 
 <!DOCTYPE html>
 <html lang="de">
@@ -157,6 +137,8 @@ if ($personId) {
         <h2>
             <?php if ($personId): ?>
                 Funktionen von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
+            <?php else: ?>
+                 
             <?php endif; ?>
         </h2>
         <?php if (count($funktionenVerteilung) > 0): ?>
@@ -186,54 +168,48 @@ if ($personId) {
                 });
             </script>
         <?php else: ?>
-                <p>Keine Funktionen für diesen Zeitraum gefunden.</p>
-            <?php endif; ?>
+            <p>Keine Funktionen für diesen Zeitraum gefunden.</p>
+        <?php endif; ?>
     </section>
 
     <section id="einsatz-statistik">
-        <h2>
+    <h2>
             <?php if ($personId): ?>
                 Einsätze von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
-            <?php endif; ?>
-        </h2>
-        <?php if ($personId): ?>
-            <?php if (count($einsaetze) > 0): ?>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Interne Einsatznummer</th>
-                            <th>Stichwort</th>
-                            <th>Alarmzeit</th>
-                            <th>Fahrzeug</th>
-                            <th>Funktion</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($einsaetze as $einsatz): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($einsatz['interne_einsatznummer']) ?></td>
-                                <td><?= htmlspecialchars($einsatz['stichwort']) ?></td>
-                                <td><?= htmlspecialchars($einsatz['alarmuhrzeit']) ?></td>
-                                <td><?= htmlspecialchars($einsatz['fahrzeug_name']) ?></td>
-                                <td><?= htmlspecialchars($einsatz['funktion']) ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-                <!-- Anzeige der Gesamtanzahl -->
-                <p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($gesamtAnzahl) ?></strong></p>
-                <!-- Anzeige der Einsätze nach Kategorien -->
-                <h4>Einsätze nach Kategorien:</h4>
-                <ul>
-                    <?php foreach ($kategorien as $kategorie): ?>
-                        <li><?= htmlspecialchars($kategorie['stichwort']) ?>: <?= htmlspecialchars($kategorie['anzahl']) ?></li>
-                    <?php endforeach; ?>
-                </ul>
             <?php else: ?>
-                <p>Keine Einsätze für diesen Zeitraum gefunden.</p>
+                 
             <?php endif; ?>
-    </section>
-
+    </h2>
+    <?php if ($personId): ?>
+        <?php if (count($einsaetze) > 0): ?>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Interne Einsatznummer</th>
+                        <th>Stichwort</th>
+                        <th>Alarmzeit</th>
+                        <th>Fahrzeug</th>
+                        <th>Funktion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($einsaetze as $einsatz): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($einsatz['interne_einsatznummer']) ?></td>
+                            <td><?= htmlspecialchars($einsatz['stichwort']) ?></td>
+                            <td><?= htmlspecialchars($einsatz['alarmuhrzeit']) ?></td>
+                            <td><?= htmlspecialchars($einsatz['fahrzeug_name']) ?></td>
+                            <td><?= htmlspecialchars($einsatz['funktion']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>Keine Einsätze für diesen Zeitraum gefunden.</p>
+        <?php endif; ?>
+    <?php else: ?>
+    <?php endif; ?>
+</section>
 
 
 </main>
