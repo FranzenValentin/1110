@@ -116,7 +116,7 @@ try {
         <?php endif; ?>
         
         <canvas id="stichwortChart" ></canvas>
-<script>
+        <script>
     const stichwortLabels = <?= json_encode(array_column($stichworte, 'stichwort')) ?>;
     const stichwortData = <?= json_encode(array_column($stichworte, 'anzahl')) ?>;
 
@@ -154,7 +154,7 @@ try {
                         text: 'Stichworte'
                     }
                 },
-                y: {
+                y: { // Einstellungen für die y-Achse
                     beginAtZero: true,
                     ticks: {
                         stepSize: 1, // Schritte in ganzen Zahlen
@@ -166,10 +166,12 @@ try {
                         display: true,
                         text: 'Anzahl'
                     }
-            }
-        }
+                } // Hier endet die y-Achsen-Konfiguration
+            } // Hier enden die Skalen
+        } // Hier enden die Optionen
     });
 </script>
+
 
 
 
