@@ -104,7 +104,7 @@ require 'db.php';
                 <!-- Einsatznummer LTS -->
                 <td id="dünn">
                     <div>
-                        <input type="text" inputmode="numeric"  id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <input type="text" inputmode="numeric"  id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS" >
                     </div>
                 </td>
                 <!-- Stichwort -->
@@ -123,27 +123,27 @@ require 'db.php';
                 <!-- Alarmzeit -->
                 <td id="dick">
                     <div>
-                        <input type="text" inputmode="numeric"  id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm (Alarm)" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <input type="text" inputmode="numeric"  id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm (Alarm)" >
                         <button type="button" onclick="setCurrentTime('alarmuhrzeit')" id="Jetzt">🕙</button>
                     </div>
                 </td>
                 <!-- Zurückzeit -->
                 <td id="dick">
                     <div>
-                        <input type="text" inputmode="numeric" id="zurueckzeit" name="zurueckzeit" placeholder="dd.mm.yy hh:mm (Zurück)" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <input type="text" inputmode="numeric" id="zurueckzeit" name="zurueckzeit" placeholder="dd.mm.yy hh:mm (Zurück)" >
                         <button type="button" onclick="setCurrentTime('zurueckzeit')" id="Jetzt">🕙</button>
                     </div>
                 </td>
                 <!-- Adresse -->
                 <td id="dick">
                    <div>
-                        <input type="text" id="adresse" name="adresse" placeholder="Linienstraße 128, Mitte (Adresse)" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <input type="text" id="adresse" name="adresse" placeholder="Linienstraße 128, Mitte (Adresse)" >
                     </div>
                 </td>
                 <!-- Fahrzeug -->
                 <td id="dünn">
                      <div>
-                        <select id="fahrzeug_name" name="fahrzeug_name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <select id="fahrzeug_name" name="fahrzeug_name" >
                             <?php foreach ($fahrzeuge as $fahrzeug): ?>
                                 <option value="<?= htmlspecialchars($fahrzeug['name']) ?>">
                                     <?= htmlspecialchars($fahrzeug['name']) ?>
