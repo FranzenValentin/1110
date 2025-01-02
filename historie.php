@@ -19,17 +19,16 @@ require 'db.php';
     <header>
         <h1>Einsatz Historie</h1>
         <form method="POST" action="logout.php" class="logout-form">
-        <button type="submit">Logout</button>
-        
+            <button type="submit">Logout</button>
+        </form>
+        <form method="POST" action="index.php" class="back-form">
+            <button type="submit">Zurück</button>
+        </form>
     </header>
 
     <main>
         <!-- Letzte Einsätze -->
-        <section id="letzte-einsaetze">
-            <div class="button-container">
-                <button onclick="location.href='index.php'">Zurück</button>
-            </div>
-            
+        <section id="letzte-einsaetze">           
             <table>
                 <thead>
                     <tr>
@@ -93,9 +92,6 @@ require 'db.php';
                     ?>
                 </tbody>
             </table>
-            <div class="button-container">
-                <button onclick="location.href='index.php'">Zurück</button>
-            </div>
         </section>
     </main>
 </body>
