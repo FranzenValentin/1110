@@ -320,6 +320,7 @@ require 'db.php';
             <div class="button-container">
                 <button onclick="location.href='neuer_benutzer.php'">Neuer Benutzer</button>
                 <button onclick="location.href='stichworte.php'">Stichworte verwalten</button>
+                <button onclick="location.href='statistiken.php'">Statistiken anzeigen</button>
             </div>
         </section>
 
