@@ -90,6 +90,7 @@ form select {
     height: 38px;
     color: black;
     text-overflow: ellipsis;
+    background-color: #ccc;
 }
 
 /* Stichwort-Feld */
