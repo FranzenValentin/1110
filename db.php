@@ -1,7 +1,7 @@
 <?php
 // Datenbankverbindung
 $host = 'localhost:3306'; // Hostname des Servers
-$dbname = 'web126_1110'; // Name der Datenbank
+$dbname = '1110'; // Name der Datenbank
 $username = 'web126'; // Benutzername
 $password = 'vajbin-rogje8-joZkic'; // Passwort
 
