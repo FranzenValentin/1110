@@ -5,6 +5,10 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     exit;
 }
 require 'db.php';
+
+// Standardwerte für Monat und Jahr (aktueller Monat)
+$monat = isset($_GET['monat']) ? $_GET['monat'] : date('m');
+$jahr = isset($_GET['jahr']) ? $_GET['jahr'] : date('Y');
 ?>
 
 <!DOCTYPE html>
@@ -25,32 +29,64 @@ require 'db.php';
 </header>
 
 <main>
+    <!-- Filter für Monat und Jahr -->
+    <section id="filter">
+        <h2>Monat auswählen</h2>
+        <form method="GET" action="statistiken.php" class="filter-form">
+            <label for="monat">Monat:</label>
+            <select id="monat" name="monat" required>
+                <?php for ($i = 1; $i <= 12; $i++): ?>
+                    <option value="<?= str_pad($i, 2, '0', STR_PAD_LEFT) ?>" <?= $monat == $i ? 'selected' : '' ?>>
+                        <?= date('F', mktime(0, 0, 0, $i, 1)) ?>
+                    </option>
+                <?php endfor; ?>
+            </select>
+
+            <label for="jahr">Jahr:</label>
+            <input type="number" id="jahr" name="jahr" value="<?= $jahr ?>" required>
+
+            <button type="submit">Anzeigen</button>
+        </form>
+    </section>
+
     <section id="einsatz-statistik">
-        <h2>Gesamtübersicht</h2>
+        <h2>Statistiken für <?= date('F Y', mktime(0, 0, 0, $monat, 1, $jahr)) ?></h2>
         <?php
         try {
-            // Gesamtanzahl der Einsätze
-            $totalStmt = $pdo->query("SELECT COUNT(*) AS total FROM Einsaetze");
+            // Gesamtanzahl der Einsätze im gewählten Monat
+            $totalStmt = $pdo->prepare("
+                SELECT COUNT(*) AS total 
+                FROM Einsaetze 
+                WHERE MONTH(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :monat 
+                  AND YEAR(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :jahr
+            ");
+            $totalStmt->execute([':monat' => $monat, ':jahr' => $jahr]);
             $totalEinsaetze = $totalStmt->fetch()['total'];
 
-            // Meist genutzte Fahrzeuge
-            $fahrzeugStmt = $pdo->query("
+            // Meist genutzte Fahrzeuge im gewählten Monat
+            $fahrzeugStmt = $pdo->prepare("
                 SELECT fahrzeug_name, COUNT(*) AS anzahl 
                 FROM Einsaetze 
+                WHERE MONTH(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :monat 
+                  AND YEAR(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :jahr
                 GROUP BY fahrzeug_name 
                 ORDER BY anzahl DESC
                 LIMIT 5
             ");
+            $fahrzeugStmt->execute([':monat' => $monat, ':jahr' => $jahr]);
             $fahrzeuge = $fahrzeugStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Häufigste Stichworte
-            $stichwortStmt = $pdo->query("
+            // Häufigste Stichworte im gewählten Monat
+            $stichwortStmt = $pdo->prepare("
                 SELECT stichwort, COUNT(*) AS anzahl 
                 FROM Einsaetze 
+                WHERE MONTH(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :monat 
+                  AND YEAR(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :jahr
                 GROUP BY stichwort 
                 ORDER BY anzahl DESC
                 LIMIT 5
             ");
+            $stichwortStmt->execute([':monat' => $monat, ':jahr' => $jahr]);
             $stichworte = $stichwortStmt->fetchAll(PDO::FETCH_ASSOC);
 
             echo "<p>Gesamtanzahl der Einsätze: <strong>$totalEinsaetze</strong></p>";
@@ -60,6 +96,7 @@ require 'db.php';
         ?>
     </section>
 
+    <!-- Diagramm für Fahrzeuge -->
     <section id="meist-genutzte-fahrzeuge">
         <h2>Meist genutzte Fahrzeuge</h2>
         <canvas id="fahrzeugChart" width="400" height="200"></canvas>
@@ -89,6 +126,7 @@ require 'db.php';
         </script>
     </section>
 
+    <!-- Diagramm für Stichworte -->
     <section id="haeufigste-stichworte">
         <h2>Häufigste Stichworte</h2>
         <canvas id="stichwortChart" width="400" height="200"></canvas>
