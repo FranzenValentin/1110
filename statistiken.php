@@ -115,63 +115,60 @@ try {
         <h2>Häufigste Stichworte</h2>    
         <?php endif; ?>
         
-        <canvas id="stichwortChart" width="300" height="200"></canvas>
-            <script>
-                const stichwortLabels = <?= json_encode(array_column($stichworte, 'stichwort')) ?>;
-                const stichwortData = <?= json_encode(array_column($stichworte, 'anzahl')) ?>;
+        <canvas id="stichwortChart" style="max-width: 300px; max-height: 150px;"></canvas>
+<script>
+    const stichwortLabels = <?= json_encode(array_column($stichworte, 'stichwort')) ?>;
+    const stichwortData = <?= json_encode(array_column($stichworte, 'anzahl')) ?>;
 
-                new Chart(document.getElementById('stichwortChart'), {
-                    type: 'bar', // Typ: Balkendiagramm
-                    data: {
-                        labels: stichwortLabels,
-                        datasets: [{
-                            label: 'Häufigkeit der Stichworte',
-                            data: stichwortData,
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 0.5)',
-                                'rgba(54, 162, 235, 0.5)',
-                                'rgba(255, 206, 86, 0.5)',
-                                'rgba(75, 192, 192, 0.5)',
-                                'rgba(153, 102, 255, 0.5)'
-                            ],
-                            borderColor: [
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(255, 206, 86, 1)',
-                                'rgba(75, 192, 192, 1)',
-                                'rgba(153, 102, 255, 1)'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                            x: { // Einstellungen für die x-Achse
-                                title: {
-                                    display: true,
-                                    text: 'Stichworte'
-                                }
-                            },
-                            y: { // Einstellungen für die y-Achse
-                                beginAtZero: true,
-                                ticks: {
-                                    stepSize: 1, // Nur ganze Zahlen anzeigen
-                                    callback: function(value) {
-                                        return Number.isInteger(value) ? value : ''; // Nur ganze Zahlen anzeigen
-                                    }
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Anzahl'
-                                },
-                                suggestedMax: Math.max(...stichwortData) + 1 // Maximale Höhe leicht über dem höchsten Wert
-                            }
-                        }
+    new Chart(document.getElementById('stichwortChart'), {
+        type: 'bar', // Typ: Balkendiagramm
+        data: {
+            labels: stichwortLabels,
+            datasets: [{
+                label: 'Häufigkeit der Stichworte',
+                data: stichwortData,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(153, 102, 255, 0.5)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true, // Seitenverhältnis beibehalten
+            scales: {
+                x: { // Einstellungen für die x-Achse
+                    title: {
+                        display: true,
+                        text: 'Stichworte'
                     }
-                });
-            </script>
+                },
+                y: { // Einstellungen für die y-Achse
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1 // Nur ganze Zahlen anzeigen
+                    },
+                    title: {
+                        display: true,
+                        text: 'Anzahl'
+                    }
+                }
+            }
+        }
+    });
+</script>
+
 
 
     </section>
