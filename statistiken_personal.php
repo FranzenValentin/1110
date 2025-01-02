@@ -7,8 +7,15 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 require 'db.php';
 
 // Standardwerte für den Zeitraum (aktuelles Jahr)
-$startdatum = isset($_GET['startdatum']) ? $_GET['startdatum'] : date('Y-01-01');
-$enddatum = isset($_GET['enddatum']) ? $_GET['enddatum'] : date('Y-m-d');
+if (!isset($_GET['startdatum']) || !isset($_GET['enddatum'])) {
+    $currentDate = new DateTime();
+    $currentDate->modify('-1 month'); // Einen Monat zurückgehen
+    $startdatum = $currentDate->format('Y-m-01'); // Erster Tag des vorherigen Monats
+    $enddatum = $currentDate->format('Y-m-t');   // Letzter Tag des vorherigen Monats
+} else {
+    $startdatum = $_GET['startdatum'];
+    $enddatum = $_GET['enddatum'];
+}
 $personId = isset($_GET['person_id']) ? $_GET['person_id'] : null;
 
 // Personal laden
