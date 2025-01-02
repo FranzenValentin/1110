@@ -55,8 +55,8 @@ require 'db.php';
                 $fahrzeug_name = $_POST['fahrzeug_name'] ?? null;
 
                 // Format prüfen (dd.mm.yy hh:mm)
-                if (!preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $alarmuhrzeit) || 
-                    !preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $zurueckzeit)) {
+                if (!preg_match('/^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/', $alarmuhrzeit) || 
+                    !preg_match('/^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/', $zurueckzeit)) {
                     throw new Exception("Die Uhrzeiten müssen im Format dd.mm.yy hh:mm vorliegen.");
                 }
 
