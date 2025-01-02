@@ -106,7 +106,7 @@ $jahr = isset($_GET['jahr']) ? $_GET['jahr'] : date('Y');
     <!-- Diagramm für häufigste Stichworte -->
     <section id="haeufigste-stichworte">
         <h2>Häufigste Stichworte</h2>
-        <canvas id="stichwortChart" width="400" height="200"></canvas>
+        <canvas id="stichwortChart" width="200" height="100"></canvas>
         <script>
             const stichwortLabels = <?= json_encode(array_column($stichworte, 'stichwort')) ?>;
             const stichwortData = <?= json_encode(array_column($stichworte, 'anzahl')) ?>;
