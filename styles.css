@@ -113,17 +113,12 @@ form button {
     width: 29%; /* Vergrößert den Button für bessere Klickbarkeit */
 }
 
-#alarmuhrzeit,
-#zurueckzeit {
-    width: 70%;
-}
-
 #dünn {
     width: 10%;
 }
 
 #dick {
-    width: 20%;
+    width: 30%;
 }
 
 /* Login-Formular */

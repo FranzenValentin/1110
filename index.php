@@ -121,13 +121,13 @@ require 'db.php';
                 </td>
 
                 <!-- Alarmzeit -->
-                <td id="dick">
+                <td id="dünn">
                     <div>
                         <input type="datetime-local" inputmode="numeric"  id="alarmuhrzeit" name="alarmuhrzeit" placeholder="Alarmzeit" >
                     </div>
                 </td>
                 <!-- Zurückzeit -->
-                <td id="dick">
+                <td id="dünn">
                     <div>
                         <input type="datetime-local" inputmode="numeric" id="zurueckzeit" name="zurueckzeit" placeholder="Zurückzeit" >
                     </div>
