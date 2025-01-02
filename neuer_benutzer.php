@@ -56,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div>
                     <input type="text" id="vorname" name="vorname" placeholder="Vorname" required>
                     <input type="text" id="nachname" name="nachname" placeholder="Nachname" required>
+                    <br />
                 </div>
                 <div>
                     <button type="submit">Benutzer hinzufügen</button>
