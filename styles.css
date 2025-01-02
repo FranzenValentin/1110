@@ -84,7 +84,6 @@ form select {
     text-align: center;
     border: 1px solid #ccc;
     border-radius: 5px;
-    font-size: 0.9em; /* Kleinere Schrift für Eingabefelder */
     box-sizing: border-box;
     vertical-align: middle;
     width: inherit;
