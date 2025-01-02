@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adresseingabe mit Vorschlägen</title>
+    <style>
+        #vorschlaege {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            border: 1px solid #ccc;
+            max-width: 300px;
+            position: absolute;
+            background: white;
+            z-index: 1000;
+        }
+        #vorschlaege li {
+            padding: 5px;
+            cursor: pointer;
+        }
+        #vorschlaege li:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Adresseingabe mit Vorschlägen</h1>
+    <form>
+        <label for="adresse">Adresse:</label>
+        <input id="adresse" type="text" placeholder="Adresse eingeben" autocomplete="off">
+        <ul id="vorschlaege"></ul>
+    </form>
+
+    <script>
+        document.getElementById('adresse').addEventListener('input', function () {
+            const query = this.value;
+
+            if (query.length > 2) { // Nur bei mehr als 2 Zeichen Vorschläge anzeigen
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const vorschlaege = document.getElementById('vorschlaege');
+                        vorschlaege.innerHTML = ''; // Bestehende Vorschläge entfernen
+
+                        data.forEach(item => {
+                            const li = document.createElement('li');
+                            li.textContent = item.display_name;
+
+                            // Klick auf Vorschlag setzt die Adresse und schließt die Liste
+                            li.addEventListener('click', () => {
+                                document.getElementById('adresse').value = item.display_name;
+                                vorschlaege.innerHTML = ''; // Vorschläge ausblenden
+                            });
+
+                            vorschlaege.appendChild(li);
+                        });
+                    })
+                    .catch(error => console.error('Fehler beim Abrufen der Adressdaten:', error));
+            }
+        });
+
+        // Klicken außerhalb der Vorschlagsliste schließt sie
+        document.addEventListener('click', function (e) {
+            const vorschlaege = document.getElementById('vorschlaege');
+            if (!vorschlaege.contains(e.target) && e.target.id !== 'adresse') {
+                vorschlaege.innerHTML = ''; // Vorschläge ausblenden
+            }
+        });
+    </script>
+</body>
+</html>
