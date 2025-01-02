@@ -9,9 +9,8 @@ require 'db.php';
 // Standardwerte für den Zeitraum (aktuelles Jahr)
 if (!isset($_GET['startdatum']) || !isset($_GET['enddatum'])) {
     $currentDate = new DateTime();
-    $currentDate->modify('-1 month'); // Einen Monat zurückgehen
-    $startdatum = $currentDate->format('Y-m-01'); // Erster Tag des vorherigen Monats
-    $enddatum = $currentDate->format('Y-m-t');   // Letzter Tag des vorherigen Monats
+    $startdatum = $currentDate->format('Y-m-01'); // Erster Tag des Monats
+    $enddatum = $currentDate->format('Y-m-t');   // Letzter Tag des Monats
 } else {
     $startdatum = $_GET['startdatum'];
     $enddatum = $_GET['enddatum'];
