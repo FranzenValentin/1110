@@ -130,7 +130,7 @@ require 'db.php';
                             onfocus="hidePlaceholder(this)" 
                             onblur="showPlaceholder(this)" 
                             style="padding-left: 5px;">
-                        <span id="placeholder" style="position: absolute; left: 10px; top: 13px; color: #aaa;">Alarmzeit</span>
+                        <span id="placeholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Alarmzeit</span>
                     </div>
                         <script>
                             function hidePlaceholder(input) {
@@ -151,17 +151,17 @@ require 'db.php';
                             type="datetime-local" 
                             id="zurueckzeit" 
                             name="zurueckzeit" 
-                            onfocus="hidePlaceholde1(this)" 
-                            onblur="showPlaceholder1(this)" 
+                            onfocus="hidePlaceholde(this)" 
+                            onblur="showPlaceholder(this)" 
                             style="padding-left: 5px;">
-                        <span id="placeholder" style="position: absolute; left: 10px; top: 13px; color: #aaa;">Zurückzeit</span>
+                        <span id="placeholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Zurückzeit</span>
                     </div>
                         <script>
-                            function hidePlaceholder1(input) {
+                            function hidePlaceholder(input) {
                                 document.getElementById('placeholder').style.display = 'none';
                             }
 
-                            function showPlaceholder1(input) {
+                            function showPlaceholder(input) {
                                 if (!input.value) {
                                     document.getElementById('placeholder').style.display = 'block';
                                 }
