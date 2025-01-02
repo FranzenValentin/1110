@@ -130,7 +130,7 @@ require 'db.php';
                             onfocus="hidePlaceholder(this)" 
                             onblur="showPlaceholder(this)" 
                             style="padding-left: 5px;">
-                        <span id="placeholder" style="position: absolute; left: 5px; top: 5px; color: #aaa;">Alarmzeit</span>
+                        <span id="placeholder" style="position: absolute; left: 10px; top: 13px; color: #aaa;">Alarmzeit</span>
                     </div>
                         <script>
                             function hidePlaceholder(input) {
@@ -146,9 +146,27 @@ require 'db.php';
                 </td>
                 <!-- Zurückzeit -->
                 <td id="dünn">
-                    <div>
-                        <input type="datetime-local" inputmode="numeric" id="zurueckzeit" name="zurueckzeit" placeholder="Zurückzeit" >
+                    <div style="position: relative;">
+                        <input 
+                            type="datetime-local" 
+                            id="zurueckzeit" 
+                            name="zurueckzeit" 
+                            onfocus="hidePlaceholde1(this)" 
+                            onblur="showPlaceholder1(this)" 
+                            style="padding-left: 5px;">
+                        <span id="placeholder" style="position: absolute; left: 10px; top: 13px; color: #aaa;">Zurückzeit</span>
                     </div>
+                        <script>
+                            function hidePlaceholder1(input) {
+                                document.getElementById('placeholder').style.display = 'none';
+                            }
+
+                            function showPlaceholder1(input) {
+                                if (!input.value) {
+                                    document.getElementById('placeholder').style.display = 'block';
+                                }
+                            }
+                        </script>
                 </td>
                 <!-- Adresse -->
                 <td id="dick">
