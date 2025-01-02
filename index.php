@@ -54,7 +54,7 @@ require 'db.php';
                 $adresse = $_POST['adresse'] ?? null;
                 $fahrzeug_name = $_POST['fahrzeug_name'] ?? null;
 
-                // Format prüfen (dd.mm.yy hh:mm)
+                // Format prüfen (dd.mm.yyyy hh:mm)
                 if (!preg_match('/^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/', $alarmuhrzeit) || 
                     !preg_match('/^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/', $zurueckzeit)) {
                     throw new Exception("Die Uhrzeiten müssen im Format dd.mm.yy hh:mm vorliegen.");
@@ -183,19 +183,6 @@ require 'db.php';
     </table>
     <button class="button-container" type="submit" name="save">Speichern</button>
 </form>
-
-<script>
-    function setCurrentTime(inputId) {
-        const now = new Date();
-        const day = String(now.getDate()).padStart(2, '0');
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const year = String(now.getFullYear()).slice(-2);
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const formattedTime = `${day}.${month}.${year} ${hours}:${minutes}`;
-        document.getElementById(inputId).value = formattedTime;
-    }
-</script>
 
 </section>
 
