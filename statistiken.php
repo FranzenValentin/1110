@@ -116,61 +116,73 @@ try {
         <?php endif; ?>
         
         <canvas id="stichwortChart" ></canvas>
+        <canvas id="stichwortChart" style="max-width: 300px; max-height: 150px;"></canvas>
         <script>
-    const stichwortLabels = <?= json_encode(array_column($stichworte, 'stichwort')) ?>;
-    const stichwortData = <?= json_encode(array_column($stichworte, 'anzahl')) ?>;
+            const stichwortLabels = <?= json_encode(array_column($stichworte, 'stichwort')) ?>;
+            const stichwortData = <?= json_encode(array_column($stichworte, 'anzahl')) ?>;
 
-    new Chart(document.getElementById('stichwortChart'), {
-        type: 'bar', // Typ: Balkendiagramm
-        data: {
-            labels: stichwortLabels,
-            datasets: [{
-                label: 'Häufigkeit der Stichworte',
-                data: stichwortData,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.5)',
-                    'rgba(54, 162, 235, 0.5)',
-                    'rgba(255, 206, 86, 0.5)',
-                    'rgba(75, 192, 192, 0.5)',
-                    'rgba(153, 102, 255, 0.5)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true, // Seitenverhältnis beibehalten
-            scales: {
-                x: { // Einstellungen für die x-Achse
-                    title: {
-                        display: true,
-                        text: 'Stichworte'
-                    }
+            new Chart(document.getElementById('stichwortChart'), {
+                type: 'bar',
+                data: {
+                    labels: stichwortLabels,
+                    datasets: [{
+                        label: 'Häufigkeit der Stichworte',
+                        data: stichwortData,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.5)',
+                            'rgba(54, 162, 235, 0.5)',
+                            'rgba(255, 206, 86, 0.5)',
+                            'rgba(75, 192, 192, 0.5)',
+                            'rgba(153, 102, 255, 0.5)',
+                            'rgba(255, 159, 64, 0.5)',
+                            'rgba(199, 199, 199, 0.5)',
+                            'rgba(83, 102, 255, 0.5)',
+                            'rgba(128, 159, 64, 0.5)',
+                            'rgba(183, 109, 192, 0.5)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(199, 199, 199, 1)',
+                            'rgba(83, 102, 255, 1)',
+                            'rgba(128, 159, 64, 1)',
+                            'rgba(183, 109, 192, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
                 },
-                y: { // Einstellungen für die y-Achse
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1, // Schritte in ganzen Zahlen
-                        callback: function(value) {
-                            return Number.isInteger(value) ? value : ''; // Nur ganze Zahlen anzeigen
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Stichworte'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return Number.isInteger(value) ? value : '';
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Anzahl'
+                            }
                         }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Anzahl'
                     }
-                } // Hier endet die y-Achsen-Konfiguration
-            } // Hier enden die Skalen
-        } // Hier enden die Optionen
-    });
-</script>
+                }
+            });
+        </script>
+
 
 
 
