@@ -171,8 +171,6 @@ if ($personId) {
         <h2>
             <?php if ($personId): ?>
                 Funktionen von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
-            <?php else: ?>
-                 
             <?php endif; ?>
         </h2>
         <?php if (count($funktionenVerteilung) > 0): ?>
@@ -210,7 +208,6 @@ if ($personId) {
         <h2>
             <?php if ($personId): ?>
                 Einsätze von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
-            <?php else: ?>
             <?php endif; ?>
         </h2>
         <?php if ($personId): ?>
