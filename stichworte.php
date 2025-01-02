@@ -27,20 +27,22 @@ require 'db.php';
     </header>
     <main>
         <form action="save_stichwort.php" method="POST">
-            <label for="kategorie">Kategorie:</label>
-            <select id="kategorie" name="kategorie">
-                <option value="TH">Technische Hilfe</option>
-                <option value="BRAND">Brand</option>
-                <option value="RD">Rettungsdienst</option>
-            </select>
-            <br>
-
-            <label for="stichwort">Stichwort:</label>
-            <input type="text" id="stichwort" name="stichwort" required>
-            <br>
-
-            <button type="submit">Stichwort hinzufügen</button>
-        </form>
+            <div>
+                <label for="kategorie">Kategorie:</label>
+                <select id="kategorie" name="kategorie">
+                    <option value="TH">Technische Hilfe</option>
+                    <option value="BRAND">Brand</option>
+                    <option value="RD">Rettungsdienst</option>
+                </select>
+                <input type="text" id="stichwort" name="stichwort" placeholder="Stichwort" required>
+            </div>
+            <div>
+                <br />
+            </div>
+            <div>
+                <button type="submit">Stichwort hinzufügen</button>
+            </div>
+      </form>
     </main>
 </body>
 </html>
