@@ -97,12 +97,16 @@ try {
         bis 
         <?= htmlspecialchars(DateTime::createFromFormat('Y-m-d', $enddatum)->format('d.m.Y')) ?>
     </h2>
-        <?php if (isset($error)): ?>
-            <p><?= htmlspecialchars($error) ?></p>
-        <?php else: ?>
-            <p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($totalEinsaetze) ?></strong></p>
+    <?php if (isset($error)): ?>
+        <p><?= htmlspecialchars($error) ?></p>
+    <?php else: ?>
+        <p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($totalEinsaetze) ?></strong></p>
+
+        <?php if ($totalEinsaetze != 0): ?>
             <p>Durchschnittliche Einsatzdauer: <strong><?= htmlspecialchars(round($durchschnittsdauer, 2)) ?> Minuten</strong></p>
         <?php endif; ?>
+    <?php endif; ?>
+
     </section>
 
     <!-- Diagramm für häufigste Stichworte -->
