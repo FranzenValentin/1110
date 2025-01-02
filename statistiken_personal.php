@@ -92,7 +92,13 @@ if ($personId) {
 </head>
 <body>
 <header>
-    <h1>Statistiken für Personal</h1>
+    <h1>
+            <?php if ($personId): ?>
+                Statistik von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
+            <?php else: ?>
+                Statistiken für Personal
+            <?php endif; ?>
+    </h1>
     <form method="POST" action="logout.php" class="logout-form">
         <button type="submit">Logout</button>
     </form>
@@ -129,7 +135,13 @@ if ($personId) {
 
     <!-- Verteilung der Funktionen -->
     <section id="funktionen-verteilung">
-        <h2>Verteilung der Funktionen</h2>
+        <h2>
+            <?php if ($personId): ?>
+                Funktionen von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
+            <?php else: ?>
+                 
+            <?php endif; ?>
+        </h2>
         <?php if (count($funktionenVerteilung) > 0): ?>
             <canvas id="funktionenChart" width="400" height="200"></canvas>
             <script>
@@ -157,18 +169,16 @@ if ($personId) {
                 });
             </script>
         <?php else: ?>
-            <p>Keine Daten zur Verteilung der Funktionen verfügbar.</p>
         <?php endif; ?>
     </section>
 
     <section id="einsatz-statistik">
     <h2>
-        <?php if ($personId): ?>
-            Einsätze von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
-            im Zeitraum <?= htmlspecialchars($startdatum) ?> bis <?= htmlspecialchars($enddatum) ?>
-        <?php else: ?>
-            Einsätze
-        <?php endif; ?>
+            <?php if ($personId): ?>
+                Einsätze von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
+            <?php else: ?>
+                 
+            <?php endif; ?>
     </h2>
     <?php if ($personId): ?>
         <p>Zeitraum: <?= htmlspecialchars($startdatum) ?> bis <?= htmlspecialchars($enddatum) ?></p>
@@ -199,7 +209,6 @@ if ($personId) {
             <p>Keine Einsätze für diesen Zeitraum gefunden.</p>
         <?php endif; ?>
     <?php else: ?>
-        <p>Bitte wählen Sie eine Person und einen Zeitraum aus, um die Einsätze anzuzeigen.</p>
     <?php endif; ?>
 </section>
 
