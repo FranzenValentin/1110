@@ -194,10 +194,11 @@ if ($personId) {
             <?php endif; ?>
     </h2>
 
-    <p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($totalEinsaetze) ?></strong></p>
+    
 
 
     <?php if ($personId): ?>
+        <p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($totalEinsaetze) ?></strong></p>
         <?php if (count($einsaetze) > 0): ?>
             <table>
                 <thead>
