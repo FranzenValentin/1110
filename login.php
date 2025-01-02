@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="POST" class="login-form">
             <label for="access_code">Zugangscode:</label>
             <input 
-                type="tel" 
+                type="password" 
                 id="access_code" 
                 name="access_code" 
                 inputmode="numeric" 
