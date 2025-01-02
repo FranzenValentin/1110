@@ -121,7 +121,7 @@ try {
                 const stichwortData = <?= json_encode(array_column($stichworte, 'anzahl')) ?>;
 
                 new Chart(document.getElementById('stichwortChart'), {
-                    type: 'bar', // Ändern des Diagrammtyps auf 'bar'
+                    type: 'bar', // Typ: Balkendiagramm
                     data: {
                         labels: stichwortLabels,
                         datasets: [{
@@ -149,7 +149,6 @@ try {
                         maintainAspectRatio: false,
                         scales: {
                             x: { // Einstellungen für die x-Achse
-                                beginAtZero: true,
                                 title: {
                                     display: true,
                                     text: 'Stichworte'
@@ -157,15 +156,23 @@ try {
                             },
                             y: { // Einstellungen für die y-Achse
                                 beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1, // Nur ganze Zahlen anzeigen
+                                    callback: function(value) {
+                                        return Number.isInteger(value) ? value : ''; // Nur ganze Zahlen anzeigen
+                                    }
+                                },
                                 title: {
                                     display: true,
                                     text: 'Anzahl'
-                                }
+                                },
+                                suggestedMax: Math.max(...stichwortData) + 1 // Maximale Höhe leicht über dem höchsten Wert
                             }
                         }
                     }
                 });
             </script>
+
 
     </section>
 </main>
