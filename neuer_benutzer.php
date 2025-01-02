@@ -35,7 +35,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="description" content="Benutzer hinzufügen">
     <title>Neuen Benutzer hinzufügen
         <form method="POST" action="logout.php" class="logout-form">
-        <button type="submit">Logout</button>
+            <button type="submit">Logout</button>
+        </form>
+        <form method="POST" action="index.php" class="back-form">
+            <button type="submit">Zurück</button>
+        </form>
     </title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -67,8 +71,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
         </section>
     </main>
-    <footer>
-        <p>&copy; 2024 Benutzerverwaltung. Alle Rechte vorbehalten.</p>
-    </footer>
 </body>
 </html>

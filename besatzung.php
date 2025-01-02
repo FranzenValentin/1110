@@ -85,6 +85,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="POST" action="logout.php" class="logout-form">
             <button type="submit">Logout</button>
         </form>
+        <form method="POST" action="index.php" class="back-form">
+            <button type="submit">Zurück</button>
+         </form>
         
         
     </header>
@@ -156,7 +159,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div>
                     <button type="submit" name="save">Speichern</button>
                     <button type="submit" name="clear">Alle löschen</button>
-                    <button type="button" onclick="window.location.href='index.php';">Zurück zur Startseite</button>
                 </div>
             </form>
         </section>

@@ -354,9 +354,5 @@ require 'db.php';
             </div>
         </section>
     </main>
-
-    <footer>
-        <p>&copy; 2025 Einsatzverwaltung. Alle Rechte vorbehalten.</p>
-    </footer>
 </body>
 </html>

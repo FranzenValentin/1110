@@ -19,7 +19,11 @@ require 'db.php';
     <header>
         <h1>Stichworte verwalten</h1>
             <form method="POST" action="logout.php" class="logout-form">
-            <button type="submit">Logout</button>
+                <button type="submit">Logout</button>
+            </form>
+            <form method="POST" action="index.php" class="back-form">
+                <button type="submit">Zurück</button>
+            </form>
     </header>
     <main>
         <form action="save_stichwort.php" method="POST">
