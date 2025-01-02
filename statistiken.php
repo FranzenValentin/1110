@@ -159,6 +159,7 @@ try {
                     ticks: {
                         stepSize: 1 // Nur ganze Zahlen anzeigen
                     },
+                    max: Math.max(...stichwortData) // Maximale y-Achse auf den höchsten Wert der Daten setzen
                     title: {
                         display: true,
                         text: 'Anzahl'
