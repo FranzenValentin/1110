@@ -202,7 +202,9 @@ if ($personId) {
                 });
             </script>
         <?php else: ?>
-            <p>Keine Funktionen für diesen Zeitraum gefunden.</p>
+                <p>Keine Funktionen für diesen Zeitraum gefunden.</p>
+            <?php endif; ?>
+        <?php else: ?>
         <?php endif; ?>
     </section>
 
@@ -238,7 +240,7 @@ if ($personId) {
                     </tbody>
                 </table>
                 <!-- Anzeige der Gesamtanzahl -->
-                <h3>Gesamtanzahl der Einsätze: <?= htmlspecialchars($gesamtAnzahl) ?></h3>
+                echo "<p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($gesamtAnzahl) ?></strong></p>";
                 <!-- Anzeige der Einsätze nach Kategorien -->
                 <h4>Einsätze nach Kategorien:</h4>
                 <ul>
@@ -250,7 +252,6 @@ if ($personId) {
                 <p>Keine Einsätze für diesen Zeitraum gefunden.</p>
             <?php endif; ?>
         <?php else: ?>
-            <p>Bitte wählen Sie eine Person und einen Zeitraum aus, um die Einsätze anzuzeigen.</p>
         <?php endif; ?>
     </section>
 
