@@ -90,6 +90,22 @@ if ($personId) {
         ]);
         $totalEinsaetze = $totalEinsaetzeStmt->fetchColumn();
 
+    // Einsätze zählen, bei denen die Person beteiligt war
+        $personEinsaetzeStmt = $pdo->prepare("
+        SELECT COUNT(*) AS total
+        FROM Einsaetze e
+        LEFT JOIN Besatzung b ON e.besatzung_id = b.id
+        WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
+        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
+        ");
+        $personEinsaetzeStmt->execute([
+        ':personId' => $personId,
+        ':startdatum' => $startdatum,
+        ':enddatum' => $enddatum,
+        ]);
+        $personEinsaetze = $personEinsaetzeStmt->fetchColumn();
+
+
 }
 ?>
 
@@ -198,6 +214,9 @@ if ($personId) {
 
     <?php if ($personId): ?>
         <p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($totalEinsaetze) ?></strong></p>
+        <p>Gesamtanzahl der Einsätze mit <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?>: 
+             <strong><?= htmlspecialchars($personEinsaetze) ?></strong></p>
+
         <?php if (count($einsaetze) > 0): ?>
             <table>
                 <thead>
