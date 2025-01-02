@@ -6,6 +6,11 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 }
 require 'db.php';
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+
 // Standardwerte für den Zeitraum (aktuelles Jahr)
 if (!isset($_GET['startdatum']) || !isset($_GET['enddatum'])) {
     $currentDate = new DateTime();
