@@ -77,6 +77,19 @@ if ($personId) {
         ':enddatum' => $enddatum
     ]);
     $funktionenVerteilung = $funktionenStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Gesamtanzahl der Einsätze im Zeitraum zählen
+        $totalEinsaetzeStmt = $pdo->prepare("
+        SELECT COUNT(*) AS total
+        FROM Einsaetze e
+        WHERE STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
+        ");
+        $totalEinsaetzeStmt->execute([
+        ':startdatum' => $startdatum,
+        ':enddatum' => $enddatum,
+        ]);
+        $totalEinsaetze = $totalEinsaetzeStmt->fetchColumn();
+
 }
 ?>
 
@@ -180,6 +193,10 @@ if ($personId) {
                  
             <?php endif; ?>
     </h2>
+
+    <p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($totalEinsaetze) ?></strong></p>
+
+
     <?php if ($personId): ?>
         <?php if (count($einsaetze) > 0): ?>
             <table>
