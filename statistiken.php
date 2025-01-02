@@ -6,9 +6,53 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 }
 require 'db.php';
 
-// Standardwerte für Monat und Jahr (aktueller Monat)
-$monat = isset($_GET['monat']) ? $_GET['monat'] : date('m');
-$jahr = isset($_GET['jahr']) ? $_GET['jahr'] : date('Y');
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Standardwerte für Start- und Enddatum
+if (!isset($_GET['startdatum']) || !isset($_GET['enddatum'])) {
+    $currentDate = new DateTime();
+    $startdatum = $currentDate->format('Y-m-01'); // Erster Tag des aktuellen Monats
+    $enddatum = $currentDate->format('Y-m-t');   // Letzter Tag des aktuellen Monats
+} else {
+    $startdatum = $_GET['startdatum'];
+    $enddatum = $_GET['enddatum'];
+}
+
+try {
+    // Gesamtanzahl der Einsätze im gewählten Zeitraum
+    $totalStmt = $pdo->prepare("
+        SELECT COUNT(*) AS total 
+        FROM Einsaetze 
+        WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
+    ");
+    $totalStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
+    $totalEinsaetze = $totalStmt->fetch()['total'];
+
+    // Durchschnittliche Dauer eines Einsatzes
+    $dauerStmt = $pdo->prepare("
+        SELECT AVG(TIMESTAMPDIFF(MINUTE, STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i'), STR_TO_DATE(zurueckzeit, '%d.%m.%y %H:%i'))) AS durchschnittsdauer
+        FROM Einsaetze
+        WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
+    ");
+    $dauerStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
+    $durchschnittsdauer = $dauerStmt->fetch()['durchschnittsdauer'];
+
+    // Häufigste Stichworte im gewählten Zeitraum
+    $stichwortStmt = $pdo->prepare("
+        SELECT stichwort, COUNT(*) AS anzahl 
+        FROM Einsaetze 
+        WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
+        GROUP BY stichwort 
+        ORDER BY anzahl DESC
+        LIMIT 5
+    ");
+    $stichwortStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
+    $stichworte = $stichwortStmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $error = "Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage());
+}
 ?>
 
 <!DOCTYPE html>
@@ -32,9 +76,9 @@ $jahr = isset($_GET['jahr']) ? $_GET['jahr'] : date('Y');
 </header>
 
 <main>
-    <!-- Filter für Monat und Jahr -->
+    <!-- Filter für Start- und Enddatum -->
     <section id="filter">
-        <h2>Monat auswählen</h2>
+        <h2>Zeitraum auswählen</h2>
         <form method="GET" action="statistiken.php" class="filter-form">
             <label for="startdatum">Startdatum:</label>
             <input type="date" id="startdatum" name="startdatum" value="<?= htmlspecialchars($startdatum) ?>" required>
@@ -44,57 +88,17 @@ $jahr = isset($_GET['jahr']) ? $_GET['jahr'] : date('Y');
 
             <button type="submit">Anzeigen</button>
         </form>
-
     </section>
 
+    <!-- Anzeige der Statistiken -->
     <section id="einsatz-statistik">
         <h2>Statistiken für den Zeitraum <?= htmlspecialchars($startdatum) ?> bis <?= htmlspecialchars($enddatum) ?></h2>
-        <?php
-        echo "<p>Gesamtanzahl der Einsätze: <strong>$totalEinsaetze</strong></p>";
-        echo "<p>Durchschnittliche Einsatzdauer: <strong>" . round($durchschnittsdauer, 2) . " Minuten</strong></p>";
-        ?>
-    </section>
-
-
-            // Gesamtanzahl der Einsätze im gewählten Monat
-            $totalStmt = $pdo->prepare("
-                SELECT COUNT(*) AS total 
-                FROM Einsaetze 
-                WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
-            ");
-            $totalStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
-            $totalEinsaetze = $totalStmt->fetch()['total'];
-
-
-            // Durchschnittliche Dauer eines Einsatzes
-            $dauerStmt = $pdo->prepare("
-                SELECT AVG(TIMESTAMPDIFF(MINUTE, STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i'), STR_TO_DATE(zurueckzeit, '%d.%m.%y %H:%i'))) AS durchschnittsdauer
-                FROM Einsaetze
-                WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
-            ");
-            $dauerStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
-            $durchschnittsdauer = $dauerStmt->fetch()['durchschnittsdauer'];
-
-
-            // Häufigste Stichworte im gewählten Monat
-            $stichwortStmt = $pdo->prepare("
-                SELECT stichwort, COUNT(*) AS anzahl 
-                FROM Einsaetze 
-                WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
-                GROUP BY stichwort 
-                ORDER BY anzahl DESC
-                LIMIT 5
-            ");
-            $stichwortStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
-            $stichworte = $stichwortStmt->fetchAll(PDO::FETCH_ASSOC);
-
-
-            echo "<p>Gesamtanzahl der Einsätze: <strong>$totalEinsaetze</strong></p>";
-            echo "<p>Durchschnittliche Einsatzdauer: <strong>" . round($durchschnittsdauer, 2) . " Minuten</strong></p>";
-        } catch (PDOException $e) {
-            echo "<p>Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage()) . "</p>";
-        }
-        ?>
+        <?php if (isset($error)): ?>
+            <p><?= htmlspecialchars($error) ?></p>
+        <?php else: ?>
+            <p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($totalEinsaetze) ?></strong></p>
+            <p>Durchschnittliche Einsatzdauer: <strong><?= htmlspecialchars(round($durchschnittsdauer, 2)) ?> Minuten</strong></p>
+        <?php endif; ?>
     </section>
 
     <!-- Diagramm für häufigste Stichworte -->
