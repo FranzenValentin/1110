@@ -96,7 +96,9 @@ form select {
 #einsatznummer_lts,
 #stichwort, 
 #adresse,
-#fahrzeug_name {
+#fahrzeug_name,
+#alarmuhrzeit,
+#zurueckzeit {
     width: 100%; /* Dynamische Breite */
     max-width: 100%; /* Verhindert Überlauf */
     box-sizing: border-box; /* Padding und Border in Breitenberechnung einbeziehen */
