@@ -181,7 +181,6 @@ if ($personId) {
                 });
             </script>
         <?php else: ?>
-            <p>Keine Funktionen für diesen Zeitraum gefunden.</p>
         <?php endif; ?>
     </section>
 
