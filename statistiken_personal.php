@@ -240,7 +240,7 @@ if ($personId) {
                     </tbody>
                 </table>
                 <!-- Anzeige der Gesamtanzahl -->
-                echo "<p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($gesamtAnzahl) ?></strong></p>";
+                <p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($gesamtAnzahl) ?></strong></p>
                 <!-- Anzeige der Einsätze nach Kategorien -->
                 <h4>Einsätze nach Kategorien:</h4>
                 <ul>
