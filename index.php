@@ -123,14 +123,14 @@ require 'db.php';
                 <!-- Alarmzeit -->
                 <td id="dick">
                     <div>
-                        <input type="datetime-local" inputmode="numeric"  id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm (Alarm)" >
+                        <input type="datetime-local" inputmode="numeric"  id="alarmuhrzeit" name="alarmuhrzeit" placeholder="Alarmzeit" >
                         <button type="button" onclick="setCurrentTime('alarmuhrzeit')" id="Jetzt">🕙</button>
                     </div>
                 </td>
                 <!-- Zurückzeit -->
                 <td id="dick">
                     <div>
-                        <input type="datetime-local" inputmode="numeric" id="zurueckzeit" name="zurueckzeit" placeholder="dd.mm.yy hh:mm (Zurück)" >
+                        <input type="datetime-local" inputmode="numeric" id="zurueckzeit" name="zurueckzeit" placeholder="Zurückzeit" >
                         <button type="button" onclick="setCurrentTime('zurueckzeit')" id="Jetzt">🕙</button>
                     </div>
                 </td>
