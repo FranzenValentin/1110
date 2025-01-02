@@ -124,14 +124,12 @@ require 'db.php';
                 <td id="dick">
                     <div>
                         <input type="datetime-local" inputmode="numeric"  id="alarmuhrzeit" name="alarmuhrzeit" placeholder="Alarmzeit" >
-                        <button type="button" onclick="setCurrentTime('alarmuhrzeit')" id="Jetzt">🕙</button>
                     </div>
                 </td>
                 <!-- Zurückzeit -->
                 <td id="dick">
                     <div>
                         <input type="datetime-local" inputmode="numeric" id="zurueckzeit" name="zurueckzeit" placeholder="Zurückzeit" >
-                        <button type="button" onclick="setCurrentTime('zurueckzeit')" id="Jetzt">🕙</button>
                     </div>
                 </td>
                 <!-- Adresse -->
