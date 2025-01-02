@@ -216,8 +216,8 @@ if ($personId) {
 
 
     <?php if ($personId): ?>
-        <p>Von insgesamt <strong><?= htmlspecialchars($totalEinsaetze) ?>%</strong> Alarmen war <strong><?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?>%</strong> 
-            bei <?= htmlspecialchars($personEinsaetze) ?> Alarmen dabei. Das entspricht <strong><?= htmlspecialchars($prozent) ?>%</strong>.</p>
+        <p>Von insgesamt <strong><?= htmlspecialchars($totalEinsaetze) ?> Alarmen</strong> war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
+            bei <strong><?= htmlspecialchars($personEinsaetze) ?> Alarmen</strong> dabei. Das entspricht <strong><?= htmlspecialchars($prozent) ?>%</strong>.</p>
 
         <?php if (count($einsaetze) > 0): ?>
             <table>
