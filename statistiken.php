@@ -46,7 +46,7 @@ try {
         WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
         GROUP BY stichwort 
         ORDER BY anzahl DESC
-        LIMIT 10
+        LIMIT 8
     ");
     $stichwortStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
     $stichworte = $stichwortStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -126,7 +126,6 @@ try {
                 data: {
                     labels: stichwortLabels,
                     datasets: [{
-                        label: 'Häufigkeit der Stichworte',
                         data: stichwortData,
                         backgroundColor: [
                             'rgba(255, 99, 132, 0.5)',
