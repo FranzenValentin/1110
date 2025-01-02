@@ -108,6 +108,27 @@ if ($personId) {
     // Prozentwert berechnen
         $prozent = $totalEinsaetze > 0 ? round(($personEinsaetze / $totalEinsaetze) * 100, 2) : 0;
 
+    // Gesamtdauer der Einsätze berechnen
+        $einsatzdauerStmt = $pdo->prepare("
+        SELECT SUM(TIMESTAMPDIFF(MINUTE, 
+            STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i'), 
+            STR_TO_DATE(e.zurueckzeit, '%d.%m.%y %H:%i')
+        )) AS gesamtDauer
+        FROM Einsaetze e
+        LEFT JOIN Besatzung b ON e.besatzung_id = b.id
+        WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
+        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
+        ");
+        $einsatzdauerStmt->execute([
+        ':personId' => $personId,
+        ':startdatum' => $startdatum,
+        ':enddatum' => $enddatum,
+        ]);
+        $gesamtDauer = $einsatzdauerStmt->fetchColumn();
+
+    // Dauer in Stunden und Minuten umrechnen
+        $stunden = floor($gesamtDauer / 60);
+        $minuten = $gesamtDauer % 60;
 
 }
 ?>
@@ -221,7 +242,9 @@ if ($personId) {
             <?php endif; ?>
         </h2>
         <p>Von insgesamt <strong><?= htmlspecialchars($totalEinsaetze) ?> Alarmen</strong> war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
-            bei <strong><?= htmlspecialchars($personEinsaetze) ?> Alarmen</strong> dabei. Das entspricht <strong><?= htmlspecialchars($prozent) ?>%</strong>.</p>
+            bei <strong><?= htmlspecialchars($personEinsaetze) ?> Alarmen</strong> dabei. Das entspricht <strong><?= htmlspecialchars($prozent) ?>%</strong>. Insgesamt war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
+            in diesem Zeitraum <strong><?= htmlspecialchars($stunden) ?> Stunden und <?= htmlspecialchars($minuten) ?> Minuten</strong> im Einsatz.</p>
+</p>
             <table>
                 <thead>
                     <tr>
