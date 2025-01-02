@@ -122,10 +122,27 @@ require 'db.php';
 
                 <!-- Alarmzeit -->
                 <td id="dünn">
-                <div class="datetime-placeholder">
-                    <input type="datetime-local" inputmode="numeric" id="alarmuhrzeit" name="alarmuhrzeit" placeholder=" " required>
-                    <label for="alarmuhrzeit">Alarmzeit</label>
-                </div>
+                    <div style="position: relative;">
+                        <input 
+                            type="datetime-local" 
+                            id="alarmuhrzeit" 
+                            name="alarmuhrzeit" 
+                            onfocus="hidePlaceholder(this)" 
+                            onblur="showPlaceholder(this)" 
+                            style="padding-left: 5px;">
+                        <span id="placeholder" style="position: absolute; left: 5px; top: 5px; color: #aaa;">Alarmzeit</span>
+                    </div>
+                        <script>
+                            function hidePlaceholder(input) {
+                                document.getElementById('placeholder').style.display = 'none';
+                            }
+
+                            function showPlaceholder(input) {
+                                if (!input.value) {
+                                    document.getElementById('placeholder').style.display = 'block';
+                                }
+                            }
+                        </script>
                 </td>
                 <!-- Zurückzeit -->
                 <td id="dünn">
