@@ -88,9 +88,9 @@ form select {
     vertical-align: middle;
     width: inherit;
     height: 38px;
-    color: white;
+    color: black;
     text-overflow: ellipsis;
-    background-color:#bdbdbd;
+    background-color:white;
 }
 
 
