@@ -77,6 +77,40 @@ if ($personId) {
         ':enddatum' => $enddatum
     ]);
     $funktionenVerteilung = $funktionenStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Einsätze nach Kategorien zählen
+    $kategorienStmt = $pdo->prepare("
+        SELECT 
+            e.stichwort, 
+            COUNT(*) AS anzahl 
+        FROM Einsaetze e
+        LEFT JOIN Besatzung b ON e.besatzung_id = b.id
+        WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
+        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
+        GROUP BY e.stichwort
+    ");
+    $kategorienStmt->execute([
+        ':personId' => $personId,
+        ':startdatum' => $startdatum,
+        ':enddatum' => $enddatum
+    ]);
+    $kategorien = $kategorienStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Gesamtanzahl der Einsätze zählen
+    $gesamtAnzahlStmt = $pdo->prepare("
+        SELECT 
+            COUNT(*) AS gesamtanzahl 
+        FROM Einsaetze e
+        LEFT JOIN Besatzung b ON e.besatzung_id = b.id
+        WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
+        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
+    ");
+    $gesamtAnzahlStmt->execute([
+        ':personId' => $personId,
+        ':startdatum' => $startdatum,
+        ':enddatum' => $enddatum
+    ]);
+    $gesamtAnzahl = $gesamtAnzahlStmt->fetchColumn();
 }
 ?>
 
@@ -173,43 +207,53 @@ if ($personId) {
     </section>
 
     <section id="einsatz-statistik">
-    <h2>
+        <h2>
             <?php if ($personId): ?>
                 Einsätze von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
             <?php else: ?>
-                 
             <?php endif; ?>
-    </h2>
-    <?php if ($personId): ?>
-        <?php if (count($einsaetze) > 0): ?>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Interne Einsatznummer</th>
-                        <th>Stichwort</th>
-                        <th>Alarmzeit</th>
-                        <th>Fahrzeug</th>
-                        <th>Funktion</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($einsaetze as $einsatz): ?>
+        </h2>
+        <?php if ($personId): ?>
+            <?php if (count($einsaetze) > 0): ?>
+                <table>
+                    <thead>
                         <tr>
-                            <td><?= htmlspecialchars($einsatz['interne_einsatznummer']) ?></td>
-                            <td><?= htmlspecialchars($einsatz['stichwort']) ?></td>
-                            <td><?= htmlspecialchars($einsatz['alarmuhrzeit']) ?></td>
-                            <td><?= htmlspecialchars($einsatz['fahrzeug_name']) ?></td>
-                            <td><?= htmlspecialchars($einsatz['funktion']) ?></td>
+                            <th>Interne Einsatznummer</th>
+                            <th>Stichwort</th>
+                            <th>Alarmzeit</th>
+                            <th>Fahrzeug</th>
+                            <th>Funktion</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($einsaetze as $einsatz): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($einsatz['interne_einsatznummer']) ?></td>
+                                <td><?= htmlspecialchars($einsatz['stichwort']) ?></td>
+                                <td><?= htmlspecialchars($einsatz['alarmuhrzeit']) ?></td>
+                                <td><?= htmlspecialchars($einsatz['fahrzeug_name']) ?></td>
+                                <td><?= htmlspecialchars($einsatz['funktion']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <!-- Anzeige der Gesamtanzahl -->
+                <h3>Gesamtanzahl der Einsätze: <?= htmlspecialchars($gesamtAnzahl) ?></h3>
+                <!-- Anzeige der Einsätze nach Kategorien -->
+                <h4>Einsätze nach Kategorien:</h4>
+                <ul>
+                    <?php foreach ($kategorien as $kategorie): ?>
+                        <li><?= htmlspecialchars($kategorie['stichwort']) ?>: <?= htmlspecialchars($kategorie['anzahl']) ?></li>
                     <?php endforeach; ?>
-                </tbody>
-            </table>
+                </ul>
+            <?php else: ?>
+                <p>Keine Einsätze für diesen Zeitraum gefunden.</p>
+            <?php endif; ?>
         <?php else: ?>
-            <p>Keine Einsätze für diesen Zeitraum gefunden.</p>
+            <p>Bitte wählen Sie eine Person und einen Zeitraum aus, um die Einsätze anzuzeigen.</p>
         <?php endif; ?>
-    <?php else: ?>
-    <?php endif; ?>
-</section>
+    </section>
+
 
 
 </main>
