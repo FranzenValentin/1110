@@ -31,7 +31,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main>
         <form method="POST" class="login-form">
             <label for="access_code">Zugangscode:</label>
-            <input type="password" id="access_code" name="access_code" required>
+            <input 
+                type="tel" 
+                id="access_code" 
+                name="access_code" 
+                inputmode="numeric" 
+                pattern="[0-9]*" 
+                required>
             <button type="submit">Anmelden</button>
             <?php if (isset($error)) { echo "<p class='error'>$error</p>"; } ?>
         </form>
