@@ -34,7 +34,7 @@ require 'db.php';
                     <option value="BRAND">Brand</option>
                     <option value="RD">Rettungsdienst</option>
                 </select>
-                <input type="text" id="stichwort" name="stichwort" placeholder="Stichwort" required>
+                <input type="text" id="stichwort1" name="stichwort" placeholder="Stichwort" required>
             </div>
             <div>
                 <br />
