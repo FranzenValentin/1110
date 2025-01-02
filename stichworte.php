@@ -69,7 +69,7 @@ try {
                     <option value="BRAND">Brand</option>
                     <option value="RD">Rettungsdienst</option>
                 </select>
-                <input type="text" id="stichwort" name="stichwort" placeholder="Stichwort" required>
+                <input type="text" id="stichwort1" name="stichwort" placeholder="Stichwort" required>
             </div>
             <div>
                 <br />
@@ -78,29 +78,6 @@ try {
                 <button type="submit">Stichwort hinzufügen</button>
             </div>
         </form>
-
-        <!-- Liste aller Stichworte -->
-        <section>
-            <h2>Vorhandene Stichworte</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Kategorie</th>
-                        <th>Stichwort</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($stichworte as $stichwort): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($stichwort['id']) ?></td>
-                            <td><?= htmlspecialchars($stichwort['kategorie']) ?></td>
-                            <td><?= htmlspecialchars($stichwort['stichwort']) ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </section>
     </main>
 </body>
 </html>
