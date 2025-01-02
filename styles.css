@@ -95,7 +95,8 @@ form select {
 /* Stichwort-Feld */
 #einsatznummer_lts,
 #stichwort, 
-#Adresse {
+#adresse,
+#fahrzeug_name {
     width: 100%; /* Dynamische Breite */
     max-width: 100%; /* Verhindert Überlauf */
     box-sizing: border-box; /* Padding und Border in Breitenberechnung einbeziehen */
