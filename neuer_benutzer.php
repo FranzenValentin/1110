@@ -34,12 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Benutzer hinzufügen">
     <title>Neuen Benutzer hinzufügen
-        <form method="POST" action="logout.php" class="logout-form">
-            <button type="submit">Logout</button>
-        </form>
-        <form method="POST" action="index.php" class="back-form">
-            <button type="submit">Zurück</button>
-        </form>
     </title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -48,6 +42,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1>Neuen Benutzer hinzufügen</h1>
         <form method="POST" action="logout.php" class="logout-form">
             <button type="submit">Logout</button>
+        </form>
+        <form method="POST" action="index.php" class="back-form">
+            <button type="submit">Zurück</button>
         </form>
     </header>
     <main>
@@ -65,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="text" id="nachname" name="nachname" required>
                 </div>
                 <div>
-                    <button type="submit">Benutzer hinzufügen</button><button type="button" onclick="window.location.href='index.php';">Zurück zur Startseite</button>
+                    <button type="submit">Benutzer hinzufügen</button>
                 </div>
             </form>
         </section>
