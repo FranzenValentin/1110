@@ -166,14 +166,15 @@ if ($personId) {
 
     <!-- Verteilung der Funktionen -->
     <section id="funktionen-verteilung">
-        <h2>
-            <?php if ($personId): ?>
-                Funktionen von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
-            <?php else: ?>
-                 
-            <?php endif; ?>
-        </h2>
+        
         <?php if (count($funktionenVerteilung) > 0): ?>
+            <h2>
+                <?php if ($personId): ?>
+                    Funktionen von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
+                <?php else: ?>
+                    
+                <?php endif; ?>
+            </h2>
             <canvas id="funktionenChart" width="400" height="200"></canvas>
             <script>
                 const funktionenLabels = <?= json_encode(array_column($funktionenVerteilung, 'funktion')) ?>;
@@ -204,13 +205,7 @@ if ($personId) {
     </section>
 
     <section id="einsatz-statistik">
-    <h2>
-            <?php if ($personId): ?>
-                Einsätze von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
-            <?php else: ?>
-                 
-            <?php endif; ?>
-    </h2>
+    
 
     
 
@@ -218,6 +213,13 @@ if ($personId) {
     <?php if ($personId): ?>
         
         <?php if (count($einsaetze) > 0): ?>
+        <h2>
+            <?php if ($personId): ?>
+                Einsätze von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
+            <?php else: ?>
+                 
+            <?php endif; ?>
+        </h2>
         <p>Von insgesamt <strong><?= htmlspecialchars($totalEinsaetze) ?> Alarmen</strong> war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
             bei <strong><?= htmlspecialchars($personEinsaetze) ?> Alarmen</strong> dabei. Das entspricht <strong><?= htmlspecialchars($prozent) ?>%</strong>.</p>
             <table>
