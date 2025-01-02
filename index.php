@@ -103,46 +103,46 @@ require 'db.php';
             <tr>
                 <!-- Einsatznummer LTS -->
                 <td id="dünn">
-                    <div style="position: relative; overflow: hidden; width: 100%;">
-                        <input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <div>
+                        <input type="text" inputmode="numeric"  id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                     </div>
                 </td>
                 <!-- Stichwort -->
                 <td id="dick">
-    <div>
-        <input list="stichwort_liste" id="stichwort" name="stichwort" 
-               placeholder="Stichwort eingeben oder auswählen">
-        <datalist id="stichwort_liste">
-            <?php foreach ($stichworte as $stichwort): ?>
-                <option value="<?= htmlspecialchars($stichwort['stichwort']) ?>"></option>
-            <?php endforeach; ?>
-        </datalist>
-    </div>
-</td>
+                    <div>
+                        <input list="stichwort_liste" id="stichwort" name="stichwort" 
+                            placeholder="Stichwort eingeben oder auswählen">
+                        <datalist id="stichwort_liste">
+                            <?php foreach ($stichworte as $stichwort): ?>
+                                <option value="<?= htmlspecialchars($stichwort['stichwort']) ?>"></option>
+                            <?php endforeach; ?>
+                        </datalist>
+                    </div>
+                </td>
 
                 <!-- Alarmzeit -->
                 <td id="dick">
-                    <div style="position: relative; overflow: hidden; width: 100%;">
-                        <input type="text" id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm (Alarm)" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <div>
+                        <input type="text" inputmode="numeric"  id="alarmuhrzeit" name="alarmuhrzeit" placeholder="dd.mm.yy hh:mm (Alarm)" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                         <button type="button" onclick="setCurrentTime('alarmuhrzeit')" id="Jetzt">🕙</button>
                     </div>
                 </td>
                 <!-- Zurückzeit -->
                 <td id="dick">
-                    <div style="position: relative; overflow: hidden; width: 100%;">
-                        <input type="text" id="zurueckzeit" name="zurueckzeit" placeholder="dd.mm.yy hh:mm (Zurück)" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                    <div>
+                        <input type="text" inputmode="numeric" id="zurueckzeit" name="zurueckzeit" placeholder="dd.mm.yy hh:mm (Zurück)" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                         <button type="button" onclick="setCurrentTime('zurueckzeit')" id="Jetzt">🕙</button>
                     </div>
                 </td>
                 <!-- Adresse -->
                 <td id="dick">
-                    <div style="position: relative; overflow: hidden; width: 100%;">
+                   <div>
                         <input type="text" id="adresse" name="adresse" placeholder="Linienstraße 128, Mitte (Adresse)" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                     </div>
                 </td>
                 <!-- Fahrzeug -->
                 <td id="dünn">
-                    <div style="position: relative; overflow: hidden; width: 100%;">
+                     <div>
                         <select id="fahrzeug_name" name="fahrzeug_name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             <?php foreach ($fahrzeuge as $fahrzeug): ?>
                                 <option value="<?= htmlspecialchars($fahrzeug['name']) ?>">

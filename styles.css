@@ -90,6 +90,7 @@ form select {
     width: inherit;
     height: 38px;
     color: black;
+    text-overflow: ellipsis;
 }
 
 /* Stichwort-Feld */
