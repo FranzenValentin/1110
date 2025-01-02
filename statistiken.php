@@ -69,18 +69,6 @@ $jahr = isset($_GET['jahr']) ? $_GET['jahr'] : date('Y');
             $totalStmt->execute([':monat' => $monat, ':jahr' => $jahr]);
             $totalEinsaetze = $totalStmt->fetch()['total'];
 
-            // Anzahl der Einsätze nach Wochentag
-            $wochentagStmt = $pdo->prepare("
-                SELECT DAYNAME(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) AS wochentag, COUNT(*) AS anzahl
-                FROM Einsaetze
-                WHERE MONTH(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :monat 
-                  AND YEAR(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :jahr
-                GROUP BY wochentag
-                ORDER BY FIELD(DAYNAME(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')), 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
-            ");
-            $wochentagStmt->execute([':monat' => $monat, ':jahr' => $jahr]);
-            $wochentage = $wochentagStmt->fetchAll(PDO::FETCH_ASSOC);
-
             // Durchschnittliche Dauer eines Einsatzes
             $dauerStmt = $pdo->prepare("
                 SELECT AVG(TIMESTAMPDIFF(MINUTE, STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i'), STR_TO_DATE(zurueckzeit, '%d.%m.%y %H:%i'))) AS durchschnittsdauer
@@ -91,42 +79,25 @@ $jahr = isset($_GET['jahr']) ? $_GET['jahr'] : date('Y');
             $dauerStmt->execute([':monat' => $monat, ':jahr' => $jahr]);
             $durchschnittsdauer = $dauerStmt->fetch()['durchschnittsdauer'];
 
+            // Häufigste Stichworte im gewählten Monat
+            $stichwortStmt = $pdo->prepare("
+                SELECT stichwort, COUNT(*) AS anzahl 
+                FROM Einsaetze 
+                WHERE MONTH(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :monat 
+                  AND YEAR(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :jahr
+                GROUP BY stichwort 
+                ORDER BY anzahl DESC
+                LIMIT 5
+            ");
+            $stichwortStmt->execute([':monat' => $monat, ':jahr' => $jahr]);
+            $stichworte = $stichwortStmt->fetchAll(PDO::FETCH_ASSOC);
+
             echo "<p>Gesamtanzahl der Einsätze: <strong>$totalEinsaetze</strong></p>";
             echo "<p>Durchschnittliche Einsatzdauer: <strong>" . round($durchschnittsdauer, 2) . " Minuten</strong></p>";
         } catch (PDOException $e) {
             echo "<p>Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage()) . "</p>";
         }
         ?>
-    </section>
-
-    <!-- Diagramm für Einsätze nach Wochentag -->
-    <section id="wochentage">
-        <h2>Einsätze nach Wochentag</h2>
-        <canvas id="wochentagChart" width="400" height="200"></canvas>
-        <script>
-            const wochentagLabels = <?= json_encode(array_column($wochentage, 'wochentag')) ?>;
-            const wochentagData = <?= json_encode(array_column($wochentage, 'anzahl')) ?>;
-
-            new Chart(document.getElementById('wochentagChart'), {
-                type: 'bar',
-                data: {
-                    labels: wochentagLabels,
-                    datasets: [{
-                        label: 'Einsätze',
-                        data: wochentagData,
-                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            });
-        </script>
     </section>
 
     <!-- Diagramm für häufigste Stichworte -->
