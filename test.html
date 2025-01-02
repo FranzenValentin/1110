@@ -44,12 +44,15 @@
                         vorschlaege.innerHTML = ''; // Bestehende Vorschläge entfernen
 
                         data.forEach(item => {
+                            // Adressformat festlegen
+                            const address = formatAddress(item.address);
+
                             const li = document.createElement('li');
-                            li.textContent = item.display_name;
+                            li.textContent = address;
 
                             // Klick auf Vorschlag setzt die Adresse und schließt die Liste
                             li.addEventListener('click', () => {
-                                document.getElementById('adresse').value = item.display_name;
+                                document.getElementById('adresse').value = address;
                                 vorschlaege.innerHTML = ''; // Vorschläge ausblenden
                             });
 
@@ -59,6 +62,26 @@
                     .catch(error => console.error('Fehler beim Abrufen der Adressdaten:', error));
             }
         });
+
+        // Klicken außerhalb der Vorschlagsliste schließt sie
+        document.addEventListener('click', function (e) {
+            const vorschlaege = document.getElementById('vorschlaege');
+            if (!vorschlaege.contains(e.target) && e.target.id !== 'adresse') {
+                vorschlaege.innerHTML = ''; // Vorschläge ausblenden
+            }
+        });
+
+        // Funktion zur Formatierung der Adresse
+        function formatAddress(address) {
+            // Beispiel: "Straße Hausnummer, Bezirk"
+            const road = address.road || '';
+            const houseNumber = address.house_number || '';
+            const district = address.suburb || address.city_district || '';
+
+            // Kombinierte Adresse zurückgeben
+            return `${road} ${houseNumber}, ${district}`.trim();
+        }
+
 
         // Klicken außerhalb der Vorschlagsliste schließt sie
         document.addEventListener('click', function (e) {
