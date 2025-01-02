@@ -36,64 +36,58 @@ $jahr = isset($_GET['jahr']) ? $_GET['jahr'] : date('Y');
     <section id="filter">
         <h2>Monat auswählen</h2>
         <form method="GET" action="statistiken.php" class="filter-form">
-            <label for="monat">Monat:</label>
-            <select id="monat" name="monat" required>
-                <?php
-                $monate = [
-                    '01' => 'Januar', '02' => 'Februar', '03' => 'März',
-                    '04' => 'April', '05' => 'Mai', '06' => 'Juni',
-                    '07' => 'Juli', '08' => 'August', '09' => 'September',
-                    '10' => 'Oktober', '11' => 'November', '12' => 'Dezember'
-                ];
-                foreach ($monate as $key => $name) {
-                    echo "<option value='$key' " . ($monat == $key ? 'selected' : '') . ">$name</option>";
-                }
-                ?>
-            </select>
+            <label for="startdatum">Startdatum:</label>
+            <input type="date" id="startdatum" name="startdatum" value="<?= htmlspecialchars($startdatum) ?>" required>
 
-            <label for="jahr">Jahr:</label>
-            <input type="number" id="jahr" name="jahr" value="<?= $jahr ?>" required>
+            <label for="enddatum">Enddatum:</label>
+            <input type="date" id="enddatum" name="enddatum" value="<?= htmlspecialchars($enddatum) ?>" required>
 
             <button type="submit">Anzeigen</button>
         </form>
+
     </section>
 
     <section id="einsatz-statistik">
-        <h2>Statistiken für <?= $monate[$monat] . " $jahr" ?></h2>
+        <h2>Statistiken für den Zeitraum <?= htmlspecialchars($startdatum) ?> bis <?= htmlspecialchars($enddatum) ?></h2>
         <?php
-        try {
+        echo "<p>Gesamtanzahl der Einsätze: <strong>$totalEinsaetze</strong></p>";
+        echo "<p>Durchschnittliche Einsatzdauer: <strong>" . round($durchschnittsdauer, 2) . " Minuten</strong></p>";
+        ?>
+    </section>
+
+
             // Gesamtanzahl der Einsätze im gewählten Monat
             $totalStmt = $pdo->prepare("
                 SELECT COUNT(*) AS total 
                 FROM Einsaetze 
-                WHERE MONTH(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :monat 
-                  AND YEAR(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :jahr
+                WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
             ");
-            $totalStmt->execute([':monat' => $monat, ':jahr' => $jahr]);
+            $totalStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
             $totalEinsaetze = $totalStmt->fetch()['total'];
+
 
             // Durchschnittliche Dauer eines Einsatzes
             $dauerStmt = $pdo->prepare("
                 SELECT AVG(TIMESTAMPDIFF(MINUTE, STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i'), STR_TO_DATE(zurueckzeit, '%d.%m.%y %H:%i'))) AS durchschnittsdauer
                 FROM Einsaetze
-                WHERE MONTH(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :monat 
-                  AND YEAR(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :jahr
+                WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
             ");
-            $dauerStmt->execute([':monat' => $monat, ':jahr' => $jahr]);
+            $dauerStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
             $durchschnittsdauer = $dauerStmt->fetch()['durchschnittsdauer'];
+
 
             // Häufigste Stichworte im gewählten Monat
             $stichwortStmt = $pdo->prepare("
                 SELECT stichwort, COUNT(*) AS anzahl 
                 FROM Einsaetze 
-                WHERE MONTH(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :monat 
-                  AND YEAR(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :jahr
+                WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
                 GROUP BY stichwort 
                 ORDER BY anzahl DESC
                 LIMIT 5
             ");
-            $stichwortStmt->execute([':monat' => $monat, ':jahr' => $jahr]);
+            $stichwortStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
             $stichworte = $stichwortStmt->fetchAll(PDO::FETCH_ASSOC);
+
 
             echo "<p>Gesamtanzahl der Einsätze: <strong>$totalEinsaetze</strong></p>";
             echo "<p>Durchschnittliche Einsatzdauer: <strong>" . round($durchschnittsdauer, 2) . " Minuten</strong></p>";
