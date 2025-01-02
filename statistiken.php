@@ -154,17 +154,19 @@ try {
                         text: 'Stichworte'
                     }
                 },
-                y: { // Einstellungen für die y-Achse
+                y: {
                     beginAtZero: true,
+                    suggestedMax: Math.max(...stichwortData) + 1, // Dynamische Anpassung der maximalen y-Achse
                     ticks: {
-                        stepSize: 1 // Nur ganze Zahlen anzeigen
+                        stepSize: 1, // Schritte in ganzen Zahlen
+                        callback: function(value) {
+                            return Number.isInteger(value) ? value : ''; // Nur ganze Zahlen anzeigen
+                        }
                     },
-                    max: Math.max(...stichwortData) // Maximale y-Achse auf den höchsten Wert der Daten setzen
                     title: {
                         display: true,
                         text: 'Anzahl'
                     }
-                }
             }
         }
     });
