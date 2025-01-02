@@ -35,11 +35,17 @@ $jahr = isset($_GET['jahr']) ? $_GET['jahr'] : date('Y');
         <form method="GET" action="statistiken.php" class="filter-form">
             <label for="monat">Monat:</label>
             <select id="monat" name="monat" required>
-                <?php for ($i = 1; $i <= 12; $i++): ?>
-                    <option value="<?= str_pad($i, 2, '0', STR_PAD_LEFT) ?>" <?= $monat == $i ? 'selected' : '' ?>>
-                        <?= date('F', mktime(0, 0, 0, $i, 1)) ?>
-                    </option>
-                <?php endfor; ?>
+                <?php
+                $monate = [
+                    '01' => 'Januar', '02' => 'Februar', '03' => 'März',
+                    '04' => 'April', '05' => 'Mai', '06' => 'Juni',
+                    '07' => 'Juli', '08' => 'August', '09' => 'September',
+                    '10' => 'Oktober', '11' => 'November', '12' => 'Dezember'
+                ];
+                foreach ($monate as $key => $name) {
+                    echo "<option value='$key' " . ($monat == $key ? 'selected' : '') . ">$name</option>";
+                }
+                ?>
             </select>
 
             <label for="jahr">Jahr:</label>
@@ -50,7 +56,7 @@ $jahr = isset($_GET['jahr']) ? $_GET['jahr'] : date('Y');
     </section>
 
     <section id="einsatz-statistik">
-        <h2>Statistiken für <?= date('F Y', mktime(0, 0, 0, $monat, 1, $jahr)) ?></h2>
+        <h2>Statistiken für <?= $monate[$monat] . " $jahr" ?></h2>
         <?php
         try {
             // Gesamtanzahl der Einsätze im gewählten Monat
@@ -63,56 +69,53 @@ $jahr = isset($_GET['jahr']) ? $_GET['jahr'] : date('Y');
             $totalStmt->execute([':monat' => $monat, ':jahr' => $jahr]);
             $totalEinsaetze = $totalStmt->fetch()['total'];
 
-            // Meist genutzte Fahrzeuge im gewählten Monat
-            $fahrzeugStmt = $pdo->prepare("
-                SELECT fahrzeug_name, COUNT(*) AS anzahl 
-                FROM Einsaetze 
+            // Anzahl der Einsätze nach Wochentag
+            $wochentagStmt = $pdo->prepare("
+                SELECT DAYNAME(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) AS wochentag, COUNT(*) AS anzahl
+                FROM Einsaetze
                 WHERE MONTH(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :monat 
                   AND YEAR(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :jahr
-                GROUP BY fahrzeug_name 
-                ORDER BY anzahl DESC
-                LIMIT 5
+                GROUP BY wochentag
+                ORDER BY FIELD(DAYNAME(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')), 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
             ");
-            $fahrzeugStmt->execute([':monat' => $monat, ':jahr' => $jahr]);
-            $fahrzeuge = $fahrzeugStmt->fetchAll(PDO::FETCH_ASSOC);
+            $wochentagStmt->execute([':monat' => $monat, ':jahr' => $jahr]);
+            $wochentage = $wochentagStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Häufigste Stichworte im gewählten Monat
-            $stichwortStmt = $pdo->prepare("
-                SELECT stichwort, COUNT(*) AS anzahl 
-                FROM Einsaetze 
+            // Durchschnittliche Dauer eines Einsatzes
+            $dauerStmt = $pdo->prepare("
+                SELECT AVG(TIMESTAMPDIFF(MINUTE, STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i'), STR_TO_DATE(zurueckzeit, '%d.%m.%y %H:%i'))) AS durchschnittsdauer
+                FROM Einsaetze
                 WHERE MONTH(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :monat 
                   AND YEAR(STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i')) = :jahr
-                GROUP BY stichwort 
-                ORDER BY anzahl DESC
-                LIMIT 5
             ");
-            $stichwortStmt->execute([':monat' => $monat, ':jahr' => $jahr]);
-            $stichworte = $stichwortStmt->fetchAll(PDO::FETCH_ASSOC);
+            $dauerStmt->execute([':monat' => $monat, ':jahr' => $jahr]);
+            $durchschnittsdauer = $dauerStmt->fetch()['durchschnittsdauer'];
 
             echo "<p>Gesamtanzahl der Einsätze: <strong>$totalEinsaetze</strong></p>";
+            echo "<p>Durchschnittliche Einsatzdauer: <strong>" . round($durchschnittsdauer, 2) . " Minuten</strong></p>";
         } catch (PDOException $e) {
             echo "<p>Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage()) . "</p>";
         }
         ?>
     </section>
 
-    <!-- Diagramm für Fahrzeuge -->
-    <section id="meist-genutzte-fahrzeuge">
-        <h2>Meist genutzte Fahrzeuge</h2>
-        <canvas id="fahrzeugChart" width="400" height="200"></canvas>
+    <!-- Diagramm für Einsätze nach Wochentag -->
+    <section id="wochentage">
+        <h2>Einsätze nach Wochentag</h2>
+        <canvas id="wochentagChart" width="400" height="200"></canvas>
         <script>
-            const fahrzeugLabels = <?= json_encode(array_column($fahrzeuge, 'fahrzeug_name')) ?>;
-            const fahrzeugData = <?= json_encode(array_column($fahrzeuge, 'anzahl')) ?>;
+            const wochentagLabels = <?= json_encode(array_column($wochentage, 'wochentag')) ?>;
+            const wochentagData = <?= json_encode(array_column($wochentage, 'anzahl')) ?>;
 
-            new Chart(document.getElementById('fahrzeugChart'), {
+            new Chart(document.getElementById('wochentagChart'), {
                 type: 'bar',
                 data: {
-                    labels: fahrzeugLabels,
+                    labels: wochentagLabels,
                     datasets: [{
                         label: 'Einsätze',
-                        data: fahrzeugData,
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
+                        data: wochentagData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 1
                     }]
                 },
@@ -126,7 +129,7 @@ $jahr = isset($_GET['jahr']) ? $_GET['jahr'] : date('Y');
         </script>
     </section>
 
-    <!-- Diagramm für Stichworte -->
+    <!-- Diagramm für häufigste Stichworte -->
     <section id="haeufigste-stichworte">
         <h2>Häufigste Stichworte</h2>
         <canvas id="stichwortChart" width="400" height="200"></canvas>
