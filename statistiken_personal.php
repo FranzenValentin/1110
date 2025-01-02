@@ -105,6 +105,9 @@ if ($personId) {
         ]);
         $personEinsaetze = $personEinsaetzeStmt->fetchColumn();
 
+    // Prozentwert berechnen
+        $prozent = $totalEinsaetze > 0 ? round(($personEinsaetze / $totalEinsaetze) * 100, 2) : 0;
+
 
 }
 ?>
@@ -213,9 +216,8 @@ if ($personId) {
 
 
     <?php if ($personId): ?>
-        <p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($totalEinsaetze) ?></strong></p>
-        <p>Gesamtanzahl der Einsätze mit <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?>: 
-             <strong><?= htmlspecialchars($personEinsaetze) ?></strong></p>
+        <p>Von insgesamt <?= htmlspecialchars($totalEinsaetze) ?> Alarmen war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
+            bei <?= htmlspecialchars($personEinsaetze) ?> Alarmen dabei. Das entspricht <strong><?= htmlspecialchars($prozent) ?>%</strong>.</p>
 
         <?php if (count($einsaetze) > 0): ?>
             <table>
