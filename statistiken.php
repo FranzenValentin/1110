@@ -111,7 +111,10 @@ try {
 
     <!-- Diagramm für häufigste Stichworte -->
     <section id="haeufigste-stichworte">
-        <h2>Häufigste Stichworte</h2>
+        <?php if ($totalEinsaetze != 0): ?>
+        <h2>Häufigste Stichworte</h2>    
+        <?php endif; ?>
+        
         <canvas id="stichwortChart" width="200" height="100"></canvas>
         <script>
             const stichwortLabels = <?= json_encode(array_column($stichworte, 'stichwort')) ?>;
