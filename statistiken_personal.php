@@ -204,8 +204,6 @@ if ($personId) {
         <?php else: ?>
                 <p>Keine Funktionen für diesen Zeitraum gefunden.</p>
             <?php endif; ?>
-        <?php else: ?>
-        <?php endif; ?>
     </section>
 
     <section id="einsatz-statistik">
@@ -251,8 +249,6 @@ if ($personId) {
             <?php else: ?>
                 <p>Keine Einsätze für diesen Zeitraum gefunden.</p>
             <?php endif; ?>
-        <?php else: ?>
-        <?php endif; ?>
     </section>
 
 
