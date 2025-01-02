@@ -92,7 +92,11 @@ try {
 
     <!-- Anzeige der Statistiken -->
     <section id="einsatz-statistik">
-        <h2>Statistiken für den Zeitraum <?= htmlspecialchars($startdatum) ?> bis <?= htmlspecialchars($enddatum) ?></h2>
+    <h2>Statistiken für den Zeitraum 
+        <?= htmlspecialchars(DateTime::createFromFormat('Y-m-d', $startdatum)->format('d.m.Y')) ?> 
+        bis 
+        <?= htmlspecialchars(DateTime::createFromFormat('Y-m-d', $enddatum)->format('d.m.Y')) ?>
+    </h2>
         <?php if (isset($error)): ?>
             <p><?= htmlspecialchars($error) ?></p>
         <?php else: ?>
