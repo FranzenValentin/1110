@@ -215,3 +215,33 @@ form button {
 }
 
 
+
+
+.datetime-placeholder {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.datetime-placeholder input {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.datetime-placeholder label {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #aaa;
+    pointer-events: none;
+    transition: 0.2s;
+}
+
+.datetime-placeholder input:focus + label,
+.datetime-placeholder input:not(:placeholder-shown) + label {
+    top: -10px;
+    left: 10px;
+    color: #007bff;
+    font-size: 12px;
+}
