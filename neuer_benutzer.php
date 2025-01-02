@@ -65,8 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="text" id="nachname" name="nachname" required>
                 </div>
                 <div>
-                    <button type="submit">Benutzer hinzufügen</button>
-                    <button type="button" onclick="window.location.href='index.php';">Zurück zur Startseite</button>
+                    <button type="submit">Benutzer hinzufügen</button><button type="button" onclick="window.location.href='index.php';">Zurück zur Startseite</button>
                 </div>
             </form>
         </section>
