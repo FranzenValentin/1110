@@ -115,7 +115,7 @@ try {
         <h2>Häufigste Stichworte</h2>    
         <?php endif; ?>
         
-        <canvas id="stichwortChart" style="max-width: 300px; max-height: 150px;"></canvas>
+        <canvas id="stichwortChart" ></canvas>
 <script>
     const stichwortLabels = <?= json_encode(array_column($stichworte, 'stichwort')) ?>;
     const stichwortData = <?= json_encode(array_column($stichworte, 'anzahl')) ?>;
