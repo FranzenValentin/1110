@@ -216,10 +216,10 @@ if ($personId) {
 
 
     <?php if ($personId): ?>
+        
+        <?php if (count($einsaetze) > 0): ?>
         <p>Von insgesamt <strong><?= htmlspecialchars($totalEinsaetze) ?> Alarmen</strong> war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
             bei <strong><?= htmlspecialchars($personEinsaetze) ?> Alarmen</strong> dabei. Das entspricht <strong><?= htmlspecialchars($prozent) ?>%</strong>.</p>
-
-        <?php if (count($einsaetze) > 0): ?>
             <table>
                 <thead>
                     <tr>
