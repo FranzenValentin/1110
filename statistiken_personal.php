@@ -21,7 +21,7 @@ $funktionenVerteilung = [];
 if ($personId) {
     $einsaetzeStmt = $pdo->prepare("
         SELECT 
-            e.interne_einsatznummer, e.stichwort, e.alarmuhrzeit, e.zurueckzeit, e.fahrzeug_name,
+            e.interne_einsatznummer, e.stichwort, e.alarmuhrzeit, e.fahrzeug_name,
             CASE
                 WHEN b.stf_id = :personId THEN 'Staffel-Führer'
                 WHEN b.ma_id = :personId THEN 'Maschinist'
@@ -35,9 +35,10 @@ if ($personId) {
         FROM Einsaetze e
         LEFT JOIN Besatzung b ON e.besatzung_id = b.id
         WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-          AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
+        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
         ORDER BY e.alarmuhrzeit DESC
     ");
+
     $einsaetzeStmt->execute([
         ':personId' => $personId,
         ':startdatum' => $startdatum,
@@ -95,11 +96,6 @@ if ($personId) {
 </header>
 
 <main>
-    <!-- Zurück-Button -->
-    <div class="button-container">
-        <button onclick="location.href='index.php'">Zurück zur Übersicht</button>
-    </div>
-
     <!-- Filter für Person und Zeitraum -->
     <section id="filter">
         <h2>Filter</h2>
@@ -124,43 +120,6 @@ if ($personId) {
         </form>
     </section>
 
-    <!-- Einsätze anzeigen -->
-    <section id="einsatz-statistik">
-        <h2>Einsätze</h2>
-        <?php if ($personId): ?>
-            <p>Zeitraum: <?= htmlspecialchars($startdatum) ?> bis <?= htmlspecialchars($enddatum) ?></p>
-            <?php if (count($einsaetze) > 0): ?>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Interne Einsatznummer</th>
-                            <th>Stichwort</th>
-                            <th>Alarmzeit</th>
-                            <th>Zurückzeit</th>
-                            <th>Fahrzeug</th>
-                            <th>Funktion</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($einsaetze as $einsatz): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($einsatz['interne_einsatznummer']) ?></td>
-                                <td><?= htmlspecialchars($einsatz['stichwort']) ?></td>
-                                <td><?= htmlspecialchars($einsatz['alarmuhrzeit']) ?></td>
-                                <td><?= htmlspecialchars($einsatz['zurueckzeit']) ?></td>
-                                <td><?= htmlspecialchars($einsatz['fahrzeug_name']) ?></td>
-                                <td><?= htmlspecialchars($einsatz['funktion']) ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <p>Keine Einsätze für diesen Zeitraum gefunden.</p>
-            <?php endif; ?>
-        <?php else: ?>
-            <p>Bitte wählen Sie eine Person und einen Zeitraum aus, um die Einsätze anzuzeigen.</p>
-        <?php endif; ?>
-    </section>
 
     <!-- Verteilung der Funktionen -->
     <section id="funktionen-verteilung">
@@ -195,6 +154,50 @@ if ($personId) {
             <p>Keine Daten zur Verteilung der Funktionen verfügbar.</p>
         <?php endif; ?>
     </section>
+
+    <section id="einsatz-statistik">
+    <h2>
+        <?php if ($personId): ?>
+            Einsätze von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
+            im Zeitraum <?= htmlspecialchars($startdatum) ?> bis <?= htmlspecialchars($enddatum) ?>
+        <?php else: ?>
+            Einsätze
+        <?php endif; ?>
+    </h2>
+    <?php if ($personId): ?>
+        <p>Zeitraum: <?= htmlspecialchars($startdatum) ?> bis <?= htmlspecialchars($enddatum) ?></p>
+        <?php if (count($einsaetze) > 0): ?>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Interne Einsatznummer</th>
+                        <th>Stichwort</th>
+                        <th>Alarmzeit</th>
+                        <th>Fahrzeug</th>
+                        <th>Funktion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($einsaetze as $einsatz): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($einsatz['interne_einsatznummer']) ?></td>
+                            <td><?= htmlspecialchars($einsatz['stichwort']) ?></td>
+                            <td><?= htmlspecialchars($einsatz['alarmuhrzeit']) ?></td>
+                            <td><?= htmlspecialchars($einsatz['fahrzeug_name']) ?></td>
+                            <td><?= htmlspecialchars($einsatz['funktion']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>Keine Einsätze für diesen Zeitraum gefunden.</p>
+        <?php endif; ?>
+    <?php else: ?>
+        <p>Bitte wählen Sie eine Person und einen Zeitraum aus, um die Einsätze anzuzeigen.</p>
+    <?php endif; ?>
+</section>
+
+
 </main>
 
 </body>
