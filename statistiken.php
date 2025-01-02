@@ -156,7 +156,6 @@ try {
                 },
                 y: {
                     beginAtZero: true,
-                    suggestedMax: Math.max(...stichwortData) + 1, // Dynamische Anpassung der maximalen y-Achse
                     ticks: {
                         stepSize: 1, // Schritte in ganzen Zahlen
                         callback: function(value) {
