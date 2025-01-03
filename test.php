@@ -10,8 +10,6 @@
             await customElements.whenDefined("gmpx-api-loader");
 
             const placePicker = document.getElementById("place-picker");
-            const streetField = document.getElementById("street");
-            const houseNumberField = document.getElementById("house-number");
             const districtField = document.getElementById("district");
 
             // Beschränkung der Ergebnisse auf Berlin
@@ -31,28 +29,18 @@
                     return;
                 }
 
-                // Adresse in Komponenten aufteilen
+                // Bezirk aus den Adresskomponenten extrahieren
                 const components = place.addressComponents;
-                let street = "";
-                let houseNumber = "";
                 let district = "";
 
                 components.forEach(component => {
-                    if (component.types.includes("route")) {
-                        street = component.longName || component.shortName;
-                    }
-                    if (component.types.includes("street_number")) {
-                        houseNumber = component.longName || component.shortName;
-                    }
                     if (component.types.includes("sublocality") || component.types.includes("locality")) {
                         district = component.longName || component.shortName;
                     }
                 });
 
-                // Felder ausfüllen
-                streetField.value = street || "Nicht verfügbar";
-                houseNumberField.value = houseNumber || "Nicht verfügbar";
-                districtField.value = district || "Nicht verfügbar";
+                // Bezirk ins Feld eintragen
+                districtField.value = district || "Bezirk nicht verfügbar";
             });
         }
 
@@ -92,16 +80,8 @@
     <div class="container">
         <h1>Adresse Autovervollständigung - Berlin</h1>
         <div class="field">
-            <label for="place-picker">Adresse (Suche):</label>
+            <label for="place-picker">Adresse:</label>
             <gmpx-place-picker id="place-picker" placeholder="Straße und Hausnummer eingeben"></gmpx-place-picker>
-        </div>
-        <div class="field">
-            <label for="street">Straße:</label>
-            <input type="text" id="street" placeholder="Straße" readonly>
-        </div>
-        <div class="field">
-            <label for="house-number">Hausnummer:</label>
-            <input type="text" id="house-number" placeholder="Hausnummer" readonly>
         </div>
         <div class="field">
             <label for="district">Bezirk:</label>
