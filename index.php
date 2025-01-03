@@ -181,7 +181,7 @@ require 'db.php';
                 <td id="mittel">
                     <div>
                         <select id="stadtteil" name="stadtteil" placeholder="Stadtteil" required>
-                            <option value="">-- Wähle einen Stadtteil --</option>
+                            <option value="">Wähle einen Stadtteil</option>
                             <option value="Mitte">Mitte</option>
                             <option value="Prenzlauer Berg">Prenzlauer Berg</option>
                             <option value="Wedding">Wedding</option>
