@@ -215,3 +215,51 @@ form button {
 .back-form button:hover {
     background-color: #e60000; /* Dunkler Rotton */
 }
+
+
+
+/* Neue Stile für die responsive Eingabe */
+.responsive-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Standardbreite */
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.submit-button {
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+}
+
+/* Mobile Ansicht */
+@media (max-width: 768px) {
+    .responsive-form {
+        flex-direction: column;
+    }
+
+    .form-group {
+        width: 100%;
+    }
+}
