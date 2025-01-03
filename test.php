@@ -29,14 +29,21 @@
     </table>
 
     <script>
-        // Funktion, um das Autocomplete-Feature zu aktivieren
         function initializeAutocomplete() {
             const adresseInput = document.getElementById('adresse');
-            
+
+            // Grenzen für Berlin definieren
+            const berlinBounds = new google.maps.LatLngBounds(
+                new google.maps.LatLng(52.3382, 13.0883), // Südwestliche Ecke von Berlin
+                new google.maps.LatLng(52.6755, 13.7611)  // Nordöstliche Ecke von Berlin
+            );
+
             // Google Places Autocomplete initialisieren
             const autocomplete = new google.maps.places.Autocomplete(adresseInput, {
+                bounds: berlinBounds,
+                strictBounds: true, // Vorschläge nur innerhalb der festgelegten Grenzen
                 types: ['address'], // Nur Adressen
-                componentRestrictions: { country: 'de' } // Beschränkung auf Deutschland
+                componentRestrictions: { country: 'de' } // Deutschland
             });
 
             // Event-Listener für die Auswahl eines Vorschlags
