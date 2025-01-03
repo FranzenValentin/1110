@@ -100,6 +100,7 @@ form select {
 #adresse,
 #fahrzeug_name,
 #alarmuhrzeit,
+#stadtteil,
 #zurueckzeit {
     width: 100%; /* Dynamische Breite */
     max-width: 100%; /* Verhindert Überlauf */

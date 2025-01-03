@@ -122,7 +122,7 @@ require 'db.php';
                 <td id="dick">
                     <div>
                         <select id="stichwort" name="stichwort" required>
-                            <option value="">-- Bitte Stichwort auswählen --</option>
+                            <option value="">Bitte Stichwort auswählen</option>
                             <?php foreach ($stichworte as $stichwort): ?>
                                 <option value="<?= htmlspecialchars($stichwort['stichwort']) ?>">
                                     <?= htmlspecialchars($stichwort['stichwort']) ?>
