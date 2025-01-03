@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Straßen- und Suburb-Informationen</title>
+    <title>Straßen- und Suburb-Informationen - Berlin</title>
     <script>
         async function fetchStreetSuggestions(query) {
-            const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&limit=5`;
+            // Suche auf Berlin beschränken
+            const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query + ", Berlin, Deutschland")}&limit=5`;
 
             try {
                 const response = await fetch(apiUrl);
@@ -64,7 +65,7 @@
                 return;
             }
 
-            const query = `${street} ${houseNumber}`;
+            const query = `${street} ${houseNumber}, Berlin, Deutschland`;
             const result = await fetchStreetSuggestions(query);
 
             if (result.length === 0 || !result[0].address) {
@@ -132,7 +133,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Adresse und Suburb-Informationen</h1>
+        <h1>Adresse und Suburb-Informationen - Berlin</h1>
         <div class="field">
             <label for="street">Straße:</label>
             <input type="text" id="street" oninput="handleStreetInput(event)" placeholder="Straße eingeben">
