@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Berliner Adressdaten Export</title>
+    <title>Alle Berliner Adressdaten abrufen</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -38,7 +38,7 @@
 </head>
 <body>
     <h1>Berliner Adressdaten</h1>
-    <p>Klicken Sie auf den Button, um alle Adressdaten aus der Datenbank abzurufen.</p>
+    <p>Klicken Sie auf den Button, um alle Adressdaten aus der WFS-Datenbank abzurufen.</p>
     <button onclick="fetchAllData()">Daten abrufen</button>
     <div id="data-container">Die Daten werden hier angezeigt...</div>
 
@@ -52,12 +52,12 @@
             const params = new URLSearchParams({
                 service: "WFS",
                 request: "GetFeature",
-                typename: "adressen_berlin", // Stellen Sie sicher, dass dieser Name korrekt ist!
+                typename: "adressen_berlin", // Name der Layer, bitte überprüfen
                 outputFormat: "application/json",
             });
 
             try {
-                const response = await fetch(`${WFS_URL}?${params.toString()}`);
+                const response = await fetch(`${WFS_URL}?${params}`);
                 if (!response.ok) {
                     throw new Error(`Fehler beim Abrufen der Daten: ${response.statusText}`);
                 }
