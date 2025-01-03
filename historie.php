@@ -59,8 +59,11 @@ require 'db.php';
                         LEFT JOIN Personal p5 ON b.wtf_id = p5.id
                         LEFT JOIN Personal p6 ON b.wtm_id = p6.id
                         LEFT JOIN Personal p7 ON b.prakt_id = p7.id
-                        ORDER BY e.id DESC 
+                        ORDER BY 
+                            CAST(SUBSTRING_INDEX(e.interne_einsatznummer, '_', 1) AS UNSIGNED) DESC,
+                            CAST(SUBSTRING_INDEX(e.interne_einsatznummer, '_', -1) AS UNSIGNED) DESC
                     ");
+
 
                     // Ergebnisse anzeigen
                     while ($row = $stmt->fetch()) {
