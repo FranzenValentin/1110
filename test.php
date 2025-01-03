@@ -3,98 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Straßen- und Suburb-Informationen - Berlin</title>
+    <title>Berliner Adresssuche</title>
     <script>
-        async function fetchStreetSuggestions(query) {
-            const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=0&limit=5&countrycodes=de&q=${encodeURIComponent(query + ", Berlin")}`;
+        async function fetchAddressData(street, houseNumber) {
+            const baseUrl = "https://fbinter.stadt-berlin.de/fb/wfs/data/senstadt/s_adressen";
+            const params = new URLSearchParams({
+                service: "WFS",
+                version: "2.0.0",
+                request: "GetFeature",
+                typename: "fis:s_adressen",
+                outputFormat: "application/json",
+                filter: `
+                    <Filter xmlns="http://www.opengis.net/ogc">
+                        <And>
+                            <PropertyIsLike wildCard="%" singleChar="_" escapeChar="\\">
+                                <PropertyName>strassenname</PropertyName>
+                                <Literal>%${street}%</Literal>
+                            </PropertyIsLike>
+                            <PropertyIsEqualTo>
+                                <PropertyName>hausnummer</PropertyName>
+                                <Literal>${houseNumber}</Literal>
+                            </PropertyIsEqualTo>
+                        </And>
+                    </Filter>
+                `
+            });
 
             try {
-                const response = await fetch(apiUrl);
+                const response = await fetch(`${baseUrl}?${params}`);
                 if (!response.ok) {
-                    throw new Error("Fehler beim Abrufen der Vorschläge.");
+                    throw new Error("Fehler beim Abrufen der Daten.");
                 }
-                const data = await response.json();
-                
-                // Nur Ergebnisse mit "road" zurückgeben
-                return data.filter(item => item.address && item.address.road);
+                return await response.json();
             } catch (error) {
                 console.error("Fehler:", error);
-                return [];
+                return null;
             }
         }
 
-        async function handleStreetInput(event) {
-            const query = event.target.value;
-            const suggestionsContainer = document.getElementById("street-suggestions");
-
-            if (query.length < 3) {
-                suggestionsContainer.innerHTML = "";
-                return;
-            }
-
-            const suggestions = await fetchStreetSuggestions(query);
-
-            if (suggestions.length === 0) {
-                suggestionsContainer.innerHTML = "<p>Keine Vorschläge gefunden.</p>";
-                return;
-            }
-
-            suggestionsContainer.innerHTML = suggestions
-                .map(
-                    suggestion => `
-                        <div class="suggestion" onclick="selectStreet('${suggestion.address.road}')">
-                            ${suggestion.address.road}
-                        </div>`
-                )
-                .join("");
-        }
-
-        function selectStreet(street) {
-            const streetField = document.getElementById("street");
-            const suggestionsContainer = document.getElementById("street-suggestions");
-
-            streetField.value = street; // Nur den Straßennamen übernehmen
-            suggestionsContainer.innerHTML = "";
-        }
-
-        async function fillSuburb() {
+        async function handleSearch() {
             const street = document.getElementById("street").value;
             const houseNumber = document.getElementById("house-number").value;
-            const suburbField = document.getElementById("suburb");
+            const resultContainer = document.getElementById("result");
 
             if (!street || !houseNumber) {
                 alert("Bitte geben Sie sowohl Straße als auch Hausnummer ein.");
                 return;
             }
 
-            const query = `${street} ${houseNumber}, Berlin, Deutschland`;
-            const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=0&limit=1&q=${encodeURIComponent(query)}`;
+            resultContainer.innerHTML = "Daten werden geladen...";
 
-            try {
-                const response = await fetch(apiUrl);
-                if (!response.ok) {
-                    throw new Error("Fehler beim Abrufen der Daten.");
-                }
+            const data = await fetchAddressData(street, houseNumber);
 
-                const data = await response.json();
-                if (data.length === 0 || !data[0].address) {
-                    suburbField.value = "Suburb nicht gefunden";
-                    return;
-                }
-
-                // Suburb-Felder überprüfen
-                const address = data[0].address;
-                const suburb =
-                    address.suburb || // Suburb
-                    address.city_district || // City District
-                    address.neighbourhood || // Neighborhood
-                    "Suburb nicht verfügbar";
-
-                suburbField.value = suburb;
-            } catch (error) {
-                console.error("Fehler:", error);
-                suburbField.value = "Fehler beim Abrufen der Suburb-Daten";
+            if (!data || !data.features || data.features.length === 0) {
+                resultContainer.innerHTML = "<p>Keine Daten gefunden.</p>";
+                return;
             }
+
+            const feature = data.features[0];
+            const properties = feature.properties;
+
+            resultContainer.innerHTML = `
+                <h2>Adressdaten</h2>
+                <p><strong>Straße:</strong> ${properties.strassenname || "Nicht verfügbar"}</p>
+                <p><strong>Hausnummer:</strong> ${properties.hausnummer || "Nicht verfügbar"}</p>
+                <p><strong>Bezirk:</strong> ${properties.bezeichnung || "Nicht verfügbar"}</p>
+                <p><strong>Postleitzahl:</strong> ${properties.postleitzahl || "Nicht verfügbar"}</p>
+                <p><strong>Koordinaten:</strong> Lat: ${feature.geometry.coordinates[1]}, Lng: ${feature.geometry.coordinates[0]}</p>
+            `;
         }
     </script>
     <style>
@@ -134,42 +110,31 @@
             background-color: #0056b3;
         }
 
-        #street-suggestions {
-            margin-top: 5px;
+        #result {
+            margin-top: 20px;
+            padding: 15px;
             border: 1px solid #ddd;
-            background-color: #fff;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-
-        .suggestion {
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        .suggestion:hover {
-            background-color: #f0f0f0;
+            background-color: #f9f9f9;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Adresse und Suburb-Informationen - Berlin</h1>
+        <h1>Berliner Adresssuche</h1>
         <div class="field">
             <label for="street">Straße:</label>
-            <input type="text" id="street" oninput="handleStreetInput(event)" placeholder="Straße eingeben">
-            <div id="street-suggestions"></div>
+            <input type="text" id="street" placeholder="Straße eingeben">
         </div>
         <div class="field">
             <label for="house-number">Hausnummer:</label>
             <input type="text" id="house-number" placeholder="Hausnummer eingeben">
         </div>
         <div class="field">
-            <label for="suburb">Suburb:</label>
-            <input type="text" id="suburb" placeholder="Suburb" readonly>
+            <button onclick="handleSearch()">Suche starten</button>
         </div>
-        <div class="field">
-            <button onclick="fillSuburb()">Suburb abrufen</button>
+        <div id="result">
+            <p>Geben Sie eine Straße und Hausnummer ein und klicken Sie auf "Suche starten", um Adressinformationen zu erhalten.</p>
         </div>
     </div>
 </body>
