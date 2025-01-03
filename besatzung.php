@@ -98,6 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <select name="fahrzeug" onchange="this.form.submit()">
                 <option value="1" <?php echo ($fahrzeugId == 1) ? 'selected' : ''; ?>>LHF 1110/1</option>
                 <option value="2" <?php echo ($fahrzeugId == 2) ? 'selected' : ''; ?>>LHF 1110/2</option>
+                <option value="3" <?php echo ($fahrzeugId == 3) ? 'selected' : ''; ?>>LHF 1110/3</option>
             </select>
         </form>
     </h2>
