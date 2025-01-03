@@ -182,90 +182,82 @@ require 'db.php';
                 <!-- Stadtteil -->
                 <td id="dick">
                     <div>
-                        <select id="stadtteil" name="stadtteil" required>
-                            <option value="">-- Bitte Stadtteil auswählen --</option>
-                            <option value="Adlershof">Adlershof</option>
-                            <option value="Alt-Hohenschönhausen">Alt-Hohenschönhausen</option>
-                            <option value="Alt-Treptow">Alt-Treptow</option>
-                            <option value="Baumschulenweg">Baumschulenweg</option>
-                            <option value="Biesdorf">Biesdorf</option>
-                            <option value="Blankenburg">Blankenburg</option>
-                            <option value="Blankenfelde">Blankenfelde</option>
-                            <option value="Bohnsdorf">Bohnsdorf</option>
-                            <option value="Borsigwalde">Borsigwalde</option>
-                            <option value="Britz">Britz</option>
-                            <option value="Buch">Buch</option>
-                            <option value="Buckow">Buckow</option>
-                            <option value="Charlottenburg">Charlottenburg</option>
-                            <option value="Charlottenburg-Nord">Charlottenburg-Nord</option>
-                            <option value="Dahlem">Dahlem</option>
-                            <option value="Falkenberg">Falkenberg</option>
-                            <option value="Falkenhagener Feld">Falkenhagener Feld</option>
-                            <option value="Fennpfuhl">Fennpfuhl</option>
-                            <option value="Friedrichsfelde">Friedrichsfelde</option>
-                            <option value="Friedrichshagen">Friedrichshagen</option>
-                            <option value="Friedrichshain">Friedrichshain</option>
-                            <option value="Frohnau">Frohnau</option>
-                            <option value="Gatow">Gatow</option>
-                            <option value="Gesundbrunnen">Gesundbrunnen</option>
-                            <option value="Gropiusstadt">Gropiusstadt</option>
-                            <option value="Grunewald">Grunewald</option>
-                            <option value="Hakenfelde">Hakenfelde</option>
-                            <option value="Halensee">Halensee</option>
-                            <option value="Haselhorst">Haselhorst</option>
-                            <option value="Heiligensee">Heiligensee</option>
-                            <option value="Hermsdorf">Hermsdorf</option>
-                            <option value="Johannisthal">Johannisthal</option>
-                            <option value="Karlshorst">Karlshorst</option>
-                            <option value="Karow">Karow</option>
-                            <option value="Kaulsdorf">Kaulsdorf</option>
-                            <option value="Kladow">Kladow</option>
-                            <option value="Konradshöhe">Konradshöhe</option>
-                            <option value="Köpenick">Köpenick</option>
-                            <option value="Lankwitz">Lankwitz</option>
-                            <option value="Lichterfelde">Lichterfelde</option>
-                            <option value="Lichtenberg">Lichtenberg</option>
-                            <option value="Lübars">Lübars</option>
-                            <option value="Malchow">Malchow</option>
-                            <option value="Marienfelde">Marienfelde</option>
-                            <option value="Mariendorf">Mariendorf</option>
-                            <option value="Marzahn">Marzahn</option>
-                            <option value="Mitte">Mitte</option>
-                            <option value="Moabit">Moabit</option>
-                            <option value="Müggelheim">Müggelheim</option>
-                            <option value="Neukölln">Neukölln</option>
-                            <option value="Niederschöneweide">Niederschöneweide</option>
-                            <option value="Nikolassee">Nikolassee</option>
-                            <option value="Oberschöneweide">Oberschöneweide</option>
-                            <option value="Pankow">Pankow</option>
-                            <option value="Plänterwald">Plänterwald</option>
-                            <option value="Prenzlauer Berg">Prenzlauer Berg</option>
-                            <option value="Rahnsdorf">Rahnsdorf</option>
-                            <option value="Reinickendorf">Reinickendorf</option>
-                            <option value="Rosenthal">Rosenthal</option>
-                            <option value="Rudow">Rudow</option>
-                            <option value="Schmargendorf">Schmargendorf</option>
-                            <option value="Schmöckwitz">Schmöckwitz</option>
-                            <option value="Schöneberg">Schöneberg</option>
-                            <option value="Siemensstadt">Siemensstadt</option>
-                            <option value="Spandau">Spandau</option>
-                            <option value="Staaken">Staaken</option>
-                            <option value="Steglitz">Steglitz</option>
-                            <option value="Tegel">Tegel</option>
-                            <option value="Tempelhof">Tempelhof</option>
-                            <option value="Treptow">Treptow</option>
-                            <option value="Waidmannslust">Waidmannslust</option>
-                            <option value="Wannsee">Wannsee</option>
-                            <option value="Wedding">Wedding</option>
-                            <option value="Weißensee">Weißensee</option>
-                            <option value="Westend">Westend</option>
-                            <option value="Wilhelmstadt">Wilhelmstadt</option>
-                            <option value="Wilmersdorf">Wilmersdorf</option>
-                            <option value="Wittenau">Wittenau</option>
-                            <option value="Zehlendorf">Zehlendorf</option>
-                        </select>
+                        <input type="text" id="stadtteil" name="stadtteil" placeholder="Stadtteil eingeben" autocomplete="off">
+                        <div id="autocomplete-list" class="autocomplete-items"></div>
                     </div>
                 </td>
+
+                <script>
+                    const stadtteile = [
+                        "Adlershof", "Alt-Hohenschönhausen", "Alt-Treptow", "Baumschulenweg", "Biesdorf",
+                        "Blankenburg", "Blankenfelde", "Bohnsdorf", "Borsigwalde", "Britz", "Buch", "Buckow",
+                        "Charlottenburg", "Charlottenburg-Nord", "Dahlem", "Falkenberg", "Falkenhagener Feld",
+                        "Fennpfuhl", "Friedrichsfelde", "Friedrichshagen", "Friedrichshain", "Frohnau",
+                        "Gatow", "Gesundbrunnen", "Gropiusstadt", "Grunewald", "Hakenfelde", "Halensee",
+                        "Haselhorst", "Heiligensee", "Hermsdorf", "Johannisthal", "Karlshorst", "Karow",
+                        "Kaulsdorf", "Kladow", "Konradshöhe", "Köpenick", "Lankwitz", "Lichterfelde",
+                        "Lichtenberg", "Lübars", "Malchow", "Marienfelde", "Mariendorf", "Marzahn", "Mitte",
+                        "Moabit", "Müggelheim", "Neukölln", "Niederschöneweide", "Nikolassee",
+                        "Oberschöneweide", "Pankow", "Plänterwald", "Prenzlauer Berg", "Rahnsdorf",
+                        "Reinickendorf", "Rosenthal", "Rudow", "Schmargendorf", "Schmöckwitz", "Schöneberg",
+                        "Siemensstadt", "Spandau", "Staaken", "Steglitz", "Tegel", "Tempelhof", "Treptow",
+                        "Waidmannslust", "Wannsee", "Wedding", "Weißensee", "Westend", "Wilhelmstadt",
+                        "Wilmersdorf", "Wittenau", "Zehlendorf"
+                    ];
+
+                    const input = document.getElementById("stadtteil");
+                    const autocompleteList = document.getElementById("autocomplete-list");
+
+                    input.addEventListener("input", function() {
+                        const value = this.value.trim().toLowerCase();
+                        autocompleteList.innerHTML = ""; // Clear previous suggestions
+
+                        if (!value) return;
+
+                        // Filter Stadtteile based on input
+                        const filtered = stadtteile.filter(stadtteil => stadtteil.toLowerCase().startsWith(value));
+
+                        // Create list items for suggestions
+                        filtered.forEach(stadtteil => {
+                            const item = document.createElement("div");
+                            item.textContent = stadtteil;
+                            item.addEventListener("click", function() {
+                                input.value = stadtteil; // Set input value to clicked item
+                                autocompleteList.innerHTML = ""; // Clear suggestions
+                            });
+                            autocompleteList.appendChild(item);
+                        });
+                    });
+
+                    // Close the list if clicked outside
+                    document.addEventListener("click", function(event) {
+                        if (!autocompleteList.contains(event.target) && event.target !== input) {
+                            autocompleteList.innerHTML = ""; // Clear suggestions
+                        }
+                    });
+                </script>
+
+                <style>
+                    #autocomplete-list {
+                        position: absolute;
+                        border: 1px solid #ccc;
+                        border-radius: 4px;
+                        background-color: white;
+                        max-height: 200px;
+                        overflow-y: auto;
+                        z-index: 1000;
+                    }
+
+                    #autocomplete-list div {
+                        padding: 10px;
+                        cursor: pointer;
+                    }
+
+                    #autocomplete-list div:hover {
+                        background-color: #e9e9e9;
+                    }
+                </style>
+
 
 
                 <!-- Fahrzeug -->
