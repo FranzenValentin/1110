@@ -14,6 +14,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Falscher Zugangscode.";
     }
 }
+
+
+// Funktion, um die .env-Datei zu laden
+function loadEnv($filePath)
+{
+    if (!file_exists($filePath)) {
+        throw new Exception("Die Datei $filePath wurde nicht gefunden.");
+    }
+
+    $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    foreach ($lines as $line) {
+        // Kommentare ignorieren
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+
+        // Zeilen in Schlüssel-Wert-Paare aufteilen
+        $parts = explode('=', $line, 2);
+
+        if (count($parts) == 2) {
+            $key = trim($parts[0]);
+            $value = trim($parts[1]);
+
+            // Entferne Anführungszeichen, falls vorhanden
+            $value = trim($value, '"\'');
+            
+            // Speichere die Variable in $_ENV und $_SERVER
+            $_ENV[$key] = $value;
+            $_SERVER[$key] = $value;
+        }
+    }
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -40,6 +75,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 required>
             <button type="submit">Anmelden</button>
             <?php if (isset($error)) { echo "<p class='error'>$error</p>"; } ?>
+            <?php // Lade die .env-Datei
+try {
+    loadEnv(__DIR__ . '/../config.env');
+    
+    // Zugriff auf die Variable
+    $appTest = $_ENV['app.test'] ?? 'Standardwert';
+    echo "APP_TEST: " . $appTest;
+} catch (Exception $e) {
+    echo "Fehler: " . $e->getMessage();
+}
+?>
         </form>
     </main>
 </body>
