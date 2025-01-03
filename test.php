@@ -3,60 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adresse Informationen mit OpenStreetMap</title>
+    <title>Straßen- und Suburb-Informationen</title>
     <script>
-        async function fetchAddressDetails(query) {
-            const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}`;
+        async function fetchStreetSuggestions(query) {
+            const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&limit=5`;
 
             try {
                 const response = await fetch(apiUrl);
                 if (!response.ok) {
-                    throw new Error("Fehler beim Abrufen der Daten.");
+                    throw new Error("Fehler beim Abrufen der Vorschläge.");
                 }
-                const data = await response.json();
-
-                if (data.length === 0) {
-                    return null;
-                }
-
-                return data[0]; // Erstes Ergebnis verwenden
+                return await response.json();
             } catch (error) {
                 console.error("Fehler:", error);
-                return null;
+                return [];
             }
         }
 
-        async function handleAddressSearch() {
-            const query = document.getElementById("address-input").value;
-            const resultContainer = document.getElementById("result");
+        async function handleStreetInput(event) {
+            const query = event.target.value;
+            const suggestionsContainer = document.getElementById("street-suggestions");
 
-            if (!query) {
-                alert("Bitte geben Sie eine Adresse ein.");
+            if (query.length < 3) {
+                suggestionsContainer.innerHTML = "";
                 return;
             }
 
-            resultContainer.innerHTML = "Suche nach Adresse...";
+            const suggestions = await fetchStreetSuggestions(query);
 
-            const addressDetails = await fetchAddressDetails(query);
-
-            if (!addressDetails) {
-                resultContainer.innerHTML = "<p>Keine Daten für die eingegebene Adresse gefunden.</p>";
+            if (suggestions.length === 0) {
+                suggestionsContainer.innerHTML = "<p>Keine Vorschläge gefunden.</p>";
                 return;
             }
 
-            // Details aufbereiten
-            const { lat, lon, display_name, address } = addressDetails;
-            const addressComponents = address
-                ? Object.entries(address).map(([key, value]) => `<li><strong>${key}:</strong> ${value}</li>`).join("")
-                : "<li>Keine Adresskomponenten verfügbar</li>";
+            suggestionsContainer.innerHTML = suggestions
+                .map(
+                    suggestion => `
+                        <div class="suggestion" onclick="selectStreet('${suggestion.display_name}')">
+                            ${suggestion.display_name}
+                        </div>`
+                )
+                .join("");
+        }
 
-            resultContainer.innerHTML = `
-                <h2>Adresse Details</h2>
-                <p><strong>Formatierte Adresse:</strong> ${display_name}</p>
-                <p><strong>Geografische Position:</strong> Lat: ${lat}, Lng: ${lon}</p>
-                <h3>Adresskomponenten:</h3>
-                <ul>${addressComponents}</ul>
-            `;
+        function selectStreet(street) {
+            const streetField = document.getElementById("street");
+            const suggestionsContainer = document.getElementById("street-suggestions");
+
+            streetField.value = street.split(",")[0]; // Nur den Straßennamen übernehmen
+            suggestionsContainer.innerHTML = "";
+        }
+
+        async function fillSuburb() {
+            const street = document.getElementById("street").value;
+            const houseNumber = document.getElementById("house-number").value;
+            const suburbField = document.getElementById("suburb");
+
+            if (!street || !houseNumber) {
+                alert("Bitte geben Sie sowohl Straße als auch Hausnummer ein.");
+                return;
+            }
+
+            const query = `${street} ${houseNumber}`;
+            const result = await fetchStreetSuggestions(query);
+
+            if (result.length === 0 || !result[0].address) {
+                suburbField.value = "Suburb nicht gefunden";
+                return;
+            }
+
+            suburbField.value = result[0].address.suburb || "Suburb nicht verfügbar";
         }
     </script>
     <style>
@@ -67,7 +83,7 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 500px;
             margin: auto;
         }
 
@@ -96,35 +112,42 @@
             background-color: #0056b3;
         }
 
-        #result {
-            margin-top: 20px;
-            padding: 15px;
+        #street-suggestions {
+            margin-top: 5px;
             border: 1px solid #ddd;
-            background-color: #f9f9f9;
-            border-radius: 5px;
+            background-color: #fff;
+            max-height: 150px;
+            overflow-y: auto;
         }
 
-        ul {
-            padding-left: 20px;
+        .suggestion {
+            padding: 10px;
+            cursor: pointer;
         }
 
-        ul li {
-            margin-bottom: 10px;
+        .suggestion:hover {
+            background-color: #f0f0f0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Adresse Informationen mit OpenStreetMap</h1>
+        <h1>Adresse und Suburb-Informationen</h1>
         <div class="field">
-            <label for="address-input">Adresse eingeben:</label>
-            <input type="text" id="address-input" placeholder="Straße, Hausnummer, Stadt eingeben">
+            <label for="street">Straße:</label>
+            <input type="text" id="street" oninput="handleStreetInput(event)" placeholder="Straße eingeben">
+            <div id="street-suggestions"></div>
         </div>
         <div class="field">
-            <button onclick="handleAddressSearch()">Adresse suchen</button>
+            <label for="house-number">Hausnummer:</label>
+            <input type="text" id="house-number" placeholder="Hausnummer eingeben">
         </div>
-        <div id="result">
-            <p>Geben Sie eine Adresse ein und klicken Sie auf "Adresse suchen", um Informationen zu erhalten.</p>
+        <div class="field">
+            <label for="suburb">Suburb:</label>
+            <input type="text" id="suburb" placeholder="Suburb" readonly>
+        </div>
+        <div class="field">
+            <button onclick="fillSuburb()">Suburb abrufen</button>
         </div>
     </div>
 </body>
