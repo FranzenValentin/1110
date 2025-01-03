@@ -50,7 +50,7 @@
             // Google Places Autocomplete initialisieren
             const autocomplete = new google.maps.places.Autocomplete(adresseInput, {
                 bounds: berlinBounds,
-                strictBounds: true, // Nur Vorschläge innerhalb der Grenzen
+                strictBounds: false, // Nur Vorschläge innerhalb der Grenzen
                 types: ['address'], // Nur Adressen
                 componentRestrictions: { country: 'de' } // Beschränkung auf Deutschland
             });
