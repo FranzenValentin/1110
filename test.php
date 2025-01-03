@@ -38,6 +38,12 @@
         function initializeAutocomplete() {
             const adresseInput = document.getElementById('adresse');
 
+            // Debugging: Prüfen, ob das Eingabefeld geladen wurde
+            if (!adresseInput) {
+                console.error("Eingabefeld nicht gefunden!");
+                return;
+            }
+
             // Grenzen für Berlin definieren
             const berlinBounds = {
                 north: 52.6755, // Nordgrenze
@@ -46,29 +52,39 @@
                 west: 13.0883   // Westgrenze
             };
 
-            // Google Places Autocomplete initialisieren
-            const autocomplete = new google.maps.places.Autocomplete(adresseInput, {
-                bounds: berlinBounds, // Nur Vorschläge in Berlin
-                strictBounds: true,   // Nur Ergebnisse innerhalb der Bounding Box
-                types: ['geocode'],   // Nur Adressen
-                componentRestrictions: { country: 'de' } // Beschränkung auf Deutschland
-            });
+            try {
+                // Google Places Autocomplete initialisieren
+                const autocomplete = new google.maps.places.Autocomplete(adresseInput, {
+                    bounds: berlinBounds,
+                    strictBounds: true,
+                    types: ['geocode'],
+                    componentRestrictions: { country: 'de' }
+                });
 
-            // Event-Listener für die Auswahl eines Vorschlags
-            autocomplete.addListener('place_changed', () => {
-                const place = autocomplete.getPlace();
+                // Debugging: Zeige die Einstellungen der Autocomplete-Instanz
+                console.log("Autocomplete erfolgreich initialisiert:", autocomplete);
 
-                if (!place.geometry) {
-                    console.error("Kein gültiger Ort ausgewählt.");
-                    return;
-                }
+                // Event-Listener für die Auswahl eines Vorschlags
+                autocomplete.addListener('place_changed', () => {
+                    const place = autocomplete.getPlace();
 
-                console.log('Gewählte Adresse:', place.formatted_address);
-            });
+                    if (!place.geometry) {
+                        console.error("Kein gültiger Ort ausgewählt.");
+                        return;
+                    }
+
+                    console.log('Gewählte Adresse:', place.formatted_address);
+                });
+            } catch (error) {
+                console.error("Fehler bei der Initialisierung von Autocomplete:", error);
+            }
         }
 
         // Initialisierung der Autovervollständigung
-        document.addEventListener("DOMContentLoaded", initializeAutocomplete);
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("DOM geladen. Initialisiere Autocomplete...");
+            initializeAutocomplete();
+        });
     </script>
 </body>
 </html>
