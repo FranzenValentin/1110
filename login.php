@@ -1,8 +1,14 @@
 <?php
 session_start();
 
+try {
+    loadEnv(__DIR__ . '/../config.env');
+} catch (Exception $e) {
+    echo "Fehler: " . $e->getMessage();
+}
+
 // Definiere den Zugangscode
-define('ACCESS_CODE', '2098');
+define('ACCESS_CODE', $_ENV['app.access_code']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $code = $_POST['access_code'];
@@ -75,17 +81,7 @@ function loadEnv($filePath)
                 required>
             <button type="submit">Anmelden</button>
             <?php if (isset($error)) { echo "<p class='error'>$error</p>"; } ?>
-            <?php // Lade die .env-Datei
-try {
-    loadEnv(__DIR__ . '/../config.env');
-    
-    // Zugriff auf die Variable
-    $appTest = $_ENV['app.test'] ?? 'Standardwert';
-    echo "APP_TEST: " . $appTest;
-} catch (Exception $e) {
-    echo "Fehler: " . $e->getMessage();
-}
-?>
+            
         </form>
     </main>
 </body>
