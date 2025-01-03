@@ -3,87 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WFS Berliner Adressen</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/terraformer/1.0.12/terraformer.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/terraformer-wkt-parser/1.2.0/terraformer-wkt-parser.min.js"></script>
+    <title>Berliner Adressen Vervollständigung</title>
     <style>
-        #map {
-            height: 600px;
-            width: 100%;
-        }
-
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .field {
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        #suggestions {
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .suggestion {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .suggestion:hover {
+            background-color: #f0f0f0;
         }
     </style>
 </head>
 <body>
-    <h1 style="text-align: center;">WFS Berliner Adressen</h1>
-    <div id="map"></div>
+    <div class="container">
+        <h1>Berliner Adressvervollständigung</h1>
+        <div class="field">
+            <label for="address-input">Adresse eingeben:</label>
+            <input type="text" id="address-input" placeholder="Straße und Hausnummer eingeben" oninput="handleInput(event)">
+            <div id="suggestions"></div>
+        </div>
+    </div>
     <script>
-        // Initialisieren der Karte
-        const map = L.map('map').setView([52.52, 13.405], 12); // Zentrum Berlin
+        async function fetchAddressSuggestions(query) {
+            const baseUrl = "https://gdi.berlin.de/services/wfs/adressen_berlin";
+            const params = new URLSearchParams({
+                service: "WFS",
+                request: "GetFeature",
+                typename: "adressen_berlin",
+                outputFormat: "application/json",
+                cql_filter: `strassenname LIKE '%${query}%' OR hausnummer LIKE '%${query}%'`,
+            });
 
-        // OSM-Basemap hinzufügen
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap-Mitwirkende'
-        }).addTo(map);
-
-        // Funktion zur Abfrage der WFS-Daten
-        async function fetchWFSData() {
-            const wfsUrl = "https://gdi.berlin.de/services/wfs/adressen_berlin?SERVICE=WFS&REQUEST=GetFeature&TYPENAME=adressen_berlin&OUTPUTFORMAT=application/json";
             try {
-                const response = await fetch(wfsUrl);
+                const response = await fetch(`${baseUrl}?${params}`);
                 if (!response.ok) {
-                    throw new Error("Fehler beim Abrufen der WFS-Daten.");
+                    throw new Error("Fehler beim Abrufen der Daten.");
                 }
                 const data = await response.json();
-                return data;
+                return data.features || [];
             } catch (error) {
                 console.error("Fehler:", error);
-                return null;
+                return [];
             }
         }
 
-        // Funktion zur Darstellung der Daten
-        async function addWFSDataToMap() {
-            const data = await fetchWFSData();
+        async function handleInput(event) {
+            const query = event.target.value.trim();
+            const suggestionsContainer = document.getElementById("suggestions");
 
-            if (!data) {
-                alert("Keine Daten verfügbar.");
+            if (query.length < 3) {
+                suggestionsContainer.innerHTML = "";
                 return;
             }
 
-            // GeoJSON Layer hinzufügen
-            L.geoJSON(data, {
-                onEachFeature: function (feature, layer) {
-                    const props = feature.properties;
-                    layer.bindPopup(`
-                        <b>Adresse:</b> ${props.strassenname || "Nicht verfügbar"} ${props.hausnummer || ""}<br>
-                        <b>Bezirk:</b> ${props.bezeichnung || "Nicht verfügbar"}<br>
-                        <b>Postleitzahl:</b> ${props.postleitzahl || "Nicht verfügbar"}<br>
-                    `);
-                },
-                pointToLayer: function (feature, latlng) {
-                    return L.circleMarker(latlng, {
-                        radius: 5,
-                        fillColor: "#007bff",
-                        color: "#000",
-                        weight: 1,
-                        opacity: 1,
-                        fillOpacity: 0.8
-                    });
-                }
-            }).addTo(map);
+            const suggestions = await fetchAddressSuggestions(query);
+
+            if (suggestions.length === 0) {
+                suggestionsContainer.innerHTML = "<p>Keine Vorschläge gefunden.</p>";
+                return;
+            }
+
+            suggestionsContainer.innerHTML = suggestions
+                .map(
+                    (feature) => `
+                        <div class="suggestion" onclick="selectAddress('${feature.properties.strassenname}', '${feature.properties.hausnummer}')">
+                            ${feature.properties.strassenname} ${feature.properties.hausnummer}, ${feature.properties.bezeichnung || ""}
+                        </div>`
+                )
+                .join("");
         }
 
-        // Daten zur Karte hinzufügen
-        addWFSDataToMap();
+        function selectAddress(street, houseNumber) {
+            const inputField = document.getElementById("address-input");
+            const suggestionsContainer = document.getElementById("suggestions");
+
+            inputField.value = `${street} ${houseNumber}`;
+            suggestionsContainer.innerHTML = "";
+        }
     </script>
 </body>
 </html>
