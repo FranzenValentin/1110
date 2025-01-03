@@ -27,7 +27,7 @@
                 const place = placePicker.value;
 
                 if (!place || !place.addressComponents) {
-                    window.alert("Keine gültige Adresse ausgewählt.");
+                    alert("Keine gültige Adresse ausgewählt.");
                     return;
                 }
 
@@ -39,20 +39,20 @@
 
                 components.forEach(component => {
                     if (component.types.includes("route")) {
-                        street = component.longName;
+                        street = component.longName || component.shortName;
                     }
                     if (component.types.includes("street_number")) {
-                        houseNumber = component.longName;
+                        houseNumber = component.longName || component.shortName;
                     }
                     if (component.types.includes("sublocality") || component.types.includes("locality")) {
-                        district = component.longName;
+                        district = component.longName || component.shortName;
                     }
                 });
 
                 // Felder ausfüllen
-                streetField.value = street;
-                houseNumberField.value = houseNumber;
-                districtField.value = district;
+                streetField.value = street || "Nicht verfügbar";
+                houseNumberField.value = houseNumber || "Nicht verfügbar";
+                districtField.value = district || "Nicht verfügbar";
             });
         }
 
