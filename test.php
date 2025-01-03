@@ -32,18 +32,20 @@
         function initializeAutocomplete() {
             const adresseInput = document.getElementById('adresse');
 
-            // Grenzen für Berlin definieren
-            const berlinBounds = new google.maps.LatLngBounds(
-                new google.maps.LatLng(52.3382, 13.0883), // Südwestliche Ecke von Berlin
-                new google.maps.LatLng(52.6755, 13.7611)  // Nordöstliche Ecke von Berlin
-            );
+            // Grenzen für Berlin definieren (Bounding Box)
+            const berlinBounds = {
+                north: 52.6755, // Nordgrenze von Berlin
+                south: 52.3382, // Südgrenze von Berlin
+                east: 13.7611,  // Ostgrenze von Berlin
+                west: 13.0883   // Westgrenze von Berlin
+            };
 
             // Google Places Autocomplete initialisieren
             const autocomplete = new google.maps.places.Autocomplete(adresseInput, {
                 bounds: berlinBounds,
-                strictBounds: true, // Vorschläge nur innerhalb der festgelegten Grenzen
-                types: ['address'], // Nur Adressen
-                componentRestrictions: { country: 'de' } // Deutschland
+                strictBounds: false, // Erlaube Vorschläge außerhalb der Grenzen, falls nötig
+                types: ['geocode'], // Adressen und Geocodes
+                componentRestrictions: { country: 'de' } // Beschränkung auf Deutschland
             });
 
             // Event-Listener für die Auswahl eines Vorschlags
@@ -59,7 +61,7 @@
             });
         }
 
-        // Warten, bis die API geladen ist
+        // Initialisierung nach dem Laden der API
         document.addEventListener("DOMContentLoaded", initializeAutocomplete);
     </script>
 </body>
