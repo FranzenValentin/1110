@@ -121,15 +121,17 @@ require 'db.php';
                 <!-- Stichwort -->
                 <td id="dick">
                     <div>
-                        <input list="stichwort_liste" id="stichwort" name="stichwort" 
-                            placeholder="Stichwort eingeben oder auswählen">
-                        <datalist id="stichwort_liste">
+                        <select id="stichwort" name="stichwort" required>
+                            <option value="">-- Bitte Stichwort auswählen --</option>
                             <?php foreach ($stichworte as $stichwort): ?>
-                                <option value="<?= htmlspecialchars($stichwort['stichwort']) ?>"></option>
+                                <option value="<?= htmlspecialchars($stichwort['stichwort']) ?>">
+                                    <?= htmlspecialchars($stichwort['stichwort']) ?>
+                                </option>
                             <?php endforeach; ?>
-                        </datalist>
+                        </select>
                     </div>
                 </td>
+
 
                 <!-- Alarmzeit -->
                 <td id="dünn">
