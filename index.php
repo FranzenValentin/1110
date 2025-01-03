@@ -176,13 +176,13 @@ require 'db.php';
                 <!-- Straße Hausnummer -->
                 <td id="dick">
                    <div>
-                        <input type="text" id="adresse" name="adresse" placeholder="Linienstraße 128" >
+                        <input type="text" id="adresse" name="adresse" placeholder="Straße + Hausnummer" >
                     </div>
                 </td>
                 <!-- Stadtteil -->
                 <td id="dick">
                     <div>
-                        <input type="text" id="stadtteil" name="stadtteil" placeholder="Stadtteil eingeben" autocomplete="off">
+                        <input type="text" id="stadtteil" name="stadtteil" placeholder="Stadtteil" autocomplete="off">
                         <div id="autocomplete-list" class="autocomplete-items"></div>
                     </div>
                 </td>
