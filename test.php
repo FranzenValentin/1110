@@ -3,46 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adresse Autovervollständigung - Berlin</title>
+    <title>Adresse Informationen</title>
     <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library@0.6"></script>
     <script>
         async function init() {
             await customElements.whenDefined("gmpx-api-loader");
 
             const placePicker = document.getElementById("place-picker");
-            const districtField = document.getElementById("district");
-
-            // Beschränkung der Ergebnisse auf Berlin
-            placePicker.bounds = {
-                north: 52.6755, // Nordgrenze
-                south: 52.3382, // Südgrenze
-                east: 13.7611,  // Ostgrenze
-                west: 13.0883   // Westgrenze
-            };
-            placePicker.strictBounds = true;
+            const resultContainer = document.getElementById("result");
 
             placePicker.addEventListener("gmpx-placechange", () => {
                 const place = placePicker.value;
 
-                if (!place || !place.addressComponents) {
+                if (!place) {
                     alert("Keine gültige Adresse ausgewählt.");
                     return;
                 }
 
-                // Bezirk aus den Adresskomponenten extrahieren
-                const components = place.addressComponents;
-                let district = "";
+                // Extrahiere alle verfügbaren Informationen
+                const addressComponents = place.addressComponents || [];
+                const formattedAddress = place.formattedAddress || "Nicht verfügbar";
+                const location = place.location
+                    ? `Lat: ${place.location.lat}, Lng: ${place.location.lng}`
+                    : "Nicht verfügbar";
+                const viewport = place.viewport
+                    ? JSON.stringify(place.viewport.toJSON())
+                    : "Nicht verfügbar";
 
-                components.forEach(component => {
-                    if (component.types.includes("administrative_area_level_2")) {
-                        district = component.longName; // Bezirk
-                    } else if (component.types.includes("locality")) {
-                        district = component.longName; // Fallback auf locality
-                    }
+                // Adresskomponenten auflisten
+                let componentsHTML = "<ul>";
+                addressComponents.forEach(component => {
+                    componentsHTML += `<li><strong>${component.types.join(", ")}:</strong> ${component.longName}</li>`;
                 });
+                componentsHTML += "</ul>";
 
-                // Bezirk ins Feld eintragen
-                districtField.value = district || "Bezirk nicht verfügbar";
+                // Ergebnisse anzeigen
+                resultContainer.innerHTML = `
+                    <h2>Adresse Details</h2>
+                    <p><strong>Formatierte Adresse:</strong> ${formattedAddress}</p>
+                    <p><strong>Geografische Position:</strong> ${location}</p>
+                    <p><strong>Viewport:</strong> ${viewport}</p>
+                    <h3>Adresskomponenten:</h3>
+                    ${componentsHTML}
+                `;
             });
         }
 
@@ -56,7 +59,7 @@
         }
 
         .container {
-            max-width: 500px;
+            max-width: 600px;
             margin: auto;
         }
 
@@ -64,11 +67,20 @@
             margin-bottom: 15px;
         }
 
-        input {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            box-sizing: border-box;
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        ul li {
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -80,14 +92,13 @@
     </gmpx-api-loader>
 
     <div class="container">
-        <h1>Adresse Autovervollständigung - Berlin</h1>
+        <h1>Alle Informationen zur Adresse</h1>
         <div class="field">
-            <label for="place-picker">Adresse:</label>
+            <label for="place-picker">Adresse eingeben:</label>
             <gmpx-place-picker id="place-picker" placeholder="Straße und Hausnummer eingeben"></gmpx-place-picker>
         </div>
-        <div class="field">
-            <label for="district">Bezirk:</label>
-            <input type="text" id="district" placeholder="Bezirk" readonly>
+        <div id="result">
+            <p>Wähle eine Adresse aus, um Informationen zu sehen.</p>
         </div>
     </div>
 </body>
