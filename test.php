@@ -34,8 +34,10 @@
                 let district = "";
 
                 components.forEach(component => {
-                    if (component.types.includes("sublocality") || component.types.includes("locality")) {
-                        district = component.longName || component.shortName;
+                    if (component.types.includes("administrative_area_level_2")) {
+                        district = component.longName; // Bezirk
+                    } else if (component.types.includes("locality")) {
+                        district = component.longName; // Fallback auf locality
                     }
                 });
 
