@@ -6,7 +6,6 @@
     <title>Straßen- und Suburb-Informationen - Berlin</title>
     <script>
         async function fetchStreetSuggestions(query) {
-            // Suche auf Straßen in Berlin beschränken
             const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=0&limit=5&countrycodes=de&q=${encodeURIComponent(query + ", Berlin")}`;
 
             try {
@@ -69,14 +68,33 @@
             }
 
             const query = `${street} ${houseNumber}, Berlin, Deutschland`;
-            const result = await fetchStreetSuggestions(query);
+            const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=0&limit=1&q=${encodeURIComponent(query)}`;
 
-            if (result.length === 0 || !result[0].address) {
-                suburbField.value = "Suburb nicht gefunden";
-                return;
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error("Fehler beim Abrufen der Daten.");
+                }
+
+                const data = await response.json();
+                if (data.length === 0 || !data[0].address) {
+                    suburbField.value = "Suburb nicht gefunden";
+                    return;
+                }
+
+                // Suburb-Felder überprüfen
+                const address = data[0].address;
+                const suburb =
+                    address.suburb || // Suburb
+                    address.city_district || // City District
+                    address.neighbourhood || // Neighborhood
+                    "Suburb nicht verfügbar";
+
+                suburbField.value = suburb;
+            } catch (error) {
+                console.error("Fehler:", error);
+                suburbField.value = "Fehler beim Abrufen der Suburb-Daten";
             }
-
-            suburbField.value = result[0].address.suburb || "Suburb nicht verfügbar";
         }
     </script>
     <style>
