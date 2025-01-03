@@ -52,17 +52,18 @@
             const params = new URLSearchParams({
                 service: "WFS",
                 request: "GetFeature",
-                typename: "adressen_berlin",
+                typename: "adressen_berlin", // Stellen Sie sicher, dass dieser Name korrekt ist!
                 outputFormat: "application/json",
             });
 
             try {
-                const response = await fetch(`${WFS_URL}?${params}`);
+                const response = await fetch(`${WFS_URL}?${params.toString()}`);
                 if (!response.ok) {
                     throw new Error(`Fehler beim Abrufen der Daten: ${response.statusText}`);
                 }
 
                 const data = await response.json();
+                console.log("Daten erfolgreich geladen:", data);
                 dataContainer.textContent = JSON.stringify(data, null, 2); // Formatiertes JSON
             } catch (error) {
                 console.error("Fehler:", error);
