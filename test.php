@@ -6,15 +6,18 @@
     <title>Straßen- und Suburb-Informationen - Berlin</title>
     <script>
         async function fetchStreetSuggestions(query) {
-            // Suche auf Berlin beschränken
-            const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query + ", Berlin, Deutschland")}&limit=5`;
+            // Suche auf Straßen in Berlin beschränken
+            const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&extratags=0&limit=5&countrycodes=de&q=${encodeURIComponent(query + ", Berlin")}`;
 
             try {
                 const response = await fetch(apiUrl);
                 if (!response.ok) {
                     throw new Error("Fehler beim Abrufen der Vorschläge.");
                 }
-                return await response.json();
+                const data = await response.json();
+                
+                // Nur Ergebnisse mit "road" zurückgeben
+                return data.filter(item => item.address && item.address.road);
             } catch (error) {
                 console.error("Fehler:", error);
                 return [];
@@ -40,8 +43,8 @@
             suggestionsContainer.innerHTML = suggestions
                 .map(
                     suggestion => `
-                        <div class="suggestion" onclick="selectStreet('${suggestion.display_name}')">
-                            ${suggestion.display_name}
+                        <div class="suggestion" onclick="selectStreet('${suggestion.address.road}')">
+                            ${suggestion.address.road}
                         </div>`
                 )
                 .join("");
@@ -51,7 +54,7 @@
             const streetField = document.getElementById("street");
             const suggestionsContainer = document.getElementById("street-suggestions");
 
-            streetField.value = street.split(",")[0]; // Nur den Straßennamen übernehmen
+            streetField.value = street; // Nur den Straßennamen übernehmen
             suggestionsContainer.innerHTML = "";
         }
 
