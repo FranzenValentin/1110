@@ -106,6 +106,7 @@ require 'db.php';
                     }
                 }
                 
+                
             ?>
 
 <form method="POST">
@@ -302,7 +303,13 @@ require 'db.php';
 </section>
 
 
-
+<?php
+// Fahrzeuge aus der Datenbank abrufen
+$query = "SELECT id, name FROM fahrzeuge";
+$statement = $pdo->prepare($query);
+$statement->execute();
+$fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
+?>
 
 <!-- Aktuelle Besatzung -->
 <section id="aktuelle-besatzung">
@@ -310,8 +317,12 @@ require 'db.php';
         Aktuelle Besatzung
         <form method="GET" class="dropdown-form" style="display: inline;">
             <select name="fahrzeug" onchange="this.form.submit()">
-                <option value="1" <?php echo (!isset($_GET['fahrzeug']) || $_GET['fahrzeug'] == 1) ? 'selected' : ''; ?>>LHF 1110/1</option>
-                <option value="2" <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2) ? 'selected' : ''; ?>>LHF 1110/2</option>
+                <?php foreach ($fahrzeuge as $fahrzeug): ?>
+                    <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
+                        <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == $fahrzeug['id']) ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($fahrzeug['name']); ?>
+                    </option>
+                <?php endforeach; ?>
             </select>
         </form>
     </h2>
