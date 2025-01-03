@@ -3,32 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Place Autocomplete</title>
+    <title>Adresse Autovervollständigung - Berlin</title>
     <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library@0.6"></script>
     <script>
-      async function init() {
-        await customElements.whenDefined("gmpx-api-loader");
+        async function init() {
+            await customElements.whenDefined("gmpx-api-loader");
 
-        const placePicker = document.getElementById("place-picker");
-        const infowindowContent = document.getElementById("infowindow-content");
+            const placePicker = document.getElementById("place-picker");
+            const streetField = document.getElementById("street");
+            const houseNumberField = document.getElementById("house-number");
+            const districtField = document.getElementById("district");
 
-        placePicker.addEventListener("gmpx-placechange", () => {
-          const place = placePicker.value;
+            // Beschränkung der Ergebnisse auf Berlin
+            placePicker.bounds = {
+                north: 52.6755, // Nordgrenze
+                south: 52.3382, // Südgrenze
+                east: 13.7611,  // Ostgrenze
+                west: 13.0883   // Westgrenze
+            };
+            placePicker.strictBounds = true;
 
-          if (!place || !place.displayName) {
-            window.alert("Keine Details verfügbar für die Eingabe.");
-            return;
-          }
+            placePicker.addEventListener("gmpx-placechange", () => {
+                const place = placePicker.value;
 
-          const formattedAddress = place.displayName;
-          const fullAddress = place.formattedAddress || "Unbekannte Adresse";
+                if (!place || !place.addressComponents) {
+                    window.alert("Keine gültige Adresse ausgewählt.");
+                    return;
+                }
 
-          console.log("Ausgewählte Adresse:", formattedAddress);
-          alert(`Ausgewählte Adresse: ${formattedAddress}\nVollständige Adresse: ${fullAddress}`);
-        });
-      }
+                // Adresse in Komponenten aufteilen
+                const components = place.addressComponents;
+                let street = "";
+                let houseNumber = "";
+                let district = "";
 
-      document.addEventListener("DOMContentLoaded", init);
+                components.forEach(component => {
+                    if (component.types.includes("route")) {
+                        street = component.longName;
+                    }
+                    if (component.types.includes("street_number")) {
+                        houseNumber = component.longName;
+                    }
+                    if (component.types.includes("sublocality") || component.types.includes("locality")) {
+                        district = component.longName;
+                    }
+                });
+
+                // Felder ausfüllen
+                streetField.value = street;
+                houseNumberField.value = houseNumber;
+                districtField.value = district;
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", init);
     </script>
     <style>
         body {
@@ -37,16 +65,20 @@
             padding: 20px;
         }
 
-        #place-picker {
+        .container {
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .field {
+            margin-bottom: 15px;
+        }
+
+        input {
             width: 100%;
             padding: 10px;
             font-size: 16px;
             box-sizing: border-box;
-        }
-
-        .container {
-            max-width: 500px;
-            margin: auto;
         }
     </style>
 </head>
@@ -58,13 +90,23 @@
     </gmpx-api-loader>
 
     <div class="container">
-        <h1>Adresse Autovervollständigung</h1>
-        <gmpx-place-picker id="place-picker" placeholder="Geben Sie eine Adresse ein"></gmpx-place-picker>
-    </div>
-
-    <div id="infowindow-content" style="display: none;">
-        <span id="place-name" class="title"></span><br />
-        <span id="place-address"></span>
+        <h1>Adresse Autovervollständigung - Berlin</h1>
+        <div class="field">
+            <label for="place-picker">Adresse (Suche):</label>
+            <gmpx-place-picker id="place-picker" placeholder="Straße und Hausnummer eingeben"></gmpx-place-picker>
+        </div>
+        <div class="field">
+            <label for="street">Straße:</label>
+            <input type="text" id="street" placeholder="Straße" readonly>
+        </div>
+        <div class="field">
+            <label for="house-number">Hausnummer:</label>
+            <input type="text" id="house-number" placeholder="Hausnummer" readonly>
+        </div>
+        <div class="field">
+            <label for="district">Bezirk:</label>
+            <input type="text" id="district" placeholder="Bezirk" readonly>
+        </div>
     </div>
 </body>
 </html>
