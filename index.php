@@ -119,7 +119,7 @@ require 'db.php';
                     </div>
                 </td>
                 <!-- Stichwort -->
-                <td id="mittel">
+                <td id="dick">
                     <div>
                         <input list="stichwort_liste" id="stichwort" name="stichwort" 
                             placeholder="Stichwort eingeben oder auswählen">
@@ -178,7 +178,7 @@ require 'db.php';
                     </div>
                 </td>
                 <!-- Stadtteil -->
-                <td id="dünn">
+                <td id="mittel">
                     <div>
                         <select id="stadtteil" name="stadtteil" placeholder="Stadtteil" required>
                             <option value="">-- Wähle einen Stadtteil --</option>
