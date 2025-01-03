@@ -38,7 +38,8 @@ require 'db.php';
                         <th>Alarmzeit</th>
                         <th>Zurückzeit</th>
                         <th>Fahrzeug</th>
-                        <th>Adresse</th>
+                        <th>Straße</th>
+                        <th>Stadtteil</th>
                         <th>Personal</th>
                     </tr>
                 </thead>
@@ -46,7 +47,7 @@ require 'db.php';
                     <?php
                     // SQL-Abfrage: Abrufen der letzten Einsätze mit allen relevanten Daten
                     $stmt = $pdo->query("
-                        SELECT e.interne_einsatznummer, e.einsatznummer_lts, e.alarmuhrzeit, e.zurueckzeit, e.fahrzeug_name, e.adresse, e.stichwort,
+                        SELECT e.interne_einsatznummer, e.einsatznummer_lts, e.alarmuhrzeit, e.zurueckzeit, e.fahrzeug_name, e.adresse, e.stadtteil, e.stichwort,
                             p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf,
                             p4.nachname AS atm, p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
                         FROM Einsaetze e
@@ -81,6 +82,7 @@ require 'db.php';
                                 <td>" . htmlspecialchars($row['zurueckzeit']) . "</td>
                                 <td>" . htmlspecialchars($row['fahrzeug_name']) . "</td>
                                 <td>" . htmlspecialchars($row['adresse']) . "</td>
+                                <td>" . htmlspecialchars($row['stadtteil']) . "</td>
                                 <td>
                                     <details>
                                         <summary>Details anzeigen</summary>
