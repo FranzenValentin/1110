@@ -118,20 +118,6 @@ require 'db.php';
                         <input type="text" inputmode="numeric"  id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS" >
                     </div>
                 </td>
-                <!-- Stichwort -->
-                <td id="dick">
-                    <div>
-                        <select id="stichwort" name="stichwort" required>
-                            <option value="">Bitte Stichwort auswählen</option>
-                            <?php foreach ($stichworte as $stichwort): ?>
-                                <option value="<?= htmlspecialchars($stichwort['stichwort']) ?>">
-                                    <?= htmlspecialchars($stichwort['stichwort']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </td>
-
 
                 <!-- Alarmzeit -->
                 <td id="dünn">
@@ -172,6 +158,21 @@ require 'db.php';
                         }
                     }
                 </script>
+
+                <!-- Stichwort -->
+                <td id="dick">
+                    <div>
+                        <select id="stichwort" name="stichwort" required>
+                            <option value="">Bitte Stichwort auswählen</option>
+                            <?php foreach ($stichworte as $stichwort): ?>
+                                <option value="<?= htmlspecialchars($stichwort['stichwort']) ?>">
+                                    <?= htmlspecialchars($stichwort['stichwort']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </td>
+
 
                 <!-- Straße Hausnummer -->
                 <td id="dick">
