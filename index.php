@@ -52,6 +52,7 @@ require 'db.php';
                 $alarmuhrzeit = $_POST['alarmuhrzeit'] ?? null;
                 $zurueckzeit = $_POST['zurueckzeit'] ?? null;
                 $adresse = $_POST['adresse'] ?? null;
+                $stadtteil =$_POST['stadtteil'] ?? null;
                 $fahrzeug_name = $_POST['fahrzeug_name'] ?? null;
         
                 // Konvertierung des Formats (ISO -> dd.mm.yy hh:mm)
@@ -85,8 +86,8 @@ require 'db.php';
         
                 // SQL-Statement vorbereiten und ausführen
                 $sql = "INSERT INTO Einsaetze 
-                        (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, fahrzeug_name, besatzung_id)
-                        VALUES (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :fahrzeug_name, :besatzung_id)";
+                        (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, stadtteil, fahrzeug_name, besatzung_id)
+                        VALUES (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :stadtteil, :fahrzeug_name, :besatzung_id)";
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
                     ':einsatznummer_lts' => $einsatznummer_lts,
@@ -94,6 +95,7 @@ require 'db.php';
                     ':alarmuhrzeit' => $alarmuhrzeit,
                     ':zurueckzeit' => $zurueckzeit,
                     ':adresse' => $adresse,
+                    ':stadtteil' => $stadtteil,
                     ':fahrzeug_name' => $fahrzeug_name,
                     ':besatzung_id' => $besatzung_id
                 ]);
@@ -169,12 +171,42 @@ require 'db.php';
                     }
                 </script>
 
-                <!-- Adresse -->
+                <!-- Straße Hausnummer -->
                 <td id="dick">
                    <div>
-                        <input type="text" id="adresse" name="adresse" placeholder="Linienstraße 128, Mitte (Adresse)" >
+                        <input type="text" id="adresse" name="adresse" placeholder="Linienstraße 128" >
                     </div>
                 </td>
+                <!-- Stadtteil -->
+                <td id="dünn">
+                    <div>
+                        <select id="stadtteil" name="stadtteil" placeholder="Stadtteil" required>
+                            <option value="">-- Wähle einen Stadtteil --</option>
+                            <option value="Mitte">Mitte</option>
+                            <option value="Prenzlauer Berg">Prenzlauer Berg</option>
+                            <option value="Wedding">Wedding</option>
+                            <option value="Charlottenburg">Charlottenburg</option>
+                            <option value="Friedrichshain">Friedrichshain</option>
+                            <option value="Hellersdorf">Hellersdorf</option>
+                            <option value="Hohenschönhausen">Hohenschönhausen</option>
+                            <option value="Kreuzberg">Kreuzberg</option>
+                            <option value="Lichtenberg">Lichtenberg</option>
+                            <option value="Marzahn">Marzahn</option>
+                            <option value="Neukölln">Neukölln</option>
+                            <option value="Pankow">Pankow</option>
+                            <option value="Reinickendorf">Reinickendorf</option>
+                            <option value="Schöneberg">Schöneberg</option>
+                            <option value="Spandau">Spandau</option>
+                            <option value="Steglitz">Steglitz</option>
+                            <option value="Tempelhof">Tempelhof</option>
+                            <option value="Treptow">Treptow</option>
+                            <option value="Weißensee">Weißensee</option>
+                            <option value="Wilmersdorf">Wilmersdorf</option>
+                            <option value="Zehlendorf">Zehlendorf</option>
+                        </select>
+                    </div>
+                </td>
+
                 <!-- Fahrzeug -->
                 <td id="dünn">
                      <div>
