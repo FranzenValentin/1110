@@ -196,7 +196,7 @@ require 'db.php';
                         "Fennpfuhl", "Friedrichsfelde", "Friedrichshagen", "Friedrichshain", "Frohnau",
                         "Gatow", "Gesundbrunnen", "Gropiusstadt", "Grunewald", "Hakenfelde", "Halensee",
                         "Haselhorst", "Heiligensee", "Hermsdorf", "Johannisthal", "Karlshorst", "Karow",
-                        "Kaulsdorf", "Kladow", "Konradshöhe", "Köpenick", "Lankwitz", "Lichterfelde",
+                        "Kaulsdorf", "Kladow", "Konradshöhe", "Köpenick", "Kreuzberg", "Lankwitz", "Lichterfelde",
                         "Lichtenberg", "Lübars", "Malchow", "Marienfelde", "Mariendorf", "Marzahn", "Mitte",
                         "Moabit", "Müggelheim", "Neukölln", "Niederschöneweide", "Nikolassee",
                         "Oberschöneweide", "Pankow", "Plänterwald", "Prenzlauer Berg", "Rahnsdorf",
