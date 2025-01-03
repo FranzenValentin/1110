@@ -305,7 +305,7 @@ require 'db.php';
 
 <?php
 // Fahrzeuge aus der Datenbank abrufen
-$query = "SELECT id, name FROM fahrzeuge";
+$query = "SELECT id, name FROM Fahrzeuge";
 $statement = $pdo->prepare($query);
 $statement->execute();
 $fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
