@@ -3,53 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adresse Informationen</title>
-    <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library@0.6"></script>
+    <title>Adresse Informationen mit OpenStreetMap</title>
     <script>
-        async function init() {
-            await customElements.whenDefined("gmpx-api-loader");
+        async function fetchAddressDetails(query) {
+            const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}`;
 
-            const placePicker = document.getElementById("place-picker");
-            const resultContainer = document.getElementById("result");
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error("Fehler beim Abrufen der Daten.");
+                }
+                const data = await response.json();
 
-            placePicker.addEventListener("gmpx-placechange", () => {
-                const place = placePicker.value;
-
-                if (!place) {
-                    alert("Keine gültige Adresse ausgewählt.");
-                    return;
+                if (data.length === 0) {
+                    return null;
                 }
 
-                // Extrahiere alle verfügbaren Informationen
-                const addressComponents = place.addressComponents || [];
-                const formattedAddress = place.formattedAddress || "Nicht verfügbar";
-                const location = place.location
-                    ? `Lat: ${place.location.lat}, Lng: ${place.location.lng}`
-                    : "Nicht verfügbar";
-                const viewport = place.viewport
-                    ? JSON.stringify(place.viewport.toJSON())
-                    : "Nicht verfügbar";
-
-                // Adresskomponenten auflisten
-                let componentsHTML = "<ul>";
-                addressComponents.forEach(component => {
-                    componentsHTML += `<li><strong>${component.types.join(", ")}:</strong> ${component.longName}</li>`;
-                });
-                componentsHTML += "</ul>";
-
-                // Ergebnisse anzeigen
-                resultContainer.innerHTML = `
-                    <h2>Adresse Details</h2>
-                    <p><strong>Formatierte Adresse:</strong> ${formattedAddress}</p>
-                    <p><strong>Geografische Position:</strong> ${location}</p>
-                    <p><strong>Viewport:</strong> ${viewport}</p>
-                    <h3>Adresskomponenten:</h3>
-                    ${componentsHTML}
-                `;
-            });
+                return data[0]; // Erstes Ergebnis verwenden
+            } catch (error) {
+                console.error("Fehler:", error);
+                return null;
+            }
         }
 
-        document.addEventListener("DOMContentLoaded", init);
+        async function handleAddressSearch() {
+            const query = document.getElementById("address-input").value;
+            const resultContainer = document.getElementById("result");
+
+            if (!query) {
+                alert("Bitte geben Sie eine Adresse ein.");
+                return;
+            }
+
+            resultContainer.innerHTML = "Suche nach Adresse...";
+
+            const addressDetails = await fetchAddressDetails(query);
+
+            if (!addressDetails) {
+                resultContainer.innerHTML = "<p>Keine Daten für die eingegebene Adresse gefunden.</p>";
+                return;
+            }
+
+            // Details aufbereiten
+            const { lat, lon, display_name, address } = addressDetails;
+            const addressComponents = address
+                ? Object.entries(address).map(([key, value]) => `<li><strong>${key}:</strong> ${value}</li>`).join("")
+                : "<li>Keine Adresskomponenten verfügbar</li>";
+
+            resultContainer.innerHTML = `
+                <h2>Adresse Details</h2>
+                <p><strong>Formatierte Adresse:</strong> ${display_name}</p>
+                <p><strong>Geografische Position:</strong> Lat: ${lat}, Lng: ${lon}</p>
+                <h3>Adresskomponenten:</h3>
+                <ul>${addressComponents}</ul>
+            `;
+        }
     </script>
     <style>
         body {
@@ -67,6 +75,27 @@
             margin-bottom: 15px;
         }
 
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
         #result {
             margin-top: 20px;
             padding: 15px;
@@ -80,25 +109,22 @@
         }
 
         ul li {
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <script type="module" src="https://unpkg.com/@googlemaps/extended-component-library@0.6"></script>
-    <gmpx-api-loader
-        key="AIzaSyAeGER_6l0H6VCFt9CM1KWMMxKYAfuCiJE"
-        solution-channel="GMP_CCS_autocomplete_v4">
-    </gmpx-api-loader>
-
     <div class="container">
-        <h1>Alle Informationen zur Adresse</h1>
+        <h1>Adresse Informationen mit OpenStreetMap</h1>
         <div class="field">
-            <label for="place-picker">Adresse eingeben:</label>
-            <gmpx-place-picker id="place-picker" placeholder="Straße und Hausnummer eingeben"></gmpx-place-picker>
+            <label for="address-input">Adresse eingeben:</label>
+            <input type="text" id="address-input" placeholder="Straße, Hausnummer, Stadt eingeben">
+        </div>
+        <div class="field">
+            <button onclick="handleAddressSearch()">Adresse suchen</button>
         </div>
         <div id="result">
-            <p>Wähle eine Adresse aus, um Informationen zu sehen.</p>
+            <p>Geben Sie eine Adresse ein und klicken Sie auf "Adresse suchen", um Informationen zu erhalten.</p>
         </div>
     </div>
 </body>
