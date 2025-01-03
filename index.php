@@ -26,63 +26,87 @@ require 'db.php';
 
     <main>
 
-    <!-- Neuer Alarm -->
-    <section id="neuer-alarm">
-        <h2>Neuen Einsatz eintragen</h2>
-        <form method="POST" class="responsive-form">
-            <div class="form-group">
-                <label for="einsatznummer_lts">Einsatznummer LTS</label>
-                <input type="text" id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS">
-            </div>
+        <!-- Neuer Alarm -->
+        <section id="neuer-alarm">
+            <h2>Neuen Einsatz eintragen</h2>
+            <?php
+                try {
+                    // Fahrzeuge laden
+                    $fahrzeugeStmt = $pdo->prepare("SELECT name FROM Fahrzeuge ORDER BY name");
+                    $fahrzeugeStmt->execute();
+                    $fahrzeuge = $fahrzeugeStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            <div class="form-group">
-                <label for="stichwort">Stichwort</label>
-                <select id="stichwort" name="stichwort" required>
-                    <option value="">Bitte Stichwort auswählen</option>
-                    <?php foreach ($stichworte as $stichwort): ?>
-                        <option value="<?= htmlspecialchars($stichwort['stichwort']) ?>">
-                            <?= htmlspecialchars($stichwort['stichwort']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+                    // Stichworte laden, sortiert nach Kategorie und Stichwort
+                    $stichworteStmt = $pdo->prepare("SELECT id, kategorie, stichwort FROM Stichworte ORDER BY kategorie, stichwort");
+                    $stichworteStmt->execute();
+                    $stichworte = $stichworteStmt->fetchAll(PDO::FETCH_ASSOC);
+                } catch (PDOException $e) {
+                    die("Fehler beim Laden der Daten: " . $e->getMessage());
+                }
 
-            <div class="form-group">
-                <label for="alarmuhrzeit">Alarmzeit</label>
-                <input type="datetime-local" id="alarmuhrzeit" name="alarmuhrzeit">
-            </div>
-
-            <div class="form-group">
-                <label for="zurueckzeit">Zurückzeit</label>
-                <input type="datetime-local" id="zurueckzeit" name="zurueckzeit">
-            </div>
-
-            <div class="form-group">
-                <label for="adresse">Adresse</label>
-                <input type="text" id="adresse" name="adresse" placeholder="Straße + Hausnummer">
-            </div>
-
-            <div class="form-group">
-                <label for="stadtteil">Stadtteil</label>
-                <input type="text" id="stadtteil" name="stadtteil" placeholder="Stadtteil" autocomplete="off">
-                <div id="autocomplete-list" class="autocomplete-items"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="fahrzeug_name">Fahrzeug</label>
-                <select id="fahrzeug_name" name="fahrzeug_name">
-                    <?php foreach ($fahrzeuge as $fahrzeug): ?>
-                        <option value="<?= htmlspecialchars($fahrzeug['name']) ?>">
-                            <?= htmlspecialchars($fahrzeug['name']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <button class="submit-button" type="submit" name="save">Speichern</button>
-        </form>
-    </section>
-
+                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
+                    try {
+                        // Werte aus dem Formular abrufen
+                        $einsatznummer_lts = $_POST['einsatznummer_lts'] ?? null;
+                        $stichwort = $_POST['stichwort'] ?? null;
+                        $alarmuhrzeit = $_POST['alarmuhrzeit'] ?? null;
+                        $zurueckzeit = $_POST['zurueckzeit'] ?? null;
+                        $adresse = $_POST['adresse'] ?? null;
+                        $stadtteil =$_POST['stadtteil'] ?? null;
+                        $fahrzeug_name = $_POST['fahrzeug_name'] ?? null;
+                
+                        // Konvertierung des Formats (ISO -> dd.mm.yy hh:mm)
+                        if ($alarmuhrzeit) {
+                            $alarmuhrzeit = DateTime::createFromFormat('Y-m-d\TH:i', $alarmuhrzeit)->format('d.m.y H:i');
+                        }
+                        if ($zurueckzeit) {
+                            $zurueckzeit = DateTime::createFromFormat('Y-m-d\TH:i', $zurueckzeit)->format('d.m.y H:i');
+                        }
+                
+                        // Format prüfen (dd.mm.yy hh:mm)
+                        if (!preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $alarmuhrzeit) || 
+                            ($zurueckzeit && !preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $zurueckzeit))) {
+                            throw new Exception("Die Uhrzeiten müssen im Format dd.mm.yy hh:mm vorliegen.");
+                        }
+                
+                        // Besatzung für das ausgewählte Fahrzeug abrufen
+                        $besatzungStmt = $pdo->prepare("
+                            SELECT b.id 
+                            FROM Besatzung b 
+                            JOIN Fahrzeuge f ON f.name = :fahrzeug_name 
+                            WHERE b.fahrzeug_id = f.id 
+                            ORDER BY b.id DESC LIMIT 1
+                        ");
+                        $besatzungStmt->execute([':fahrzeug_name' => $fahrzeug_name]);
+                        $besatzung_id = $besatzungStmt->fetchColumn();
+                
+                        if (!$besatzung_id) {
+                            throw new Exception("Keine gültige Besatzung für das ausgewählte Fahrzeug gefunden.");
+                        }
+                
+                        // SQL-Statement vorbereiten und ausführen
+                        $sql = "INSERT INTO Einsaetze 
+                                (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, stadtteil, fahrzeug_name, besatzung_id)
+                                VALUES (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :stadtteil, :fahrzeug_name, :besatzung_id)";
+                        $stmt = $pdo->prepare($sql);
+                        $stmt->execute([
+                            ':einsatznummer_lts' => $einsatznummer_lts,
+                            ':stichwort' => $stichwort,
+                            ':alarmuhrzeit' => $alarmuhrzeit,
+                            ':zurueckzeit' => $zurueckzeit,
+                            ':adresse' => $adresse,
+                            ':stadtteil' => $stadtteil,
+                            ':fahrzeug_name' => $fahrzeug_name,
+                            ':besatzung_id' => $besatzung_id
+                        ]);
+                
+                        echo "<p>Einsatz wurde erfolgreich gespeichert.</p>";
+                    } catch (Exception $e) {
+                        echo "<p>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
+                    }
+                }
+                
+            ?>
 
 <form method="POST">
     <table>
@@ -158,7 +182,7 @@ require 'db.php';
                 <!-- Stadtteil -->
                 <td id="dick">
                     <div>
-                        <input type="text" id="stadtteil" name="stadtteil" placeholder="Stadtteil" autocomplete="off">
+                        <input type="text" id="stadtteil" name="stadtteil" placeholder="Stadtteil eingeben" autocomplete="off">
                         <div id="autocomplete-list" class="autocomplete-items"></div>
                     </div>
                 </td>
