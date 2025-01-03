@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>
-      Simple Places Autocomplete
+      Simple Places Autocomplete - Berlin Restricted
     </title>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/@googlemaps/extended-component-library/0.6.11/index.min.js">
     </script>
@@ -25,11 +25,18 @@
     </style>
   </head>
   <body>
-    <gmpx-api-loader key="AIzaSyAeGER_6l0H6VCFt9CM1KWMMxKYAfuCiJE" solution-channel="GMP_GE_placepicker_v2">
+    <gmpx-api-loader 
+      key="AIzaSyAeGER_6l0H6VCFt9CM1KWMMxKYAfuCiJE" 
+      solution-channel="GMP_GE_placepicker_v2">
     </gmpx-api-loader>
     <div id="place-picker-box">
       <div id="place-picker-container">
-        <gmpx-place-picker placeholder="Enter an address"></gmpx-place-picker>
+        <gmpx-place-picker 
+          placeholder="Linienstraße 128, Mitte (Adresse)" 
+          region="de" 
+          types="address" 
+          bounds="52.3382,13.0883|52.6755,13.7611">
+        </gmpx-place-picker>
       </div>
     </div>
   </body>
