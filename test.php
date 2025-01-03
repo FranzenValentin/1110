@@ -55,22 +55,33 @@
         </div>
     </div>
     <script>
+        const WFS_URL = "https://gdi.berlin.de/services/wfs/adressen_berlin";
+
         async function fetchAddressSuggestions(query) {
-            const baseUrl = "https://gdi.berlin.de/services/wfs/adressen_berlin";
+            // Query-Parameter für WFS-Abfrage
             const params = new URLSearchParams({
                 service: "WFS",
                 request: "GetFeature",
                 typename: "adressen_berlin",
                 outputFormat: "application/json",
-                cql_filter: `strassenname LIKE '%${query}%' OR hausnummer LIKE '%${query}%'`,
+                filter: `
+                    <Filter>
+                        <PropertyIsLike wildCard="%" singleChar="_" escapeChar="\\">
+                            <PropertyName>strassenname</PropertyName>
+                            <Literal>%${query}%</Literal>
+                        </PropertyIsLike>
+                    </Filter>
+                `
             });
 
             try {
-                const response = await fetch(`${baseUrl}?${params}`);
+                const response = await fetch(`${WFS_URL}?${params.toString()}`);
                 if (!response.ok) {
-                    throw new Error("Fehler beim Abrufen der Daten.");
+                    throw new Error(`Fehler beim Abrufen der Daten: ${response.statusText}`);
                 }
+
                 const data = await response.json();
+                console.log("WFS-Ergebnisse:", data);
                 return data.features || [];
             } catch (error) {
                 console.error("Fehler:", error);
@@ -98,7 +109,7 @@
                 .map(
                     (feature) => `
                         <div class="suggestion" onclick="selectAddress('${feature.properties.strassenname}', '${feature.properties.hausnummer}')">
-                            ${feature.properties.strassenname} ${feature.properties.hausnummer}, ${feature.properties.bezeichnung || ""}
+                            ${feature.properties.strassenname} ${feature.properties.hausnummer || ""}, ${feature.properties.bezeichnung || ""}
                         </div>`
                 )
                 .join("");
