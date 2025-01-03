@@ -126,6 +126,7 @@ require 'db.php';
                             type="datetime-local" 
                             id="alarmuhrzeit" 
                             name="alarmuhrzeit" 
+                            oninput="syncZurueckzeit()" 
                             onfocus="hidePlaceholder('alarmPlaceholder')" 
                             onblur="showPlaceholder('alarmPlaceholder', this)" 
                             style="padding-left: 5px;">
@@ -148,6 +149,25 @@ require 'db.php';
                 </td>
 
                 <script>
+                    function syncZurueckzeit() {
+                        const alarmzeitInput = document.getElementById('alarmuhrzeit');
+                        const zurueckzeitInput = document.getElementById('zurueckzeit');
+
+                        // Nur Wert kopieren, wenn Alarmzeit ausgefüllt ist
+                        if (alarmzeitInput.value) {
+                            zurueckzeitInput.value = alarmzeitInput.value;
+                        }
+                    }
+
+                    function hidePlaceholder(placeholderId) {
+                        document.getElementById(placeholderId).style.display = 'none';
+                    }
+
+                    function showPlaceholder(placeholderId, input) {
+                        if (!input.value) {
+                            document.getElementById(placeholderId).style.display = 'block';
+                        }
+                    }
                     function hidePlaceholder(placeholderId) {
                         document.getElementById(placeholderId).style.display = 'none';
                     }
