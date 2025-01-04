@@ -132,6 +132,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
 </header>
 <main>
     <form method="POST" action="">
+        <h2><?php
+            // Fahrzeugnamen abrufen
+            $fahrzeugNameQuery = "SELECT name FROM fahrzeuge WHERE id = :fahrzeug_id";
+            $fahrzeugNameStmt = $pdo->prepare($fahrzeugNameQuery);
+            $fahrzeugNameStmt->execute([':fahrzeug_id' => $fahrzeugId]);
+            $fahrzeugName = $fahrzeugNameStmt->fetchColumn();
+
+            // Fahrzeugnamen ausgeben
+            echo htmlspecialchars($fahrzeugName ?? 'Unbekanntes Fahrzeug');
+            ?>
+        </h2>
         <h2>In Dienst Zeit:</h2>
         <input type="datetime-local" name="inDienstZeit" value="<?php echo htmlspecialchars($inDienstZeit); ?>" required>
 
