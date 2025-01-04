@@ -380,7 +380,7 @@ $dienstStmt->execute([
 ]);
 
 // Setze $dienstAktiv auf 1, wenn ein aktiver Dienst existiert
-$dienstAktiv = $dienstStmt->fetchColumn() ? 1 : 0;
+$dienstVorhanden = $dienstStmt->fetchColumn() ? 1 : 0;
 
 
 // Zeiten auslesen, falls vorhanden
