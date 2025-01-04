@@ -92,7 +92,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
     </header>
     <main>
-
     <?php
 // Fahrzeugliste laden
 $query = "SELECT id, name FROM Fahrzeuge";
