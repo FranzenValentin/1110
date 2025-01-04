@@ -331,6 +331,16 @@ $statement = $pdo->prepare($query);
 $statement->execute();
 $fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
 
+// Fahrzeug-ID setzen (Standard: LHF 1)
+if (!isset($_GET['fahrzeug'])) {
+    $defaultVehicleQuery = "SELECT id FROM fahrzeuge WHERE name = 'LHF 1' LIMIT 1";
+    $defaultVehicleStmt = $pdo->prepare($defaultVehicleQuery);
+    $defaultVehicleStmt->execute();
+    $fahrzeugId = $defaultVehicleStmt->fetchColumn();
+} else {
+    $fahrzeugId = (int)$_GET['fahrzeug'];
+}
+
 // Standardwerte setzen
 $inDienstZeit = 'Keine Daten';
 $ausserDienstZeit = 'Keine Daten';
@@ -340,7 +350,7 @@ $zeitQuery = "
     SELECT inDienstZeit, ausserDienstZeit 
     FROM dienste 
     WHERE fahrzeug_id = :fahrzeug_id 
-    ORDER BY id DESC 
+    ORDER BY inDienstZeit DESC 
     LIMIT 1
 ";
 $zeitStmt = $pdo->prepare($zeitQuery);
@@ -352,8 +362,8 @@ if ($zeitResult) {
     $inDienstZeit = $zeitResult['inDienstZeit'] ?? 'Keine Daten';
     $ausserDienstZeit = $zeitResult['ausserDienstZeit'] ?? 'Keine Daten';
 }
-
 ?>
+
 
 <!-- Aktuelle Besatzung -->
 <section id="aktueller-dienste">
