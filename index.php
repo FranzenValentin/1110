@@ -7,10 +7,14 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 
 require 'db.php';
 
-// Aktuelle Uhrzeit im richtigen Format
+// Debugging: Aktuelle Uhrzeit anzeigen
 $aktuelleUhrzeit = date('d.m.Y H:i');
+echo "Aktuelle Uhrzeit: $aktuelleUhrzeit<br>";
 
-// SQL-Abfrage, um zu prüfen, ob ein Dienst zur aktuellen Uhrzeit aktiv ist
+// Debugging: Fahrzeug-ID anzeigen
+echo "Fahrzeug-ID: $fahrzeugId<br>";
+
+// SQL-Abfrage
 $dienstQuery = "
     SELECT inDienstZeit, ausserDienstZeit 
     FROM dienste 
@@ -20,6 +24,21 @@ $dienstQuery = "
          OR ausserDienstZeit IS NULL)
     LIMIT 1
 ";
+
+$dienstStmt = $pdo->prepare($dienstQuery);
+$dienstStmt->execute([
+    ':fahrzeug_id' => $fahrzeugId,
+    ':aktuelleUhrzeit' => $aktuelleUhrzeit,
+]);
+
+// Debugging: Prüfen, ob die Abfrage Daten liefert
+if ($dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC)) {
+    echo "Gefundener Dienst: ";
+    print_r($dienstResult);
+} else {
+    echo "Kein aktiver Dienst gefunden.";
+}
+
 
 
 $dienstStmt = $pdo->prepare($dienstQuery);
