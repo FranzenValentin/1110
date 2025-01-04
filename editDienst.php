@@ -1,98 +1,14 @@
 <?php
 session_start();
 if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-    header('Location: login.php'); // Weiterleitung zur Login-Seite
-    exit;
+    header('Location: login.php');
+    exit("Zugriff verweigert. Bitte melden Sie sich an.");
 }
+
 require 'db.php';
 
-// Standardfahrzeug (LHF 1110/1)
+// Fahrzeug-ID aus Anfrage oder Standardwert
 $fahrzeugId = isset($_GET['fahrzeug']) && is_numeric($_GET['fahrzeug']) ? (int)$_GET['fahrzeug'] : 1;
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['save'])) {
-        // Besatzung speichern
-        $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
-        $changes = [];
-
-        foreach ($roles as $role) {
-            if (isset($_POST[$role]) && $_POST[$role] !== '') {
-                $person_id = $_POST[$role];
-                $changes[$role] = $person_id;
-            } else {
-                $changes[$role] = null;
-            }
-        }
-
-        // Prüfen, ob die letzte Zeile nur NULL enthält und zur aktuellen Fahrzeug-ID gehört
-        $stmt = $pdo->prepare("SELECT * FROM Besatzung WHERE fahrzeug_id = :fahrzeugId ORDER BY id DESC LIMIT 1");
-        $stmt->execute([':fahrzeugId' => $fahrzeugId]);
-        $lastRow = $stmt->fetch();
-        $lastRowIsNull = ($lastRow && is_null($lastRow['stf_id']) && is_null($lastRow['ma_id']) && is_null($lastRow['atf_id']) && is_null($lastRow['atm_id']) && is_null($lastRow['wtf_id']) && is_null($lastRow['wtm_id']) && is_null($lastRow['prakt_id']));
-
-        if ($lastRowIsNull) {
-            // Letzte Zeile überschreiben
-            $stmt = $pdo->prepare("UPDATE Besatzung SET stf_id = :stf, ma_id = :ma, atf_id = :atf, atm_id = :atm, wtf_id = :wtf, wtm_id = :wtm, prakt_id = :prakt WHERE id = :id");
-            $stmt->execute([
-                ':stf' => $changes['stf'],
-                ':ma' => $changes['ma'],
-                ':atf' => $changes['atf'],
-                ':atm' => $changes['atm'],
-                ':wtf' => $changes['wtf'],
-                ':wtm' => $changes['wtm'],
-                ':prakt' => $changes['prakt'],
-                ':id' => $lastRow['id']
-            ]);
-        } else {
-            // Neue Zeile mit den Änderungen erstellen
-            $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id, fahrzeug_id) VALUES (:stf, :ma, :atf, :atm, :wtf, :wtm, :prakt, :fahrzeugId)");
-            $stmt->execute([
-                ':stf' => $changes['stf'],
-                ':ma' => $changes['ma'],
-                ':atf' => $changes['atf'],
-                ':atm' => $changes['atm'],
-                ':wtf' => $changes['wtf'],
-                ':wtm' => $changes['wtm'],
-                ':prakt' => $changes['prakt'],
-                ':fahrzeugId' => $fahrzeugId
-            ]);
-        }
-
-        $message = "Besatzung erfolgreich aktualisiert.";
-        header("Location: " . $_SERVER['PHP_SELF'] . "?fahrzeug=" . $fahrzeugId); // Seite neu laden
-        exit;
-    } elseif (isset($_POST['clear'])) {
-        // Neue Zeile mit nur NULL für das ausgewählte Fahrzeug einfügen
-        $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id, fahrzeug_id) VALUES (NULL, NULL, NULL, NULL, NULL, NULL, NULL, :fahrzeugId)");
-        $stmt->execute([':fahrzeugId' => $fahrzeugId]);
-
-        $message = "Auswahl zurückgesetzt. Bitte speichern, um Änderungen zu übernehmen.";
-    }
-}
-?>
-
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dienst bearbeiten</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <header>
-        <h1>Dienst bearbeiten</h1>
-        <form method="POST" action="logout.php" class="logout-form">
-            <button type="submit">Logout</button>
-        </form>
-        <form method="POST" action="index.php" class="back-form">
-            <button type="submit">Zurück</button>
-         </form>
-        
-        
-    </header>
-    <main>
-    <?php
 
 // Fahrzeugliste laden
 $query = "SELECT id, name FROM Fahrzeuge";
@@ -103,12 +19,12 @@ $fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
 // Initialisierung der Variablen
 $inDienstZeit = '';
 $ausserDienstZeit = '';
-$fahrzeugId = $_POST['fahrzeug_id'] ?? $_GET['fahrzeug_id'] ?? null;
+$roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
 
-// Zeiten aus der Datenbank laden
+// Zeiten und Besatzung laden
 if ($fahrzeugId) {
     $zeitQuery = "
-        SELECT inDienstZeit, ausserDienstZeit 
+        SELECT inDienstZeit, ausserDienstZeit, stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id 
         FROM Besatzung 
         WHERE fahrzeug_id = :fahrzeug_id 
         ORDER BY id DESC 
@@ -116,57 +32,54 @@ if ($fahrzeugId) {
     ";
     $zeitStmt = $pdo->prepare($zeitQuery);
     $zeitStmt->execute([':fahrzeug_id' => $fahrzeugId]);
-    $zeitResult = $zeitStmt->fetch(PDO::FETCH_ASSOC);
+    $latestBesatzung = $zeitStmt->fetch(PDO::FETCH_ASSOC);
 
-    // Aktuelle Zeiten setzen und ins ISO-Format umwandeln
-    if ($zeitResult) {
-        $inDienstZeit = $zeitResult['inDienstZeit']
-            ? DateTime::createFromFormat('d.m.y H:i', $zeitResult['inDienstZeit'])->format('Y-m-d\TH:i')
+    if ($latestBesatzung) {
+        $inDienstZeit = $latestBesatzung['inDienstZeit']
+            ? DateTime::createFromFormat('d.m.y H:i', $latestBesatzung['inDienstZeit'])->format('Y-m-d\TH:i')
             : '';
-        $ausserDienstZeit = $zeitResult['ausserDienstZeit']
-            ? DateTime::createFromFormat('d.m.y H:i', $zeitResult['ausserDienstZeit'])->format('Y-m-d\TH:i')
+        $ausserDienstZeit = $latestBesatzung['ausserDienstZeit']
+            ? DateTime::createFromFormat('d.m.y H:i', $latestBesatzung['ausserDienstZeit'])->format('Y-m-d\TH:i')
             : '';
     }
 }
 
-// Speichern der geänderten Zeiten
+// Aktualisieren der Daten
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     $inDienstZeitInput = $_POST['inDienstZeit'] ?? null;
     $ausserDienstZeitInput = $_POST['ausserDienstZeit'] ?? null;
 
     if ($fahrzeugId && $inDienstZeitInput && $ausserDienstZeitInput) {
         try {
-            // Konvertierung ins Datenbankformat (dd.mm.yy hh:mm)
+            // Konvertierung ins Datenbankformat
             $inDienstZeitDB = DateTime::createFromFormat('Y-m-d\TH:i', $inDienstZeitInput)->format('d.m.y H:i');
             $ausserDienstZeitDB = DateTime::createFromFormat('Y-m-d\TH:i', $ausserDienstZeitInput)->format('d.m.y H:i');
 
-// Überprüfen, ob ein Eintrag existiert
-$checkQuery = "SELECT id FROM Besatzung WHERE fahrzeug_id = :fahrzeug_id LIMIT 1";
-$checkStmt = $pdo->prepare($checkQuery);
-$checkStmt->execute([':fahrzeug_id' => $fahrzeugId]);
-$existingEntry = $checkStmt->fetch(PDO::FETCH_ASSOC);
+            // Aktualisieren der Datenbank
+            $updateQuery = "
+                UPDATE Besatzung 
+                SET inDienstZeit = :inDienstZeit, 
+                    ausserDienstZeit = :ausserDienstZeit, 
+                    stf_id = :stf, ma_id = :ma, atf_id = :atf, 
+                    atm_id = :atm, wtf_id = :wtf, wtm_id = :wtm, 
+                    prakt_id = :prakt 
+                WHERE fahrzeug_id = :fahrzeug_id
+            ";
+            $updateStmt = $pdo->prepare($updateQuery);
+            $updateStmt->execute([
+                ':inDienstZeit' => $inDienstZeitDB,
+                ':ausserDienstZeit' => $ausserDienstZeitDB,
+                ':stf' => $_POST['stf'] ?? null,
+                ':ma' => $_POST['ma'] ?? null,
+                ':atf' => $_POST['atf'] ?? null,
+                ':atm' => $_POST['atm'] ?? null,
+                ':wtf' => $_POST['wtf'] ?? null,
+                ':wtm' => $_POST['wtm'] ?? null,
+                ':prakt' => $_POST['prakt'] ?? null,
+                ':fahrzeug_id' => $fahrzeugId
+            ]);
 
-if ($existingEntry) {
-    // Eintrag aktualisieren
-    $updateQuery = "
-        UPDATE Besatzung 
-        SET inDienstZeit = :inDienstZeit, 
-            ausserDienstZeit = :ausserDienstZeit 
-        WHERE fahrzeug_id = :fahrzeug_id
-    ";
-    $updateStmt = $pdo->prepare($updateQuery);
-    $updateStmt->execute([
-        ':inDienstZeit' => $inDienstZeitDB,
-        ':ausserDienstZeit' => $ausserDienstZeitDB,
-        ':fahrzeug_id' => $fahrzeugId
-    ]);
-    echo "<p style='color: green;'>Eintrag wurde erfolgreich aktualisiert.</p>";
-} else {
-    echo "<p style='color: red;'>Kein bestehender Eintrag für das Fahrzeug gefunden.</p>";
-}
-
-
-            echo "<p style='color: green;'>Die Zeiten wurden erfolgreich gespeichert!</p>";
+            echo "<p style='color: green;'>Die Daten wurden erfolgreich aktualisiert.</p>";
         } catch (PDOException $e) {
             echo "<p style='color: red;'>Fehler beim Speichern der Daten: " . htmlspecialchars($e->getMessage()) . "</p>";
         }
@@ -174,15 +87,50 @@ if ($existingEntry) {
         echo "<p style='color: red;'>Bitte fülle alle Felder aus!</p>";
     }
 }
+
+// Daten löschen
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear'])) {
+    try {
+        $clearQuery = "
+            UPDATE Besatzung 
+            SET inDienstZeit = NULL, 
+                ausserDienstZeit = NULL, 
+                stf_id = NULL, ma_id = NULL, atf_id = NULL, 
+                atm_id = NULL, wtf_id = NULL, wtm_id = NULL, 
+                prakt_id = NULL 
+            WHERE fahrzeug_id = :fahrzeug_id
+        ";
+        $clearStmt = $pdo->prepare($clearQuery);
+        $clearStmt->execute([':fahrzeug_id' => $fahrzeugId]);
+
+        echo "<p style='color: green;'>Die Daten wurden erfolgreich gelöscht.</p>";
+    } catch (PDOException $e) {
+        echo "<p style='color: red;'>Fehler beim Löschen der Daten: " . htmlspecialchars($e->getMessage()) . "</p>";
+    }
+}
 ?>
-
-
-
-<form method="POST" action="">
-    <!-- Fahrzeug auswählen -->
-    <h2>Fahrzeug:</h2>
-    <div style="position: relative;">
-        <select name="fahrzeug_id" onchange="this.form.submit()" required style="width: 100%; padding: 10px;">
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dienst bearbeiten</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+    <h1>Dienst bearbeiten</h1>
+    <form method="POST" action="logout.php" class="logout-form">
+        <button type="submit">Logout</button>
+    </form>
+    <form method="POST" action="index.php" class="back-form">
+        <button type="submit">Zurück</button>
+    </form>
+</header>
+<main>
+    <form method="POST" action="">
+        <h2>Fahrzeug auswählen</h2>
+        <select name="fahrzeug_id" onchange="this.form.submit()" required>
             <option value="">Fahrzeug auswählen</option>
             <?php foreach ($fahrzeuge as $fahrzeug): ?>
                 <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
@@ -191,100 +139,60 @@ if ($existingEntry) {
                 </option>
             <?php endforeach; ?>
         </select>
-    </div>
 
-    <!-- In Dienst Zeit -->
-    <h2>In Dienst Zeit:</h2>
-    <div style="position: relative;">
-        <input 
-            type="datetime-local" 
-            id="inDienstZeit" 
-            name="inDienstZeit" 
-            value="<?php echo htmlspecialchars($inDienstZeit); ?>" 
-            required 
-            style="padding-left: 5px; width: 100%;">
-    </div>
+        <h2>In Dienst Zeit:</h2>
+        <input type="datetime-local" name="inDienstZeit" value="<?php echo htmlspecialchars($inDienstZeit); ?>" required>
 
-    <!-- Außer Dienst Zeit -->
-    <h2>Außer Dienst Zeit:</h2>
-    <div style="position: relative;">
-        <input 
-            type="datetime-local" 
-            id="ausserDienstZeit" 
-            name="ausserDienstZeit" 
-            value="<?php echo htmlspecialchars($ausserDienstZeit); ?>" 
-            required 
-            style="padding-left: 5px; width: 100%;">
-    </div>
+        <h2>Außer Dienst Zeit:</h2>
+        <input type="datetime-local" name="ausserDienstZeit" value="<?php echo htmlspecialchars($ausserDienstZeit); ?>" required>
 
-    <!-- Speichern-Button -->
-    <button type="submit" name="save" style="margin-top: 20px;">Speichern</button>
-</form>
-
-
-
-
-            <?php if (isset($message)) { echo "<p>$message</p>"; } ?>
-            <form method="POST">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Funktion</th>
-                            <th>Aktuell zugewiesen</th>
-                            <th>Neue Auswahl</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $roles = [
-                            'stf' => 'Staffel-Führer',
-                            'ma' => 'Maschinist',
-                            'atf' => 'Angriffstrupp-Führer',
-                            'atm' => 'Angriffstrupp-Mann',
-                            'wtf' => 'Wassertrupp-Führer',
-                            'wtm' => 'Wassertrupp-Mann',
-                            'prakt' => 'Praktikant'
-                        ];
-
-                        // Die letzte Besatzungszeile für das aktuelle Fahrzeug abrufen
-                        $stmt = $pdo->prepare("SELECT * FROM Besatzung WHERE fahrzeug_id = :fahrzeugId ORDER BY id DESC LIMIT 1");
-                        $stmt->execute([':fahrzeugId' => $fahrzeugId]);
-                        $latestBesatzung = $stmt->fetch();
-
-                        foreach ($roles as $key => $label) {
-                            echo "<tr>";
-                            echo "<td>$label</td>";
-
-                            // Prüfen, ob eine Person bereits zugewiesen ist
-                            if ($latestBesatzung && $latestBesatzung[$key . '_id']) {
+        <h2>Besatzung</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Funktion</th>
+                    <th>Aktuell zugewiesen</th>
+                    <th>Neue Auswahl</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($roles as $role): ?>
+                    <tr>
+                        <td><?php echo ucfirst($role); ?></td>
+                        <td>
+                            <?php
+                            if ($latestBesatzung && $latestBesatzung[$role . '_id']) {
                                 $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM Personal WHERE id = :id");
-                                $personStmt->execute([':id' => $latestBesatzung[$key . '_id']]);
+                                $personStmt->execute([':id' => $latestBesatzung[$role . '_id']]);
                                 $person = $personStmt->fetch();
-                                echo "<td>" . ($person['name'] ?? '<em>Keine Zuweisung</em>') . "</td>";
+                                echo htmlspecialchars($person['name'] ?? 'Keine Zuweisung');
                             } else {
-                                echo "<td><em>Keine Zuweisung</em></td>";
+                                echo "Keine Zuweisung";
                             }
+                            ?>
+                        </td>
+                        <td>
+                            <select name="<?php echo $role; ?>">
+                                <option value="">Keine Auswahl</option>
+                                <?php
+                                $stmt = $pdo->query("SELECT id, CONCAT(nachname, ', ', vorname) AS name FROM Personal ORDER BY nachname, vorname");
+                                while ($row = $stmt->fetch()) {
+                                    $selected = ($latestBesatzung && $latestBesatzung[$role . '_id'] == $row['id']) ? 'selected' : '';
+                                    echo "<option value='{$row['id']}' $selected>{$row['name']}</option>";
+                                }
+                                ?>
+                            </select>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
 
-                            // Dropdown zur Auswahl
-                            echo "<td><select name='$key'>";
-                            echo "<option value=''>Keine Auswahl</option>";
-                            $stmt = $pdo->query("SELECT id, CONCAT(nachname, ', ', vorname) AS name FROM Personal ORDER BY nachname, vorname ASC");
-                            while ($row = $stmt->fetch()) {
-                                $selected = ($latestBesatzung && $latestBesatzung[$key . '_id'] == $row['id']) ? 'selected' : '';
-                                echo "<option value='{$row['id']}' $selected>{$row['name']}</option>";
-                            }
-                            echo "</select></td>";
-                            echo "</tr>";
-                        }
-                        ?>
-                    </tbody>
-                </table>
-                <div>
-                    <button type="submit" name="save">Speichern</button>
-                    <button type="submit" name="clear">Alle löschen</button>
-                </div>
-            </form>
-        </section>
-    </main>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+            <button type="submit" name="clear">Alle löschen</button>
+            <button type="submit" name="save">Aktualisieren</button>
+        </div>
+    </form>
+</main>
 </body>
 </html>
