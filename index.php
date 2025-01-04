@@ -46,50 +46,59 @@ require 'db.php';
 
                 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
                     try {
-                        // Werte aus dem Formular abrufen
+                        // Formularwerte abrufen
                         $einsatznummer_lts = $_POST['einsatznummer_lts'] ?? null;
                         $stichwort = $_POST['stichwort'] ?? null;
                         $alarmuhrzeit = $_POST['alarmuhrzeit'] ?? null;
                         $zurueckzeit = $_POST['zurueckzeit'] ?? null;
                         $adresse = $_POST['adresse'] ?? null;
-                        $stadtteil =$_POST['stadtteil'] ?? null;
+                        $stadtteil = $_POST['stadtteil'] ?? null;
                         $fahrzeug_name = $_POST['fahrzeug_name'] ?? null;
                 
-                        // Konvertierung des Formats (ISO -> dd.mm.yy hh:mm)
+                        // Alarmuhrzeit ins richtige Format konvertieren
                         if ($alarmuhrzeit) {
-                            $alarmuhrzeit = DateTime::createFromFormat('Y-m-d\TH:i', $alarmuhrzeit)->format('d.m.y H:i');
+                            $alarmuhrzeit = DateTime::createFromFormat('Y-m-d\TH:i', $alarmuhrzeit)->format('d.m.Y H:i');
+                        } else {
+                            throw new Exception("Alarmuhrzeit ist erforderlich.");
                         }
+                
+                        // Zurückzeit optional konvertieren
                         if ($zurueckzeit) {
-                            $zurueckzeit = DateTime::createFromFormat('Y-m-d\TH:i', $zurueckzeit)->format('d.m.y H:i');
+                            $zurueckzeit = DateTime::createFromFormat('Y-m-d\TH:i', $zurueckzeit)->format('d.m.Y H:i');
                         }
                 
-                        // Format prüfen (dd.mm.yy hh:mm)
-                        if (!preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $alarmuhrzeit) || 
-                            ($zurueckzeit && !preg_match('/^\d{2}\.\d{2}\.\d{2} \d{2}:\d{2}$/', $zurueckzeit))) {
-                            throw new Exception("Die Uhrzeiten müssen im Format dd.mm.yy hh:mm vorliegen.");
-                        }
-                
-                        // Besatzung für das ausgewählte Fahrzeug abrufen
-                        $besatzungStmt = $pdo->prepare("
-                            SELECT b.id 
-                            FROM dienste b 
-                            JOIN fahrzeuge f ON f.name = :fahrzeug_name 
-                            WHERE b.fahrzeug_id = f.id 
-                            ORDER BY b.id DESC LIMIT 1
-                        ");
-                        $besatzungStmt->execute([':fahrzeug_name' => $fahrzeug_name]);
-                        $dienst_id = $besatzungStmt->fetchColumn();
+                        // Dienst suchen, der zur Alarmuhrzeit aktiv war
+                        $dienstQuery = "
+                            SELECT id 
+                            FROM dienste 
+                            WHERE fahrzeug_id = (
+                                SELECT id FROM fahrzeuge WHERE name = :fahrzeug_name
+                            )
+                            AND inDienstZeit <= :alarmuhrzeit
+                            AND (ausserDienstZeit >= :alarmuhrzeit OR ausserDienstZeit IS NULL)
+                            ORDER BY inDienstZeit DESC
+                            LIMIT 1
+                        ";
+                        $dienstStmt = $pdo->prepare($dienstQuery);
+                        $dienstStmt->execute([
+                            ':fahrzeug_name' => $fahrzeug_name,
+                            ':alarmuhrzeit' => $alarmuhrzeit
+                        ]);
+                        $dienst_id = $dienstStmt->fetchColumn();
                 
                         if (!$dienst_id) {
-                            throw new Exception("Keine gültige Besatzung für das ausgewählte Fahrzeug gefunden.");
+                            throw new Exception("Kein gültiger Dienst während der Alarmzeit gefunden.");
                         }
                 
-                        // SQL-Statement vorbereiten und ausführen
-                        $sql = "INSERT INTO einsaetze 
-                                (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, stadtteil, fahrzeug_name, dienst_id)
-                                VALUES (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :stadtteil, :fahrzeug_name, :dienst_id)";
-                        $stmt = $pdo->prepare($sql);
-                        $stmt->execute([
+                        // Einsatz in die Datenbank einfügen
+                        $einsatzQuery = "
+                            INSERT INTO einsaetze 
+                            (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, stadtteil, fahrzeug_name, dienst_id) 
+                            VALUES 
+                            (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :stadtteil, :fahrzeug_name, :dienst_id)
+                        ";
+                        $einsatzStmt = $pdo->prepare($einsatzQuery);
+                        $einsatzStmt->execute([
                             ':einsatznummer_lts' => $einsatznummer_lts,
                             ':stichwort' => $stichwort,
                             ':alarmuhrzeit' => $alarmuhrzeit,
@@ -100,11 +109,12 @@ require 'db.php';
                             ':dienst_id' => $dienst_id
                         ]);
                 
-                        echo "<p>Einsatz wurde erfolgreich gespeichert.</p>";
+                        echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
                     } catch (Exception $e) {
-                        echo "<p>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
+                        echo "<p style='color: red;'>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
                     }
                 }
+                
                 
                 
             ?>
