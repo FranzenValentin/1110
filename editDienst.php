@@ -8,7 +8,23 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 require 'db.php';
 
 // Fahrzeug-ID aus Anfrage oder Standardwert
-$fahrzeugId = isset($_GET['fahrzeug']) && is_numeric($_GET['fahrzeug']) ? (int)$_GET['fahrzeug'] : 1;
+if (isset($_GET['fahrzeug']) && is_numeric($_GET['fahrzeug'])) {
+    $fahrzeugId = (int)$_GET['fahrzeug'];
+
+    // Fahrzeug-ID validieren, ob sie in der Datenbank existiert
+    $query = "SELECT COUNT(*) FROM fahrzeuge WHERE id = :fahrzeug_id";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([':fahrzeug_id' => $fahrzeugId]);
+
+    if ($stmt->fetchColumn() == 0) {
+        // Ungültige ID, Standardwert setzen
+        $fahrzeugId = 1;
+    }
+} else {
+    // Standardwert, wenn keine gültige ID übergeben wird
+    $fahrzeugId = 1;
+}
+
 
 // Fahrzeugliste laden
 $query = "SELECT id, name FROM fahrzeuge";
