@@ -377,7 +377,8 @@ $fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
         </tbody>
     </table>
     <div class="button-container">
-        <button onclick="location.href='besatzung.php'">Besatzung ändern</button>
+        <button onclick="location.href='besatzung.php'">Dienst ändern</button>
+        <button onclick="location.href='neuerDienst.php'">Neuer Dienst</button>
     </div>
 </section>
 
