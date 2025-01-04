@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             }
 
             // Überprüfen, ob eine Zeile für fahrzeug_id existiert
-            $latestQuery = "SELECT id FROM besatzung WHERE fahrzeug_id = :fahrzeug_id ORDER BY id DESC LIMIT 1";
+            $latestQuery = "SELECT id FROM dienste WHERE fahrzeug_id = :fahrzeug_id ORDER BY id DESC LIMIT 1";
             $latestStmt = $pdo->prepare($latestQuery);
             $latestStmt->execute([':fahrzeug_id' => $fahrzeugId]);
             $latestEntry = $latestStmt->fetch(PDO::FETCH_ASSOC);
