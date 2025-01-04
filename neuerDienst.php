@@ -13,39 +13,53 @@ $ausserDienstZeit = $_POST['ausserDienstZeit'] ?? null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['save'])) {
-        // Validierung
-        if (!$fahrzeugId || !$inDienstZeit || !$ausserDienstZeit) {
-            $message = "Bitte wählen Sie ein Fahrzeug und geben Sie die Zeiten ein.";
-        } else {
-            // Besatzung speichern
-            $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
-            $changes = [];
+        try {
+            // Validierung
+            if (!$fahrzeugId || !$inDienstZeit || !$ausserDienstZeit) {
+                $message = "Bitte wählen Sie ein Fahrzeug und geben Sie die Zeiten ein.";
+            } else {
+                // Besatzung speichern
+                $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
+                $changes = [];
 
-            foreach ($roles as $role) {
-                $changes[$role] = isset($_POST[$role]) && $_POST[$role] !== '' ? $_POST[$role] : null;
+                foreach ($roles as $role) {
+                    $changes[$role] = isset($_POST[$role]) && $_POST[$role] !== '' ? $_POST[$role] : null;
+                }
+
+                // Debugging der Eingabewerte
+                error_log("Fahrzeug-ID: $fahrzeugId, InDienstZeit: $inDienstZeit, AusserDienstZeit: $ausserDienstZeit");
+                error_log("Besatzung: " . print_r($changes, true));
+
+                // Werte in die Tabelle einfügen
+                $stmt = $pdo->prepare("
+                    INSERT INTO dienste (fahrzeug_id, in_dienst_zeit, ausser_dienst_zeit, stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) 
+                    VALUES (:fahrzeugId, :inDienstZeit, :ausserDienstZeit, :stf, :ma, :atf, :atm, :wtf, :wtm, :prakt)
+                ");
+                $stmt->execute([
+                    ':fahrzeugId' => $fahrzeugId,
+                    ':inDienstZeit' => $inDienstZeit,  // VARCHAR: direkt speichern
+                    ':ausserDienstZeit' => $ausserDienstZeit,  // VARCHAR: direkt speichern
+                    ':stf' => $changes['stf'],
+                    ':ma' => $changes['ma'],
+                    ':atf' => $changes['atf'],
+                    ':atm' => $changes['atm'],
+                    ':wtf' => $changes['wtf'],
+                    ':wtm' => $changes['wtm'],
+                    ':prakt' => $changes['prakt']
+                ]);
+
+                $message = "Besatzung und Zeiten erfolgreich gespeichert.";
+                header("Location: " . $_SERVER['PHP_SELF']);
+                exit;
             }
-
-            $stmt = $pdo->prepare("INSERT INTO dienste (fahrzeug_id, in_dienst_zeit, ausser_dienst_zeit, stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) 
-                                   VALUES (:fahrzeugId, :inDienstZeit, :ausserDienstZeit, :stf, :ma, :atf, :atm, :wtf, :wtm, :prakt)");
-            $stmt->execute([
-                ':fahrzeugId' => $fahrzeugId,
-                ':inDienstZeit' => $inDienstZeit,
-                ':ausserDienstZeit' => $ausserDienstZeit,
-                ':stf' => $changes['stf'],
-                ':ma' => $changes['ma'],
-                ':atf' => $changes['atf'],
-                ':atm' => $changes['atm'],
-                ':wtf' => $changes['wtf'],
-                ':wtm' => $changes['wtm'],
-                ':prakt' => $changes['prakt']
-            ]);
-
-            $message = "Besatzung und Zeiten erfolgreich gespeichert.";
-            header("Location: " . $_SERVER['PHP_SELF']);
-            exit;
+        } catch (PDOException $e) {
+            // Fehlerausgabe
+            error_log("Datenbankfehler: " . $e->getMessage());
+            $message = "Ein Fehler ist aufgetreten: " . $e->getMessage();
         }
     }
 }
+
 ?>
 
 <!DOCTYPE html>
