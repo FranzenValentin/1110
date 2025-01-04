@@ -381,16 +381,21 @@ $inDienstZeit = 'Keine Daten';
 $ausserDienstZeit = 'Keine Daten';
 
 // SQL-Abfrage für die zeitlich neuesten Dienstzeiten
-$dienstQuery = "
+$zeitQuery = "
     SELECT inDienstZeit, ausserDienstZeit 
     FROM dienste 
     WHERE fahrzeug_id = :fahrzeug_id 
     ORDER BY STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') DESC 
     LIMIT 1
 ";
-$dienstStmt = $pdo->prepare($dienstQuery);
-$dienstStmt->execute([':fahrzeug_id' => $fahrzeugId]);
-$dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC);
+
+if (empty($fahrzeugId)) {
+    $fahrzeugId = 1;
+}
+
+$zeitStmt = $pdo->prepare($zeitQuery);
+$zeitStmt->execute([':fahrzeug_id' => $fahrzeugId]);
+$zeitResult = $zeitStmt->fetch(PDO::FETCH_ASSOC);
 
 // Zeiten auslesen, falls vorhanden
 if ($zeitResult) {
