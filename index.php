@@ -86,10 +86,11 @@ require 'db.php';
                         ]);
                         $dienst_id = $dienstStmt->fetchColumn();
 
-                
                         if (!$dienst_id) {
-                            throw new Exception("Kein gültiger Dienst während der Alarmzeit gefunden.");
+                            error_log("Kein passender Dienst gefunden für Alarmuhrzeit: $alarmuhrzeit");
+                            throw new Exception("Kein gültiger Dienst gefunden.");
                         }
+
                 
                         // Einsatz in die Datenbank einfügen
                         $einsatzQuery = "
