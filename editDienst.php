@@ -52,12 +52,12 @@ if ($fahrzeugId) {
 
     if ($latestBesatzung) {
         $inDienstZeit = $latestBesatzung['inDienstZeit']
-            ? DateTime::createFromFormat('d.m.y H:i', $latestBesatzung['inDienstZeit'])->format('Y-m-d\TH:i')
+            ? DateTime::createFromFormat('d.m.Y H:i', $latestBesatzung['inDienstZeit'])->format('Y-m-d\TH:i')
             : '';
         $ausserDienstZeit = $latestBesatzung['ausserDienstZeit']
-            ? DateTime::createFromFormat('d.m.y H:i', $latestBesatzung['ausserDienstZeit'])->format('Y-m-d\TH:i')
+            ? DateTime::createFromFormat('d.m.Y H:i', $latestBesatzung['ausserDienstZeit'])->format('Y-m-d\TH:i')
             : '';
-    }
+    }    
 }
 
 // Aktualisieren der Daten
@@ -68,8 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     if ($fahrzeugId && $inDienstZeitInput && $ausserDienstZeitInput) {
         try {
             // Konvertierung ins Datenbankformat
-            $inDienstZeitDB = DateTime::createFromFormat('Y-m-d\TH:i', $inDienstZeitInput)->format('d.m.y H:i');
-            $ausserDienstZeitDB = DateTime::createFromFormat('Y-m-d\TH:i', $ausserDienstZeitInput)->format('d.m.y H:i');
+            $inDienstZeitDB = DateTime::createFromFormat('Y-m-d\TH:i', $inDienstZeitInput)->format('d.m.Y H:i');
+            $ausserDienstZeitDB = DateTime::createFromFormat('Y-m-d\TH:i', $ausserDienstZeitInput)->format('d.m.Y H:i');    
 
             // Rollen validieren
             $validRoles = [];
