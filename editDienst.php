@@ -105,7 +105,7 @@ $inDienstZeit = '';
 $ausserDienstZeit = '';
 $fahrzeugId = $_POST['fahrzeug_id'] ?? $_GET['fahrzeug_id'] ?? null;
 
-// Neuesten Eintrag aus der Datenbank laden, falls ein Fahrzeug ausgewählt wurde
+// Zeiten aus der Datenbank laden
 if ($fahrzeugId) {
     $zeitQuery = "
         SELECT inDienstZeit, ausserDienstZeit 
@@ -126,9 +126,60 @@ if ($fahrzeugId) {
         $ausserDienstZeit = $zeitResult['ausserDienstZeit']
             ? DateTime::createFromFormat('d.m.y H:i', $zeitResult['ausserDienstZeit'])->format('Y-m-d\TH:i')
             : '';
+    }
+}
+
+// Speichern der geänderten Zeiten
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
+    $inDienstZeitInput = $_POST['inDienstZeit'] ?? null;
+    $ausserDienstZeitInput = $_POST['ausserDienstZeit'] ?? null;
+
+    if ($fahrzeugId && $inDienstZeitInput && $ausserDienstZeitInput) {
+        try {
+            // Konvertierung ins Datenbankformat (dd.mm.yy hh:mm)
+            $inDienstZeitDB = DateTime::createFromFormat('Y-m-d\TH:i', $inDienstZeitInput)->format('d.m.y H:i');
+            $ausserDienstZeitDB = DateTime::createFromFormat('Y-m-d\TH:i', $ausserDienstZeitInput)->format('d.m.y H:i');
+
+            // Überprüfen, ob ein Eintrag existiert
+            $checkQuery = "SELECT id FROM Besatzung WHERE fahrzeug_id = :fahrzeug_id ORDER BY id DESC LIMIT 1";
+            $checkStmt = $pdo->prepare($checkQuery);
+            $checkStmt->execute([':fahrzeug_id' => $fahrzeugId]);
+            $existingEntry = $checkStmt->fetch();
+
+            if ($existingEntry) {
+                // Eintrag aktualisieren
+                $updateQuery = "
+                    UPDATE Besatzung 
+                    SET inDienstZeit = :inDienstZeit, 
+                        ausserDienstZeit = :ausserDienstZeit 
+                    WHERE id = :id
+                ";
+                $updateStmt = $pdo->prepare($updateQuery);
+                $updateStmt->execute([
+                    ':inDienstZeit' => $inDienstZeitDB,
+                    ':ausserDienstZeit' => $ausserDienstZeitDB,
+                    ':id' => $existingEntry['id']
+                ]);
+            } else {
+                // Neuen Eintrag erstellen
+                $insertQuery = "
+                    INSERT INTO Besatzung (inDienstZeit, ausserDienstZeit, fahrzeug_id) 
+                    VALUES (:inDienstZeit, :ausserDienstZeit, :fahrzeug_id)
+                ";
+                $insertStmt = $pdo->prepare($insertQuery);
+                $insertStmt->execute([
+                    ':inDienstZeit' => $inDienstZeitDB,
+                    ':ausserDienstZeit' => $ausserDienstZeitDB,
+                    ':fahrzeug_id' => $fahrzeugId
+                ]);
+            }
+
+            echo "<p style='color: green;'>Die Zeiten wurden erfolgreich gespeichert!</p>";
+        } catch (PDOException $e) {
+            echo "<p style='color: red;'>Fehler beim Speichern der Daten: " . htmlspecialchars($e->getMessage()) . "</p>";
+        }
     } else {
-        $inDienstZeit = '';
-        $ausserDienstZeit = '';
+        echo "<p style='color: red;'>Bitte fülle alle Felder aus!</p>";
     }
 }
 ?>
