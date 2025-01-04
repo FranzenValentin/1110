@@ -565,6 +565,100 @@ if ($zeitResult) {
             </div>
         </section>
 
+
+        <!-- letzten 5 Dienste -->
+        <section id="letzte-dienste">
+            <h2>Letzte 5 Dienste</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>InDienst Datum</th>
+                        <th>Dienst Dauer (Stunden)</th>
+                        <th>Alarmanzahl</th>
+                        <th>Alarme (Stichworte)</th>
+                        <th>Personal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    // SQL-Abfrage, um die letzten 5 Dienste zu erhalten
+                    $dienstStmt = $pdo->query("
+                        SELECT d.id, d.inDienstZeit, d.ausserDienstZeit,
+                            TIMESTAMPDIFF(HOUR, STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i'), 
+                            STR_TO_DATE(d.ausserDienstZeit, '%d.%m.%Y %H:%i')) AS dauer,
+                            COUNT(e.id) AS alarmanzahl
+                        FROM dienste d
+                        LEFT JOIN einsaetze e ON e.dienst_id = d.id
+                        WHERE d.fahrzeug_id = $fahrzeugId
+                        GROUP BY d.id
+                        ORDER BY STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i') DESC
+                        LIMIT 5
+                    ");
+
+                    while ($dienst = $dienstStmt->fetch(PDO::FETCH_ASSOC)) {
+                        // Personal abrufen
+                        $personalStmt = $pdo->prepare("
+                            SELECT CONCAT(p.vorname, ' ', p.nachname) AS name
+                            FROM personal p
+                            JOIN (
+                                SELECT stf_id AS id FROM dienste WHERE id = :dienst_id
+                                UNION SELECT ma_id FROM dienste WHERE id = :dienst_id
+                                UNION SELECT atf_id FROM dienste WHERE id = :dienst_id
+                                UNION SELECT atm_id FROM dienste WHERE id = :dienst_id
+                                UNION SELECT wtf_id FROM dienste WHERE id = :dienst_id
+                                UNION SELECT wtm_id FROM dienste WHERE id = :dienst_id
+                                UNION SELECT prakt_id FROM dienste WHERE id = :dienst_id
+                            ) roles ON roles.id = p.id
+                        ");
+                        $personalStmt->execute([':dienst_id' => $dienst['id']]);
+                        $personalList = $personalStmt->fetchAll(PDO::FETCH_COLUMN);
+
+                        // Alarme (Stichworte) abrufen
+                        $alarmeStmt = $pdo->prepare("
+                            SELECT stichwort
+                            FROM einsaetze
+                            WHERE dienst_id = :dienst_id
+                        ");
+                        $alarmeStmt->execute([':dienst_id' => $dienst['id']]);
+                        $alarmeList = $alarmeStmt->fetchAll(PDO::FETCH_COLUMN);
+
+                        echo "<tr>";
+                        echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . "</td>";
+                        echo "<td>" . htmlspecialchars($dienst['dauer'] ?? '-') . "</td>";
+                        echo "<td>" . htmlspecialchars($dienst['alarmanzahl']) . "</td>";
+
+                        // Alarme (Stichworte) ausklappbar
+                        echo "<td>
+                                <details>
+                                    <summary>Details anzeigen</summary>
+                                    <ul>";
+                        foreach ($alarmeList as $alarm) {
+                            echo "<li>" . htmlspecialchars($alarm) . "</li>";
+                        }
+                        echo "    </ul>
+                                </details>
+                            </td>";
+
+                        // Personal ausklappbar
+                        echo "<td>
+                                <details>
+                                    <summary>Details anzeigen</summary>
+                                    <ul>";
+                        foreach ($personalList as $person) {
+                            echo "<li>" . htmlspecialchars($person) . "</li>";
+                        }
+                        echo "    </ul>
+                                </details>
+                            </td>";
+
+                        echo "</tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </section>
+
+
         <!-- Navigation als Buttons -->
         <section id="navigation-buttons">
             <h2>Einstellungen</h2>
