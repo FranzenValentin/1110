@@ -572,6 +572,7 @@ if ($zeitResult) {
     <table>
         <thead>
             <tr>
+                <th>Fahrzeug</th>
                 <th>InDienst Datum</th>
                 <th>Dienst Dauer (Stunden)</th>
                 <th>Alarmanzahl</th>
@@ -581,25 +582,25 @@ if ($zeitResult) {
         </thead>
         <tbody>
             <?php
-            // Debug: Aktueller Fahrzeug-ID
-            echo "<!-- Debug: Fahrzeug-ID = $fahrzeugId -->";
+            // Debug: Fahrzeug-ID und Abfrage-Start
+            echo "<!-- Debug: Starte Abfrage für letzte 5 Dienste -->";
 
-            // SQL-Abfrage, um die letzten 5 Dienste nach Datum zu erhalten
+            // SQL-Abfrage, um die letzten 5 Dienste aller Fahrzeuge nach Datum zu erhalten
             $dienstStmt = $pdo->prepare("
-                SELECT d.id, d.inDienstZeit, d.ausserDienstZeit,
+                SELECT d.id, f.name AS fahrzeug_name, d.inDienstZeit, d.ausserDienstZeit,
                        TIMESTAMPDIFF(HOUR, STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i'), 
                        STR_TO_DATE(d.ausserDienstZeit, '%d.%m.%Y %H:%i')) AS dauer,
                        COUNT(e.id) AS alarmanzahl
                 FROM dienste d
+                JOIN fahrzeuge f ON f.id = d.fahrzeug_id
                 LEFT JOIN einsaetze e ON e.dienst_id = d.id
-                WHERE d.fahrzeug_id = :fahrzeug_id
                 GROUP BY d.id
                 ORDER BY STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i') DESC
                 LIMIT 5
             ");
 
             try {
-                $dienstStmt->execute([':fahrzeug_id' => $fahrzeugId]);
+                $dienstStmt->execute();
                 $dienste = $dienstStmt->fetchAll(PDO::FETCH_ASSOC);
 
                 // Debug: Ergebnis der Abfrage anzeigen
@@ -650,6 +651,7 @@ if ($zeitResult) {
                 }
 
                 echo "<tr>";
+                echo "<td>" . htmlspecialchars($dienst['fahrzeug_name']) . "</td>";
                 echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . "</td>";
                 echo "<td>" . htmlspecialchars($dienst['dauer'] ?? '-') . "</td>";
                 echo "<td>" . htmlspecialchars($dienst['alarmanzahl']) . "</td>";
@@ -684,6 +686,7 @@ if ($zeitResult) {
         </tbody>
     </table>
 </section>
+
 
 
 
