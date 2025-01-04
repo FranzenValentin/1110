@@ -55,6 +55,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             $inDienstZeitDB = DateTime::createFromFormat('Y-m-d\TH:i', $inDienstZeitInput)->format('d.m.y H:i');
             $ausserDienstZeitDB = DateTime::createFromFormat('Y-m-d\TH:i', $ausserDienstZeitInput)->format('d.m.y H:i');
 
+            // Rollen validieren
+            $validRoles = [];
+            foreach ($roles as $role) {
+                $validRoles[$role] = isset($_POST[$role]) && is_numeric($_POST[$role]) ? (int)$_POST[$role] : null;
+
+                // Validierung: Überprüfen, ob die ID in der Tabelle Personal existiert
+                if ($validRoles[$role] !== null) {
+                    $personCheckStmt = $pdo->prepare("SELECT COUNT(*) FROM Personal WHERE id = :id");
+                    $personCheckStmt->execute([':id' => $validRoles[$role]]);
+                    if ($personCheckStmt->fetchColumn() == 0) {
+                        $validRoles[$role] = null; // Ungültige ID, auf NULL setzen
+                    }
+                }
+            }
+
             // Aktualisieren der Datenbank
             $updateQuery = "
                 UPDATE Besatzung 
@@ -69,13 +84,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             $updateStmt->execute([
                 ':inDienstZeit' => $inDienstZeitDB,
                 ':ausserDienstZeit' => $ausserDienstZeitDB,
-                ':stf' => $_POST['stf'] ?? null,
-                ':ma' => $_POST['ma'] ?? null,
-                ':atf' => $_POST['atf'] ?? null,
-                ':atm' => $_POST['atm'] ?? null,
-                ':wtf' => $_POST['wtf'] ?? null,
-                ':wtm' => $_POST['wtm'] ?? null,
-                ':prakt' => $_POST['prakt'] ?? null,
+                ':stf' => $validRoles['stf'],
+                ':ma' => $validRoles['ma'],
+                ':atf' => $validRoles['atf'],
+                ':atm' => $validRoles['atm'],
+                ':wtf' => $validRoles['wtf'],
+                ':wtm' => $validRoles['wtm'],
+                ':prakt' => $validRoles['prakt'],
                 ':fahrzeug_id' => $fahrzeugId
             ]);
 
@@ -87,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
         echo "<p style='color: red;'>Bitte fülle alle Felder aus!</p>";
     }
 }
+
 
 // Daten löschen
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear'])) {
