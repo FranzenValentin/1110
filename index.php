@@ -353,6 +353,11 @@ $zeitQuery = "
     ORDER BY STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') DESC 
     LIMIT 1
 ";
+
+if (empty($fahrzeugId)) {
+    $fahrzeugId = 1;
+}
+
 $zeitStmt = $pdo->prepare($zeitQuery);
 $zeitStmt->execute([':fahrzeug_id' => $fahrzeugId]);
 $zeitResult = $zeitStmt->fetch(PDO::FETCH_ASSOC);
