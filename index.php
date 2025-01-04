@@ -469,7 +469,7 @@ if ($dienstVorhanden) {
         </section>
     <?php endif; ?>
 
-
+<?php echo $dienstVorhanden; ?>
 
 
         <!-- Letzte Einsätze -->
