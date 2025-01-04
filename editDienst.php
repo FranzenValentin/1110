@@ -93,6 +93,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </header>
     <main>
     <?php
+session_start();
+if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
+    header('Location: login.php'); // Weiterleitung zur Login-Seite
+    exit;
+}
+
+require 'db.php';
+
 // Fahrzeugliste laden
 $query = "SELECT id, name FROM Fahrzeuge";
 $statement = $pdo->prepare($query);
@@ -140,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             $ausserDienstZeitDB = DateTime::createFromFormat('Y-m-d\TH:i', $ausserDienstZeitInput)->format('d.m.y H:i');
 
             // Überprüfen, ob ein Eintrag existiert
-            $checkQuery = "SELECT id FROM Besatzung WHERE fahrzeug_id = :fahrzeug_id ORDER BY id DESC LIMIT 1";
+            $checkQuery = "SELECT id FROM Besatzung WHERE fahrzeug_id = :fahrzeug_id";
             $checkStmt = $pdo->prepare($checkQuery);
             $checkStmt->execute([':fahrzeug_id' => $fahrzeugId]);
             $existingEntry = $checkStmt->fetch();
@@ -151,26 +159,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
                     UPDATE Besatzung 
                     SET inDienstZeit = :inDienstZeit, 
                         ausserDienstZeit = :ausserDienstZeit 
-                    WHERE id = :id
+                    WHERE fahrzeug_id = :fahrzeug_id
                 ";
                 $updateStmt = $pdo->prepare($updateQuery);
                 $updateStmt->execute([
                     ':inDienstZeit' => $inDienstZeitDB,
                     ':ausserDienstZeit' => $ausserDienstZeitDB,
-                    ':id' => $existingEntry['id']
-                ]);
-            } else {
-                // Neuen Eintrag erstellen
-                $insertQuery = "
-                    INSERT INTO Besatzung (inDienstZeit, ausserDienstZeit, fahrzeug_id) 
-                    VALUES (:inDienstZeit, :ausserDienstZeit, :fahrzeug_id)
-                ";
-                $insertStmt = $pdo->prepare($insertQuery);
-                $insertStmt->execute([
-                    ':inDienstZeit' => $inDienstZeitDB,
-                    ':ausserDienstZeit' => $ausserDienstZeitDB,
                     ':fahrzeug_id' => $fahrzeugId
                 ]);
+            } else {
+                echo "<p style='color: red;'>Kein bestehender Eintrag für das Fahrzeug gefunden.</p>";
             }
 
             echo "<p style='color: green;'>Die Zeiten wurden erfolgreich gespeichert!</p>";
@@ -182,6 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     }
 }
 ?>
+
 
 
 <form method="POST" action="">
