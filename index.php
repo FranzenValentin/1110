@@ -25,6 +25,7 @@ require 'db.php';
 
 
     <main>
+    <?php if ($dienstVorhanden): ?>
 
         <!-- Neuer Alarm -->
         <section id="neuer-alarm">
@@ -367,6 +368,15 @@ if ($zeitResult) {
     $inDienstZeit = $zeitResult['inDienstZeit'] ?? 'Keine Daten';
     $ausserDienstZeit = $zeitResult['ausserDienstZeit'] ?? 'Keine Daten';
 }
+
+// Prüfen, ob ein Dienst existiert
+$dienstVorhanden = $dienstResult !== false;
+
+if ($dienstVorhanden) {
+    $inDienstZeit = $dienstResult['inDienstZeit'];
+    $ausserDienstZeit = $dienstResult['ausserDienstZeit'] ?? 'Keine Daten';
+}
+
 ?>
 
 
@@ -449,7 +459,15 @@ if ($zeitResult) {
 <button onclick="location.href='neuerDienst.php'">Neuer Dienst</button>
 </div>
 
-
+<?php else: ?>
+        <!-- Keine Dienste vorhanden -->
+        <section>
+            <h2>Zum Anlegen eines Einsatzes muss zuerst ein Dienst eingetragen werden.</h2>
+            <div class="button-container">
+                <button onclick="location.href='neuerDienst.php'">Neuer Dienst</button>
+            </div>
+        </section>
+    <?php endif; ?>
 
 
 
