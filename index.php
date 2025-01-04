@@ -4,13 +4,6 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     header('Location: login.php'); // Weiterleitung zur Login-Seite
     exit;
 }
-// Prüfen, ob ein Dienst existiert
-$dienstVorhanden = $dienstResult !== false;
-
-if ($dienstVorhanden) {
-    $inDienstZeit = $dienstResult['inDienstZeit'];
-    $ausserDienstZeit = $dienstResult['ausserDienstZeit'] ?? 'Keine Daten';
-}
 
 require 'db.php';
 ?>
@@ -355,21 +348,24 @@ $inDienstZeit = 'Keine Daten';
 $ausserDienstZeit = 'Keine Daten';
 
 // SQL-Abfrage für die zeitlich neuesten Dienstzeiten
-$zeitQuery = "
+$dienstQuery = "
     SELECT inDienstZeit, ausserDienstZeit 
     FROM dienste 
     WHERE fahrzeug_id = :fahrzeug_id 
     ORDER BY STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') DESC 
     LIMIT 1
 ";
+$dienstStmt = $pdo->prepare($dienstQuery);
+$dienstStmt->execute([':fahrzeug_id' => $fahrzeugId]);
+$dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC);
 
-if (empty($fahrzeugId)) {
-    $fahrzeugId = 1;
+// Überprüfen, ob ein Dienst existiert
+$dienstVorhanden = $dienstResult !== false;
+
+if ($dienstVorhanden) {
+    $inDienstZeit = $dienstResult['inDienstZeit'];
+    $ausserDienstZeit = $dienstResult['ausserDienstZeit'] ?? 'Keine Daten';
 }
-
-$zeitStmt = $pdo->prepare($zeitQuery);
-$zeitStmt->execute([':fahrzeug_id' => $fahrzeugId]);
-$zeitResult = $zeitStmt->fetch(PDO::FETCH_ASSOC);
 
 // Zeiten auslesen, falls vorhanden
 if ($zeitResult) {
