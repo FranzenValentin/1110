@@ -377,7 +377,8 @@ if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
             ];
 
             // Fahrzeug-ID bestimmen (Standard: LHF 1110/1)
-            $fahrzeugId = isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2 ? 2 : 1;
+            $fahrzeugId = isset($_GET['fahrzeug']) && is_numeric($_GET['fahrzeug']) ? (int)$_GET['fahrzeug'] : 1;
+
 
             // Abfrage der aktuellen Besatzung basierend auf der Fahrzeug-ID
             $besatzungStmt = $pdo->prepare("SELECT * FROM dienste WHERE fahrzeug_id = :fahrzeugId ORDER BY id DESC LIMIT 1");
