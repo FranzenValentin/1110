@@ -152,7 +152,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     <form method="POST" action="">
         <h2>Fahrzeug auswählen</h2>
         <select name="fahrzeug_id" onchange="this.form.submit()" required>
-            <option value="">Fahrzeug auswählen</option>
             <?php foreach ($fahrzeuge as $fahrzeug): ?>
                 <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
                     <?php echo (isset($fahrzeugId) && $fahrzeugId == $fahrzeug['id']) ? 'selected' : ''; ?>>
