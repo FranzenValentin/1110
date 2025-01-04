@@ -113,28 +113,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     }
 }
 
-
-
-// Daten löschen
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear'])) {
-    try {
-        $clearQuery = "
-            UPDATE Besatzung 
-            SET inDienstZeit = NULL, 
-                ausserDienstZeit = NULL, 
-                stf_id = NULL, ma_id = NULL, atf_id = NULL, 
-                atm_id = NULL, wtf_id = NULL, wtm_id = NULL, 
-                prakt_id = NULL 
-            WHERE fahrzeug_id = :fahrzeug_id
-        ";
-        $clearStmt = $pdo->prepare($clearQuery);
-        $clearStmt->execute([':fahrzeug_id' => $fahrzeugId]);
-
-        echo "<p style='color: green;'>Die Daten wurden erfolgreich gelöscht.</p>";
-    } catch (PDOException $e) {
-        echo "<p style='color: red;'>Fehler beim Löschen der Daten: " . htmlspecialchars($e->getMessage()) . "</p>";
-    }
-}
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -216,7 +194,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear'])) {
         </table>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-            <button type="submit" name="clear">Alle löschen</button>
             <button type="submit" name="save">Aktualisieren</button>
         </div>
     </form>
