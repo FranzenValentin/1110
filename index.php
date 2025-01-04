@@ -345,12 +345,12 @@ if (!isset($_GET['fahrzeug'])) {
 $inDienstZeit = 'Keine Daten';
 $ausserDienstZeit = 'Keine Daten';
 
-// SQL-Abfrage für die Dienstzeiten
+// SQL-Abfrage für die zeitlich neuesten Dienstzeiten
 $zeitQuery = "
     SELECT inDienstZeit, ausserDienstZeit 
     FROM dienste 
     WHERE fahrzeug_id = :fahrzeug_id 
-    ORDER BY inDienstZeit DESC 
+    ORDER BY STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') DESC 
     LIMIT 1
 ";
 $zeitStmt = $pdo->prepare($zeitQuery);
