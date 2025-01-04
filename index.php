@@ -315,7 +315,7 @@ $ausserDienstZeit = 'Keine Daten';
 if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
     $fahrzeugId = (int)$_GET['fahrzeug'];
 
-    // Abfrage für die neuesten Zeiten des ausgewählten Fahrzeugs
+    // SQL-Abfrage
     $zeitQuery = "
         SELECT inDienstZeit, außerDienstZeit 
         FROM besatzung 
@@ -324,15 +324,19 @@ if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
         LIMIT 1
     ";
     $zeitStmt = $pdo->prepare($zeitQuery);
-    $zeitStmt->execute(['fahrzeug_id' => $fahrzeugId]);
+    $zeitStmt->execute([':fahrzeug_id' => $fahrzeugId]);
     $zeitResult = $zeitStmt->fetch(PDO::FETCH_ASSOC);
 
     // Zeiten auslesen
     if ($zeitResult) {
         $inDienstZeit = $zeitResult['inDienstZeit'] ?? 'Keine Daten';
         $ausserDienstZeit = $zeitResult['außerDienstZeit'] ?? 'Keine Daten';
+    } else {
+        $inDienstZeit = 'Keine Daten';
+        $ausserDienstZeit = 'Keine Daten';
     }
 }
+
 ?>
 
 <!-- Aktuelle Besatzung -->
