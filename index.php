@@ -390,7 +390,7 @@ if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
 
                 if ($latestBesatzung && $latestBesatzung[$key . '_id']) {
                     // Zuweisung der Person abrufen
-                    $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM Personal WHERE id = :id");
+                    $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM personal WHERE id = :id");
                     $personStmt->execute([':id' => $latestBesatzung[$key . '_id']]);
                     $person = $personStmt->fetch();
 
