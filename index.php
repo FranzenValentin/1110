@@ -383,63 +383,60 @@ if ($zeitResult) {
     </h2>
 </section>
 
+<table>
+    <thead>
+        <tr>
+            <th>Funktion</th>
+            <th>Aktuell zugewiesen</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+        // Besatzungsrollen definieren
+        $roles = [
+            'stf' => 'Staffel-Führer',
+            'ma' => 'Maschinist',
+            'atf' => 'Angriffstrupp-Führer',
+            'atm' => 'Angriffstrupp-Mann',
+            'wtf' => 'Wassertrupp-Führer',
+            'wtm' => 'Wassertrupp-Mann',
+            'prakt' => 'Praktikant'
+        ];
 
-    <table>
-        <thead>
-            <tr>
-                <th>Funktion</th>
-                <th>Aktuell zugewiesen</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            // Besatzungsrollen definieren
-            $roles = [
-                'stf' => 'Staffel-Führer',
-                'ma' => 'Maschinist',
-                'atf' => 'Angriffstrupp-Führer',
-                'atm' => 'Angriffstrupp-Mann',
-                'wtf' => 'Wassertrupp-Führer',
-                'wtm' => 'Wassertrupp-Mann',
-                'prakt' => 'Praktikant'
-            ];
-
-            // Fahrzeug-ID bestimmen (Standard: LHF 1110/1)
-            $fahrzeugId = isset($_GET['fahrzeug']) && is_numeric($_GET['fahrzeug']) ? (int)$_GET['fahrzeug'] : 1;
-
-
-            // Abfrage der aktuellen Besatzung basierend auf der Fahrzeug-ID
-            $besatzungStmt = $pdo->prepare("SELECT * FROM dienste WHERE fahrzeug_id = :fahrzeugId ORDER BY id DESC LIMIT 1");
-            $besatzungStmt->execute([':fahrzeugId' => $fahrzeugId]);
+        // Besatzung für die zuvor ermittelte Dienst-ID abrufen
+        if (isset($dienst_id)) {
+            $besatzungStmt = $pdo->prepare("SELECT * FROM dienste WHERE id = :dienstId");
+            $besatzungStmt->execute([':dienstId' => $dienst_id]);
             $latestBesatzung = $besatzungStmt->fetch();
+        }
 
-            foreach ($roles as $key => $label) {
-                echo "<tr>";
-                echo "<td>$label</td>";
+        foreach ($roles as $key => $label) {
+            echo "<tr>";
+            echo "<td>$label</td>";
 
-                if ($latestBesatzung && $latestBesatzung[$key . '_id']) {
-                    // Zuweisung der Person abrufen
-                    $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM personal WHERE id = :id");
-                    $personStmt->execute([':id' => $latestBesatzung[$key . '_id']]);
-                    $person = $personStmt->fetch();
+            if ($latestBesatzung && $latestBesatzung[$key . '_id']) {
+                // Zuweisung der Person abrufen
+                $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM personal WHERE id = :id");
+                $personStmt->execute([':id' => $latestBesatzung[$key . '_id']]);
+                $person = $personStmt->fetch();
 
-                    // Name anzeigen, falls vorhanden
-                    echo "<td>" . ($person['name'] ?? '<em>NICHT BESETZT</em>') . "</td>";
-                } else {
-                    // Kein Name zugewiesen
-                    echo "<td><em>NICHT BESETZT</em></td>";
-                }
-
-                echo "</tr>";
+                // Name anzeigen, falls vorhanden
+                echo "<td>" . ($person['name'] ?? '<em>NICHT BESETZT</em>') . "</td>";
+            } else {
+                // Kein Name zugewiesen
+                echo "<td><em>NICHT BESETZT</em></td>";
             }
-            ?>
-        </tbody>
-    </table>
-    <div class="button-container">
+
+            echo "</tr>";
+        }
+        ?>
+    </tbody>
+</table>
+<div class="button-container">
     <button onclick="location.href='editDienst.php?fahrzeug=<?php echo $fahrzeugId; ?>'">Dienst ändern</button>
-        <button onclick="location.href='neuerDienst.php'">Neuer Dienst</button>
-    </div>
-</section>
+    <button onclick="location.href='neuerDienst.php'">Neuer Dienst</button>
+</div>
+
 
 
 
