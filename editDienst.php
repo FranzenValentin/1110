@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </header>
     <main>
     <?php
-    
+
 // Fahrzeugliste laden
 $query = "SELECT id, name FROM Fahrzeuge";
 $statement = $pdo->prepare($query);
@@ -140,29 +140,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             $inDienstZeitDB = DateTime::createFromFormat('Y-m-d\TH:i', $inDienstZeitInput)->format('d.m.y H:i');
             $ausserDienstZeitDB = DateTime::createFromFormat('Y-m-d\TH:i', $ausserDienstZeitInput)->format('d.m.y H:i');
 
-            // Überprüfen, ob ein Eintrag existiert
-            $checkQuery = "SELECT id FROM Besatzung WHERE fahrzeug_id = :fahrzeug_id";
-            $checkStmt = $pdo->prepare($checkQuery);
-            $checkStmt->execute([':fahrzeug_id' => $fahrzeugId]);
-            $existingEntry = $checkStmt->fetch();
+// Überprüfen, ob ein Eintrag existiert
+$checkQuery = "SELECT id FROM Besatzung WHERE fahrzeug_id = :fahrzeug_id LIMIT 1";
+$checkStmt = $pdo->prepare($checkQuery);
+$checkStmt->execute([':fahrzeug_id' => $fahrzeugId]);
+$existingEntry = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($existingEntry) {
-                // Eintrag aktualisieren
-                $updateQuery = "
-                    UPDATE Besatzung 
-                    SET inDienstZeit = :inDienstZeit, 
-                        ausserDienstZeit = :ausserDienstZeit 
-                    WHERE fahrzeug_id = :fahrzeug_id
-                ";
-                $updateStmt = $pdo->prepare($updateQuery);
-                $updateStmt->execute([
-                    ':inDienstZeit' => $inDienstZeitDB,
-                    ':ausserDienstZeit' => $ausserDienstZeitDB,
-                    ':fahrzeug_id' => $fahrzeugId
-                ]);
-            } else {
-                echo "<p style='color: red;'>Kein bestehender Eintrag für das Fahrzeug gefunden.</p>";
-            }
+if ($existingEntry) {
+    // Eintrag aktualisieren
+    $updateQuery = "
+        UPDATE Besatzung 
+        SET inDienstZeit = :inDienstZeit, 
+            ausserDienstZeit = :ausserDienstZeit 
+        WHERE fahrzeug_id = :fahrzeug_id
+    ";
+    $updateStmt = $pdo->prepare($updateQuery);
+    $updateStmt->execute([
+        ':inDienstZeit' => $inDienstZeitDB,
+        ':ausserDienstZeit' => $ausserDienstZeitDB,
+        ':fahrzeug_id' => $fahrzeugId
+    ]);
+    echo "<p style='color: green;'>Eintrag wurde erfolgreich aktualisiert.</p>";
+} else {
+    echo "<p style='color: red;'>Kein bestehender Eintrag für das Fahrzeug gefunden.</p>";
+}
+
 
             echo "<p style='color: green;'>Die Zeiten wurden erfolgreich gespeichert!</p>";
         } catch (PDOException $e) {
