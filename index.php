@@ -6,6 +6,32 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 }
 
 require 'db.php';
+
+// Aktuelle Uhrzeit im richtigen Format
+$aktuelleUhrzeit = date('d.m.Y H:i');
+
+// SQL-Abfrage, um zu prüfen, ob ein Dienst zur aktuellen Uhrzeit aktiv ist
+$dienstQuery = "
+    SELECT inDienstZeit, ausserDienstZeit 
+    FROM dienste 
+    WHERE fahrzeug_id = :fahrzeug_id 
+    AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') <= STR_TO_DATE(:aktuelleUhrzeit, '%d.%m.%Y %H:%i')
+    AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') > STR_TO_DATE(:aktuelleUhrzeit, '%d.%m.%Y %H:%i') 
+         OR ausserDienstZeit IS NULL)
+    LIMIT 1
+";
+
+$dienstStmt = $pdo->prepare($dienstQuery);
+$dienstStmt->execute([
+    ':fahrzeug_id' => $fahrzeugId,
+    ':aktuelleUhrzeit' => $aktuelleUhrzeit,
+]);
+
+// Dienstdaten abrufen, falls ein aktiver Dienst existiert
+$dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC);
+
+// Setze $dienstVorhanden auf 1, wenn ein aktiver Dienst existiert
+$dienstVorhanden = $dienstResult ? 1 : 0;
 ?>
 
 <!DOCTYPE html>
@@ -358,32 +384,6 @@ $dienstQuery = "
 $dienstStmt = $pdo->prepare($dienstQuery);
 $dienstStmt->execute([':fahrzeug_id' => $fahrzeugId]);
 $dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC);
-
-// Aktuelle Uhrzeit im richtigen Format
-$aktuelleUhrzeit = date('d.m.Y H:i');
-
-// SQL-Abfrage, um zu prüfen, ob ein Dienst zur aktuellen Uhrzeit aktiv ist
-$dienstQuery = "
-    SELECT inDienstZeit, ausserDienstZeit 
-    FROM dienste 
-    WHERE fahrzeug_id = :fahrzeug_id 
-    AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') <= STR_TO_DATE(:aktuelleUhrzeit, '%d.%m.%Y %H:%i')
-    AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') > STR_TO_DATE(:aktuelleUhrzeit, '%d.%m.%Y %H:%i') 
-         OR ausserDienstZeit IS NULL)
-    LIMIT 1
-";
-
-$dienstStmt = $pdo->prepare($dienstQuery);
-$dienstStmt->execute([
-    ':fahrzeug_id' => $fahrzeugId,
-    ':aktuelleUhrzeit' => $aktuelleUhrzeit,
-]);
-
-// Dienstdaten abrufen, falls ein aktiver Dienst existiert
-$dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC);
-
-// Setze $dienstVorhanden auf 1, wenn ein aktiver Dienst existiert
-$dienstVorhanden = $dienstResult ? 1 : 0;
 
 ?>
 
