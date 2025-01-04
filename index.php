@@ -315,7 +315,7 @@ if (isset($_GET['fahrzeug_id']) && $_GET['fahrzeug_id'] !== '') {
     // SQL-Abfrage
     $zeitQuery = "
         SELECT inDienstZeit, außerDienstZeit 
-        FROM besatzung 
+        FROM Besatzung 
         WHERE fahrzeug_id = :fahrzeug_id 
         ORDER BY id DESC 
         LIMIT 1
