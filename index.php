@@ -581,21 +581,23 @@ if ($zeitResult) {
                 </thead>
                 <tbody>
                     <?php
-                    // SQL-Abfrage, um die letzten 5 Dienste zu erhalten
-                    $dienstStmt = $pdo->query("
+                    // SQL-Abfrage, um die letzten 5 Dienste nach Datum zu erhalten
+                    $dienstStmt = $pdo->prepare("
                         SELECT d.id, d.inDienstZeit, d.ausserDienstZeit,
                             TIMESTAMPDIFF(HOUR, STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i'), 
                             STR_TO_DATE(d.ausserDienstZeit, '%d.%m.%Y %H:%i')) AS dauer,
                             COUNT(e.id) AS alarmanzahl
                         FROM dienste d
                         LEFT JOIN einsaetze e ON e.dienst_id = d.id
-                        WHERE d.fahrzeug_id = $fahrzeugId
+                        WHERE d.fahrzeug_id = :fahrzeug_id
                         GROUP BY d.id
                         ORDER BY STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i') DESC
                         LIMIT 5
                     ");
+                    $dienstStmt->execute([':fahrzeug_id' => $fahrzeugId]);
+                    $dienste = $dienstStmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    while ($dienst = $dienstStmt->fetch(PDO::FETCH_ASSOC)) {
+                    foreach ($dienste as $dienst) {
                         // Personal abrufen
                         $personalStmt = $pdo->prepare("
                             SELECT CONCAT(p.vorname, ' ', p.nachname) AS name
@@ -657,6 +659,7 @@ if ($zeitResult) {
                 </tbody>
             </table>
         </section>
+
 
 
         <!-- Navigation als Buttons -->
