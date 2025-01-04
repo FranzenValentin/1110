@@ -44,7 +44,7 @@ require 'db.php';
                     die("Fehler beim Laden der Daten: " . $e->getMessage());
                 }
 
-                iif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
+                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
                     try {
                         // Formularwerte abrufen
                         $einsatznummer_lts = $_POST['einsatznummer_lts'] ?? null;
@@ -113,10 +113,7 @@ require 'db.php';
                     } catch (Exception $e) {
                         echo "<p style='color: red;'>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
                     }
-                }
-                
-                
-                
+                }        
                 
             ?>
 
