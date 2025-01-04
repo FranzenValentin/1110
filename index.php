@@ -309,10 +309,14 @@ $statement = $pdo->prepare($query);
 $statement->execute();
 $fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-if (isset($_GET['fahrzeug_id']) && $_GET['fahrzeug_id'] !== '') {
-    $fahrzeugId = (int)$_GET['fahrzeug_id'];
+// Standardwerte setzen
+$inDienstZeit = 'Keine Daten';
+$ausserDienstZeit = 'Keine Daten';
 
-    // SQL-Abfrage
+if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
+    $fahrzeugId = (int)$_GET['fahrzeug'];
+
+    // SQL-Abfrage für die Dienstzeiten
     $zeitQuery = "
         SELECT inDienstZeit, ausserDienstZeit 
         FROM Besatzung 
@@ -324,16 +328,12 @@ if (isset($_GET['fahrzeug_id']) && $_GET['fahrzeug_id'] !== '') {
     $zeitStmt->execute([':fahrzeug_id' => $fahrzeugId]);
     $zeitResult = $zeitStmt->fetch(PDO::FETCH_ASSOC);
 
-    // Zeiten auslesen
+    // Zeiten auslesen, falls vorhanden
     if ($zeitResult) {
-        $inDienstZeit = $zeitResult['inDienstZeit'];
-        $ausserDienstZeit = $zeitResult['ausserDienstZeit'];
-    } else {
-        $inDienstZeit = 'Keine Daten';
-        $ausserDienstZeit = 'Keine Daten';
+        $inDienstZeit = $zeitResult['inDienstZeit'] ?? 'Keine Daten';
+        $ausserDienstZeit = $zeitResult['ausserDienstZeit'] ?? 'Keine Daten';
     }
 }
-
 ?>
 
 <!-- Aktuelle Besatzung -->
@@ -342,6 +342,7 @@ if (isset($_GET['fahrzeug_id']) && $_GET['fahrzeug_id'] !== '') {
         Aktueller Dienst mit dem 
         <form method="GET" class="dropdown-form" style="display: inline;">
             <select name="fahrzeug" onchange="this.form.submit()">
+                <option value="">Fahrzeug auswählen</option>
                 <?php foreach ($fahrzeuge as $fahrzeug): ?>
                     <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
                         <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == $fahrzeug['id']) ? 'selected' : ''; ?>>
@@ -353,6 +354,7 @@ if (isset($_GET['fahrzeug_id']) && $_GET['fahrzeug_id'] !== '') {
         <?php echo "Von <strong>$inDienstZeit</strong> bis <strong>$ausserDienstZeit</strong>"; ?>
     </h2>
 </section>
+
 
     <table>
         <thead>
