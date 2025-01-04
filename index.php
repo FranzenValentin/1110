@@ -351,7 +351,7 @@ if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
                 <?php endforeach; ?>
             </select>
         </form>
-        <?php echo "Von <strong>$inDienstZeit</strong> bis <strong>$ausserDienstZeit</strong>"; ?>
+        <?php echo "vom $inDienstZeit bis zum $ausserDienstZeit"; ?>
     </h2>
 </section>
 
