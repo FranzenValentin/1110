@@ -66,29 +66,41 @@ require 'db.php';
                         if ($zurueckzeit) {
                             $zurueckzeit = DateTime::createFromFormat('Y-m-d\TH:i', $zurueckzeit)->format('d.m.Y H:i');
                         }
-                
-                        // Passenden Dienst suchen
-                        $dienstQuery = "
-                            SELECT id 
-                            FROM dienste 
-                            WHERE fahrzeug_id = (
-                                SELECT id FROM fahrzeuge WHERE name = :fahrzeug_name
-                            )
-                            AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') <= STR_TO_DATE(:alarmuhrzeit, '%Y-%m-%d %H:%i:%s')
-                            AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') > STR_TO_DATE(:alarmuhrzeit, '%Y-%m-%d %H:%i:%s') 
-                                OR ausserDienstZeit IS NULL)
-                            LIMIT 1
-                        ";
-                        $dienstStmt = $pdo->prepare($dienstQuery);
-                        $dienstStmt->execute([
-                            ':fahrzeug_name' => $fahrzeug_name,
-                            ':alarmuhrzeit' => $alarmuhrzeit
-                        ]);
-                        $dienst_id = $dienstStmt->fetchColumn();
 
-                        if (!$dienst_id) {
-                            error_log("Kein passender Dienst gefunden für Alarmuhrzeit: $alarmuhrzeit");
-                            throw new Exception("Kein gültiger Dienst gefunden.");
+                        try {
+                            // Alarmuhrzeit validieren
+                            if (!preg_match('/^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/', $alarmuhrzeit)) {
+                                throw new Exception("Alarmuhrzeit muss im Format dd.mm.yyyy hh:mm vorliegen.");
+                            }
+                            
+                            // Dienst suchen
+                            $dienstQuery = "
+                                SELECT id 
+                                FROM dienste 
+                                WHERE fahrzeug_id = (
+                                    SELECT id FROM fahrzeuge WHERE name = :fahrzeug_name
+                                )
+                                AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') <= STR_TO_DATE(:alarmuhrzeit, '%d.%m.%Y %H:%i')
+                                AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') > STR_TO_DATE(:alarmuhrzeit, '%d.%m.%Y %H:%i') 
+                                    OR ausserDienstZeit IS NULL)
+                                LIMIT 1
+                            ";
+                            $dienstStmt = $pdo->prepare($dienstQuery);
+                            $dienstStmt->execute([
+                                ':fahrzeug_name' => $fahrzeug_name,
+                                ':alarmuhrzeit' => $alarmuhrzeit
+                            ]);
+                            $dienst_id = $dienstStmt->fetchColumn();
+
+                            if (!$dienst_id) {
+                                throw new Exception("Kein gültiger Dienst für die Alarmuhrzeit gefunden.");
+                            }
+
+                            // Weitere Verarbeitung
+                            echo "Gefundener Dienst: $dienst_id";
+                        } catch (Exception $e) {
+                            echo "<p>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
+                            error_log($e->getMessage());
                         }
 
                 
