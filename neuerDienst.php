@@ -18,6 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$fahrzeugId || !$inDienstZeit || !$ausserDienstZeit) {
                 $message = "Bitte wählen Sie ein Fahrzeug und geben Sie die Zeiten ein.";
             } else {
+                // Zeiten ins gewünschte Format umwandeln
+                $inDienstZeitFormatted = DateTime::createFromFormat('Y-m-d\TH:i', $inDienstZeit)->format('d.m.Y H:i');
+                $ausserDienstZeitFormatted = DateTime::createFromFormat('Y-m-d\TH:i', $ausserDienstZeit)->format('d.m.Y H:i');
+
+                // Debugging der umgewandelten Zeiten
+                error_log("Fahrzeug-ID: $fahrzeugId, inDienstZeit: $inDienstZeitFormatted, ausserDienstZeit: $ausserDienstZeitFormatted");
+
                 // Besatzung speichern
                 $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
                 $changes = [];
@@ -26,10 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $changes[$role] = isset($_POST[$role]) && $_POST[$role] !== '' ? $_POST[$role] : null;
                 }
 
-                // Debugging der Eingabewerte
-                error_log("Fahrzeug-ID: $fahrzeugId, inDienstZeit: $inDienstZeit, susserDienstZeit: $ausserDienstZeit");
-                error_log("Besatzung: " . print_r($changes, true));
-
                 // Werte in die Tabelle einfügen
                 $stmt = $pdo->prepare("
                     INSERT INTO dienste (fahrzeug_id, inDienstZeit, ausserDienstZeit, stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) 
@@ -37,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ");
                 $stmt->execute([
                     ':fahrzeugId' => $fahrzeugId,
-                    ':inDienstZeit' => $inDienstZeit,  // VARCHAR: direkt speichern
-                    ':ausserDienstZeit' => $ausserDienstZeit,  // VARCHAR: direkt speichern
+                    ':inDienstZeit' => $inDienstZeitFormatted,  // Im Format dd.mm.yyyy hh:mm
+                    ':ausserDienstZeit' => $ausserDienstZeitFormatted,  // Im Format dd.mm.yyyy hh:mm
                     ':stf' => $changes['stf'],
                     ':ma' => $changes['ma'],
                     ':atf' => $changes['atf'],
@@ -59,6 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
 
 ?>
 
