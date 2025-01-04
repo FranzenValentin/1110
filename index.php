@@ -21,7 +21,7 @@ require 'db.php';
         <form method="POST" action="logout.php" class="logout-form">
             <button type="submit">Logout</button>
         </form>
-    </header>
+</header>
 
 
     <main>
@@ -131,76 +131,76 @@ require 'db.php';
                 
             ?>
 
-<form method="POST">
-    <table>
-        <tbody>
-            <tr>
-                <!-- Einsatznummer LTS -->
-                <td id="dünn">
-                    <div>
-                        <input type="text" inputmode="numeric"  id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS" >
-                    </div>
-                </td>
+            <form method="POST">
+                <table>
+                                <tbody>
+                        <tr>
+                            <!-- Einsatznummer LTS -->
+                            <td id="dünn">
+                                <div>
+                                    <input type="text" inputmode="numeric"  id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS" >
+                                </div>
+                            </td>
 
-                <!-- Alarmzeit -->
-                <td id="dünn">
-                    <div style="position: relative;">
-                        <input 
-                            type="datetime-local" 
-                            id="alarmuhrzeit" 
-                            name="alarmuhrzeit" 
-                            oninput="syncZurueckzeit()" 
-                            onfocus="hidePlaceholder('alarmPlaceholder')" 
-                            onblur="showPlaceholder('alarmPlaceholder', this)" 
-                            style="padding-left: 5px;">
-                        <span id="alarmPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Alarmzeit</span>
-                    </div>
-                </td>
+                            <!-- Alarmzeit -->
+                            <td id="dünn">
+                                <div style="position: relative;">
+                                    <input 
+                                        type="datetime-local" 
+                                        id="alarmuhrzeit" 
+                                        name="alarmuhrzeit" 
+                                        oninput="syncZurueckzeit()" 
+                                        onfocus="hidePlaceholder('alarmPlaceholder')" 
+                                        onblur="showPlaceholder('alarmPlaceholder', this)" 
+                                        style="padding-left: 5px;">
+                                    <span id="alarmPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Alarmzeit</span>
+                                </div>
+                            </td>
 
-                <!-- Zurückzeit -->
-                <td id="dünn">
-                    <div style="position: relative;">
-                        <input 
-                            type="datetime-local" 
-                            id="zurueckzeit" 
-                            name="zurueckzeit" 
-                            onfocus="hidePlaceholder('returnPlaceholder')" 
-                            onblur="showPlaceholder('returnPlaceholder', this)" 
-                            style="padding-left: 5px;">
-                        <span id="returnPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Zurückzeit</span>
-                    </div>
-                </td>
+                            <!-- Zurückzeit -->
+                            <td id="dünn">
+                                <div style="position: relative;">
+                                    <input 
+                                        type="datetime-local" 
+                                        id="zurueckzeit" 
+                                        name="zurueckzeit" 
+                                        onfocus="hidePlaceholder('returnPlaceholder')" 
+                                        onblur="showPlaceholder('returnPlaceholder', this)" 
+                                        style="padding-left: 5px;">
+                                    <span id="returnPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Zurückzeit</span>
+                                </div>
+                            </td>
 
-                <script>
-                    function syncZurueckzeit() {
-                        const alarmzeitInput = document.getElementById('alarmuhrzeit');
-                        const zurueckzeitInput = document.getElementById('zurueckzeit');
+                            <script>
+                                function syncZurueckzeit() {
+                                    const alarmzeitInput = document.getElementById('alarmuhrzeit');
+                                    const zurueckzeitInput = document.getElementById('zurueckzeit');
 
-                        // Nur Wert kopieren, wenn Alarmzeit ausgefüllt ist
-                        if (alarmzeitInput.value) {
-                            zurueckzeitInput.value = alarmzeitInput.value;
-                        }
-                    }
+                                    // Nur Wert kopieren, wenn Alarmzeit ausgefüllt ist
+                                    if (alarmzeitInput.value) {
+                                        zurueckzeitInput.value = alarmzeitInput.value;
+                                    }
+                                }
 
-                    function hidePlaceholder(placeholderId) {
-                        document.getElementById(placeholderId).style.display = 'none';
-                    }
+                                function hidePlaceholder(placeholderId) {
+                                    document.getElementById(placeholderId).style.display = 'none';
+                                }
 
-                    function showPlaceholder(placeholderId, input) {
-                        if (!input.value) {
-                            document.getElementById(placeholderId).style.display = 'block';
-                        }
-                    }
-                    function hidePlaceholder(placeholderId) {
-                        document.getElementById(placeholderId).style.display = 'none';
-                    }
+                                function showPlaceholder(placeholderId, input) {
+                                    if (!input.value) {
+                                        document.getElementById(placeholderId).style.display = 'block';
+                                    }
+                                }
+                                function hidePlaceholder(placeholderId) {
+                                    document.getElementById(placeholderId).style.display = 'none';
+                                }
 
-                    function showPlaceholder(placeholderId, input) {
-                        if (!input.value) {
-                            document.getElementById(placeholderId).style.display = 'block';
-                        }
-                    }
-                </script>
+                                function showPlaceholder(placeholderId, input) {
+                                    if (!input.value) {
+                                        document.getElementById(placeholderId).style.display = 'block';
+                                    }
+                                }
+                            </script>
 
                 <!-- Stichwort -->
                 <td id="dick">
@@ -315,14 +315,14 @@ require 'db.php';
                             <?php endforeach; ?>
                         </select>
                     </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <button class="button-container" type="submit" name="save">Speichern</button>
-</form>
+                   </td>
+                   </tr>
+                 </tbody>
+                </table>
+                <button class="button-container" type="submit" name="save">Speichern</button>
+            </form>
 
-</section>
+        </section>
 
 <?php 
 // Fahrzeuge aus der Datenbank abrufen
