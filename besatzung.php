@@ -129,7 +129,6 @@ if ($fahrzeugId) {
 }
 ?>
 
-
 <form method="POST" action="">
     <!-- Fahrzeug auswählen -->
     <h2>Fahrzeug:</h2>
