@@ -589,7 +589,6 @@ if ($zeitResult) {
                             COUNT(e.id) AS alarmanzahl
                         FROM dienste d
                         LEFT JOIN einsaetze e ON e.dienst_id = d.id
-                        WHERE d.fahrzeug_id = :fahrzeug_id
                         GROUP BY d.id
                         ORDER BY STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i') DESC
                         LIMIT 5
