@@ -8,6 +8,8 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 require 'db.php';
 
 // Debugging: Aktuelle Uhrzeit anzeigen
+// Zeitzone setzen (z. B. für Deutschland)
+date_default_timezone_set('Europe/Berlin');
 $aktuelleUhrzeit = date('d.m.Y H:i');
 echo "Aktuelle Uhrzeit: $aktuelleUhrzeit<br>";
 
