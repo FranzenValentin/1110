@@ -19,8 +19,8 @@ $dienstQuery = "
     AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') > STR_TO_DATE(:aktuelleUhrzeit, '%d.%m.%Y %H:%i') 
          OR ausserDienstZeit IS NULL)
     LIMIT 1
-
 ";
+
 
 $dienstStmt = $pdo->prepare($dienstQuery);
 $dienstStmt->execute([
