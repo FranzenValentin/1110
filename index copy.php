@@ -23,7 +23,6 @@ require 'db.php';
         </form>
     </header>
 
-
     <main>
 
         <!-- Neuer Alarm -->
