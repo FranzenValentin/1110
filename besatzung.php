@@ -93,62 +93,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </header>
     <main>
 
-    <?php 
-    // Fahrzeuge aus der Datenbank abrufen
-    $query = "SELECT id, name FROM Fahrzeuge";
-    $statement = $pdo->prepare($query);
-    $statement->execute();
-    $fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
+    <?php
+// Fahrzeugliste laden
+$query = "SELECT id, name FROM Fahrzeuge";
+$statement = $pdo->prepare($query);
+$statement->execute();
+$fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-    ?>
+// Initialisierung der Variablen
+$inDienstZeit = '';
+$ausserDienstZeit = '';
+$fahrzeugId = $_POST['fahrzeug_id'] ?? $_GET['fahrzeug_id'] ?? null;
 
-<?php
-// Überprüfen, ob das Formular abgesendet wurde
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
-    // Daten aus dem Formular abrufen
-    $fahrzeugId = $_POST['fahrzeug_id'] ?? null;
-    $inDienstZeit = $_POST['inDienstZeit'] ?? null;
-    $ausserDienstZeit = $_POST['ausserDienstZeit'] ?? null;
+// Zeiten aus der Datenbank laden, falls ein Fahrzeug ausgewählt wurde
+if ($fahrzeugId) {
+    $zeitQuery = "
+        SELECT inDienstZeit, ausserDienstZeit 
+        FROM Besatzung 
+        WHERE fahrzeug_id = :fahrzeug_id 
+        LIMIT 1
+    ";
+    $zeitStmt = $pdo->prepare($zeitQuery);
+    $zeitStmt->execute([':fahrzeug_id' => $fahrzeugId]);
+    $zeitResult = $zeitStmt->fetch(PDO::FETCH_ASSOC);
 
-    // Prüfen, ob alle Felder ausgefüllt sind
-    if ($fahrzeugId && $inDienstZeit && $ausserDienstZeit) {
-        try {
-            // Datenbankverbindung herstellen
-            // (Nimm an, $pdo ist bereits eingerichtet)
-
-            // SQL-Abfrage zum Aktualisieren der Zeiten
-            $sql = "
-                UPDATE Besatzung 
-                SET inDienstZeit = :inDienstZeit, 
-                    ausserDienstZeit = :ausserDienstZeit 
-                WHERE fahrzeug_id = :fahrzeug_id
-            ";
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':inDienstZeit' => $inDienstZeit,
-                ':ausserDienstZeit' => $ausserDienstZeit,
-                ':fahrzeug_id' => $fahrzeugId
-            ]);
-
-            echo "<p style='color: green;'>Die Zeiten wurden erfolgreich gespeichert!</p>";
-        } catch (PDOException $e) {
-            echo "<p style='color: red;'>Fehler beim Speichern der Daten: " . htmlspecialchars($e->getMessage()) . "</p>";
-        }
-    } else {
-        echo "<p style='color: red;'>Bitte wähle ein Fahrzeug aus und fülle alle Felder aus!</p>";
+    // Aktuelle Zeiten setzen und ins ISO-Format umwandeln
+    if ($zeitResult) {
+        $inDienstZeit = $zeitResult['inDienstZeit'] 
+            ? (new DateTime($zeitResult['inDienstZeit']))->format('Y-m-d\TH:i') 
+            : '';
+        $ausserDienstZeit = $zeitResult['ausserDienstZeit'] 
+            ? (new DateTime($zeitResult['ausserDienstZeit']))->format('Y-m-d\TH:i') 
+            : '';
     }
 }
 ?>
+
 
 <form method="POST" action="">
     <!-- Fahrzeug auswählen -->
     <h2>Fahrzeug:</h2>
     <div style="position: relative;">
-        <select name="fahrzeug_id" required style="width: 100%; padding: 10px;">
+        <select name="fahrzeug_id" onchange="this.form.submit()" required style="width: 100%; padding: 10px;">
             <option value="">Fahrzeug auswählen</option>
             <?php foreach ($fahrzeuge as $fahrzeug): ?>
-                <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>">
+                <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
+                    <?php echo (isset($fahrzeugId) && $fahrzeugId == $fahrzeug['id']) ? 'selected' : ''; ?>>
                     <?php echo htmlspecialchars($fahrzeug['name']); ?>
                 </option>
             <?php endforeach; ?>
@@ -162,6 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             type="datetime-local" 
             id="inDienstZeit" 
             name="inDienstZeit" 
+            value="<?php echo htmlspecialchars($inDienstZeit); ?>" 
             required 
             style="padding-left: 5px; width: 100%;">
     </div>
@@ -173,6 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             type="datetime-local" 
             id="ausserDienstZeit" 
             name="ausserDienstZeit" 
+            value="<?php echo htmlspecialchars($ausserDienstZeit); ?>" 
             required 
             style="padding-left: 5px; width: 100%;">
     </div>
@@ -180,6 +172,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     <!-- Speichern-Button -->
     <button type="submit" name="save" style="margin-top: 20px;">Speichern</button>
 </form>
+
 
 
 
