@@ -325,6 +325,30 @@ $fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
                 <?php endforeach; ?>
             </select>
         </form>
+        <?php
+if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
+    $fahrzeugId = (int)$_GET['fahrzeug'];
+
+    // Abfrage für die neuesten Zeiten des ausgewählten Fahrzeugs
+    $zeitQuery = "
+        SELECT inDienstZeit, außerDienstZeit 
+        FROM besatzung 
+        WHERE fahrzeug_id = :fahrzeug_id 
+        ORDER BY id DESC 
+        LIMIT 1
+    ";
+    $zeitStmt = $pdo->prepare($zeitQuery);
+    $zeitStmt->execute(['fahrzeug_id' => $fahrzeugId]);
+    $zeitResult = $zeitStmt->fetch(PDO::FETCH_ASSOC);
+
+    // Zeiten auslesen
+    $inDienstZeit = $zeitResult['inDienstZeit'] ?? 'Keine Daten';
+    $ausserDienstZeit = $zeitResult['außerDienstZeit'] ?? 'Keine Daten';
+
+    // Zeiten anzeigen
+    echo "<p>Von <strong>$inDienstZeit</strong> bis <strong>$ausserDienstZeit</strong></p>";
+}
+?>
     </h2>
     <table>
         <thead>
