@@ -364,7 +364,7 @@ $aktuelleUhrzeit = date('d.m.Y H:i');
 
 // SQL-Abfrage, um zu prüfen, ob ein Dienst zur aktuellen Uhrzeit aktiv ist
 $dienstQuery = "
-    SELECT 1 
+    SELECT inDienstZeit, ausserDienstZeit 
     FROM dienste 
     WHERE fahrzeug_id = :fahrzeug_id 
     AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') <= STR_TO_DATE(:aktuelleUhrzeit, '%d.%m.%Y %H:%i')
@@ -379,15 +379,11 @@ $dienstStmt->execute([
     ':aktuelleUhrzeit' => $aktuelleUhrzeit,
 ]);
 
-// Setze $dienstAktiv auf 1, wenn ein aktiver Dienst existiert
-$dienstVorhanden = $dienstStmt->fetchColumn() ? 1 : 0;
+// Dienstdaten abrufen, falls ein aktiver Dienst existiert
+$dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC);
 
-
-// Zeiten auslesen, falls vorhanden
-if ($dienstResult) {
-    $inDienstZeit = $dienstResult['inDienstZeit'] ?? 'Keine Daten';
-    $ausserDienstZeit = $dienstResult['ausserDienstZeit'] ?? 'Keine Daten';
-}
+// Setze $dienstVorhanden auf 1, wenn ein aktiver Dienst existiert
+$dienstVorhanden = $dienstResult ? 1 : 0;
 
 ?>
 
