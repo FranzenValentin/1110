@@ -399,7 +399,6 @@ if ($zeitResult) {
 }
 ?>
 
-?>
 
 
 <section id="aktueller-dienste">
