@@ -105,12 +105,13 @@ $inDienstZeit = '';
 $ausserDienstZeit = '';
 $fahrzeugId = $_POST['fahrzeug_id'] ?? $_GET['fahrzeug_id'] ?? null;
 
-// Zeiten aus der Datenbank laden, falls ein Fahrzeug ausgewählt wurde
+// Neuesten Eintrag aus der Datenbank laden, falls ein Fahrzeug ausgewählt wurde
 if ($fahrzeugId) {
     $zeitQuery = "
         SELECT inDienstZeit, ausserDienstZeit 
         FROM Besatzung 
         WHERE fahrzeug_id = :fahrzeug_id 
+        ORDER BY id DESC 
         LIMIT 1
     ";
     $zeitStmt = $pdo->prepare($zeitQuery);
@@ -119,15 +120,19 @@ if ($fahrzeugId) {
 
     // Aktuelle Zeiten setzen und ins ISO-Format umwandeln
     if ($zeitResult) {
-        $inDienstZeit = $zeitResult['inDienstZeit'] 
-            ? (new DateTime($zeitResult['inDienstZeit']))->format('Y-m-d\TH:i') 
+        $inDienstZeit = $zeitResult['inDienstZeit']
+            ? DateTime::createFromFormat('d.m.y H:i', $zeitResult['inDienstZeit'])->format('Y-m-d\TH:i')
             : '';
-        $ausserDienstZeit = $zeitResult['ausserDienstZeit'] 
-            ? (new DateTime($zeitResult['ausserDienstZeit']))->format('Y-m-d\TH:i') 
+        $ausserDienstZeit = $zeitResult['ausserDienstZeit']
+            ? DateTime::createFromFormat('d.m.y H:i', $zeitResult['ausserDienstZeit'])->format('Y-m-d\TH:i')
             : '';
+    } else {
+        $inDienstZeit = '';
+        $ausserDienstZeit = '';
     }
 }
 ?>
+
 
 <form method="POST" action="">
     <!-- Fahrzeug auswählen -->
