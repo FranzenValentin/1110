@@ -92,13 +92,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
     </header>
     <main>
-        <section id="aktuelle-besatzung">
-            <h2>Besatzungsrollen und Zuweisungen
-                <form method="GET" style="display: inline;">
+
+    <?php 
+    // Fahrzeuge aus der Datenbank abrufen
+    $query = "SELECT id, name FROM Fahrzeuge";
+    $statement = $pdo->prepare($query);
+    $statement->execute();
+    $fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+    ?>
+
+    <form method="GET" class="dropdown-form" style="display: inline;">
             <select name="fahrzeug" onchange="this.form.submit()">
-                <option value="1" <?php echo ($fahrzeugId == 1) ? 'selected' : ''; ?>>LHF 1110/1</option>
-                <option value="2" <?php echo ($fahrzeugId == 2) ? 'selected' : ''; ?>>LHF 1110/2</option>
-                <option value="3" <?php echo ($fahrzeugId == 3) ? 'selected' : ''; ?>>LHF 1110/3</option>
+                <option value="">Fahrzeug auswählen</option>
+                <?php foreach ($fahrzeuge as $fahrzeug): ?>
+                    <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
+                        <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == $fahrzeug['id']) ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($fahrzeug['name']); ?>
+                    </option>
+                <?php endforeach; ?>
             </select>
         </form>
     </h2>
