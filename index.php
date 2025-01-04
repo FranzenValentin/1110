@@ -365,7 +365,6 @@ if ($zeitResult) {
 ?>
 
 
-<!-- Aktuelle Besatzung -->
 <section id="aktueller-dienste">
     <h2>
         Aktueller Dienst mit dem 
@@ -403,21 +402,29 @@ if ($zeitResult) {
             'prakt' => 'Praktikant'
         ];
 
-        // Besatzung für die zuvor ermittelte Dienst-ID abrufen
-        if (isset($dienst_id)) {
-            $besatzungStmt = $pdo->prepare("SELECT * FROM dienste WHERE id = :dienstId");
-            $besatzungStmt->execute([':dienstId' => $dienst_id]);
-            $latestBesatzung = $besatzungStmt->fetch();
-        }
+        // Besatzung basierend auf den ermittelten Zeiten und Fahrzeug abrufen
+        $besatzungStmt = $pdo->prepare("
+            SELECT * 
+            FROM dienste 
+            WHERE fahrzeug_id = :fahrzeug_id 
+            AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:inDienstZeit, '%d.%m.%Y %H:%i')
+            AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:ausserDienstZeit, '%d.%m.%Y %H:%i') OR :ausserDienstZeit IS NULL)
+        ");
+        $besatzungStmt->execute([
+            ':fahrzeug_id' => $fahrzeugId,
+            ':inDienstZeit' => $inDienstZeit,
+            ':ausserDienstZeit' => $ausserDienstZeit !== 'Keine Daten' ? $ausserDienstZeit : null,
+        ]);
+        $besatzung = $besatzungStmt->fetch();
 
         foreach ($roles as $key => $label) {
             echo "<tr>";
             echo "<td>$label</td>";
 
-            if ($latestBesatzung && $latestBesatzung[$key . '_id']) {
+            if ($besatzung && $besatzung[$key . '_id']) {
                 // Zuweisung der Person abrufen
                 $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM personal WHERE id = :id");
-                $personStmt->execute([':id' => $latestBesatzung[$key . '_id']]);
+                $personStmt->execute([':id' => $besatzung[$key . '_id']]);
                 $person = $personStmt->fetch();
 
                 // Name anzeigen, falls vorhanden
