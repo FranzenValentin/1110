@@ -302,7 +302,7 @@ require 'db.php';
 
 </section>
 
-<?php
+<?php 
 // Fahrzeuge aus der Datenbank abrufen
 $query = "SELECT id, name FROM Fahrzeuge";
 $statement = $pdo->prepare($query);
@@ -312,8 +312,8 @@ $fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
 $inDienstZeit = 'Keine Daten';
 $ausserDienstZeit = 'Keine Daten';
 
-if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
-    $fahrzeugId = (int)$_GET['fahrzeug'];
+if (isset($_GET['fahrzeug_id']) && $_GET['fahrzeug_id'] !== '') {
+    $fahrzeugId = (int)$_GET['fahrzeug_id'];
 
     // SQL-Abfrage
     $zeitQuery = "
