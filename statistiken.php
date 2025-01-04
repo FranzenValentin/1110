@@ -24,7 +24,7 @@ try {
     // Gesamtanzahl der Einsätze im gewählten Zeitraum
     $totalStmt = $pdo->prepare("
         SELECT COUNT(*) AS total 
-        FROM Einsaetze 
+        FROM einsaetze 
         WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
     ");
     $totalStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
@@ -33,7 +33,7 @@ try {
     // Durchschnittliche Dauer eines Einsatzes
     $dauerStmt = $pdo->prepare("
         SELECT AVG(TIMESTAMPDIFF(MINUTE, STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i'), STR_TO_DATE(zurueckzeit, '%d.%m.%y %H:%i'))) AS durchschnittsdauer
-        FROM Einsaetze
+        FROM einsaetze
         WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
     ");
     $dauerStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
@@ -42,7 +42,7 @@ try {
     // Häufigste Stichworte im gewählten Zeitraum
     $stichwortStmt = $pdo->prepare("
         SELECT stichwort, COUNT(*) AS anzahl 
-        FROM Einsaetze 
+        FROM einsaetze 
         WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
         GROUP BY stichwort 
         ORDER BY anzahl DESC

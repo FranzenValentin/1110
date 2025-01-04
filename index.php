@@ -78,9 +78,9 @@ require 'db.php';
                             ORDER BY b.id DESC LIMIT 1
                         ");
                         $besatzungStmt->execute([':fahrzeug_name' => $fahrzeug_name]);
-                        $besatzung_id = $besatzungStmt->fetchColumn();
+                        $dienst_id = $besatzungStmt->fetchColumn();
                 
-                        if (!$besatzung_id) {
+                        if (!$dienst_id) {
                             throw new Exception("Keine gültige Besatzung für das ausgewählte Fahrzeug gefunden.");
                         }
                 
@@ -437,14 +437,14 @@ if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
                             p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf,
                             p4.nachname AS atm, p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
                         FROM einsaetze e
-                        LEFT JOIN Besatzung b ON e.dienst_id = b.id
-                        LEFT JOIN Personal p1 ON b.stf_id = p1.id
-                        LEFT JOIN Personal p2 ON b.ma_id = p2.id
-                        LEFT JOIN Personal p3 ON b.atf_id = p3.id
-                        LEFT JOIN Personal p4 ON b.atm_id = p4.id
-                        LEFT JOIN Personal p5 ON b.wtf_id = p5.id
-                        LEFT JOIN Personal p6 ON b.wtm_id = p6.id
-                        LEFT JOIN Personal p7 ON b.prakt_id = p7.id
+                        LEFT JOIN dienste b ON e.dienst_id = b.id
+                        LEFT JOIN personal p1 ON b.stf_id = p1.id
+                        LEFT JOIN personal p2 ON b.ma_id = p2.id
+                        LEFT JOIN personal p3 ON b.atf_id = p3.id
+                        LEFT JOIN personal p4 ON b.atm_id = p4.id
+                        LEFT JOIN personal p5 ON b.wtf_id = p5.id
+                        LEFT JOIN personal p6 ON b.wtm_id = p6.id
+                        LEFT JOIN personal p7 ON b.prakt_id = p7.id
                         ORDER BY 
                             CAST(SUBSTRING_INDEX(e.interne_einsatznummer, '_', 1) AS UNSIGNED) DESC,
                             CAST(SUBSTRING_INDEX(e.interne_einsatznummer, '_', -1) AS UNSIGNED) DESC

@@ -63,14 +63,14 @@ $query = "
         p6.nachname AS wtm,
         p7.nachname AS praktikant
     FROM Einsaetze e
-    LEFT JOIN Besatzung b ON e.besatzung_id = b.id
-    LEFT JOIN Personal p1 ON b.stf_id = p1.id
-    LEFT JOIN Personal p2 ON b.ma_id = p2.id
-    LEFT JOIN Personal p3 ON b.atf_id = p3.id
-    LEFT JOIN Personal p4 ON b.atm_id = p4.id
-    LEFT JOIN Personal p5 ON b.wtf_id = p5.id
-    LEFT JOIN Personal p6 ON b.wtm_id = p6.id
-    LEFT JOIN Personal p7 ON b.prakt_id = p7.id
+    LEFT JOIN besatzung b ON e.dienst_id = b.id
+    LEFT JOIN personal p1 ON b.stf_id = p1.id
+    LEFT JOIN personal p2 ON b.ma_id = p2.id
+    LEFT JOIN personal p3 ON b.atf_id = p3.id
+    LEFT JOIN personal p4 ON b.atm_id = p4.id
+    LEFT JOIN personal p5 ON b.wtf_id = p5.id
+    LEFT JOIN personal p6 ON b.wtm_id = p6.id
+    LEFT JOIN personal p7 ON b.prakt_id = p7.id
     WHERE 
         MONTH(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i')) = :monat 
         AND YEAR(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i')) = :jahr

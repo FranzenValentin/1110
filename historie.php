@@ -50,15 +50,15 @@ require 'db.php';
                         SELECT e.interne_einsatznummer, e.einsatznummer_lts, e.alarmuhrzeit, e.zurueckzeit, e.fahrzeug_name, e.adresse, e.stadtteil, e.stichwort,
                             p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf,
                             p4.nachname AS atm, p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
-                        FROM Einsaetze e
-                        LEFT JOIN Besatzung b ON e.besatzung_id = b.id
-                        LEFT JOIN Personal p1 ON b.stf_id = p1.id
-                        LEFT JOIN Personal p2 ON b.ma_id = p2.id
-                        LEFT JOIN Personal p3 ON b.atf_id = p3.id
-                        LEFT JOIN Personal p4 ON b.atm_id = p4.id
-                        LEFT JOIN Personal p5 ON b.wtf_id = p5.id
-                        LEFT JOIN Personal p6 ON b.wtm_id = p6.id
-                        LEFT JOIN Personal p7 ON b.prakt_id = p7.id
+                        FROM einsaetze e
+                        LEFT JOIN dienst b ON e.dienst_id = b.id
+                        LEFT JOIN personal p1 ON b.stf_id = p1.id
+                        LEFT JOIN personal p2 ON b.ma_id = p2.id
+                        LEFT JOIN personal p3 ON b.atf_id = p3.id
+                        LEFT JOIN personal p4 ON b.atm_id = p4.id
+                        LEFT JOIN personal p5 ON b.wtf_id = p5.id
+                        LEFT JOIN personal p6 ON b.wtm_id = p6.id
+                        LEFT JOIN personal p7 ON b.prakt_id = p7.id
                         ORDER BY 
                             CAST(SUBSTRING_INDEX(e.interne_einsatznummer, '_', 1) AS UNSIGNED) DESC,
                             CAST(SUBSTRING_INDEX(e.interne_einsatznummer, '_', -1) AS UNSIGNED) DESC

@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($kategorie && $stichwort) {
         try {
             // Daten in die Datenbank einfügen
-            $stmt = $pdo->prepare("INSERT INTO Stichworte (kategorie, stichwort) VALUES (:kategorie, :stichwort)");
+            $stmt = $pdo->prepare("INSERT INTO stichworte (kategorie, stichwort) VALUES (:kategorie, :stichwort)");
             $stmt->execute([':kategorie' => $kategorie, ':stichwort' => $stichwort]);
             $successMessage = "Das Stichwort wurde erfolgreich hinzugefügt.";
         } catch (PDOException $e) {
@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Alle Stichworte laden, um sie auf der Seite anzuzeigen
 try {
-    $stichworteStmt = $pdo->query("SELECT * FROM Stichworte ORDER BY kategorie, stichwort");
+    $stichworteStmt = $pdo->query("SELECT * FROM stichworte ORDER BY kategorie, stichwort");
     $stichworte = $stichworteStmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("Fehler beim Laden der Stichworte: " . htmlspecialchars($e->getMessage()));

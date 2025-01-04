@@ -18,7 +18,7 @@ if (!isset($_GET['startdatum']) || !isset($_GET['enddatum'])) {
 $personId = isset($_GET['person_id']) ? $_GET['person_id'] : null;
 
 // Personal laden
-$personalStmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM Personal ORDER BY nachname");
+$personalStmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM personal ORDER BY nachname");
 $personal = $personalStmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Einsätze abrufen, wenn eine Person ausgewählt ist
@@ -38,8 +38,8 @@ if ($personId) {
                 WHEN b.prakt_id = :personId THEN 'Praktikant'
                 ELSE 'Unbekannt'
             END AS funktion
-        FROM Einsaetze e
-        LEFT JOIN Besatzung b ON e.besatzung_id = b.id
+        FROM einsaetze e
+        LEFT JOIN dienste b ON e.dienst_id = b.id
         WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
         AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
         ORDER BY e.alarmuhrzeit DESC
@@ -64,8 +64,8 @@ if ($personId) {
                 ELSE 'Unbekannt'
             END AS funktion,
             COUNT(*) AS anzahl
-        FROM Einsaetze e
-        LEFT JOIN Besatzung b ON e.besatzung_id = b.id
+        FROM einsaetze 
+        LEFT JOIN dienste b ON e.dienst_id = b.id
         WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
         AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
         GROUP BY funktion
@@ -81,7 +81,7 @@ if ($personId) {
     // Gesamtanzahl der Einsätze im Zeitraum zählen
         $totalEinsaetzeStmt = $pdo->prepare("
         SELECT COUNT(*) AS total
-        FROM Einsaetze e
+        FROM einsaetze e
         WHERE STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
         ");
         $totalEinsaetzeStmt->execute([
@@ -93,8 +93,8 @@ if ($personId) {
     // Einsätze zählen, bei denen die Person beteiligt war
         $personEinsaetzeStmt = $pdo->prepare("
         SELECT COUNT(*) AS total
-        FROM Einsaetze e
-        LEFT JOIN Besatzung b ON e.besatzung_id = b.id
+        FROM einsaetze e
+        LEFT JOIN Besatzung b ON e.dienst_id = b.id
         WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
         AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
         ");
@@ -114,8 +114,8 @@ if ($personId) {
             STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i'), 
             STR_TO_DATE(e.zurueckzeit, '%d.%m.%y %H:%i')
         )) AS gesamtDauer
-        FROM Einsaetze e
-        LEFT JOIN Besatzung b ON e.besatzung_id = b.id
+        FROM einsaetze e
+        LEFT JOIN dienste b ON e.dienst_id = b.id
         WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
         AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
         ");

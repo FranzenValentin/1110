@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!empty($vorname) && !empty($nachname)) {
         try {
-            $stmt = $pdo->prepare("INSERT INTO Personal (vorname, nachname) VALUES (:vorname, :nachname)");
+            $stmt = $pdo->prepare("INSERT INTO personal (vorname, nachname) VALUES (:vorname, :nachname)");
             $stmt->execute([
                 ':vorname' => $vorname,
                 ':nachname' => $nachname

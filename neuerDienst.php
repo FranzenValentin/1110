@@ -25,14 +25,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Prüfen, ob die letzte Zeile nur NULL enthält und zur aktuellen Fahrzeug-ID gehört
-        $stmt = $pdo->prepare("SELECT * FROM Besatzung WHERE fahrzeug_id = :fahrzeugId ORDER BY id DESC LIMIT 1");
+        $stmt = $pdo->prepare("SELECT * FROM dienste WHERE fahrzeug_id = :fahrzeugId ORDER BY id DESC LIMIT 1");
         $stmt->execute([':fahrzeugId' => $fahrzeugId]);
         $lastRow = $stmt->fetch();
         $lastRowIsNull = ($lastRow && is_null($lastRow['stf_id']) && is_null($lastRow['ma_id']) && is_null($lastRow['atf_id']) && is_null($lastRow['atm_id']) && is_null($lastRow['wtf_id']) && is_null($lastRow['wtm_id']) && is_null($lastRow['prakt_id']));
 
         if ($lastRowIsNull) {
             // Letzte Zeile überschreiben
-            $stmt = $pdo->prepare("UPDATE Besatzung SET stf_id = :stf, ma_id = :ma, atf_id = :atf, atm_id = :atm, wtf_id = :wtf, wtm_id = :wtm, prakt_id = :prakt WHERE id = :id");
+            $stmt = $pdo->prepare("UPDATE dienste SET stf_id = :stf, ma_id = :ma, atf_id = :atf, atm_id = :atm, wtf_id = :wtf, wtm_id = :wtm, prakt_id = :prakt WHERE id = :id");
             $stmt->execute([
                 ':stf' => $changes['stf'],
                 ':ma' => $changes['ma'],
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
         } else {
             // Neue Zeile mit den Änderungen erstellen
-            $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id, fahrzeug_id) VALUES (:stf, :ma, :atf, :atm, :wtf, :wtm, :prakt, :fahrzeugId)");
+            $stmt = $pdo->prepare("INSERT INTO dienste (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id, fahrzeug_id) VALUES (:stf, :ma, :atf, :atm, :wtf, :wtm, :prakt, :fahrzeugId)");
             $stmt->execute([
                 ':stf' => $changes['stf'],
                 ':ma' => $changes['ma'],
@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ];
 
                         // Die letzte Besatzungszeile für das aktuelle Fahrzeug abrufen
-                        $stmt = $pdo->prepare("SELECT * FROM Besatzung WHERE fahrzeug_id = :fahrzeugId ORDER BY id DESC LIMIT 1");
+                        $stmt = $pdo->prepare("SELECT * FROM dienste WHERE fahrzeug_id = :fahrzeugId ORDER BY id DESC LIMIT 1");
                         $stmt->execute([':fahrzeugId' => $fahrzeugId]);
                         $latestBesatzung = $stmt->fetch();
 
@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             // Prüfen, ob eine Person bereits zugewiesen ist
                             if ($latestBesatzung && $latestBesatzung[$key . '_id']) {
-                                $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM Personal WHERE id = :id");
+                                $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM personal WHERE id = :id");
                                 $personStmt->execute([':id' => $latestBesatzung[$key . '_id']]);
                                 $person = $personStmt->fetch();
                                 echo "<td>" . ($person['name'] ?? '<em>Keine Zuweisung</em>') . "</td>";
@@ -146,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             // Dropdown zur Auswahl
                             echo "<td><select name='$key'>";
                             echo "<option value=''>Keine Auswahl</option>";
-                            $stmt = $pdo->query("SELECT id, CONCAT(nachname, ', ', vorname) AS name FROM Personal ORDER BY nachname, vorname ASC");
+                            $stmt = $pdo->query("SELECT id, CONCAT(nachname, ', ', vorname) AS name FROM personal ORDER BY nachname, vorname ASC");
                             while ($row = $stmt->fetch()) {
                                 $selected = ($latestBesatzung && $latestBesatzung[$key . '_id'] == $row['id']) ? 'selected' : '';
                                 echo "<option value='{$row['id']}' $selected>{$row['name']}</option>";
