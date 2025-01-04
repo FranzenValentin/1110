@@ -37,7 +37,7 @@ require 'db.php';
                     $fahrzeuge = $fahrzeugeStmt->fetchAll(PDO::FETCH_ASSOC);
 
                     // Stichworte laden, sortiert nach Kategorie und Stichwort
-                    $stichworteStmt = $pdo->prepare("SELECT id, kategorie, stichwort FROM Stichworte ORDER BY kategorie, stichwort");
+                    $stichworteStmt = $pdo->prepare("SELECT id, kategorie, stichwort FROM stichworte ORDER BY kategorie, stichwort");
                     $stichworteStmt->execute();
                     $stichworte = $stichworteStmt->fetchAll(PDO::FETCH_ASSOC);
                 } catch (PDOException $e) {
