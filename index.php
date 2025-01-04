@@ -484,9 +484,6 @@ $dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC);
         </section>
     <?php endif; ?>
 
-<?php echo $dienstVorhanden; ?>
-<?php echo "testetdtadc"; ?>
-
 
         <!-- Letzte Einsätze -->
         <section id="letzte-einsaetze">
