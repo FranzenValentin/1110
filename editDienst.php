@@ -70,31 +70,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
                 }
             }
 
-            // Aktualisieren der Datenbank
-            $updateQuery = "
-                UPDATE Besatzung 
-                SET inDienstZeit = :inDienstZeit, 
-                    ausserDienstZeit = :ausserDienstZeit, 
-                    stf_id = :stf, ma_id = :ma, atf_id = :atf, 
-                    atm_id = :atm, wtf_id = :wtf, wtm_id = :wtm, 
-                    prakt_id = :prakt 
-                WHERE fahrzeug_id = :fahrzeug_id
-            ";
-            $updateStmt = $pdo->prepare($updateQuery);
-            $updateStmt->execute([
-                ':inDienstZeit' => $inDienstZeitDB,
-                ':ausserDienstZeit' => $ausserDienstZeitDB,
-                ':stf' => $validRoles['stf'],
-                ':ma' => $validRoles['ma'],
-                ':atf' => $validRoles['atf'],
-                ':atm' => $validRoles['atm'],
-                ':wtf' => $validRoles['wtf'],
-                ':wtm' => $validRoles['wtm'],
-                ':prakt' => $validRoles['prakt'],
-                ':fahrzeug_id' => $fahrzeugId
-            ]);
+            // Überprüfen, ob eine Zeile für fahrzeug_id existiert
+            $latestQuery = "SELECT id FROM Besatzung WHERE fahrzeug_id = :fahrzeug_id ORDER BY id DESC LIMIT 1";
+            $latestStmt = $pdo->prepare($latestQuery);
+            $latestStmt->execute([':fahrzeug_id' => $fahrzeugId]);
+            $latestEntry = $latestStmt->fetch(PDO::FETCH_ASSOC);
 
-            echo "<p style='color: green;'>Die Daten wurden erfolgreich aktualisiert.</p>";
+            if ($latestEntry) {
+                // Nur die neueste Zeile aktualisieren
+                $updateQuery = "
+                    UPDATE Besatzung 
+                    SET inDienstZeit = :inDienstZeit, 
+                        ausserDienstZeit = :ausserDienstZeit, 
+                        stf_id = :stf, ma_id = :ma, atf_id = :atf, 
+                        atm_id = :atm, wtf_id = :wtf, wtm_id = :wtm, 
+                        prakt_id = :prakt 
+                    WHERE id = :id
+                ";
+                $updateStmt = $pdo->prepare($updateQuery);
+                $updateStmt->execute([
+                    ':inDienstZeit' => $inDienstZeitDB,
+                    ':ausserDienstZeit' => $ausserDienstZeitDB,
+                    ':stf' => $validRoles['stf'],
+                    ':ma' => $validRoles['ma'],
+                    ':atf' => $validRoles['atf'],
+                    ':atm' => $validRoles['atm'],
+                    ':wtf' => $validRoles['wtf'],
+                    ':wtm' => $validRoles['wtm'],
+                    ':prakt' => $validRoles['prakt'],
+                    ':id' => $latestEntry['id'] // Nur die neueste Zeile aktualisieren
+                ]);
+
+                echo "<p style='color: green;'>Die Daten wurden erfolgreich aktualisiert.</p>";
+            } else {
+                echo "<p style='color: red;'>Kein Eintrag für das Fahrzeug gefunden.</p>";
+            }
         } catch (PDOException $e) {
             echo "<p style='color: red;'>Fehler beim Speichern der Daten: " . htmlspecialchars($e->getMessage()) . "</p>";
         }
@@ -102,6 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
         echo "<p style='color: red;'>Bitte fülle alle Felder aus!</p>";
     }
 }
+
 
 
 // Daten löschen
