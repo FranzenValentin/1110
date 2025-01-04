@@ -14,11 +14,11 @@ $aktuelleUhrzeit = date('d.m.Y H:i');
 $dienstQuery = "
     SELECT inDienstZeit, ausserDienstZeit 
     FROM dienste 
-    WHERE fahrzeug_id = 1 
-    AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') <= STR_TO_DATE('04.01.2025 14:30', '%d.%m.%Y %H:%i')
-    AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') > STR_TO_DATE('04.01.2025 14:30', '%d.%m.%Y %H:%i') 
-        OR ausserDienstZeit IS NULL)
-    LIMIT 1;
+    WHERE fahrzeug_id = :fahrzeug_id 
+    AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') <= STR_TO_DATE(:aktuelleUhrzeit, '%d.%m.%Y %H:%i')
+    AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') > STR_TO_DATE(:aktuelleUhrzeit, '%d.%m.%Y %H:%i') 
+         OR ausserDienstZeit IS NULL)
+    LIMIT 1
 
 ";
 
