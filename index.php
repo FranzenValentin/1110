@@ -321,27 +321,24 @@ $fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
 $inDienstZeit = 'Keine Daten';
 $ausserDienstZeit = 'Keine Daten';
 
-if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
-    $fahrzeugId = (int)$_GET['fahrzeug'];
+// SQL-Abfrage für die Dienstzeiten
+$zeitQuery = "
+    SELECT inDienstZeit, ausserDienstZeit 
+    FROM dienste 
+    WHERE fahrzeug_id = :fahrzeug_id 
+    ORDER BY id DESC 
+    LIMIT 1
+";
+$zeitStmt = $pdo->prepare($zeitQuery);
+$zeitStmt->execute([':fahrzeug_id' => $fahrzeugId]);
+$zeitResult = $zeitStmt->fetch(PDO::FETCH_ASSOC);
 
-    // SQL-Abfrage für die Dienstzeiten
-    $zeitQuery = "
-        SELECT inDienstZeit, ausserDienstZeit 
-        FROM dienste 
-        WHERE fahrzeug_id = :fahrzeug_id 
-        ORDER BY id DESC 
-        LIMIT 1
-    ";
-    $zeitStmt = $pdo->prepare($zeitQuery);
-    $zeitStmt->execute([':fahrzeug_id' => $fahrzeugId]);
-    $zeitResult = $zeitStmt->fetch(PDO::FETCH_ASSOC);
-
-    // Zeiten auslesen, falls vorhanden
-    if ($zeitResult) {
-        $inDienstZeit = $zeitResult['inDienstZeit'] ?? 'Keine Daten';
-        $ausserDienstZeit = $zeitResult['ausserDienstZeit'] ?? 'Keine Daten';
-    }
+// Zeiten auslesen, falls vorhanden
+if ($zeitResult) {
+    $inDienstZeit = $zeitResult['inDienstZeit'] ?? 'Keine Daten';
+    $ausserDienstZeit = $zeitResult['ausserDienstZeit'] ?? 'Keine Daten';
 }
+
 ?>
 
 <!-- Aktuelle Besatzung -->
@@ -352,7 +349,7 @@ if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
             <select name="fahrzeug" onchange="this.form.submit()">
                 <?php foreach ($fahrzeuge as $fahrzeug): ?>
                     <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
-                        <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == $fahrzeug['id']) ? 'selected' : ''; ?>>
+                        <?php echo ($fahrzeugId == $fahrzeug['id']) ? 'selected' : ''; ?>>
                         <?php echo htmlspecialchars($fahrzeug['name']); ?>
                     </option>
                 <?php endforeach; ?>
