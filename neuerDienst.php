@@ -76,12 +76,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dienst bearbeiten</title>
+    <title>Besatzung verwalten</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
-        <h1>Dienst bearbeiten</h1>
+        <h1>Besatzung verwalten</h1>
         <form method="POST" action="logout.php" class="logout-form">
             <button type="submit">Logout</button>
         </form>
