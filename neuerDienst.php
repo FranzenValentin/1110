@@ -7,66 +7,43 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 require 'db.php';
 
 // Standardfahrzeug (LHF 1110/1)
-$fahrzeugId = isset($_GET['fahrzeug']) && is_numeric($_GET['fahrzeug']) ? (int)$_GET['fahrzeug'] : 1;
+$fahrzeugId = isset($_POST['fahrzeug']) && is_numeric($_POST['fahrzeug']) ? (int)$_POST['fahrzeug'] : null;
+$inDienstZeit = $_POST['inDienstZeit'] ?? null;
+$ausserDienstZeit = $_POST['ausserDienstZeit'] ?? null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['save'])) {
-        // Besatzung speichern
-        $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
-        $changes = [];
-
-        foreach ($roles as $role) {
-            if (isset($_POST[$role]) && $_POST[$role] !== '') {
-                $person_id = $_POST[$role];
-                $changes[$role] = $person_id;
-            } else {
-                $changes[$role] = null;
-            }
-        }
-
-        // Prüfen, ob die letzte Zeile nur NULL enthält und zur aktuellen Fahrzeug-ID gehört
-        $stmt = $pdo->prepare("SELECT * FROM dienste WHERE fahrzeug_id = :fahrzeugId ORDER BY id DESC LIMIT 1");
-        $stmt->execute([':fahrzeugId' => $fahrzeugId]);
-        $lastRow = $stmt->fetch();
-        $lastRowIsNull = ($lastRow && is_null($lastRow['stf_id']) && is_null($lastRow['ma_id']) && is_null($lastRow['atf_id']) && is_null($lastRow['atm_id']) && is_null($lastRow['wtf_id']) && is_null($lastRow['wtm_id']) && is_null($lastRow['prakt_id']));
-
-        if ($lastRowIsNull) {
-            // Letzte Zeile überschreiben
-            $stmt = $pdo->prepare("UPDATE dienste SET stf_id = :stf, ma_id = :ma, atf_id = :atf, atm_id = :atm, wtf_id = :wtf, wtm_id = :wtm, prakt_id = :prakt WHERE id = :id");
-            $stmt->execute([
-                ':stf' => $changes['stf'],
-                ':ma' => $changes['ma'],
-                ':atf' => $changes['atf'],
-                ':atm' => $changes['atm'],
-                ':wtf' => $changes['wtf'],
-                ':wtm' => $changes['wtm'],
-                ':prakt' => $changes['prakt'],
-                ':id' => $lastRow['id']
-            ]);
+        // Validierung
+        if (!$fahrzeugId || !$inDienstZeit || !$ausserDienstZeit) {
+            $message = "Bitte wählen Sie ein Fahrzeug und geben Sie die Zeiten ein.";
         } else {
-            // Neue Zeile mit den Änderungen erstellen
-            $stmt = $pdo->prepare("INSERT INTO dienste (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id, fahrzeug_id) VALUES (:stf, :ma, :atf, :atm, :wtf, :wtm, :prakt, :fahrzeugId)");
+            // Besatzung speichern
+            $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
+            $changes = [];
+
+            foreach ($roles as $role) {
+                $changes[$role] = isset($_POST[$role]) && $_POST[$role] !== '' ? $_POST[$role] : null;
+            }
+
+            $stmt = $pdo->prepare("INSERT INTO dienste (fahrzeug_id, in_dienst_zeit, ausser_dienst_zeit, stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) 
+                                   VALUES (:fahrzeugId, :inDienstZeit, :ausserDienstZeit, :stf, :ma, :atf, :atm, :wtf, :wtm, :prakt)");
             $stmt->execute([
+                ':fahrzeugId' => $fahrzeugId,
+                ':inDienstZeit' => $inDienstZeit,
+                ':ausserDienstZeit' => $ausserDienstZeit,
                 ':stf' => $changes['stf'],
                 ':ma' => $changes['ma'],
                 ':atf' => $changes['atf'],
                 ':atm' => $changes['atm'],
                 ':wtf' => $changes['wtf'],
                 ':wtm' => $changes['wtm'],
-                ':prakt' => $changes['prakt'],
-                ':fahrzeugId' => $fahrzeugId
+                ':prakt' => $changes['prakt']
             ]);
+
+            $message = "Besatzung und Zeiten erfolgreich gespeichert.";
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
         }
-
-        $message = "Besatzung erfolgreich aktualisiert.";
-        header("Location: " . $_SERVER['PHP_SELF'] . "?fahrzeug=" . $fahrzeugId); // Seite neu laden
-        exit;
-    } elseif (isset($_POST['clear'])) {
-        // Neue Zeile mit nur NULL für das ausgewählte Fahrzeug einfügen
-        $stmt = $pdo->prepare("INSERT INTO Besatzung (stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id, fahrzeug_id) VALUES (NULL, NULL, NULL, NULL, NULL, NULL, NULL, :fahrzeugId)");
-        $stmt->execute([':fahrzeugId' => $fahrzeugId]);
-
-        $message = "Auswahl zurückgesetzt. Bitte speichern, um Änderungen zu übernehmen.";
     }
 }
 ?>
@@ -81,34 +58,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <header>
-        <h1>Besatzung verwalten</h1>
+        <h1>Besatzung und Dienstzeiten verwalten</h1>
         <form method="POST" action="logout.php" class="logout-form">
             <button type="submit">Logout</button>
         </form>
         <form method="POST" action="index.php" class="back-form">
             <button type="submit">Zurück</button>
-         </form>
-        
-        
+        </form>
     </header>
     <main>
-        <section id="aktuelle-besatzung">
-            <h2>Besatzungsrollen und Zuweisungen
-                <form method="GET" style="display: inline;">
-            <select name="fahrzeug" onchange="this.form.submit()">
-                <option value="1" <?php echo ($fahrzeugId == 1) ? 'selected' : ''; ?>>LHF 1110/1</option>
-                <option value="2" <?php echo ($fahrzeugId == 2) ? 'selected' : ''; ?>>LHF 1110/2</option>
-                <option value="3" <?php echo ($fahrzeugId == 3) ? 'selected' : ''; ?>>LHF 1110/3</option>
-            </select>
-        </form>
-    </h2>
+        <section id="dienstzeiten">
+            <h2>Dienstzeiten und Fahrzeug auswählen</h2>
             <?php if (isset($message)) { echo "<p>$message</p>"; } ?>
             <form method="POST">
+                <div>
+                    <label for="fahrzeug">Fahrzeug:</label>
+                    <select name="fahrzeug" id="fahrzeug" required>
+                        <option value="">Fahrzeug wählen</option>
+                        <option value="1" <?php echo ($fahrzeugId == 1) ? 'selected' : ''; ?>>LHF 1110/1</option>
+                        <option value="2" <?php echo ($fahrzeugId == 2) ? 'selected' : ''; ?>>LHF 1110/2</option>
+                        <option value="3" <?php echo ($fahrzeugId == 3) ? 'selected' : ''; ?>>LHF 1110/3</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="inDienstZeit">In Dienst Zeit:</label>
+                    <input type="datetime-local" id="inDienstZeit" name="inDienstZeit" value="<?php echo htmlspecialchars($inDienstZeit); ?>" required>
+                </div>
+                <div>
+                    <label for="ausserDienstZeit">Außer Dienst Zeit:</label>
+                    <input type="datetime-local" id="ausserDienstZeit" name="ausserDienstZeit" value="<?php echo htmlspecialchars($ausserDienstZeit); ?>" required>
+                </div>
+                <button type="submit" name="next">Weiter</button>
+            </form>
+        </section>
+
+        <?php if ($fahrzeugId && $inDienstZeit && $ausserDienstZeit): ?>
+        <section id="besatzung">
+            <h2>Besatzung zuweisen</h2>
+            <form method="POST">
+                <input type="hidden" name="fahrzeug" value="<?php echo $fahrzeugId; ?>">
+                <input type="hidden" name="inDienstZeit" value="<?php echo htmlspecialchars($inDienstZeit); ?>">
+                <input type="hidden" name="ausserDienstZeit" value="<?php echo htmlspecialchars($ausserDienstZeit); ?>">
+
                 <table>
                     <thead>
                         <tr>
                             <th>Funktion</th>
-                            <th>Aktuell zugewiesen</th>
                             <th>Neue Auswahl</th>
                         </tr>
                     </thead>
@@ -124,32 +119,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             'prakt' => 'Praktikant'
                         ];
 
-                        // Die letzte Besatzungszeile für das aktuelle Fahrzeug abrufen
-                        $stmt = $pdo->prepare("SELECT * FROM dienste WHERE fahrzeug_id = :fahrzeugId ORDER BY id DESC LIMIT 1");
-                        $stmt->execute([':fahrzeugId' => $fahrzeugId]);
-                        $latestBesatzung = $stmt->fetch();
-
                         foreach ($roles as $key => $label) {
                             echo "<tr>";
                             echo "<td>$label</td>";
-
-                            // Prüfen, ob eine Person bereits zugewiesen ist
-                            if ($latestBesatzung && $latestBesatzung[$key . '_id']) {
-                                $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM personal WHERE id = :id");
-                                $personStmt->execute([':id' => $latestBesatzung[$key . '_id']]);
-                                $person = $personStmt->fetch();
-                                echo "<td>" . ($person['name'] ?? '<em>Keine Zuweisung</em>') . "</td>";
-                            } else {
-                                echo "<td><em>Keine Zuweisung</em></td>";
-                            }
-
-                            // Dropdown zur Auswahl
                             echo "<td><select name='$key'>";
                             echo "<option value=''>Keine Auswahl</option>";
                             $stmt = $pdo->query("SELECT id, CONCAT(nachname, ', ', vorname) AS name FROM personal ORDER BY nachname, vorname ASC");
                             while ($row = $stmt->fetch()) {
-                                $selected = ($latestBesatzung && $latestBesatzung[$key . '_id'] == $row['id']) ? 'selected' : '';
-                                echo "<option value='{$row['id']}' $selected>{$row['name']}</option>";
+                                echo "<option value='{$row['id']}'>{$row['name']}</option>";
                             }
                             echo "</select></td>";
                             echo "</tr>";
@@ -157,12 +134,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ?>
                     </tbody>
                 </table>
-                <div>
-                    <button type="submit" name="save">Speichern</button>
-                    <button type="submit" name="clear">Alle löschen</button>
-                </div>
+                <button type="submit" name="save">Speichern</button>
             </form>
         </section>
+        <?php endif; ?>
     </main>
 </body>
 </html>
