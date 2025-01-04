@@ -445,8 +445,8 @@ if ($zeitResult) {
     </tbody>
 </table>
 <div class="button-container">
-    <button onclick="location.href='editDienst.php?fahrzeug=<?php echo $fahrzeugId; ?>'">Dienst ändern</button>
-    <button onclick="location.href='neuerDienst.php'">Neuer Dienst</button>
+<button onclick="location.href='editDienst.php?fahrzeug=<?php echo $fahrzeugId; ?>&dienst=<?php echo $dienstId; ?>'">aktuellen Dienst bearbeiten</button>
+<button onclick="location.href='neuerDienst.php'">Neuer Dienst</button>
 </div>
 
 

@@ -7,30 +7,20 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 
 require 'db.php';
 
-// Fahrzeug-ID aus Anfrage oder Standardwert
+// Fahrzeug-ID aus der URL oder Standardwert
 if (isset($_GET['fahrzeug']) && is_numeric($_GET['fahrzeug'])) {
     $fahrzeugId = (int)$_GET['fahrzeug'];
-
-    // Fahrzeug-ID validieren, ob sie in der Datenbank existiert
-    $query = "SELECT COUNT(*) FROM fahrzeuge WHERE id = :fahrzeug_id";
-    $stmt = $pdo->prepare($query);
-    $stmt->execute([':fahrzeug_id' => $fahrzeugId]);
-
-    if ($stmt->fetchColumn() == 0) {
-        // Ungültige ID, Standardwert setzen
-        $fahrzeugId = 1;
-    }
 } else {
-    // Standardwert, wenn keine gültige ID übergeben wird
-    $fahrzeugId = 1;
+    $fahrzeugId = 1; // Standardwert
 }
 
-
-// Fahrzeugliste laden
-$query = "SELECT id, name FROM fahrzeuge";
-$statement = $pdo->prepare($query);
-$statement->execute();
-$fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
+// Fahrzeug validieren
+$query = "SELECT COUNT(*) FROM fahrzeuge WHERE id = :fahrzeug_id";
+$stmt = $pdo->prepare($query);
+$stmt->execute([':fahrzeug_id' => $fahrzeugId]);
+if ($stmt->fetchColumn() == 0) {
+    exit("Ungültige Fahrzeug-ID.");
+}
 
 // Initialisierung der Variablen
 $inDienstZeit = '';
@@ -38,26 +28,24 @@ $ausserDienstZeit = '';
 $roles = ['stf', 'ma', 'atf', 'atm', 'wtf', 'wtm', 'prakt'];
 
 // Zeiten und Dienst laden
-if ($fahrzeugId) {
-    $zeitQuery = "
-        SELECT inDienstZeit, ausserDienstZeit, stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id 
-        FROM dienste 
-        WHERE fahrzeug_id = :fahrzeug_id 
-        ORDER BY id DESC 
-        LIMIT 1
-    ";
-    $zeitStmt = $pdo->prepare($zeitQuery);
-    $zeitStmt->execute([':fahrzeug_id' => $fahrzeugId]);
-    $latestBesatzung = $zeitStmt->fetch(PDO::FETCH_ASSOC);
+$zeitQuery = "
+    SELECT inDienstZeit, ausserDienstZeit, stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id 
+    FROM dienste 
+    WHERE fahrzeug_id = :fahrzeug_id 
+    ORDER BY STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') DESC 
+    LIMIT 1
+";
+$zeitStmt = $pdo->prepare($zeitQuery);
+$zeitStmt->execute([':fahrzeug_id' => $fahrzeugId]);
+$latestBesatzung = $zeitStmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($latestBesatzung) {
-        $inDienstZeit = $latestBesatzung['inDienstZeit']
-            ? DateTime::createFromFormat('d.m.Y H:i', $latestBesatzung['inDienstZeit'])->format('Y-m-d\TH:i')
-            : '';
-        $ausserDienstZeit = $latestBesatzung['ausserDienstZeit']
-            ? DateTime::createFromFormat('d.m.Y H:i', $latestBesatzung['ausserDienstZeit'])->format('Y-m-d\TH:i')
-            : '';
-    }    
+if ($latestBesatzung) {
+    $inDienstZeit = $latestBesatzung['inDienstZeit']
+        ? DateTime::createFromFormat('d.m.Y H:i', $latestBesatzung['inDienstZeit'])->format('Y-m-d\TH:i')
+        : '';
+    $ausserDienstZeit = $latestBesatzung['ausserDienstZeit']
+        ? DateTime::createFromFormat('d.m.Y H:i', $latestBesatzung['ausserDienstZeit'])->format('Y-m-d\TH:i')
+        : '';
 }
 
 // Aktualisieren der Daten
@@ -86,41 +74,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
                 }
             }
 
-            // Überprüfen, ob eine Zeile für fahrzeug_id existiert
-            $latestQuery = "SELECT id FROM dienste WHERE fahrzeug_id = :fahrzeug_id ORDER BY id DESC LIMIT 1";
-            $latestStmt = $pdo->prepare($latestQuery);
-            $latestStmt->execute([':fahrzeug_id' => $fahrzeugId]);
-            $latestEntry = $latestStmt->fetch(PDO::FETCH_ASSOC);
+            // Neuen Dienst aktualisieren
+            $updateQuery = "
+                UPDATE dienste 
+                SET inDienstZeit = :inDienstZeit, 
+                    ausserDienstZeit = :ausserDienstZeit, 
+                    stf_id = :stf, ma_id = :ma, atf_id = :atf, 
+                    atm_id = :atm, wtf_id = :wtf, wtm_id = :wtm, 
+                    prakt_id = :prakt 
+                WHERE fahrzeug_id = :fahrzeug_id 
+                AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:original_inDienstZeit, '%d.%m.%Y %H:%i')
+                LIMIT 1
+            ";
+            $updateStmt = $pdo->prepare($updateQuery);
+            $updateStmt->execute([
+                ':inDienstZeit' => $inDienstZeitDB,
+                ':ausserDienstZeit' => $ausserDienstZeitDB,
+                ':stf' => $validRoles['stf'],
+                ':ma' => $validRoles['ma'],
+                ':atf' => $validRoles['atf'],
+                ':atm' => $validRoles['atm'],
+                ':wtf' => $validRoles['wtf'],
+                ':wtm' => $validRoles['wtm'],
+                ':prakt' => $validRoles['prakt'],
+                ':fahrzeug_id' => $fahrzeugId,
+                ':original_inDienstZeit' => $latestBesatzung['inDienstZeit']
+            ]);
 
-            if ($latestEntry) {
-                // Nur die neueste Zeile aktualisieren
-                $updateQuery = "
-                    UPDATE dienste 
-                    SET inDienstZeit = :inDienstZeit, 
-                        ausserDienstZeit = :ausserDienstZeit, 
-                        stf_id = :stf, ma_id = :ma, atf_id = :atf, 
-                        atm_id = :atm, wtf_id = :wtf, wtm_id = :wtm, 
-                        prakt_id = :prakt 
-                    WHERE id = :id
-                ";
-                $updateStmt = $pdo->prepare($updateQuery);
-                $updateStmt->execute([
-                    ':inDienstZeit' => $inDienstZeitDB,
-                    ':ausserDienstZeit' => $ausserDienstZeitDB,
-                    ':stf' => $validRoles['stf'],
-                    ':ma' => $validRoles['ma'],
-                    ':atf' => $validRoles['atf'],
-                    ':atm' => $validRoles['atm'],
-                    ':wtf' => $validRoles['wtf'],
-                    ':wtm' => $validRoles['wtm'],
-                    ':prakt' => $validRoles['prakt'],
-                    ':id' => $latestEntry['id'] // Nur die neueste Zeile aktualisieren
-                ]);
-
-                echo "<p style='color: green;'>Die Daten wurden erfolgreich aktualisiert.</p>";
-            } else {
-                echo "<p style='color: red;'>Kein Eintrag für das Fahrzeug gefunden.</p>";
-            }
+            echo "<p style='color: green;'>Die Daten wurden erfolgreich aktualisiert.</p>";
         } catch (PDOException $e) {
             echo "<p style='color: red;'>Fehler beim Speichern der Daten: " . htmlspecialchars($e->getMessage()) . "</p>";
         }
@@ -128,7 +109,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
         echo "<p style='color: red;'>Bitte fülle alle Felder aus!</p>";
     }
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -150,17 +130,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
 </header>
 <main>
     <form method="POST" action="">
-    <h2>Fahrzeug auswählen</h2>
-        <select name="fahrzeug" onchange="location.href='?fahrzeug=' + this.value" required>
-            <?php foreach ($fahrzeuge as $fahrzeug): ?>
-                <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
-                    <?php echo ($fahrzeugId == $fahrzeug['id']) ? 'selected' : ''; ?>>
-                    <?php echo htmlspecialchars($fahrzeug['name']); ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-
-
         <h2>In Dienst Zeit:</h2>
         <input type="datetime-local" name="inDienstZeit" value="<?php echo htmlspecialchars($inDienstZeit); ?>" required>
 
