@@ -101,7 +101,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
 
     ?>
-
+<h2> 
+    Fahrzeug:
     <form method="GET" class="dropdown-form" style="display: inline;">
             <select name="fahrzeug" onchange="this.form.submit()">
                 <option value="">Fahrzeug auswählen</option>
@@ -113,6 +114,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endforeach; ?>
             </select>
         </form>
+    </h2>
+    <h2>
+        In Dienst Zeit:
+    </h2>
+    <h2>
+        Außer Dienst Zeit:
     </h2>
             <?php if (isset($message)) { echo "<p>$message</p>"; } ?>
             <form method="POST">
