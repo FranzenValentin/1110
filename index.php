@@ -329,8 +329,8 @@ if (isset($_GET['fahrzeug_id']) && $_GET['fahrzeug_id'] !== '') {
 
     // Zeiten auslesen
     if ($zeitResult) {
-        $inDienstZeit = $zeitResult['inDienstZeit'] ?? 'Keine Daten';
-        $ausserDienstZeit = $zeitResult['außerDienstZeit'] ?? 'Keine Daten';
+        $inDienstZeit = $zeitResult['inDienstZeit'];
+        $ausserDienstZeit = $zeitResult['außerDienstZeit'];
     } else {
         $inDienstZeit = 'Keine Daten';
         $ausserDienstZeit = 'Keine Daten';
