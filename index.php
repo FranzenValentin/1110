@@ -74,8 +74,9 @@ require 'db.php';
                             WHERE fahrzeug_id = (
                                 SELECT id FROM fahrzeuge WHERE name = :fahrzeug_name
                             )
-                            AND inDienstZeit <= :alarmuhrzeit
-                            AND (ausserDienstZeit > :alarmuhrzeit OR ausserDienstZeit IS NULL)
+                            AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') <= STR_TO_DATE(:alarmuhrzeit, '%Y-%m-%d %H:%i:%s')
+                            AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') > STR_TO_DATE(:alarmuhrzeit, '%Y-%m-%d %H:%i:%s') 
+                                OR ausserDienstZeit IS NULL)
                             LIMIT 1
                         ";
                         $dienstStmt = $pdo->prepare($dienstQuery);
