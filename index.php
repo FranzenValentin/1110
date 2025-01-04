@@ -302,30 +302,16 @@ require 'db.php';
 
 </section>
 
-
 <?php
 // Fahrzeuge aus der Datenbank abrufen
 $query = "SELECT id, name FROM Fahrzeuge";
 $statement = $pdo->prepare($query);
 $statement->execute();
 $fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
-?>
 
-<!-- Aktuelle Besatzung -->
-<section id="aktuelle-besatzung">
-    <h2>
-        Aktueller Dienst mit dem 
-        <form method="GET" class="dropdown-form" style="display: inline;">
-            <select name="fahrzeug" onchange="this.form.submit()">
-                <?php foreach ($fahrzeuge as $fahrzeug): ?>
-                    <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
-                        <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == $fahrzeug['id']) ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($fahrzeug['name']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </form>
-        <?php
+$inDienstZeit = 'Keine Daten';
+$ausserDienstZeit = 'Keine Daten';
+
 if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
     $fahrzeugId = (int)$_GET['fahrzeug'];
 
@@ -342,14 +328,31 @@ if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
     $zeitResult = $zeitStmt->fetch(PDO::FETCH_ASSOC);
 
     // Zeiten auslesen
-    $inDienstZeit = $zeitResult['inDienstZeit'] ?? 'Keine Daten';
-    $ausserDienstZeit = $zeitResult['außerDienstZeit'] ?? 'Keine Daten';
-
-    // Zeiten anzeigen
-    echo "<p>Von <strong>$inDienstZeit</strong> bis <strong>$ausserDienstZeit</strong></p>";
+    if ($zeitResult) {
+        $inDienstZeit = $zeitResult['inDienstZeit'] ?? 'Keine Daten';
+        $ausserDienstZeit = $zeitResult['außerDienstZeit'] ?? 'Keine Daten';
+    }
 }
 ?>
+
+<!-- Aktuelle Besatzung -->
+<section id="aktuelle-besatzung">
+    <h2>
+        Aktueller Dienst mit dem 
+        <form method="GET" class="dropdown-form" style="display: inline;">
+            <select name="fahrzeug" onchange="this.form.submit()">
+                <?php foreach ($fahrzeuge as $fahrzeug): ?>
+                    <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
+                        <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == $fahrzeug['id']) ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($fahrzeug['name']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </form>
+        <?php echo "Von <strong>$inDienstZeit</strong> bis <strong>$ausserDienstZeit</strong>"; ?>
     </h2>
+</section>
+
     <table>
         <thead>
             <tr>
