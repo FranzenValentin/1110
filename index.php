@@ -222,7 +222,7 @@ require 'db.php';
                         "Moabit", "Müggelheim", "Neukölln", "Niederschöneweide", "Nikolassee",
                         "Oberschöneweide", "Pankow", "Plänterwald", "Prenzlauer Berg", "Rahnsdorf",
                         "Reinickendorf", "Rosenthal", "Rudow", "Schmargendorf", "Schmöckwitz", "Schöneberg",
-                        "Siemensstadt", "Spandau", "Staaken", "Steglitz", "Tegel", "Tempelhof", "Treptow",
+                        "Siemensstadt", "Spandau", "Staaken", "Steglitz", "Tegel", "Tempelhof", "Tiergarten", "Treptow",
                         "Waidmannslust", "Wannsee", "Wedding", "Weißensee", "Westend", "Wilhelmstadt",
                         "Wilmersdorf", "Wittenau", "Zehlendorf"
                     ];
