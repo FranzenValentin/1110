@@ -32,7 +32,7 @@ require 'db.php';
             <?php
                 try {
                     // Fahrzeuge laden
-                    $fahrzeugeStmt = $pdo->prepare("SELECT name FROM Fahrzeuge ORDER BY name");
+                    $fahrzeugeStmt = $pdo->prepare("SELECT name FROM fahrzeuge ORDER BY name");
                     $fahrzeugeStmt->execute();
                     $fahrzeuge = $fahrzeugeStmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -72,8 +72,8 @@ require 'db.php';
                         // Besatzung für das ausgewählte Fahrzeug abrufen
                         $besatzungStmt = $pdo->prepare("
                             SELECT b.id 
-                            FROM Besatzung b 
-                            JOIN Fahrzeuge f ON f.name = :fahrzeug_name 
+                            FROM dienste b 
+                            JOIN fahrzeuge f ON f.name = :fahrzeug_name 
                             WHERE b.fahrzeug_id = f.id 
                             ORDER BY b.id DESC LIMIT 1
                         ");
@@ -85,9 +85,9 @@ require 'db.php';
                         }
                 
                         // SQL-Statement vorbereiten und ausführen
-                        $sql = "INSERT INTO Einsaetze 
-                                (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, stadtteil, fahrzeug_name, besatzung_id)
-                                VALUES (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :stadtteil, :fahrzeug_name, :besatzung_id)";
+                        $sql = "INSERT INTO einsaetze 
+                                (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, stadtteil, fahrzeug_name, dienst_id)
+                                VALUES (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :stadtteil, :fahrzeug_name, :dienst_id)";
                         $stmt = $pdo->prepare($sql);
                         $stmt->execute([
                             ':einsatznummer_lts' => $einsatznummer_lts,
@@ -97,7 +97,7 @@ require 'db.php';
                             ':adresse' => $adresse,
                             ':stadtteil' => $stadtteil,
                             ':fahrzeug_name' => $fahrzeug_name,
-                            ':besatzung_id' => $besatzung_id
+                            ':dienst_id' => $dienst_id
                         ]);
                 
                         echo "<p>Einsatz wurde erfolgreich gespeichert.</p>";
@@ -304,7 +304,7 @@ require 'db.php';
 
 <?php 
 // Fahrzeuge aus der Datenbank abrufen
-$query = "SELECT id, name FROM Fahrzeuge";
+$query = "SELECT id, name FROM fahrzeuge";
 $statement = $pdo->prepare($query);
 $statement->execute();
 $fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -319,7 +319,7 @@ if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
     // SQL-Abfrage für die Dienstzeiten
     $zeitQuery = "
         SELECT inDienstZeit, ausserDienstZeit 
-        FROM Besatzung 
+        FROM dienste 
         WHERE fahrzeug_id = :fahrzeug_id 
         ORDER BY id DESC 
         LIMIT 1
@@ -337,7 +337,7 @@ if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
 ?>
 
 <!-- Aktuelle Besatzung -->
-<section id="aktuelle-besatzung">
+<section id="aktueller-dienste">
     <h2>
         Aktueller Dienst mit dem 
         <form method="GET" class="dropdown-form" style="display: inline;">
@@ -380,7 +380,7 @@ if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
             $fahrzeugId = isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == 2 ? 2 : 1;
 
             // Abfrage der aktuellen Besatzung basierend auf der Fahrzeug-ID
-            $besatzungStmt = $pdo->prepare("SELECT * FROM Besatzung WHERE fahrzeug_id = :fahrzeugId ORDER BY id DESC LIMIT 1");
+            $besatzungStmt = $pdo->prepare("SELECT * FROM dienste WHERE fahrzeug_id = :fahrzeugId ORDER BY id DESC LIMIT 1");
             $besatzungStmt->execute([':fahrzeugId' => $fahrzeugId]);
             $latestBesatzung = $besatzungStmt->fetch();
 
@@ -436,8 +436,8 @@ if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
                         SELECT e.interne_einsatznummer, e.alarmuhrzeit, e.fahrzeug_name, e.stichwort,
                             p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf,
                             p4.nachname AS atm, p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
-                        FROM Einsaetze e
-                        LEFT JOIN Besatzung b ON e.besatzung_id = b.id
+                        FROM einsaetze e
+                        LEFT JOIN Besatzung b ON e.dienst_id = b.id
                         LEFT JOIN Personal p1 ON b.stf_id = p1.id
                         LEFT JOIN Personal p2 ON b.ma_id = p2.id
                         LEFT JOIN Personal p3 ON b.atf_id = p3.id
