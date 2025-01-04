@@ -392,6 +392,13 @@ $dienstStmt = $pdo->prepare($dienstQuery);
 $dienstStmt->execute([':fahrzeug_id' => $fahrzeugId]);
 $dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC);
 
+// Zeiten auslesen, falls vorhanden
+if ($zeitResult) {
+    $inDienstZeit = $zeitResult['inDienstZeit'] ?? 'Keine Daten';
+    $ausserDienstZeit = $zeitResult['ausserDienstZeit'] ?? 'Keine Daten';
+}
+?>
+
 ?>
 
 
@@ -471,7 +478,7 @@ $dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC);
 </table>
 <div class="button-container">
 <button onclick="location.href='editDienst.php?fahrzeug=<?php echo $fahrzeugId; ?>&dienst=<?php echo $dienstId; ?>'">Dienst bearbeiten</button>
-<button onclick="location.href='neuerDienst.php'">Neuer Dienst</button>
+<button onclick="location.href='neuerDienst.php'">Weiterer Dienst</button>
 </div>
 
 <?php else: ?>
