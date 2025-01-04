@@ -314,7 +314,7 @@ if (isset($_GET['fahrzeug_id']) && $_GET['fahrzeug_id'] !== '') {
 
     // SQL-Abfrage
     $zeitQuery = "
-        SELECT inDienstZeit, außerDienstZeit 
+        SELECT inDienstZeit, ausserDienstZeit 
         FROM Besatzung 
         WHERE fahrzeug_id = :fahrzeug_id 
         ORDER BY id DESC 
@@ -327,7 +327,7 @@ if (isset($_GET['fahrzeug_id']) && $_GET['fahrzeug_id'] !== '') {
     // Zeiten auslesen
     if ($zeitResult) {
         $inDienstZeit = $zeitResult['inDienstZeit'];
-        $ausserDienstZeit = $zeitResult['außerDienstZeit'];
+        $ausserDienstZeit = $zeitResult['ausserDienstZeit'];
     } else {
         $inDienstZeit = 'Keine Daten';
         $ausserDienstZeit = 'Keine Daten';
