@@ -4,6 +4,14 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     header('Location: login.php'); // Weiterleitung zur Login-Seite
     exit;
 }
+// Prüfen, ob ein Dienst existiert
+$dienstVorhanden = $dienstResult !== false;
+
+if ($dienstVorhanden) {
+    $inDienstZeit = $dienstResult['inDienstZeit'];
+    $ausserDienstZeit = $dienstResult['ausserDienstZeit'] ?? 'Keine Daten';
+}
+
 require 'db.php';
 ?>
 
@@ -367,14 +375,6 @@ $zeitResult = $zeitStmt->fetch(PDO::FETCH_ASSOC);
 if ($zeitResult) {
     $inDienstZeit = $zeitResult['inDienstZeit'] ?? 'Keine Daten';
     $ausserDienstZeit = $zeitResult['ausserDienstZeit'] ?? 'Keine Daten';
-}
-
-// Prüfen, ob ein Dienst existiert
-$dienstVorhanden = $dienstResult !== false;
-
-if ($dienstVorhanden) {
-    $inDienstZeit = $dienstResult['inDienstZeit'];
-    $ausserDienstZeit = $dienstResult['ausserDienstZeit'] ?? 'Keine Daten';
 }
 
 ?>
