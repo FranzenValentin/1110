@@ -44,7 +44,7 @@ require 'db.php';
                     die("Fehler beim Laden der Daten: " . $e->getMessage());
                 }
 
-                if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
+                iif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
                     try {
                         // Formularwerte abrufen
                         $einsatznummer_lts = $_POST['einsatznummer_lts'] ?? null;
@@ -67,7 +67,7 @@ require 'db.php';
                             $zurueckzeit = DateTime::createFromFormat('Y-m-d\TH:i', $zurueckzeit)->format('d.m.Y H:i');
                         }
                 
-                        // Dienst suchen, der zur Alarmuhrzeit aktiv war
+                        // Passenden Dienst suchen
                         $dienstQuery = "
                             SELECT id 
                             FROM dienste 
@@ -76,7 +76,7 @@ require 'db.php';
                             )
                             AND inDienstZeit <= :alarmuhrzeit
                             AND (ausserDienstZeit >= :alarmuhrzeit OR ausserDienstZeit IS NULL)
-                            ORDER BY inDienstZeit DESC
+                            ORDER BY inDienstZeit DESC -- Wähle den am besten passenden Dienst
                             LIMIT 1
                         ";
                         $dienstStmt = $pdo->prepare($dienstQuery);
@@ -114,6 +114,7 @@ require 'db.php';
                         echo "<p style='color: red;'>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
                     }
                 }
+                
                 
                 
                 
