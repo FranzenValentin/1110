@@ -11,10 +11,6 @@ require 'db.php';
 // Zeitzone setzen (z. B. für Deutschland)
 date_default_timezone_set('Europe/Berlin');
 $aktuelleUhrzeit = date('d.m.Y H:i');
-echo "Aktuelle Uhrzeit: $aktuelleUhrzeit<br>";
-
-// Debugging: Fahrzeug-ID anzeigen
-echo "Fahrzeug-ID: $fahrzeugId<br>";
 
 // SQL-Abfrage
 $dienstQuery = "
@@ -31,16 +27,6 @@ $dienstStmt->execute([
     ':fahrzeug_id' => $fahrzeugId,
     ':aktuelleUhrzeit' => $aktuelleUhrzeit,
 ]);
-
-// Debugging: Prüfen, ob die Abfrage Daten liefert
-if ($dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC)) {
-    echo "Gefundener Dienst: ";
-    print_r($dienstResult);
-} else {
-    echo "Kein aktiver Dienst gefunden.";
-}
-
-
 
 $dienstStmt = $pdo->prepare($dienstQuery);
 $dienstStmt->execute([
