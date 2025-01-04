@@ -150,15 +150,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
 </header>
 <main>
     <form method="POST" action="">
-        <h2>Fahrzeug auswählen</h2>
-        <select name="fahrzeug_id" onchange="this.form.submit()" required>
+    <h2>Fahrzeug auswählen</h2>
+        <select name="fahrzeug" onchange="location.href='?fahrzeug=' + this.value" required>
             <?php foreach ($fahrzeuge as $fahrzeug): ?>
                 <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
-                    <?php echo (isset($fahrzeugId) && $fahrzeugId == $fahrzeug['id']) ? 'selected' : ''; ?>>
+                    <?php echo ($fahrzeugId == $fahrzeug['id']) ? 'selected' : ''; ?>>
                     <?php echo htmlspecialchars($fahrzeug['name']); ?>
                 </option>
             <?php endforeach; ?>
         </select>
+
 
         <h2>In Dienst Zeit:</h2>
         <input type="datetime-local" name="inDienstZeit" value="<?php echo htmlspecialchars($inDienstZeit); ?>" required>
