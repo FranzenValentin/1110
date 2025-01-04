@@ -309,9 +309,6 @@ $statement = $pdo->prepare($query);
 $statement->execute();
 $fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-$inDienstZeit = 'Keine Daten';
-$ausserDienstZeit = 'Keine Daten';
-
 if (isset($_GET['fahrzeug_id']) && $_GET['fahrzeug_id'] !== '') {
     $fahrzeugId = (int)$_GET['fahrzeug_id'];
 
