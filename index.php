@@ -75,8 +75,7 @@ require 'db.php';
                                 SELECT id FROM fahrzeuge WHERE name = :fahrzeug_name
                             )
                             AND inDienstZeit <= :alarmuhrzeit
-                            AND (ausserDienstZeit >= :alarmuhrzeit OR ausserDienstZeit IS NULL)
-                            ORDER BY inDienstZeit DESC -- Wähle den am besten passenden Dienst
+                            AND (ausserDienstZeit > :alarmuhrzeit OR ausserDienstZeit IS NULL)
                             LIMIT 1
                         ";
                         $dienstStmt = $pdo->prepare($dienstQuery);
@@ -85,6 +84,7 @@ require 'db.php';
                             ':alarmuhrzeit' => $alarmuhrzeit
                         ]);
                         $dienst_id = $dienstStmt->fetchColumn();
+
                 
                         if (!$dienst_id) {
                             throw new Exception("Kein gültiger Dienst während der Alarmzeit gefunden.");
