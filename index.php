@@ -342,7 +342,6 @@ if (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] !== '') {
         Aktueller Dienst mit dem 
         <form method="GET" class="dropdown-form" style="display: inline;">
             <select name="fahrzeug" onchange="this.form.submit()">
-                <option value="">Fahrzeug auswählen</option>
                 <?php foreach ($fahrzeuge as $fahrzeug): ?>
                     <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
                         <?php echo (isset($_GET['fahrzeug']) && $_GET['fahrzeug'] == $fahrzeug['id']) ? 'selected' : ''; ?>>
