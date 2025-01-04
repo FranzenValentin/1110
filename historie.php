@@ -51,7 +51,7 @@ require 'db.php';
                             p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf,
                             p4.nachname AS atm, p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
                         FROM einsaetze e
-                        LEFT JOIN dienst b ON e.dienst_id = b.id
+                        LEFT JOIN dienste b ON e.dienst_id = b.id
                         LEFT JOIN personal p1 ON b.stf_id = p1.id
                         LEFT JOIN personal p2 ON b.ma_id = p2.id
                         LEFT JOIN personal p3 ON b.atf_id = p3.id
