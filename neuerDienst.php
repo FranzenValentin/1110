@@ -27,12 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 // Debugging der Eingabewerte
-                error_log("Fahrzeug-ID: $fahrzeugId, InDienstZeit: $inDienstZeit, AusserDienstZeit: $ausserDienstZeit");
+                error_log("Fahrzeug-ID: $fahrzeugId, inDienstZeit: $inDienstZeit, susserDienstZeit: $ausserDienstZeit");
                 error_log("Besatzung: " . print_r($changes, true));
 
                 // Werte in die Tabelle einfügen
                 $stmt = $pdo->prepare("
-                    INSERT INTO dienste (fahrzeug_id, in_dienst_zeit, ausser_dienst_zeit, stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) 
+                    INSERT INTO dienste (fahrzeug_id, inDienstZeit, ausserDienstZeit, stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id, prakt_id) 
                     VALUES (:fahrzeugId, :inDienstZeit, :ausserDienstZeit, :stf, :ma, :atf, :atm, :wtf, :wtm, :prakt)
                 ");
                 $stmt->execute([
