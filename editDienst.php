@@ -101,7 +101,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
                 ':original_inDienstZeit' => $latestBesatzung['inDienstZeit']
             ]);
 
-            echo "<p style='color: green;'>Die Daten wurden erfolgreich aktualisiert.</p>";
+            // Weiterleitung zur Indexseite mit Fahrzeug-ID
+            header("Location: index.php?fahrzeug=$fahrzeugId");
+            exit;
         } catch (PDOException $e) {
             echo "<p style='color: red;'>Fehler beim Speichern der Daten: " . htmlspecialchars($e->getMessage()) . "</p>";
         }
@@ -179,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
         </table>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-            <button type="submit" name="save">Aktualisieren</button>
+            <button type="submit" name="save">Speichern</button>
         </div>
     </form>
 </main>
