@@ -246,20 +246,22 @@ try {
                     }
                 }
             });
-            echo '<pre>';
-print_r($stadtteile);
-echo '</pre>';
-exit;
         </script>
+
 
 
 <section id="haeufigste-bezirke">
     <h2>Heatmap der Einsätze</h2>
+    
     <div id="map" style="width: 100%; height: 500px;"></div>
 
     <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 
     <script>
+        echo '<pre>';
+        print_r($stadtteile);
+        echo '</pre>';
+        exit;
         // Stadtteile und Einsatzzahlen aus PHP
         const stadtteile = <?= json_encode($stadtteile) ?>;
 
