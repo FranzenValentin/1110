@@ -16,11 +16,11 @@ $durchschnittsdauer = null;
 $stichworte = [];
 $error = null;
 
-// Standardwerte für Start- und Enddatum
+// Standardwerte für Start- und Enddatum setzen
 if (!isset($_GET['startdatum']) || !isset($_GET['enddatum'])) {
     $currentDate = new DateTime();
-    $startdatum = $currentDate->format('Y-m-01');
-    $enddatum = $currentDate->format('Y-m-t');
+    $startdatum = $currentDate->format('Y-m-01'); // Erster Tag des aktuellen Monats
+    $enddatum = $currentDate->format('Y-m-t');    // Letzter Tag des aktuellen Monats
 } else {
     $startdatum = $_GET['startdatum'];
     $enddatum = $_GET['enddatum'];
