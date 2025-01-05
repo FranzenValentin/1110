@@ -83,13 +83,26 @@ try {
     $error = "Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage());
 }
 
+//Stadtteile zählen
 try {
-    $stadtteileQuery = $pdo->prepare("SELECT name, latitude, longitude FROM stadtteile");
-    $stadtteileQuery->execute();
+    $stadtteileQuery = $pdo->prepare("
+        SELECT stadtteile.id, stadtteile.name, stadtteile.latitude, stadtteile.longitude, COUNT(einsaetze.id) AS anzahl
+        FROM stadtteile
+        LEFT JOIN einsaetze ON einsaetze.stadtteil = stadtteile.name
+        WHERE STR_TO_DATE(einsaetze.alarmuhrzeit, '%d.%m.%Y %H:%i') 
+              BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') 
+                  AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')
+        GROUP BY stadtteile.id, stadtteile.name, stadtteile.latitude, stadtteile.longitude;
+    ");
+    $stadtteileQuery->execute([
+        ':startdatum' => $startdatum,
+        ':enddatum' => $enddatum,
+    ]);
     $stadtteile = $stadtteileQuery->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("Datenbankfehler: " . htmlspecialchars($e->getMessage()));
 }
+
 
 ?>
 
@@ -241,29 +254,30 @@ try {
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script>
-        // Karte initialisieren
-        const map = L.map('map').setView([52.5200, 13.4050], 11); // Beispielkoordinaten für Berlin
+    // Stadtteile und Einsatzzahlen aus PHP
+    const stadtteile = <?= json_encode($stadtteile) ?>;
 
-        // OpenStreetMap-Layer hinzufügen
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+    // Karte initialisieren
+    const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
 
-        // Stadtteile aus PHP-Datenbank
-        const stadtteile = <?= json_encode($stadtteile) ?>;
+    // OpenStreetMap-Layer hinzufügen
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
-        // Bezirks-Kreise auf der Karte anzeigen
-        stadtteile.forEach(function(stadtteil) {
-            L.circle([stadtteil.latitude, stadtteil.longitude], {
-                color: 'blue',
-                fillColor: '#30f',
-                fillOpacity: 0.5,
-                radius: stadtteil.anzahl * 100 // Größe proportional zur Anzahl
-            })
-            .bindPopup(`<strong>${stadtteil.name}</strong><br>Anzahl: ${stadtteil.anzahl}`)
-            .addTo(map);
-        });
-    </script>
+    // Kreise für Stadtteile hinzufügen
+    stadtteile.forEach(function(stadtteil) {
+        L.circle([stadtteil.latitude, stadtteil.longitude], {
+            color: 'blue',
+            fillColor: '#30f',
+            fillOpacity: 0.5,
+            radius: Math.max(stadtteil.anzahl * 100, 500) // Proportional zur Anzahl, Mindestgröße 500
+        })
+        .bindPopup(`<strong>${stadtteil.name}</strong><br>Anzahl der Einsätze: ${stadtteil.anzahl}`)
+        .addTo(map);
+    });
+</script>
+
 </section>
 
 
