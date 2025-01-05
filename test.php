@@ -14,13 +14,9 @@ try {
     $stmt = $pdo->query("
         SELECT adresse, stadtteil 
         FROM einsaetze
+        WHERE adresse IS NOT NULL AND adresse != '' AND stadtteil IS NOT NULL AND stadtteil != ''
     ");
     $einsaetze = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Debugging: Daten aus der Datenbank prüfen
-    echo '<pre>';
-    print_r($einsaetze); // Zeige die Daten zum Debuggen
-    echo '</pre>';
 
 } catch (PDOException $e) {
     die("Datenbankverbindung fehlgeschlagen: " . $e->getMessage());
