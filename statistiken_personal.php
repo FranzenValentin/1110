@@ -110,7 +110,7 @@ if ($personId) {
         $personEinsaetzeStmt = $pdo->prepare("
         SELECT COUNT(*) AS total
         FROM einsaetze e
-        LEFT JOIN Besatzung b ON e.dienst_id = b.id
+        LEFT JOIN dienste b ON e.dienst_id = b.id
         WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
         AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%d.%m.%Y %H:%i') AND STR_TO_DATE(:enddatum, '%d.%m.%Y %H:%i')
         ");
