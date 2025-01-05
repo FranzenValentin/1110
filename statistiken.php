@@ -29,6 +29,7 @@ try {
     ");
     $totalStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
     $totalEinsaetze = $totalStmt->fetch()['total'];
+    echo "<!-- Debug: Gesamtanzahl = $totalEinsaetze -->";
 
     // Durchschnittliche Dauer eines Einsatzes
     $dauerStmt = $pdo->prepare("
@@ -38,6 +39,7 @@ try {
     ");
     $dauerStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
     $durchschnittsdauer = $dauerStmt->fetch()['durchschnittsdauer'];
+    echo "<!-- Debug: Durchschnittsdauer = $durchschnittsdauer -->";
 
     // Häufigste Stichworte im gewählten Zeitraum
     $stichwortStmt = $pdo->prepare("
@@ -50,8 +52,10 @@ try {
     ");
     $stichwortStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
     $stichworte = $stichwortStmt->fetchAll(PDO::FETCH_ASSOC);
+    echo "<!-- Debug: Stichworte = " . print_r($stichworte, true) . " -->";
 } catch (PDOException $e) {
     $error = "Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage());
+    echo "<!-- Debug: Fehler = $error -->";
 }
 ?>
 
