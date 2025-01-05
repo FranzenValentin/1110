@@ -79,22 +79,18 @@ try {
     $stichwortStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
     $stichworte = $stichwortStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Häufigste Bezirke
-    $bezirkeStmt = $pdo->prepare("
-    SELECT bezirk, COUNT(*) AS anzahl 
-    FROM einsaetze 
-    WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i') 
-        BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') 
-            AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')
-    GROUP BY bezirk 
-    ORDER BY anzahl DESC
-    ");
-    $bezirkeStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
-    $bezirke = $bezirkeStmt->fetchAll(PDO::FETCH_ASSOC);
-
 } catch (PDOException $e) {
     $error = "Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage());
 }
+
+try {
+    $stadtteileQuery = $pdo->prepare("SELECT name, latitude, longitude FROM stadtteile");
+    $stadtteileQuery->execute();
+    $stadtteile = $stadtteileQuery->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Datenbankfehler: " . htmlspecialchars($e->getMessage()));
+}
+
 ?>
 
 
@@ -253,33 +249,23 @@ try {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Bezirksdaten aus PHP
-        const bezirke = <?= json_encode($bezirke) ?>;
+        // Stadtteile aus PHP-Datenbank
+        const stadtteile = <?= json_encode($stadtteile) ?>;
 
-        // Bezirke auf der Karte darstellen
-        bezirke.forEach(function(bezirk) {
-            // Beispiel-Koordinaten für jeden Bezirk (Diese müssen angepasst werden)
-            const coordinates = {
-                "Mitte": [52.531677, 13.381777],
-                "Friedrichshain-Kreuzberg": [52.498632, 13.432523],
-                "Charlottenburg-Wilmersdorf": [52.507668, 13.304101],
-                // Weitere Bezirke und deren Koordinaten hinzufügen
-            };
-
-            if (coordinates[bezirk.bezirk]) {
-                // Kreis hinzufügen
-                L.circle(coordinates[bezirk.bezirk], {
-                    color: 'blue',
-                    fillColor: '#30f',
-                    fillOpacity: 0.5,
-                    radius: bezirk.anzahl * 100 // Größe proportional zur Anzahl
-                })
-                .bindPopup(`<strong>${bezirk.bezirk}</strong><br>Anzahl: ${bezirk.anzahl}`)
-                .addTo(map);
-            }
+        // Bezirks-Kreise auf der Karte anzeigen
+        stadtteile.forEach(function(stadtteil) {
+            L.circle([stadtteil.latitude, stadtteil.longitude], {
+                color: 'blue',
+                fillColor: '#30f',
+                fillOpacity: 0.5,
+                radius: stadtteil.anzahl * 100 // Größe proportional zur Anzahl
+            })
+            .bindPopup(`<strong>${stadtteil.name}</strong><br>Anzahl: ${stadtteil.anzahl}`)
+            .addTo(map);
         });
     </script>
 </section>
+
 
 
 

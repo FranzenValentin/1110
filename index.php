@@ -298,7 +298,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                         "Haselhorst", "Heiligensee", "Hermsdorf", "Johannisthal", "Karlshorst", "Karow",
                         "Kaulsdorf", "Kladow", "Konradshöhe", "Köpenick", "Kreuzberg", "Lankwitz", "Lichterfelde",
                         "Lichtenberg", "Lübars", "Malchow", "Marienfelde", "Mariendorf", "Marzahn", "Mitte",
-                        "Moabit", "Müggelheim", "Neukölln", "Niederschöneweide", "Nikolassee",
+                        "Moabit", "Müggelheim", "Neukölln", "Niederschönhausen", "Niederschöneweide", "Nikolassee",
                         "Oberschöneweide", "Pankow", "Plänterwald", "Prenzlauer Berg", "Rahnsdorf",
                         "Reinickendorf", "Rosenthal", "Rudow", "Schmargendorf", "Schmöckwitz", "Schöneberg",
                         "Siemensstadt", "Spandau", "Staaken", "Steglitz", "Tegel", "Tempelhof", "Tiergarten", "Treptow",
