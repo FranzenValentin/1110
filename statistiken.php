@@ -26,42 +26,42 @@ $startdatum = DateTime::createFromFormat('Y-m-d', $startdatum)->format('d.m.Y 00
 $enddatum = DateTime::createFromFormat('Y-m-d', $enddatum)->format('d.m.Y 23:59');
 
 try {
-    // Gesamtanzahl der Einsätze
-    $totalStmt = $pdo->prepare("
-        SELECT COUNT(*) AS total 
-        FROM einsaetze 
-        WHERE alarmuhrzeit BETWEEN :startdatum AND :enddatum
-    ");
-    $totalStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
-    $totalEinsaetze = $totalStmt->fetch()['total'];
+    function validateDate($date, $format = 'Y-m-d') {
+        $d = DateTime::createFromFormat($format, $date);
+        return $d && $d->format($format) === $date;
+    }
 
-    // Durchschnittliche Einsatzdauer
-    $dauerStmt = $pdo->prepare("
-        SELECT AVG(TIMESTAMPDIFF(MINUTE, 
-            STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i'), 
-            STR_TO_DATE(zurueckzeit, '%d.%m.%Y %H:%i'))
-        ) AS durchschnittsdauer
-        FROM einsaetze
-        WHERE alarmuhrzeit BETWEEN :startdatum AND :enddatum
-    ");
-    $dauerStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
-    $durchschnittsdauer = $dauerStmt->fetch()['durchschnittsdauer'];
+    // Standardwerte für Start- und Enddatum
+    if (!isset($_GET['startdatum']) || !validateDate($_GET['startdatum'])) {
+        $startdatum = (new DateTime('first day of this month'))->format('Y-m-d');
+    } else {
+        $startdatum = $_GET['startdatum'];
+    }
 
-    // Häufigste Stichworte
-    $stichwortStmt = $pdo->prepare("
-        SELECT stichwort, COUNT(*) AS anzahl 
-        FROM einsaetze 
-        WHERE alarmuhrzeit BETWEEN :startdatum AND :enddatum
-        GROUP BY stichwort 
-        ORDER BY anzahl DESC
-        LIMIT 8
-    ");
-    $stichwortStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
-    $stichworte = $stichwortStmt->fetchAll(PDO::FETCH_ASSOC);
+    if (!isset($_GET['enddatum']) || !validateDate($_GET['enddatum'])) {
+        $enddatum = (new DateTime('last day of this month'))->format('Y-m-d');
+    } else {
+        $enddatum = $_GET['enddatum'];
+    }
 
-} catch (PDOException $e) {
+    $startdatumObj = DateTime::createFromFormat('Y-m-d', $startdatum);
+    $enddatumObj = DateTime::createFromFormat('Y-m-d', $enddatum);
+
+    if (!$startdatumObj || !$enddatumObj) {
+        throw new Exception("Ungültige Datumswerte: Startdatum = $startdatum, Enddatum = $enddatum");
+    }
+
+    // Start- und Enddatum ins richtige Format bringen
+    $startdatum = $startdatumObj->format('d.m.Y 00:00');
+    $enddatum = $enddatumObj->format('d.m.Y 23:59');
+
+    echo "<!-- Debug: Startdatum = $startdatum, Enddatum = $enddatum -->";
+
+    // Ab hier folgt die Datenbanklogik ...
+} catch (Exception $e) {
     echo "<p>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
 }
+
 ?>
 
 <!DOCTYPE html>
