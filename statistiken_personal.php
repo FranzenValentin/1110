@@ -21,6 +21,13 @@ $personId = isset($_GET['person_id']) ? $_GET['person_id'] : null;
 $startdatum = (new DateTime($startdatum))->format('d.m.Y 00:00');
 $enddatum = (new DateTime($enddatum))->format('d.m.Y 23:59');
 
+echo "<pre>";
+echo "Startdatum: $startdatum\n";
+echo "Enddatum: $enddatum\n";
+echo "Person ID: $personId\n";
+echo "</pre>";
+
+
 
 // Personal laden
 $personalStmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM personal ORDER BY nachname");
