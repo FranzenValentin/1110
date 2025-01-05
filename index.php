@@ -684,7 +684,7 @@ if ($zeitResult) {
                             <summary>Details anzeigen</summary>
                             <ul>";
                 foreach ($personalList as $person) {
-                    echo "<li>" . htmlspecialchars($person['funktion'] . ': ' . $person['name']) . "</li>";
+                    echo htmlspecialchars($person['funktion'] . ': ' . $person['name']);
                 }
                 echo "    </ul>
                         </details>
