@@ -131,8 +131,6 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                 throw new Exception("Kein gültiger Dienst für die Alarmuhrzeit gefunden.");
                             }
 
-                            // Weitere Verarbeitung
-                            echo "Gefundener Dienst: $dienst_id";
                         } catch (Exception $e) {
                             echo "<p>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
                             error_log($e->getMessage());
@@ -183,12 +181,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                         } catch (Exception $e) {
                             echo "<p style='color: red;'>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
                         }
-                        
-                
-                        echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
-                    } catch (Exception $e) {
-                        echo "<p style='color: red;'>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
-                    }
+                    }      
                 }        
                 
             ?>
