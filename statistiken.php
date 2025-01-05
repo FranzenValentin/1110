@@ -255,13 +255,13 @@ try {
     
     <div id="map" style="width: 100%; height: 500px;"></div>
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+
     <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 
     <script>
-        echo '<pre>';
-        print_r($stadtteile);
-        echo '</pre>';
-        exit;
         // Stadtteile und Einsatzzahlen aus PHP
         const stadtteile = <?= json_encode($stadtteile) ?>;
 

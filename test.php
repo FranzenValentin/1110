@@ -3,73 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alle Berliner Adressdaten abrufen</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-        }
-
-        #data-container {
-            white-space: pre-wrap;
-            background: #f4f4f4;
-            padding: 15px;
-            border: 1px solid #ddd;
-            overflow-x: auto;
-            max-height: 500px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-top: 15px;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <title>Heatmap</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
-    <h1>Berliner Adressdaten</h1>
-    <p>Klicken Sie auf den Button, um alle Adressdaten aus der WFS-Datenbank abzurufen.</p>
-    <button onclick="fetchAllData()">Daten abrufen</button>
-    <div id="data-container">Die Daten werden hier angezeigt...</div>
+    <h2>Heatmap der Einsätze</h2>
+    <div id="map" style="width: 100%; height: 500px;"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 
     <script>
-        const WFS_URL = "https://gdi.berlin.de/services/wfs/adressen_berlin";
+        // Beispiel-Daten
+        const stadtteile = [
+            {latitude: 52.5200, longitude: 13.4050, anzahl: 15}, // Mitte
+            {latitude: 52.5002, longitude: 13.4192, anzahl: 10}, // Kreuzberg
+            {latitude: 52.4885, longitude: 13.4527, anzahl: 5}   // Alt-Treptow
+        ];
 
-        async function fetchAllData() {
-            const dataContainer = document.getElementById("data-container");
-            dataContainer.textContent = "Lade Daten...";
+        // Karte initialisieren
+        const map = L.map('map').setView([52.5200, 13.4050], 11);
 
-            const params = new URLSearchParams({
-                service: "WFS",
-                request: "GetFeature",
-                typename: "adressen_berlin", // Name der Layer, bitte überprüfen
-                outputFormat: "application/json",
-            });
+        // OpenStreetMap-Layer hinzufügen
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-            try {
-                const response = await fetch(`${WFS_URL}?${params}`);
-                if (!response.ok) {
-                    throw new Error(`Fehler beim Abrufen der Daten: ${response.statusText}`);
-                }
+        // Heatmap-Daten
+        const heatData = stadtteile.map(stadtteil => [stadtteil.latitude, stadtteil.longitude, stadtteil.anzahl]);
 
-                const data = await response.json();
-                console.log("Daten erfolgreich geladen:", data);
-                dataContainer.textContent = JSON.stringify(data, null, 2); // Formatiertes JSON
-            } catch (error) {
-                console.error("Fehler:", error);
-                dataContainer.textContent = `Fehler beim Abrufen der Daten: ${error.message}`;
-            }
-        }
+        // Heatmap hinzufügen
+        L.heatLayer(heatData, {
+            radius: 25,
+            blur: 15,
+            maxZoom: 17
+        }).addTo(map);
     </script>
 </body>
 </html>
