@@ -39,7 +39,7 @@ $funktionenVerteilung = [];
 if ($personId) {
     $einsaetzeStmt = $pdo->prepare("
         SELECT 
-            e.interne_einsatznummer, e.stichwort, e.alarmuhrzeit, e.fahrzeug_name,
+            e.interne_einsatznummer, e.stichwort, STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i'), e.fahrzeug_name,
             CASE
                 WHEN b.stf_id = :personId THEN 'Staffel-Führer'
                 WHEN b.ma_id = :personId THEN 'Maschinist'
