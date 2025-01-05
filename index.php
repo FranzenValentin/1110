@@ -189,7 +189,7 @@ function fetchCoordinates($address, $district) {
                                 throw new Exception("Ein Einsatz mit dieser Einsatznummer, Alarmuhrzeit und Fahrzeug existiert bereits.");
                             }
 
-                            $coordinates = fetchCoordinates($address, $stadtteil);
+                            $coordinates = fetchCoordinates($addresse, $stadtteil);
                         
                             // Einsatz in die Datenbank einfügen
                             $einsatzQuery = "
