@@ -26,12 +26,6 @@ try {
     $personalStmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM personal ORDER BY nachname");
     $personal = $personalStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Debugging-Ausgabe
-    echo "<pre>";
-    echo "Startdatum: $startdatum\n";
-    echo "Enddatum: $enddatum\n";
-    echo "Person ID: $personId\n";
-    echo "</pre>";
 
     // Einsätze und Verteilungen nur abrufen, wenn eine Person ausgewählt ist
     $einsaetze = [];
