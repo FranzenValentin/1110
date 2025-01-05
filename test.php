@@ -19,16 +19,13 @@ try {
 
     // Debugging: Daten aus der Datenbank prüfen
     echo '<pre>';
-    print_r($einsaetze);
+    print_r($einsaetze); // Zeige die Daten zum Debuggen
     echo '</pre>';
-    exit; // Zum Testen: Beende das Skript hier, um die Ausgabe zu prüfen.
 
 } catch (PDOException $e) {
     die("Datenbankverbindung fehlgeschlagen: " . $e->getMessage());
 }
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="de">
@@ -46,79 +43,83 @@ try {
     <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 
     <script>
-    // Daten aus der PHP-Abfrage
-    const einsaetze = <?= json_encode($einsaetze) ?>;
+        // Daten aus der PHP-Abfrage
+        const einsaetze = <?= json_encode($einsaetze) ?>;
 
-    // Debugging: Überprüfen, ob die Daten korrekt im JavaScript ankommen
-    console.log("Einsätze-Daten aus PHP:", einsaetze);
+        // Debugging: Überprüfen, ob die Daten korrekt im JavaScript ankommen
+        console.log("Einsätze-Daten aus PHP:", einsaetze);
 
-    // Karte initialisieren
-    const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
+        // Karte initialisieren
+        const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
 
-    // OpenStreetMap-Layer hinzufügen
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+        // OpenStreetMap-Layer hinzufügen
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-    // Heatmap-Daten
-    const heatData = [];
+        // Heatmap-Daten
+        const heatData = [];
 
-    // Funktion zur Geocodierung (Adresse zu Koordinaten umwandeln)
-    async function geocodeAdresse(adresse, stadtteil) {
-        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(adresse)}, ${encodeURIComponent(stadtteil)}&format=json&limit=1`;
-        
-        // Debugging: API-URL überprüfen
-        console.log("Geocoding-URL:", url);
+        // Funktion zur Geocodierung (Adresse zu Koordinaten umwandeln)
+        async function geocodeAdresse(adresse, bezirk) {
+            const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(adresse)}, ${encodeURIComponent(bezirk)}&format=json&limit=1`;
+            
+            // Debugging: API-URL überprüfen
+            console.log("Geocoding-URL:", url);
 
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    console.error(`Fehler beim Abrufen von ${url}:`, response.statusText);
+                    return;
+                }
 
-            // Debugging: Antwort der API prüfen
-            console.log(`Antwort für ${adresse}, ${stadtteil}:`, data);
+                const data = await response.json();
 
-            if (data.length > 0) {
-                const latitude = parseFloat(data[0].lat);
-                const longitude = parseFloat(data[0].lon);
+                // Debugging: API-Antwort prüfen
+                console.log(`Antwort für ${adresse}, ${bezirk}:`, data);
 
-                // Debugging: Gefundene Koordinaten ausgeben
-                console.log(`Gefundene Koordinaten für ${adresse}, ${stadtteil}:`, latitude, longitude);
+                if (data.length > 0) {
+                    const latitude = parseFloat(data[0].lat);
+                    const longitude = parseFloat(data[0].lon);
 
-                heatData.push([latitude, longitude, 1]); // Gewichtung hier statisch als 1
-            } else {
-                console.warn(`Keine Koordinaten gefunden für: ${adresse}, ${stadtteil}`);
+                    // Debugging: Gefundene Koordinaten ausgeben
+                    console.log(`Gefundene Koordinaten für ${adresse}, ${bezirk}:`, latitude, longitude);
+
+                    // Koordinaten zur Heatmap hinzufügen
+                    heatData.push([latitude, longitude, 1]); // Gewichtung hier statisch als 1
+                } else {
+                    console.warn(`Keine Koordinaten gefunden für: ${adresse}, ${bezirk}`);
+                }
+            } catch (error) {
+                console.error(`Netzwerkfehler bei ${adresse}, ${bezirk}:`, error);
             }
-        } catch (error) {
-            console.error(`Fehler beim Geocodieren: ${error}`);
-        }
-    }
-
-    // Hauptfunktion zum Verarbeiten der Adressdaten
-    async function erstelleHeatmap() {
-        for (const einsatz of einsaetze) {
-            // Debugging: Aktuellen Einsatz ausgeben
-            console.log("Verarbeite Einsatz:", einsatz);
-            await geocodeAdresse(einsatz.adresse, einsatz.stadtteil);
         }
 
-        // Debugging: Heatmap-Daten prüfen
-        console.log("Heatmap-Daten (gefunden):", heatData);
+        // Hauptfunktion zum Verarbeiten der Adressdaten
+        async function erstelleHeatmap() {
+            for (const einsatz of einsaetze) {
+                console.log("Verarbeite Einsatz:", einsatz);
+                await geocodeAdresse(einsatz.adresse, einsatz.stadtteil);
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Anfragen drosseln
+            }
 
-        // Heatmap hinzufügen
-        if (heatData.length > 0) {
-            L.heatLayer(heatData, {
-                radius: 25, // Radius der Punkte
-                blur: 15,   // Weichzeichnung
-                maxZoom: 17 // Maximale Zoomstufe
-            }).addTo(map);
-        } else {
-            console.warn("Keine Einsätze für die Heatmap gefunden.");
+            // Debugging: Heatmap-Daten prüfen
+            console.log("Heatmap-Daten (gefunden):", heatData);
+
+            if (heatData.length > 0) {
+                L.heatLayer(heatData, {
+                    radius: 25, // Radius der Punkte
+                    blur: 15,   // Weichzeichnung
+                    maxZoom: 17 // Maximale Zoomstufe
+                }).addTo(map);
+            } else {
+                console.warn("Keine Einsätze für die Heatmap gefunden.");
+            }
         }
-    }
 
-    // Heatmap erstellen
-    erstelleHeatmap();
-</script>
-
+        // Heatmap erstellen
+        erstelleHeatmap();
+    </script>
 </body>
 </html>
