@@ -83,26 +83,6 @@ try {
     $error = "Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage());
 }
 
-//Stadtteile zählen
-try {
-    $stadtteileQuery = $pdo->prepare("
-        SELECT stadtteile.id, stadtteile.name, stadtteile.latitude, stadtteile.longitude, COUNT(einsaetze.id) AS anzahl
-        FROM stadtteile
-        LEFT JOIN einsaetze ON einsaetze.stadtteil = stadtteile.name
-        WHERE STR_TO_DATE(einsaetze.alarmuhrzeit, '%d.%m.%Y %H:%i') 
-              BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') 
-                  AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')
-        GROUP BY stadtteile.id, stadtteile.name, stadtteile.latitude, stadtteile.longitude;
-    ");
-    $stadtteileQuery->execute([
-        ':startdatum' => $startdatum,
-        ':enddatum' => $enddatum,
-    ]);
-    $stadtteile = $stadtteileQuery->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Datenbankfehler: " . htmlspecialchars($e->getMessage()));
-}
-
 // Heatmap-Daten aus der Datenbank abrufen
 try {
     $heatmapQuery = $pdo->prepare("SELECT latitude, longitude FROM einsaetze WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')");
@@ -265,45 +245,6 @@ try {
                 }
             });
         </script>
-
-
-
-<section id="haeufigste-bezirke">
-    <h2>Heatmap der Einsätze</h2>
-    
-    <div id="map" style="width: 100%; height: 500px;"></div>
-
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
-
-
-    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
-
-    <script>
-        // Stadtteile und Einsatzzahlen aus PHP
-        const stadtteile = <?= json_encode($stadtteile) ?>;
-
-        // Karte initialisieren
-        const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
-
-        // OpenStreetMap-Layer hinzufügen
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        // Daten für Heatmap vorbereiten
-        const heatData = stadtteile.map(function(stadtteil) {
-            return [stadtteil.latitude, stadtteil.longitude, stadtteil.anzahl]; // [Lat, Lng, Gewicht]
-        });
-
-        // Heatmap hinzufügen
-        L.heatLayer(heatData, {
-            radius: 25, // Radius der Punkte
-            blur: 15,   // Weichzeichnung
-            maxZoom: 17 // Maximale Zoomstufe
-        }).addTo(map);
-    </script>
-</section>
 
 <section>
         <h2>Heatmap</h2>
