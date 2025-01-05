@@ -17,6 +17,11 @@ if (!isset($_GET['startdatum']) || !isset($_GET['enddatum'])) {
 }
 $personId = isset($_GET['person_id']) ? $_GET['person_id'] : null;
 
+// Start- und Enddatum in das Format `%d.%m.%Y %H:%i` umwandeln
+$startdatum = (new DateTime($startdatum))->format('d.m.Y 00:00');
+$enddatum = (new DateTime($enddatum))->format('d.m.Y 23:59');
+
+
 // Personal laden
 $personalStmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM personal ORDER BY nachname");
 $personal = $personalStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -41,7 +46,7 @@ if ($personId) {
         FROM einsaetze e
         LEFT JOIN dienste b ON e.dienst_id = b.id
         WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN :startdatum AND :enddatum
+        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%d.%m.%Y %H:%i') AND STR_TO_DATE(:enddatum, '%d.%m.%Y %H:%i')
         ORDER BY STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') DESC
     ");
 
@@ -51,6 +56,7 @@ if ($personId) {
         ':enddatum' => $enddatum
     ]);
     $einsaetze = $einsaetzeStmt->fetchAll(PDO::FETCH_ASSOC);
+
 
 
     // Verteilung der Funktionen abrufen
@@ -68,7 +74,7 @@ if ($personId) {
         FROM einsaetze 
         LEFT JOIN dienste b ON e.dienst_id = b.id
         WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
+        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%d.%m.%Y %H:%i') AND STR_TO_DATE(:enddatum, '%d.%m.%Y %H:%i')
         GROUP BY funktion
     ");
 
@@ -80,16 +86,18 @@ if ($personId) {
     $funktionenVerteilung = $funktionenStmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Gesamtanzahl der Einsätze im Zeitraum zählen
-        $totalEinsaetzeStmt = $pdo->prepare("
+    $totalEinsaetzeStmt = $pdo->prepare("
         SELECT COUNT(*) AS total
         FROM einsaetze e
-        WHERE STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
-        ");
-        $totalEinsaetzeStmt->execute([
+        WHERE STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%d.%m.%Y %H:%i') AND STR_TO_DATE(:enddatum, '%d.%m.%Y %H:%i')
+    ");
+
+    $totalEinsaetzeStmt->execute([
         ':startdatum' => $startdatum,
-        ':enddatum' => $enddatum,
-        ]);
-        $totalEinsaetze = $totalEinsaetzeStmt->fetchColumn();
+        ':enddatum' => $enddatum
+    ]);
+    $totalEinsaetze = $totalEinsaetzeStmt->fetchColumn();
+
 
     // Einsätze zählen, bei denen die Person beteiligt war
         $personEinsaetzeStmt = $pdo->prepare("
@@ -97,7 +105,7 @@ if ($personId) {
         FROM einsaetze e
         LEFT JOIN Besatzung b ON e.dienst_id = b.id
         WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
+        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%d.%m.%Y %H:%i') AND STR_TO_DATE(:enddatum, '%d.%m.%Y %H:%i')
         ");
         $personEinsaetzeStmt->execute([
         ':personId' => $personId,
@@ -110,22 +118,24 @@ if ($personId) {
         $prozent = $totalEinsaetze > 0 ? round(($personEinsaetze / $totalEinsaetze) * 100, 2) : 0;
 
     // Gesamtdauer der Einsätze berechnen
-        $einsatzdauerStmt = $pdo->prepare("
+    $einsatzdauerStmt = $pdo->prepare("
         SELECT SUM(TIMESTAMPDIFF(MINUTE, 
-            STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i'), 
-            STR_TO_DATE(e.zurueckzeit, '%d.%m.%y %H:%i')
+            STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i'), 
+            STR_TO_DATE(e.zurueckzeit, '%d.%m.%Y %H:%i')
         )) AS gesamtDauer
         FROM einsaetze e
         LEFT JOIN dienste b ON e.dienst_id = b.id
         WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
-        ");
-        $einsatzdauerStmt->execute([
+        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%d.%m.%Y %H:%i') AND STR_TO_DATE(:enddatum, '%d.%m.%Y %H:%i')
+    ");
+
+    $einsatzdauerStmt->execute([
         ':personId' => $personId,
         ':startdatum' => $startdatum,
-        ':enddatum' => $enddatum,
-        ]);
-        $gesamtDauer = $einsatzdauerStmt->fetchColumn();
+        ':enddatum' => $enddatum
+    ]);
+    $gesamtDauer = $einsatzdauerStmt->fetchColumn();
+
 
     // Dauer in Stunden und Minuten umrechnen
         $stunden = floor($gesamtDauer / 60);
