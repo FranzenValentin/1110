@@ -139,24 +139,51 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                         }
 
                 
-                        // Einsatz in die Datenbank einfügen
-                        $einsatzQuery = "
-                            INSERT INTO einsaetze 
-                            (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, stadtteil, fahrzeug_name, dienst_id) 
-                            VALUES 
-                            (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :stadtteil, :fahrzeug_name, :dienst_id)
-                        ";
-                        $einsatzStmt = $pdo->prepare($einsatzQuery);
-                        $einsatzStmt->execute([
-                            ':einsatznummer_lts' => $einsatznummer_lts,
-                            ':stichwort' => $stichwort,
-                            ':alarmuhrzeit' => $alarmuhrzeit,
-                            ':zurueckzeit' => $zurueckzeit,
-                            ':adresse' => $adresse,
-                            ':stadtteil' => $stadtteil,
-                            ':fahrzeug_name' => $fahrzeug_name,
-                            ':dienst_id' => $dienst_id
-                        ]);
+                        try {
+                            // Überprüfen, ob der Einsatz bereits existiert
+                            $checkQuery = "
+                                SELECT COUNT(*) 
+                                FROM einsaetze 
+                                WHERE einsatznummer_lts = :einsatznummer_lts 
+                                AND alarmuhrzeit = :alarmuhrzeit
+                                AND fahrzeug_name = :fahrzeug_name
+                            ";
+                            $checkStmt = $pdo->prepare($checkQuery);
+                            $checkStmt->execute([
+                                ':einsatznummer_lts' => $einsatznummer_lts,
+                                ':alarmuhrzeit' => $alarmuhrzeit,
+                                ':fahrzeug_name' => $fahrzeug_name,
+                            ]);
+                            $exists = $checkStmt->fetchColumn();
+                        
+                            if ($exists) {
+                                throw new Exception("Ein Einsatz mit dieser Einsatznummer, Alarmuhrzeit und Fahrzeug existiert bereits.");
+                            }
+                        
+                            // Einsatz in die Datenbank einfügen
+                            $einsatzQuery = "
+                                INSERT INTO einsaetze 
+                                (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, stadtteil, fahrzeug_name, dienst_id) 
+                                VALUES 
+                                (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :stadtteil, :fahrzeug_name, :dienst_id)
+                            ";
+                            $einsatzStmt = $pdo->prepare($einsatzQuery);
+                            $einsatzStmt->execute([
+                                ':einsatznummer_lts' => $einsatznummer_lts,
+                                ':stichwort' => $stichwort,
+                                ':alarmuhrzeit' => $alarmuhrzeit,
+                                ':zurueckzeit' => $zurueckzeit,
+                                ':adresse' => $adresse,
+                                ':stadtteil' => $stadtteil,
+                                ':fahrzeug_name' => $fahrzeug_name,
+                                ':dienst_id' => $dienst_id,
+                            ]);
+                        
+                            echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
+                        } catch (Exception $e) {
+                            echo "<p style='color: red;'>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
+                        }
+                        
                 
                         echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
                     } catch (Exception $e) {
