@@ -666,6 +666,8 @@ if ($zeitResult) {
                 echo "<td>" . htmlspecialchars($dauer_formatiert) . "</td>";
                 echo "<td>" . htmlspecialchars($dienst['alarmanzahl']) . "</td>";
 
+
+                
                 // Alarme (Stichworte) ausklappbar
                 echo "<td>
                         <details>
@@ -684,7 +686,7 @@ if ($zeitResult) {
                             <summary>Details anzeigen</summary>
                             <ul>";
                 foreach ($personalList as $person) {
-                    echo htmlspecialchars($person['funktion'] . ': ' . $person['name']);
+                    echo "<li>" . htmlspecialchars($person['funktion'] . ': ' . $person['name']) . "</li>";
                 }
                 echo "    </ul>
                         </details>

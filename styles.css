@@ -263,3 +263,16 @@ form button {
         width: 100%;
     }
 }
+
+
+    /* Entfernt die Punkte in den Listen */
+    details ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Optional: Styling für die Liste */
+    details ul li {
+        padding: 2px 0;
+    }
