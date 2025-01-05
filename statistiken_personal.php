@@ -1,151 +1,123 @@
-<?php
-session_start();
-if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-    header('Location: login.php');
-    exit;
-}
-require 'db.php';
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistiken - Personal</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Für Diagramme -->
+</head>
+<body>
+<header>
+    <h1>
+        <?php if ($personId): ?>
+            Statistik von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?>
+        <?php else: ?>
+            Statistiken für Personal
+        <?php endif; ?>
+    </h1>
+    <form method="POST" action="logout.php" class="logout-form">
+        <button type="submit">Logout</button>
+    </form>
+    <form method="POST" action="index.php" class="back-form">
+        <button type="submit">Zurück</button>
+    </form>
+</header>
 
-// Standardwerte für Zeitraum
-if (!isset($_GET['startdatum']) || !isset($_GET['enddatum'])) {
-    $currentDate = new DateTime();
-    $startdatum = $currentDate->format('Y-m-01');
-    $enddatum = $currentDate->format('Y-m-t');
-} else {
-    $startdatum = $_GET['startdatum'];
-    $enddatum = $_GET['enddatum'];
-}
-$personId = isset($_GET['person_id']) ? $_GET['person_id'] : null;
+<main>
+    <!-- Filter für Person und Zeitraum -->
+    <section id="filter">
+        <h2>Filter</h2>
+        <form method="GET" action="statistiken_personal.php" class="filter-form">
+            <label for="person_id">Person:</label>
+            <select id="person_id" name="person_id" required>
+                <option value="">-- Wähle eine Person --</option>
+                <?php foreach ($personal as $person): ?>
+                    <option value="<?= htmlspecialchars($person['id']) ?>" <?= $personId == $person['id'] ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($person['name']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
 
-// Datumsformat für SQL-Abfragen anpassen
-$startdatum = (new DateTime($startdatum))->format('d.m.Y 00:00');
-$enddatum = (new DateTime($enddatum))->format('d.m.Y 23:59');
+            <label for="startdatum">Startdatum:</label>
+            <input type="date" id="startdatum" name="startdatum" value="<?= htmlspecialchars((new DateTime($startdatum))->format('Y-m-d')) ?>" required>
 
-// Debugging
-echo "<pre>";
-echo "Startdatum: $startdatum\n";
-echo "Enddatum: $enddatum\n";
-echo "Person ID: $personId\n";
-echo "</pre>";
+            <label for="enddatum">Enddatum:</label>
+            <input type="date" id="enddatum" name="enddatum" value="<?= htmlspecialchars((new DateTime($enddatum))->format('Y-m-d')) ?>" required>
 
-// Personal laden
-$personalStmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM personal ORDER BY nachname");
-$personal = $personalStmt->fetchAll(PDO::FETCH_ASSOC);
+            <button type="submit">Anzeigen</button>
+        </form>
+    </section>
 
-// Einsätze und Funktionen laden
-$einsaetze = [];
-$funktionenVerteilung = [];
-$totalEinsaetze = 0;
-$personEinsaetze = 0;
-$gesamtDauer = 0;
+    <!-- Verteilung der Funktionen -->
+    <section id="funktionen-verteilung">
+        <?php if (count($funktionenVerteilung) > 0): ?>
+            <h2>Funktionen von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?></h2>
+            <canvas id="funktionenChart" width="400" height="200"></canvas>
+            <script>
+                const funktionenLabels = <?= json_encode(array_column($funktionenVerteilung, 'funktion')) ?>;
+                const funktionenData = <?= json_encode(array_column($funktionenVerteilung, 'anzahl')) ?>;
 
-if ($personId) {
-    // Einsätze abrufen
-    $einsaetzeStmt = $pdo->prepare("
-        SELECT 
-            e.interne_einsatznummer, e.stichwort, e.alarmuhrzeit, e.fahrzeug_name,
-            CASE
-                WHEN b.stf_id = :personId THEN 'Staffel-Führer'
-                WHEN b.ma_id = :personId THEN 'Maschinist'
-                WHEN b.atf_id = :personId THEN 'Angriffstrupp-Führer'
-                WHEN b.atm_id = :personId THEN 'Angriffstrupp-Mann'
-                WHEN b.wtf_id = :personId THEN 'Wassertrupp-Führer'
-                WHEN b.wtm_id = :personId THEN 'Wassertrupp-Mann'
-                WHEN b.prakt_id = :personId THEN 'Praktikant'
-                ELSE 'Unbekannt'
-            END AS funktion
-        FROM einsaetze e
-        LEFT JOIN dienste b ON e.dienst_id = b.id
-        WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%d.%m.%Y %H:%i') AND STR_TO_DATE(:enddatum, '%d.%m.%Y %H:%i')
-        ORDER BY STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') DESC
-    ");
+                new Chart(document.getElementById('funktionenChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: funktionenLabels,
+                        datasets: [{
+                            label: 'Anzahl der Einsätze',
+                            data: funktionenData,
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            </script>
+        <?php else: ?>
+            <p>Keine Daten zur Verteilung der Funktionen verfügbar.</p>
+        <?php endif; ?>
+    </section>
 
-    $einsaetzeStmt->execute([
-        ':personId' => $personId,
-        ':startdatum' => $startdatum,
-        ':enddatum' => $enddatum
-    ]);
-    $einsaetze = $einsaetzeStmt->fetchAll(PDO::FETCH_ASSOC);
+    <!-- Anzeige der Einsätze -->
+    <section id="einsatz-statistik">
+        <?php if (count($einsaetze) > 0): ?>
+            <h2>Einsätze von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?></h2>
+            <p>Von insgesamt <strong><?= htmlspecialchars($totalEinsaetze) ?> Alarmen</strong> war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?>
+                bei <strong><?= htmlspecialchars($personEinsaetze) ?> Alarmen</strong> beteiligt. Das entspricht <strong><?= htmlspecialchars($prozent) ?>%</strong>.
+                Insgesamt war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?>
+                in diesem Zeitraum <strong><?= htmlspecialchars($stunden) ?> Stunden und <?= htmlspecialchars($minuten) ?> Minuten</strong> im Einsatz.</p>
 
-    // Verteilung der Funktionen abrufen
-    $funktionenStmt = $pdo->prepare("
-        SELECT 
-            CASE
-                WHEN b.stf_id = :personId THEN 'Staffel-Führer'
-                WHEN b.ma_id = :personId THEN 'Maschinist'
-                WHEN b.atf_id = :personId OR b.atm_id = :personId THEN 'Angriffstrupp'
-                WHEN b.wtf_id = :personId OR b.wtm_id = :personId THEN 'Wassertrupp'
-                WHEN b.prakt_id = :personId THEN 'Praktikant'
-                ELSE 'Unbekannt'
-            END AS funktion,
-            COUNT(*) AS anzahl
-        FROM einsaetze e
-        LEFT JOIN dienste b ON e.dienst_id = b.id
-        WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%d.%m.%Y %H:%i') AND STR_TO_DATE(:enddatum, '%d.%m.%Y %H:%i')
-        GROUP BY funktion
-    ");
-
-    $funktionenStmt->execute([
-        ':personId' => $personId,
-        ':startdatum' => $startdatum,
-        ':enddatum' => $enddatum
-    ]);
-    $funktionenVerteilung = $funktionenStmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Gesamtanzahl der Einsätze abrufen
-    $totalEinsaetzeStmt = $pdo->prepare("
-        SELECT COUNT(*) AS total
-        FROM einsaetze e
-        WHERE STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%d.%m.%Y %H:%i') AND STR_TO_DATE(:enddatum, '%d.%m.%Y %H:%i')
-    ");
-
-    $totalEinsaetzeStmt->execute([
-        ':startdatum' => $startdatum,
-        ':enddatum' => $enddatum
-    ]);
-    $totalEinsaetze = $totalEinsaetzeStmt->fetchColumn();
-
-    // Einsätze der Person zählen
-    $personEinsaetzeStmt = $pdo->prepare("
-        SELECT COUNT(*) AS total
-        FROM einsaetze e
-        LEFT JOIN dienste b ON e.dienst_id = b.id
-        WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%d.%m.%Y %H:%i') AND STR_TO_DATE(:enddatum, '%d.%m.%Y %H:%i')
-    ");
-
-    $personEinsaetzeStmt->execute([
-        ':personId' => $personId,
-        ':startdatum' => $startdatum,
-        ':enddatum' => $enddatum
-    ]);
-    $personEinsaetze = $personEinsaetzeStmt->fetchColumn();
-
-    // Gesamtdauer der Einsätze berechnen
-    $einsatzdauerStmt = $pdo->prepare("
-        SELECT SUM(TIMESTAMPDIFF(MINUTE, 
-            STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i'), 
-            STR_TO_DATE(e.zurueckzeit, '%d.%m.%Y %H:%i')
-        )) AS gesamtDauer
-        FROM einsaetze e
-        LEFT JOIN dienste b ON e.dienst_id = b.id
-        WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%d.%m.%Y %H:%i') AND STR_TO_DATE(:enddatum, '%d.%m.%Y %H:%i')
-    ");
-
-    $einsatzdauerStmt->execute([
-        ':personId' => $personId,
-        ':startdatum' => $startdatum,
-        ':enddatum' => $enddatum
-    ]);
-    $gesamtDauer = $einsatzdauerStmt->fetchColumn();
-    $stunden = floor($gesamtDauer / 60);
-    $minuten = $gesamtDauer % 60;
-}
-
-// Debugging-Ausgabe
-echo "<pre>";
-print_r($einsaetze);
-echo "</pre>";
+            <table>
+                <thead>
+                <tr>
+                    <th>Interne Einsatznummer</th>
+                    <th>Stichwort</th>
+                    <th>Alarmzeit</th>
+                    <th>Fahrzeug</th>
+                    <th>Funktion</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($einsaetze as $einsatz): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($einsatz['interne_einsatznummer']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['stichwort']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['alarmuhrzeit']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['fahrzeug_name']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['funktion']) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>Keine Einsätze für diesen Zeitraum gefunden.</p>
+        <?php endif; ?>
+    </section>
+</main>
+</body>
+</html>
