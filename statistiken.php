@@ -27,37 +27,49 @@ if (!isset($_GET['startdatum']) || !isset($_GET['enddatum'])) {
 }
 
 // Start- und Enddatum ins richtige Format umwandeln
-$startdatum = DateTime::createFromFormat('Y-m-d', $startdatum)->format('d.m.Y 00:00');
-$enddatum = DateTime::createFromFormat('Y-m-d', $enddatum)->format('d.m.Y 23:59');
+$startdatum = (new DateTime($_GET['startdatum']))->format('Y-m-d 00:00:00');
+$enddatum = (new DateTime($_GET['enddatum']))->format('Y-m-d 23:59:59');
 
 try {
     // Gesamtanzahl der Einsätze
     $totalStmt = $pdo->prepare("
-        SELECT COUNT(*) AS total 
-        FROM einsaetze 
-        WHERE alarmuhrzeit BETWEEN :startdatum AND :enddatum
+    SELECT COUNT(*) AS total 
+    FROM einsaetze 
+    WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i') 
+          BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') 
+              AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')
     ");
+
     $totalStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
     $totalEinsaetze = $totalStmt->fetch()['total'];
 
     // Durchschnittliche Einsatzdauer
     $dauerStmt = $pdo->prepare("
-        SELECT AVG(TIMESTAMPDIFF(MINUTE, STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i'), STR_TO_DATE(zurueckzeit, '%d.%m.%Y %H:%i'))) AS durchschnittsdauer
-        FROM einsaetze
-        WHERE alarmuhrzeit BETWEEN :startdatum AND :enddatum
+    SELECT AVG(TIMESTAMPDIFF(MINUTE, 
+        STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i'), 
+        STR_TO_DATE(zurueckzeit, '%d.%m.%Y %H:%i')
+    )) AS durchschnittsdauer
+    FROM einsaetze
+    WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i') 
+          BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') 
+              AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')
     ");
+
     $dauerStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
     $durchschnittsdauer = $dauerStmt->fetch()['durchschnittsdauer'];
 
     // Häufigste Stichworte
     $stichwortStmt = $pdo->prepare("
-        SELECT stichwort, COUNT(*) AS anzahl 
-        FROM einsaetze 
-        WHERE alarmuhrzeit BETWEEN :startdatum AND :enddatum
-        GROUP BY stichwort 
-        ORDER BY anzahl DESC
-        LIMIT 8
+    SELECT stichwort, COUNT(*) AS anzahl 
+    FROM einsaetze 
+    WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i') 
+          BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') 
+              AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')
+    GROUP BY stichwort 
+    ORDER BY anzahl DESC
+    LIMIT 8
     ");
+
     $stichwortStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
     $stichworte = $stichwortStmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
