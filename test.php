@@ -50,7 +50,7 @@ try {
     const einsaetze = <?= json_encode($einsaetze) ?>;
 
     // Debugging: Überprüfen, ob die Daten korrekt im JavaScript ankommen
-    console.log("Einsaetze-Daten aus PHP:", einsaetze);
+    console.log("Einsätze-Daten aus PHP:", einsaetze);
 
     // Karte initialisieren
     const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
@@ -64,8 +64,8 @@ try {
     const heatData = [];
 
     // Funktion zur Geocodierung (Adresse zu Koordinaten umwandeln)
-    async function geocodeAdresse(adresse, bezirk) {
-        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(adresse)}, ${encodeURIComponent(bezirk)}&format=json&limit=1`;
+    async function geocodeAdresse(adresse, stadtteil) {
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(adresse)}, ${encodeURIComponent(stadtteil)}&format=json&limit=1`;
         
         // Debugging: API-URL überprüfen
         console.log("Geocoding-URL:", url);
@@ -75,18 +75,18 @@ try {
             const data = await response.json();
 
             // Debugging: Antwort der API prüfen
-            console.log(`Antwort für ${adresse}, ${bezirk}:`, data);
+            console.log(`Antwort für ${adresse}, ${stadtteil}:`, data);
 
             if (data.length > 0) {
                 const latitude = parseFloat(data[0].lat);
                 const longitude = parseFloat(data[0].lon);
 
-                // Debugging: Koordinaten prüfen
-                console.log(`Koordinaten für ${adresse}, ${bezirk}:`, latitude, longitude);
+                // Debugging: Gefundene Koordinaten ausgeben
+                console.log(`Gefundene Koordinaten für ${adresse}, ${stadtteil}:`, latitude, longitude);
 
                 heatData.push([latitude, longitude, 1]); // Gewichtung hier statisch als 1
             } else {
-                console.warn(`Keine Koordinaten für: ${adresse}, ${bezirk}`);
+                console.warn(`Keine Koordinaten gefunden für: ${adresse}, ${stadtteil}`);
             }
         } catch (error) {
             console.error(`Fehler beim Geocodieren: ${error}`);
@@ -102,14 +102,18 @@ try {
         }
 
         // Debugging: Heatmap-Daten prüfen
-        console.log("Heatmap-Daten:", heatData);
+        console.log("Heatmap-Daten (gefunden):", heatData);
 
         // Heatmap hinzufügen
-        L.heatLayer(heatData, {
-            radius: 25, // Radius der Punkte
-            blur: 15,   // Weichzeichnung
-            maxZoom: 17 // Maximale Zoomstufe
-        }).addTo(map);
+        if (heatData.length > 0) {
+            L.heatLayer(heatData, {
+                radius: 25, // Radius der Punkte
+                blur: 15,   // Weichzeichnung
+                maxZoom: 17 // Maximale Zoomstufe
+            }).addTo(map);
+        } else {
+            console.warn("Keine Einsätze für die Heatmap gefunden.");
+        }
     }
 
     // Heatmap erstellen
