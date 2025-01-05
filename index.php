@@ -174,7 +174,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                 ':adresse' => $adresse,
                                 ':stadtteil' => $stadtteil,
                                 ':fahrzeug_name' => $fahrzeug_name,
-                                ':dienst_id' => $dienst_id,
+                                ':dienst_id' => $dienst_id
                             ]);
                         
                             echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
