@@ -3,8 +3,10 @@
 require_once 'db.php';
 
 // Funktion zur Abfrage der Koordinaten von OpenStreetMap
-function fetchCoordinates($address) {
-    $url = "https://nominatim.openstreetmap.org/search?format=json&q=" . urlencode($address);
+function fetchCoordinates($address, $district) {
+    // Kombiniere Adresse und Stadtteil für präzisere Ergebnisse
+    $fullAddress = $address . ', ' . $district . ', Berlin, Deutschland';
+    $url = "https://nominatim.openstreetmap.org/search?format=json&q=" . urlencode($fullAddress);
     
     $options = [
         "http" => [
@@ -32,15 +34,16 @@ function fetchCoordinates($address) {
 }
 
 // Adressen abrufen, die noch keine Koordinaten haben
-$query = "SELECT id, adresse FROM einsaetze WHERE latitude IS NULL OR longitude IS NULL";
+$query = "SELECT id, adresse, stadtteil FROM einsaetze WHERE latitude IS NULL OR longitude IS NULL";
 $stmt = $pdo->query($query);
 
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $id = $row['id'];
     $address = $row['adresse'];
-    
-    echo "Verarbeite Adresse: $address\n";
-    $coordinates = fetchCoordinates($address);
+    $district = $row['stadtteil'];
+
+    echo "Verarbeite Adresse: $address, Stadtteil: $district\n";
+    $coordinates = fetchCoordinates($address, $district);
 
     if ($coordinates["latitude"] && $coordinates["longitude"]) {
         // Koordinaten in der Datenbank aktualisieren
@@ -53,7 +56,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         ]);
         echo "Koordinaten für ID $id aktualisiert: (" . $coordinates["latitude"] . ", " . $coordinates["longitude"] . ")\n";
     } else {
-        echo "Keine Koordinaten für Adresse $address gefunden.\n";
+        echo "Keine Koordinaten für Adresse $address im Stadtteil $district gefunden.\n";
     }
 
     // Throttling: 1 Sekunde Pause zwischen den Anfragen
