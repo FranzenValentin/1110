@@ -573,8 +573,8 @@ if ($zeitResult) {
         <thead>
             <tr>
                 <th>Fahrzeug</th>
-                <th>InDienst Datum</th>
-                <th>Dienst Dauer (Stunden)</th>
+                <th>Zeitraum</th>
+                <th>Dienst Dauer</th>
                 <th>Alarmanzahl</th>
                 <th>Alarme (Stichworte)</th>
                 <th>Personal</th>
@@ -588,8 +588,8 @@ if ($zeitResult) {
             // SQL-Abfrage, um die letzten 5 Dienste aller Fahrzeuge nach Datum zu erhalten
             $dienstStmt = $pdo->prepare("
                 SELECT d.id, f.name AS fahrzeug_name, d.inDienstZeit, d.ausserDienstZeit,
-                       TIMESTAMPDIFF(HOUR, STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i'), 
-                       STR_TO_DATE(d.ausserDienstZeit, '%d.%m.%Y %H:%i')) AS dauer,
+                       TIMESTAMPDIFF(MINUTE, STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i'), 
+                       STR_TO_DATE(d.ausserDienstZeit, '%d.%m.%Y %H:%i')) AS dauer_minuten,
                        COUNT(e.id) AS alarmanzahl
                 FROM dienste d
                 JOIN fahrzeuge f ON f.id = d.fahrzeug_id
@@ -612,21 +612,26 @@ if ($zeitResult) {
             foreach ($dienste as $dienst) {
                 // Personal abrufen
                 $personalStmt = $pdo->prepare("
-                    SELECT CONCAT(p.vorname, ' ', p.nachname) AS name
+                    SELECT 
+                        CASE 
+                            WHEN p.id = d.stf_id THEN 'Staffel-Führer'
+                            WHEN p.id = d.ma_id THEN 'Maschinist'
+                            WHEN p.id = d.atf_id THEN 'Angriffstrupp-Führer'
+                            WHEN p.id = d.atm_id THEN 'Angriffstrupp-Mann'
+                            WHEN p.id = d.wtf_id THEN 'Wassertrupp-Führer'
+                            WHEN p.id = d.wtm_id THEN 'Wassertrupp-Mann'
+                            WHEN p.id = d.prakt_id THEN 'Praktikant'
+                        END AS funktion,
+                        CONCAT(p.vorname, ' ', p.nachname) AS name
                     FROM personal p
-                    JOIN (
-                        SELECT stf_id AS id FROM dienste WHERE id = :dienst_id
-                        UNION SELECT ma_id FROM dienste WHERE id = :dienst_id
-                        UNION SELECT atf_id FROM dienste WHERE id = :dienst_id
-                        UNION SELECT atm_id FROM dienste WHERE id = :dienst_id
-                        UNION SELECT wtf_id FROM dienste WHERE id = :dienst_id
-                        UNION SELECT wtm_id FROM dienste WHERE id = :dienst_id
-                        UNION SELECT prakt_id FROM dienste WHERE id = :dienst_id
-                    ) roles ON roles.id = p.id
+                    JOIN dienste d ON p.id IN (
+                        d.stf_id, d.ma_id, d.atf_id, d.atm_id, d.wtf_id, d.wtm_id, d.prakt_id
+                    )
+                    WHERE d.id = :dienst_id
                 ");
                 try {
                     $personalStmt->execute([':dienst_id' => $dienst['id']]);
-                    $personalList = $personalStmt->fetchAll(PDO::FETCH_COLUMN);
+                    $personalList = $personalStmt->fetchAll(PDO::FETCH_ASSOC);
 
                     // Debug: Personal-Ergebnisse anzeigen
                     echo "<!-- Debug: Personal für Dienst-ID {$dienst['id']} = " . print_r($personalList, true) . " -->";
@@ -650,10 +655,13 @@ if ($zeitResult) {
                     echo "<p style='color: red;'>Fehler beim Abrufen der Alarme: " . htmlspecialchars($e->getMessage()) . "</p>";
                 }
 
+                $dauer_stunden = floor($dienst['dauer_minuten'] / 60);
+                $dauer_minuten = $dienst['dauer_minuten'] % 60;
+
                 echo "<tr>";
                 echo "<td>" . htmlspecialchars($dienst['fahrzeug_name']) . "</td>";
-                echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . "</td>";
-                echo "<td>" . htmlspecialchars($dienst['dauer'] ?? '-') . "</td>";
+                echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . " - " . htmlspecialchars($dienst['ausserDienstZeit']) . "</td>";
+                echo "<td>" . htmlspecialchars($dauer_stunden) . " Stunden, " . htmlspecialchars($dauer_minuten) . " Minuten</td>";
                 echo "<td>" . htmlspecialchars($dienst['alarmanzahl']) . "</td>";
 
                 // Alarme (Stichworte) ausklappbar
@@ -668,13 +676,13 @@ if ($zeitResult) {
                         </details>
                       </td>";
 
-                // Personal ausklappbar
+                // Personal ausklappbar mit Funktion
                 echo "<td>
                         <details>
                             <summary>Details anzeigen</summary>
                             <ul>";
                 foreach ($personalList as $person) {
-                    echo "<li>" . htmlspecialchars($person) . "</li>";
+                    echo "<li>" . htmlspecialchars($person['funktion'] . ': ' . $person['name']) . "</li>";
                 }
                 echo "    </ul>
                         </details>
