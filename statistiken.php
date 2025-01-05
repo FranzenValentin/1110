@@ -115,6 +115,7 @@ try {
     <title>Statistiken</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Für Diagramme -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
 <header>
@@ -255,8 +256,8 @@ try {
     
     <div id="map" style="width: 100%; height: 500px;"></div>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 
 
     <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
