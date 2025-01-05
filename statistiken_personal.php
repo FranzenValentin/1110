@@ -41,8 +41,8 @@ if ($personId) {
         FROM einsaetze e
         LEFT JOIN dienste b ON e.dienst_id = b.id
         WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i') BETWEEN :startdatum AND :enddatum
-        ORDER BY e.alarmuhrzeit DESC
+        AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN :startdatum AND :enddatum
+        ORDER BY STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') DESC
     ");
 
     $einsaetzeStmt->execute([
@@ -51,6 +51,7 @@ if ($personId) {
         ':enddatum' => $enddatum
     ]);
     $einsaetze = $einsaetzeStmt->fetchAll(PDO::FETCH_ASSOC);
+
 
     // Verteilung der Funktionen abrufen
     $funktionenStmt = $pdo->prepare("
