@@ -10,15 +10,22 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Alle Adressen aus der Tabelle `einsaetze` abrufen, die noch keine Koordinaten haben
+    // Begrenze die Abfrage auf 5 Adressen pro Durchlauf
     $stmt = $pdo->query("
         SELECT id, adresse, stadtteil 
         FROM einsaetze
-        WHERE latitude IS NULL OR longitude IS NULL
+        WHERE (latitude IS NULL OR longitude IS NULL)
         AND adresse IS NOT NULL AND adresse != '' 
         AND stadtteil IS NOT NULL AND stadtteil != ''
+        LIMIT 5
     ");
     $einsaetze = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Falls keine weiteren Adressen gefunden werden
+    if (count($einsaetze) === 0) {
+        echo "Alle Adressen wurden bereits geocodiert.";
+        exit;
+    }
 
     // Funktion zur Geocodierung
     function geocodeAdresse($adresse, $stadtteil) {
@@ -40,7 +47,7 @@ try {
         return null;
     }
 
-    // Koordinaten für alle Einsätze aktualisieren
+    // Koordinaten für die abgerufenen Einsätze aktualisieren
     foreach ($einsaetze as $einsatz) {
         $koordinaten = geocodeAdresse($einsatz['adresse'], $einsatz['stadtteil']);
 
@@ -69,9 +76,8 @@ try {
         sleep(1);
     }
 
-    echo "Geocodierung abgeschlossen.";
+    echo "Geocodierung für diesen Durchlauf abgeschlossen. Bitte lade die Seite erneut, um weitere Adressen zu verarbeiten.";
 
 } catch (PDOException $e) {
     die("Datenbankverbindung fehlgeschlagen: " . $e->getMessage());
 }
-?>
