@@ -102,9 +102,17 @@ try {
     <!-- Anzeige der Statistiken -->
     <section id="einsatz-statistik">
     <h2>Statistiken für den Zeitraum 
-        <?= htmlspecialchars(DateTime::createFromFormat('Y-m-d', $startdatum)->format('d.m.Y')) ?> 
-        bis 
-        <?= htmlspecialchars(DateTime::createFromFormat('Y-m-d', $enddatum)->format('d.m.Y')) ?>
+        <?php 
+        // Sicherstellung der korrekten Datumsanzeige
+        $startdatumObj = DateTime::createFromFormat('Y-m-d', $startdatum);
+        $enddatumObj = DateTime::createFromFormat('Y-m-d', $enddatum);
+
+        if ($startdatumObj && $enddatumObj) {
+            echo htmlspecialchars($startdatumObj->format('d.m.Y')) . " bis " . htmlspecialchars($enddatumObj->format('d.m.Y'));
+        } else {
+            echo "Ungültiger Zeitraum"; // Fallback-Anzeige
+        }
+        ?>
     </h2>
     <?php if (isset($error)): ?>
         <p><?= htmlspecialchars($error) ?></p>
@@ -115,8 +123,7 @@ try {
             <p>Durchschnittliche Einsatzdauer: <strong><?= htmlspecialchars(round($durchschnittsdauer, 2)) ?> Minuten</strong></p>
         <?php endif; ?>
     <?php endif; ?>
-
-    </section>
+</section>
 
     <!-- Diagramm für häufigste Stichworte -->
     <section id="haeufigste-stichworte">
