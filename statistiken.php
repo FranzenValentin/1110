@@ -110,14 +110,19 @@ try {
         <h2>Zeitraum auswählen</h2>
         <form method="GET" action="statistiken.php" class="filter-form">
             <label for="startdatum">Startdatum:</label>
-            <input type="date" id="startdatum" name="startdatum" value="<?= htmlspecialchars($startdatum) ?>" required>
+            <input type="date" id="startdatum" name="startdatum" 
+                value="<?= htmlspecialchars((new DateTime($startdatum ?? 'now'))->format('Y-m-d')) ?>" 
+                required>
 
             <label for="enddatum">Enddatum:</label>
-            <input type="date" id="enddatum" name="enddatum" value="<?= htmlspecialchars($enddatum) ?>" required>
+            <input type="date" id="enddatum" name="enddatum" 
+                value="<?= htmlspecialchars((new DateTime($enddatum ?? 'now'))->format('Y-m-d')) ?>" 
+                required>
 
             <button type="submit">Anzeigen</button>
         </form>
     </section>
+
 
     <!-- Anzeige der Statistiken -->
     <section id="einsatz-statistik">
