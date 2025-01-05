@@ -10,9 +10,9 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // Abfrage der Straße mit Hausnummer und Bezirk aus der Tabelle `einsaetze`
+    // Abfrage von Adresse und Stadtteil aus der Tabelle `einsaetze`
     $stmt = $pdo->query("
-        SELECT CONCAT(strasse, ' ', hausnummer) AS adresse, bezirk 
+        SELECT adresse, stadtteil 
         FROM einsaetze
     ");
     $einsaetze = $stmt->fetchAll(PDO::FETCH_ASSOC);
