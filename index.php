@@ -181,10 +181,9 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                         } catch (Exception $e) {
                             echo "<p style='color: red;'>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
                         }
-                    echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
-                    } catch (Exception $e) {
-                    echo "<p style='color: red;'>Fehler: " . htmlspecialchars($e->getMessage()) . "</p>";
-                } 
+                    } catch (Exception $e) 
+                    {
+                    } 
                 }        
                 
             ?>
