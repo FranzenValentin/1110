@@ -614,13 +614,13 @@ if ($zeitResult) {
                 $personalStmt = $pdo->prepare("
                     SELECT 
                         CASE 
-                            WHEN p.id = d.stf_id THEN 'Staffel-Führer'
-                            WHEN p.id = d.ma_id THEN 'Maschinist'
-                            WHEN p.id = d.atf_id THEN 'Angriffstrupp-Führer'
-                            WHEN p.id = d.atm_id THEN 'Angriffstrupp-Mann'
-                            WHEN p.id = d.wtf_id THEN 'Wassertrupp-Führer'
-                            WHEN p.id = d.wtm_id THEN 'Wassertrupp-Mann'
-                            WHEN p.id = d.prakt_id THEN 'Praktikant'
+                            WHEN p.id = d.stf_id THEN 'StF'
+                            WHEN p.id = d.ma_id THEN 'Ma'
+                            WHEN p.id = d.atf_id THEN 'AtF'
+                            WHEN p.id = d.atm_id THEN 'AtM'
+                            WHEN p.id = d.wtf_id THEN 'WtF'
+                            WHEN p.id = d.wtm_id THEN 'WtM'
+                            WHEN p.id = d.prakt_id THEN 'Prakt'
                         END AS funktion,
                         CONCAT(p.vorname, ' ', p.nachname) AS name
                     FROM personal p
