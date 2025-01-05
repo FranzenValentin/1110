@@ -123,14 +123,15 @@ try {
     <section id="einsatz-statistik">
     <h2>Statistiken für den Zeitraum 
         <?php 
-        // Sicherstellung der korrekten Datumsanzeige
-        $startdatumObj = DateTime::createFromFormat('Y-m-d', $startdatum);
-        $enddatumObj = DateTime::createFromFormat('Y-m-d', $enddatum);
+        try {
+            // Startdatum und Enddatum in DateTime-Objekte umwandeln
+            $startdatumObj = new DateTime($startdatum);
+            $enddatumObj = new DateTime($enddatum);
 
-        if ($startdatumObj && $enddatumObj) {
+            // Zeitraum korrekt formatieren und anzeigen
             echo htmlspecialchars($startdatumObj->format('d.m.Y')) . " bis " . htmlspecialchars($enddatumObj->format('d.m.Y'));
-        } else {
-            echo "Ungültiger Zeitraum"; // Fallback-Anzeige
+        } catch (Exception $e) {
+            echo "Ungültiger Zeitraum"; // Fallback-Anzeige bei Fehlern
         }
         ?>
     </h2>
