@@ -27,8 +27,14 @@ if (!isset($_GET['startdatum']) || !isset($_GET['enddatum'])) {
 }
 
 // Start- und Enddatum ins richtige Format umwandeln
-$startdatum = (new DateTime($_GET['startdatum']))->format('Y-m-d 00:00:00');
-$enddatum = (new DateTime($_GET['enddatum']))->format('Y-m-d 23:59:59');
+try {
+    $startdatum = (new DateTime($startdatum))->format('Y-m-d 00:00:00');
+    $enddatum = (new DateTime($enddatum))->format('Y-m-d 23:59:59');
+} catch (Exception $e) {
+    $error = "Ungültiges Datum: " . htmlspecialchars($e->getMessage());
+    $startdatum = null;
+    $enddatum = null;
+}
 
 try {
     // Gesamtanzahl der Einsätze
