@@ -697,10 +697,8 @@ if ($zeitResult) {
             ?>
         </tbody>
     </table>
-        <div class="button-container" style="text-align: center; margin-top: 20px;">
-            <button onclick="location.href='alleDienste.php'" style="padding: 10px 20px; font-size: 16px;">
-                Alle Dienste
-            </button>
+        <div class="button-container">
+            <button onclick="location.href='alleDienste.php'">Alle Dienste</button>
         </div>
 </section>
 
