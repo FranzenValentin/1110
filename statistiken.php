@@ -249,11 +249,10 @@ try {
         </script>
 
 <section id="haeufigste-bezirke">
-    <h2>Häufigste Bezirke</h2>
-    <div id="map" style="width: 100%; height: 500px;"></div>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script>
+
+<script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+
+<script>
     // Stadtteile und Einsatzzahlen aus PHP
     const stadtteile = <?= json_encode($stadtteile) ?>;
 
@@ -265,18 +264,19 @@ try {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Kreise für Stadtteile hinzufügen
-    stadtteile.forEach(function(stadtteil) {
-        L.circle([stadtteil.latitude, stadtteil.longitude], {
-            color: 'blue',
-            fillColor: '#30f',
-            fillOpacity: 0.5,
-            radius: Math.max(stadtteil.anzahl * 100, 500) // Proportional zur Anzahl, Mindestgröße 500
-        })
-        .bindPopup(`<strong>${stadtteil.name}</strong><br>Anzahl der Einsätze: ${stadtteil.anzahl}`)
-        .addTo(map);
+    // Daten für Heatmap vorbereiten
+    const heatData = stadtteile.map(function(stadtteil) {
+        return [stadtteil.latitude, stadtteil.longitude, stadtteil.anzahl]; // [Lat, Lng, Gewicht]
     });
+
+    // Heatmap hinzufügen
+    L.heatLayer(heatData, {
+        radius: 25, // Radius der Punkte
+        blur: 15,   // Weichzeichnung
+        maxZoom: 17 // Maximale Zoomstufe
+    }).addTo(map);
 </script>
+
 
 </section>
 
