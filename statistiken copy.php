@@ -103,22 +103,6 @@ try {
     die("Datenbankfehler: " . htmlspecialchars($e->getMessage()));
 }
 
-// Heatmap-Daten aus der Datenbank abrufen
-try {
-    $heatmapQuery = $pdo->prepare("SELECT latitude, longitude FROM einsaetze WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')");
-
-    $heatmapQuery->execute([
-        ':startdatum' => $startdatum,
-        ':enddatum' => $enddatum
-    ]);
-
-    $heatmapData = $heatmapQuery->fetchAll(PDO::FETCH_ASSOC);
-
-} catch (PDOException $e) {
-    $error = "Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage());
-}
-?>
-
 
 ?>
 
@@ -130,9 +114,8 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Statistiken</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Für Diagramme -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 </head>
 <body>
 <header>
@@ -193,7 +176,7 @@ try {
 </section>
 
     <!-- Diagramm für häufigste Stichworte -->
-    < id="haeufigste-stichworte">
+    <section id="haeufigste-stichworte">
         <?php if ($totalEinsaetze != 0): ?>
         <h2>Häufigste Stichworte</h2>    
         <?php endif; ?>
@@ -305,32 +288,14 @@ try {
     </script>
 </section>
 
-<section>
-        <h2>Heatmap</h2>
-        <div id="map" style="width: 100%; height: 500px;"></div>
-        <script>
-            // Heatmap-Daten aus PHP
-            const heatmapData = <?= json_encode(array_map(function($row) {
-                return [(float)$row['latitude'], (float)$row['longitude'], 1]; // Gewicht auf 1 setzen
-            }, $heatmapData)) ?>;
 
-            // Karte initialisieren
-            const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
 
-            // OpenStreetMap-Layer hinzufügen
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
 
-            // Heatmap hinzufügen
-            L.heatLayer(heatmapData, {
-                radius: 25, // Radius der Punkte
-                blur: 15,   // Weichzeichnung
-                maxZoom: 17 // Maximale Zoomstufe
-            }).addTo(map);
-        </script>
+
+
+
+
     </section>
-
 </main>
 </body>
 </html>
