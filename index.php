@@ -655,13 +655,15 @@ if ($zeitResult) {
                     echo "<p style='color: red;'>Fehler beim Abrufen der Alarme: " . htmlspecialchars($e->getMessage()) . "</p>";
                 }
 
+                // Dienst Dauer im Format 00:00 Stunden berechnen
                 $dauer_stunden = floor($dienst['dauer_minuten'] / 60);
                 $dauer_minuten = $dienst['dauer_minuten'] % 60;
+                $dauer_formatiert = sprintf('%02d:%02d Stunden', $dauer_stunden, $dauer_minuten);
 
                 echo "<tr>";
                 echo "<td>" . htmlspecialchars($dienst['fahrzeug_name']) . "</td>";
                 echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . " - " . htmlspecialchars($dienst['ausserDienstZeit']) . "</td>";
-                echo "<td>" . htmlspecialchars($dauer_stunden) . " Stunden, " . htmlspecialchars($dauer_minuten) . " Minuten</td>";
+                echo "<td>" . htmlspecialchars($dauer_formatiert) . "</td>";
                 echo "<td>" . htmlspecialchars($dienst['alarmanzahl']) . "</td>";
 
                 // Alarme (Stichworte) ausklappbar
@@ -694,6 +696,7 @@ if ($zeitResult) {
         </tbody>
     </table>
 </section>
+
 
 
 
