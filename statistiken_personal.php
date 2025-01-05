@@ -32,29 +32,11 @@
             <label for="person_id">Person:</label>
             <select id="person_id" name="person_id" required>
                 <option value="">-- Wähle eine Person --</option>
-                <?php
-                try {
-                    // Personal aus der Datenbank abrufen
-                    $personalStmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM personal ORDER BY nachname");
-                    $personal = $personalStmt->fetchAll(PDO::FETCH_ASSOC);
-
-                    // Debug-Ausgabe, um sicherzustellen, dass Daten vorhanden sind
-                    if (empty($personal)) {
-                        echo "<option value='' disabled>Keine Personen gefunden</option>";
-                    } else {
-                        foreach ($personal as $person) {
-                            // Dropdown-Optionen erstellen
-                            echo "<option value='" . htmlspecialchars($person['id']) . "'";
-                            if ($personId == $person['id']) {
-                                echo " selected";
-                            }
-                            echo ">" . htmlspecialchars($person['name']) . "</option>";
-                        }
-                    }
-                } catch (PDOException $e) {
-                    echo "<option value='' disabled>Fehler beim Laden: " . htmlspecialchars($e->getMessage()) . "</option>";
-                }
-                ?>
+                <?php foreach ($personal as $person): ?>
+                    <option value="<?= htmlspecialchars($person['id']) ?>" <?= $personId == $person['id'] ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($person['name']) ?>
+                    </option>
+                <?php endforeach; ?>
             </select>
 
 
