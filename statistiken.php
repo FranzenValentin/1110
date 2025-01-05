@@ -248,37 +248,39 @@ try {
             });
         </script>
 
+        
 <section id="haeufigste-bezirke">
+    <h2>Heatmap der Einsätze</h2>
+    <div id="map" style="width: 100%; height: 500px;"></div>
 
-<script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 
-<script>
-    // Stadtteile und Einsatzzahlen aus PHP
-    const stadtteile = <?= json_encode($stadtteile) ?>;
+    <script>
+        // Stadtteile und Einsatzzahlen aus PHP
+        const stadtteile = <?= json_encode($stadtteile) ?>;
 
-    // Karte initialisieren
-    const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
+        // Karte initialisieren
+        const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
 
-    // OpenStreetMap-Layer hinzufügen
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+        // OpenStreetMap-Layer hinzufügen
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-    // Daten für Heatmap vorbereiten
-    const heatData = stadtteile.map(function(stadtteil) {
-        return [stadtteil.latitude, stadtteil.longitude, stadtteil.anzahl]; // [Lat, Lng, Gewicht]
-    });
+        // Daten für Heatmap vorbereiten
+        const heatData = stadtteile.map(function(stadtteil) {
+            return [stadtteil.latitude, stadtteil.longitude, stadtteil.anzahl]; // [Lat, Lng, Gewicht]
+        });
 
-    // Heatmap hinzufügen
-    L.heatLayer(heatData, {
-        radius: 25, // Radius der Punkte
-        blur: 15,   // Weichzeichnung
-        maxZoom: 17 // Maximale Zoomstufe
-    }).addTo(map);
-</script>
-
-
+        // Heatmap hinzufügen
+        L.heatLayer(heatData, {
+            radius: 25, // Radius der Punkte
+            blur: 15,   // Weichzeichnung
+            maxZoom: 17 // Maximale Zoomstufe
+        }).addTo(map);
+    </script>
 </section>
+
 
 
 
