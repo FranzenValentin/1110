@@ -249,6 +249,14 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
             entriesStatus.textContent = `${fromEntry}-${toEntry} von ${totalEntries}`;
         }
 
+        function updateEntriesPerPage() {
+            const select = document.getElementById('entries-per-page');
+            const newEntriesPerPage = parseInt(select.value, 10);
+            if (newEntriesPerPage !== entriesPerPage) {
+                entriesPerPage = newEntriesPerPage;
+                filterEinsaetze(1); // Lade die erste Seite mit der neuen Einstellung
+            }
+        }
 
     </script>
 
@@ -328,6 +336,16 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
             <!-- Pagination -->
                 <div id="pagination" style="margin-top: 15px; text-align: center;"></div>
                 <div id="entries-status" style="margin-top: 10px; text-align: center; font-weight: bold;"></div>
+                <div style="margin-top: 15px; text-align: center;">
+                    <label for="entries-per-page" style="margin-right: 10px;">Einträge pro Seite:</label>
+                    <select id="entries-per-page" onchange="updateEntriesPerPage()" style="padding: 5px;">
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+
         </section>
     </main>
 </body>
