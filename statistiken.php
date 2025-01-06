@@ -254,6 +254,7 @@ try {
         <div id="map" style="width: 100%; height: 500px;"></div>
         <script>
             // Cluster-Gruppe erstellen
+            const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
             const markers = L.markerClusterGroup();
             const pinData = <?= json_encode($pinData) ?>;
 
