@@ -69,6 +69,7 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
     <title>Einsatz Historie</title>
     <link rel="stylesheet" href="styles.css">
     <script>
+        // Live-Filter Funktion
         async function filterEinsaetze() {
             const einsatznummer = document.getElementById('einsatznummer').value;
             const stichwort = document.getElementById('stichwort').value;
@@ -85,7 +86,7 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
             tbody.innerHTML = '';
 
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Keine Einsätze gefunden.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Keine Einsätze gefunden.</td></tr>';
             } else {
                 data.forEach(einsatz => {
                     const personal = [
@@ -114,6 +115,15 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
             }
         }
 
+        // Toggle für den Filterbereich
+        function toggleFilter() {
+            const filterSection = document.getElementById('filter-section');
+            const filterButton = document.getElementById('toggle-filter-btn');
+            const isHidden = filterSection.style.display === 'none';
+            filterSection.style.display = isHidden ? 'block' : 'none';
+            filterButton.textContent = isHidden ? 'Filter ausblenden' : 'Filter einblenden';
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('input').forEach(input => input.addEventListener('input', filterEinsaetze));
             filterEinsaetze(); // Initiales Laden
@@ -129,10 +139,12 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
     </header>
 
     <main>
-        <!-- Filter -->
-        <section id="filter">
-            <h2>Filter</h2>
-            <form>
+        <!-- Filter Toggle Button -->
+        <button id="toggle-filter-btn" onclick="toggleFilter()">Filter einblenden</button>
+
+        <!-- Filterbereich -->
+        <section id="filter-section" style="display: none; margin-top: 15px;">
+            <form style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
                 <label for="einsatznummer">Einsatznummer:</label>
                 <input type="text" id="einsatznummer" placeholder="Einsatznummer">
 
@@ -154,13 +166,13 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
                         <th>Stichwort</th>
                         <th>Alarmzeit</th>
                         <th>Zurückzeit</th>
-                        <th>Straße</th>
+                        <th>Adresse</th>
                         <th>Stadtteil</th>
                         <th>Personal</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td colspan="8" style="text-align: center;">Daten werden geladen...</td></tr>
+                    <tr><td colspan="9" style="text-align: center;">Daten werden geladen...</td></tr>
                 </tbody>
             </table>
         </section>

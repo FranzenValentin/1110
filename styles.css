@@ -276,3 +276,19 @@ form button {
     details ul li {
         padding: 2px 0;
     }
+
+    /* Toggle-Button für Filter */
+#toggle-filter-btn {
+    margin-bottom: 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#toggle-filter-btn:hover {
+    background-color: #0056b3;
+}
