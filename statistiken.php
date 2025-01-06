@@ -284,57 +284,75 @@ try {
     Object.values(groupedPins).forEach(group => {
         const { coords, details } = group;
 
-        // Anzahl der Einsätze bestimmen
-        const count = details.length;
+        // Einzelne Punkte
+        if (details.length === 1) {
+            const pin = details[0];
+            const redIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: "<div style='background-color: red; width: 10px; height: 10px; border-radius: 50%;'></div>",
+                iconSize: [10, 10],
+                iconAnchor: [5, 5] // Zentriert den Marker
+            });
+            const marker = L.marker(coords, { icon: redIcon });
 
-        // Markergröße basierend auf Anzahl der Einsätze
-        const markerSize = 10 + count * 2; // Dynamische Größe
+            // Popup-Inhalt
+            marker.bindPopup(`
+                <strong>Einsatzdetails:</strong><br>
+                <strong>Datum:</strong> ${pin.alarmuhrzeit}<br>
+                <strong>Stichwort:</strong> ${pin.stichwort}
+            `);
 
-        // Icon erstellen
-        const redIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `<div style='
-                background-color: red;
-                width: ${markerSize}px;
-                height: ${markerSize}px;
-                border-radius: 50%;
-                color: white;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 12px;
-                font-weight: bold;
-            '>${count}</div>`,
-            iconSize: [markerSize, markerSize],
-            iconAnchor: [markerSize / 2, markerSize / 2] // Zentriert den Marker
-        });
+            // Marker zur Karte hinzufügen
+            marker.addTo(map);
 
-        // Marker erstellen
-        const marker = L.marker(coords, { icon: redIcon });
+        } else {
+            // Gruppierte Punkte
+            const count = details.length;
+            const markerSize = 15 + count; // Größe anpassen
 
-        // Popup-Inhalt erstellen
-        const popupContent = `
-            <strong>Einsatzdetails:</strong>
-            <ul>
-                ${details
-                    .map(
-                        detail =>
-                            `<li>
-                                <strong>Datum:</strong> ${detail.alarmuhrzeit}<br>
-                                <strong>Stichwort:</strong> ${detail.stichwort}
-                            </li>`
-                    )
-                    .join('')}
-            </ul>
-        `;
+            const groupIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div style='
+                    background-color: red;
+                    width: ${markerSize}px;
+                    height: ${markerSize}px;
+                    border-radius: 50%;
+                    color: white;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 12px;
+                    font-weight: bold;
+                '>${count}</div>`,
+                iconSize: [markerSize, markerSize],
+                iconAnchor: [markerSize / 2, markerSize / 2] // Zentriert den Marker
+            });
 
-        // Popup an den Marker binden
-        marker.bindPopup(popupContent);
+            const marker = L.marker(coords, { icon: groupIcon });
 
-        // Marker zur Karte hinzufügen
-        marker.addTo(map);
+            // Popup-Inhalt für Gruppierungen
+            const popupContent = `
+                <strong>Einsatzdetails (${count}):</strong>
+                <ul>
+                    ${details
+                        .map(
+                            detail =>
+                                `<li>
+                                    <strong>Datum:</strong> ${detail.alarmuhrzeit}<br>
+                                    <strong>Stichwort:</strong> ${detail.stichwort}
+                                </li>`
+                        )
+                        .join('')}
+                </ul>
+            `;
+            marker.bindPopup(popupContent);
+
+            // Marker zur Karte hinzufügen
+            marker.addTo(map);
+        }
     });
 </script>
+
 
 
 
