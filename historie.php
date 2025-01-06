@@ -76,9 +76,8 @@ function fetchFilteredEinsaetze($pdo, $filters) {
 let currentPage = 1; // Start auf der ersten Seite
 const entriesPerPage = 20; // Einträge pro Seite
 
-// Live-Filter Funktion mit Pagination
 async function filterEinsaetze(page = 1) {
-    currentPage = page; // Setze die aktuelle Seite
+    currentPage = page;
     const einsatznummer = document.getElementById('einsatznummer').value;
     const stichwort = document.getElementById('stichwort').value;
     const datum = document.getElementById('datum').value;
@@ -90,7 +89,9 @@ async function filterEinsaetze(page = 1) {
         body: JSON.stringify({ einsatznummer, stichwort, datum, adresse, page, entriesPerPage })
     });
 
-    const { data, totalEntries } = await response.json(); // Rückgabe enthält Daten und Gesamtanzahl
+    const { data, totalEntries } = await response.json();
+    console.log({ data, totalEntries }); // Debugging
+
     const tbody = document.querySelector('#einsaetze-table tbody');
     tbody.innerHTML = '';
 
@@ -121,19 +122,10 @@ async function filterEinsaetze(page = 1) {
                 </tr>
             `;
         });
-
-        renderPagination(totalEntries); // Pagination aktualisieren
+        renderPagination(totalEntries);
     }
 }
 
-// Hervorheben von Suchbegriffen
-function highlightMatch(text, query) {
-    if (!query) return text;
-    const regex = new RegExp(`(${query})`, 'gi');
-    return text.replace(regex, '<mark>$1</mark>');
-}
-
-// Pagination Rendern
 function renderPagination(totalEntries) {
     const paginationDiv = document.getElementById('pagination');
     paginationDiv.innerHTML = '';
@@ -148,21 +140,25 @@ function renderPagination(totalEntries) {
     }
 }
 
-// Initialer Filter beim Laden der Seite
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('input').forEach(input => input.addEventListener('input', debounceFilterEinsaetze));
-    filterEinsaetze(); // Erste Ladung
+    document.querySelectorAll('input').forEach(input => input.addEventListener('input', filterEinsaetze));
+    filterEinsaetze(); // Initiales Laden
 });
+
 
 
 // AJAX-Anfrage
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $filters = json_decode(file_get_contents('php://input'), true);
-    $einsaetze = fetchFilteredEinsaetze($pdo, $filters);
+    $result = fetchFilteredEinsaetze($pdo, $filters);
     header('Content-Type: application/json');
-    echo json_encode($einsaetze);
+    echo json_encode([
+        'data' => $result['data'],
+        'totalEntries' => $result['totalEntries']
+    ]);
     exit;
 }
+
 
 // Standardmäßig alle Einsätze abrufen
 $einsaetze = fetchFilteredEinsaetze($pdo, []);
