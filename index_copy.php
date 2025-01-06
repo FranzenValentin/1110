@@ -67,7 +67,12 @@ require 'db.php';
                         }
 
                         // Koordinaten abrufen
-                        $coordinates = fetchCoordinates($adresse, $stadtteil);
+                        if ($adresse && $stadtteil) {
+                            $coordinates = fetchCoordinates($adresse, $stadtteil);
+                        } else {
+                            $coordinates = ["latitude" => null, "longitude" => null];
+                        }
+                        
 
 
                         try {
