@@ -251,25 +251,26 @@ try {
         <h2>Heatmap</h2>
         <div id="map" style="width: 100%; height: 500px;"></div>
         <script>
-            // Pin-Daten aus PHP
-            const pinData = <?= json_encode($pinData) ?>;
-
-            // Karte initialisieren
-            const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
-
-            // OpenStreetMap-Layer hinzufügen
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
+            // Cluster-Gruppe erstellen
+            const markers = L.markerClusterGroup();
 
             // Pins hinzufügen
             pinData.forEach(function(pin) {
                 if (pin.latitude && pin.longitude) {
-                    L.marker([pin.latitude, pin.longitude])
-                        .addTo(map)
-                        .bindPopup(`<strong>Einsatzbeschreibung:</strong> ${pin.einsatzbeschreibung || 'Keine Beschreibung verfügbar'}`);
+                    const redIcon = L.divIcon({
+                        className: 'custom-div-icon',
+                        html: "<div style='background-color: red; width: 10px; height: 10px; border-radius: 50%;'></div>",
+                        iconSize: [10, 10]
+                    });
+
+                    const marker = L.marker([pin.latitude, pin.longitude], { icon: redIcon });
+                    markers.addLayer(marker);
                 }
             });
+
+            // Cluster-Gruppe zur Karte hinzufügen
+            map.addLayer(markers);
+
 
         </script>
     </section>
