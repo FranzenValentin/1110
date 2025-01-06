@@ -265,9 +265,16 @@ try {
 
             // Heatmap hinzufügen
             L.heatLayer(heatmapData, {
-                radius: 25, // Radius der Punkte
-                blur: 15,   // Weichzeichnung
-                maxZoom: 17 // Maximale Zoomstufe
+                radius: 40, // Größerer Radius der Punkte
+                blur: 25,   // Mehr Weichzeichnung
+                maxZoom: 17, // Maximale Zoomstufe
+                gradient: {
+                    0.2: 'darkblue',
+                    0.4: 'blue',
+                    0.6: 'cyan',
+                    0.8: 'lime',
+                    1.0: 'red'
+                } // Dunklere Farben für Heatspots
             }).addTo(map);
         </script>
     </section>
