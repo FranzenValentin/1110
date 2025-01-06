@@ -98,7 +98,6 @@ try {
 } catch (PDOException $e) {
     $error = "Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage());
 }
-?>
 
 
 ?>
@@ -116,6 +115,8 @@ try {
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
 
 </head>
@@ -128,6 +129,8 @@ try {
     <form method="POST" action="index.php" class="back-form">
         <button type="submit">Zurück</button>
     </form>
+
+
 </header>
 
 <main>
