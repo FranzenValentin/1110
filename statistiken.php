@@ -289,7 +289,7 @@ try {
 
                 // Popup-Inhalt erstellen
                 const popupContent = `
-                    <strong>Stichwort:</strong> ${pin.stichwort}
+                    <strong>Stichwort:</strong> ${pin.stichwort}<br>
                     <strong>Datum:</strong> ${pin.alarmuhrzeit}<br>
                 `;
 
