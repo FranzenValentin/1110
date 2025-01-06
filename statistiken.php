@@ -177,7 +177,6 @@ try {
 </section>
 
     <!-- Diagramm für häufigste Stichworte -->
-    < id="haeufigste-stichworte">
         <?php if ($totalEinsaetze != 0): ?>
         <h2>Häufigste Stichworte</h2>    
         <?php endif; ?>
@@ -256,6 +255,8 @@ try {
         <script>
             // Cluster-Gruppe erstellen
             const markers = L.markerClusterGroup();
+            const pinData = <?= json_encode($pinData) ?>;
+
 
             // Pins hinzufügen
             pinData.forEach(function(pin) {
