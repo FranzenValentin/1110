@@ -83,17 +83,22 @@ try {
     $error = "Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage());
 }
 
+
 // Heatmap-Daten aus der Datenbank abrufen
 try {
-    $pinQuery = $pdo->prepare("SELECT latitude, longitude FROM einsaetze WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')");
+    $pinQuery = $pdo->prepare("
+        SELECT latitude, longitude, alarmuhrzeit, stichwort 
+        FROM einsaetze 
+        WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i') 
+              BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') 
+              AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')
+    ");
     $pinQuery->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
     $pinData = $pinQuery->fetchAll(PDO::FETCH_ASSOC);
-
-
-
 } catch (PDOException $e) {
     $error = "Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage());
 }
+
 
 
 ?>
@@ -264,7 +269,7 @@ try {
 
         // Cluster-Gruppe erstellen mit Option disableClusteringAtZoom
         const markers = L.markerClusterGroup({
-            disableClusteringAtZoom: 15 // Gruppierung wird ab Zoom-Level 14 aufgehoben
+            disableClusteringAtZoom: 15 // Gruppierung wird ab Zoom-Level 15 aufgehoben
         });
 
         // Pin-Daten aus der Datenbank
@@ -279,7 +284,20 @@ try {
                     iconSize: [10, 10]
                 });
 
+                // Marker erstellen
                 const marker = L.marker([pin.latitude, pin.longitude], { icon: redIcon });
+
+                // Popup-Inhalt erstellen
+                const popupContent = `
+                    <strong>Einsatzdetails:</strong><br>
+                    <strong>Datum:</strong> ${pin.alarmuhrzeit}<br>
+                    <strong>Stichwort:</strong> ${pin.stichwort}
+                `;
+
+                // Popup an den Marker anhängen
+                marker.bindPopup(popupContent);
+
+                // Marker zur Cluster-Gruppe hinzufügen
                 markers.addLayer(marker);
             }
         });
@@ -287,6 +305,7 @@ try {
         // Cluster-Gruppe zur Karte hinzufügen
         map.addLayer(markers);
     </script>
+
 </section>
 
 
