@@ -4,6 +4,7 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     header('Location: login.php');
     exit;
 }
+
 require 'db.php';
 
 // Hilfsfunktion: Filterung der Einsätze
@@ -20,7 +21,7 @@ function fetchFilteredEinsaetze($pdo, $filters) {
         $params[':stichwort'] = "%" . $filters['stichwort'] . "%";
     }
     if (!empty($filters['datum'])) {
-        $whereClauses[] = "STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y') = STR_TO_DATE(:datum, '%Y-%m-%d')";
+        $whereClauses[] = "DATE(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i')) = :datum";
         $params[':datum'] = $filters['datum'];
     }
 
@@ -49,11 +50,7 @@ function fetchFilteredEinsaetze($pdo, $filters) {
 
 // AJAX-Anfrage
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $filters = [
-        'einsatznummer' => $_POST['einsatznummer'] ?? null,
-        'stichwort' => $_POST['stichwort'] ?? null,
-        'datum' => $_POST['datum'] ?? null,
-    ];
+    $filters = json_decode(file_get_contents('php://input'), true);
     $einsaetze = fetchFilteredEinsaetze($pdo, $filters);
     header('Content-Type: application/json');
     echo json_encode($einsaetze);
@@ -63,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Standardmäßig alle Einsätze abrufen
 $einsaetze = fetchFilteredEinsaetze($pdo, []);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="de">
@@ -120,6 +116,7 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
 
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('input').forEach(input => input.addEventListener('input', filterEinsaetze));
+            filterEinsaetze(); // Initiales Laden
         });
     </script>
 </head>
@@ -163,34 +160,7 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($einsaetze as $einsatz): ?>
-                        <?php
-                        $personal = [
-                            $einsatz['stf'] ? "StF: " . htmlspecialchars($einsatz['stf']) : null,
-                            $einsatz['ma'] ? "Ma: " . htmlspecialchars($einsatz['ma']) : null,
-                            $einsatz['atf'] ? "AtF: " . htmlspecialchars($einsatz['atf']) : null,
-                            $einsatz['atm'] ? "AtM: " . htmlspecialchars($einsatz['atm']) : null,
-                            $einsatz['wtf'] ? "WtF: " . htmlspecialchars($einsatz['wtf']) : null,
-                            $einsatz['wtm'] ? "WtM: " . htmlspecialchars($einsatz['wtm']) : null,
-                            $einsatz['prakt'] ? "Prakt: " . htmlspecialchars($einsatz['prakt']) : null,
-                        ];
-                        ?>
-                        <tr>
-                            <td><?= htmlspecialchars($einsatz['interne_einsatznummer']) ?></td>
-                            <td><?= htmlspecialchars($einsatz['einsatznummer_lts']) ?></td>
-                            <td><?= htmlspecialchars($einsatz['stichwort']) ?></td>
-                            <td><?= htmlspecialchars($einsatz['alarmuhrzeit']) ?></td>
-                            <td><?= htmlspecialchars($einsatz['zurueckzeit']) ?></td>
-                            <td><?= htmlspecialchars($einsatz['adresse']) ?></td>
-                            <td><?= htmlspecialchars($einsatz['stadtteil']) ?></td>
-                            <td>
-                                <details>
-                                    <summary>Details anzeigen</summary>
-                                    <?= implode('<br>', array_filter($personal)) ?>
-                                </details>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
+                    <tr><td colspan="8" style="text-align: center;">Daten werden geladen...</td></tr>
                 </tbody>
             </table>
         </section>
