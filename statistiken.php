@@ -87,11 +87,13 @@ try {
 // Heatmap-Daten aus der Datenbank abrufen
 try {
     $pinQuery = $pdo->prepare("
-        SELECT latitude, longitude, alarmuhrzeit, stichwort 
-        FROM einsaetze 
-        WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i') 
-              BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') 
-              AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')
+    SELECT latitude, longitude, alarmuhrzeit, stichwort 
+    FROM einsaetze 
+    WHERE latitude IS NOT NULL 
+      AND longitude IS NOT NULL 
+      AND STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i') 
+          BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') 
+          AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')
     ");
     $pinQuery->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
     $pinData = $pinQuery->fetchAll(PDO::FETCH_ASSOC);
@@ -288,6 +290,11 @@ try {
     Object.values(groupedPins).forEach(group => {
         const { coords, details } = group;
 
+        // Sicherstellen, dass die Koordinaten valide sind
+        if (!coords || coords.some(coord => isNaN(coord))) {
+            return; // Überspringt Einsätze ohne gültige Koordinaten
+        }
+
         if (details.length === 1) {
             // Einzelner Punkt
             const pin = details[0];
@@ -303,7 +310,6 @@ try {
             marker.bindPopup(`
                 <strong>Stichwort:</strong> ${pin.stichwort}<br>
                 <strong>Datum:</strong> ${pin.alarmuhrzeit}
-                
             `);
 
             // Marker zur Cluster-Gruppe hinzufügen
@@ -355,6 +361,7 @@ try {
             markers.addLayer(marker);
         }
     });
+
 
     // Cluster-Gruppe zur Karte hinzufügen
     map.addLayer(markers);
