@@ -11,6 +11,7 @@ require 'db.php';
 function fetchFilteredEinsaetze($pdo, $filters) {
     $whereClauses = [];
     $params = [];
+    $limitClause = "";
 
     if (!empty($filters['einsatznummer'])) {
         $whereClauses[] = "e.einsatznummer_lts LIKE :einsatznummer";
@@ -28,9 +29,17 @@ function fetchFilteredEinsaetze($pdo, $filters) {
         $whereClauses[] = "(e.adresse LIKE :adresse OR e.stadtteil LIKE :adresse)";
         $params[':adresse'] = "%" . $filters['adresse'] . "%";
     }
-    
 
     $whereSql = $whereClauses ? "WHERE " . implode(" AND ", $whereClauses) : "";
+
+    // Pagination: Berechnung von Offset und Limit
+    if (!empty($filters['page']) && !empty($filters['entriesPerPage'])) {
+        $page = (int)$filters['page'];
+        $entriesPerPage = (int)$filters['entriesPerPage'];
+        $offset = ($page - 1) * $entriesPerPage;
+        $limitClause = "LIMIT $offset, $entriesPerPage";
+    }
+
     $sql = "
         SELECT e.interne_einsatznummer, e.einsatznummer_lts, e.alarmuhrzeit, e.zurueckzeit, e.stichwort, e.adresse, e.stadtteil,
                p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf, p4.nachname AS atm,
@@ -46,12 +55,105 @@ function fetchFilteredEinsaetze($pdo, $filters) {
         LEFT JOIN personal p7 ON b.prakt_id = p7.id
         $whereSql
         ORDER BY STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') DESC
+        $limitClause
     ";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Gesamtanzahl der Einträge für Pagination berechnen
+    $countSql = "
+        SELECT COUNT(*) FROM einsaetze e
+        $whereSql
+    ";
+    $countStmt = $pdo->prepare($countSql);
+    $countStmt->execute($params);
+    $totalEntries = $countStmt->fetchColumn();
+
+    return ['data' => $stmt->fetchAll(PDO::FETCH_ASSOC), 'totalEntries' => $totalEntries];
 }
+
+let currentPage = 1; // Start auf der ersten Seite
+const entriesPerPage = 20; // Einträge pro Seite
+
+// Live-Filter Funktion mit Pagination
+async function filterEinsaetze(page = 1) {
+    currentPage = page; // Setze die aktuelle Seite
+    const einsatznummer = document.getElementById('einsatznummer').value;
+    const stichwort = document.getElementById('stichwort').value;
+    const datum = document.getElementById('datum').value;
+    const adresse = document.getElementById('adresse').value;
+
+    const response = await fetch('historie.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ einsatznummer, stichwort, datum, adresse, page, entriesPerPage })
+    });
+
+    const { data, totalEntries } = await response.json(); // Rückgabe enthält Daten und Gesamtanzahl
+    const tbody = document.querySelector('#einsaetze-table tbody');
+    tbody.innerHTML = '';
+
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Keine Einsätze gefunden.</td></tr>';
+    } else {
+        data.forEach(einsatz => {
+            const personal = [
+                einsatz.stf ? `StF: ${einsatz.stf}` : null,
+                einsatz.ma ? `Ma: ${einsatz.ma}` : null,
+                einsatz.atf ? `AtF: ${einsatz.atf}` : null,
+                einsatz.atm ? `AtM: ${einsatz.atm}` : null,
+                einsatz.wtf ? `WtF: ${einsatz.wtf}` : null,
+                einsatz.wtm ? `WtM: ${einsatz.wtm}` : null,
+                einsatz.prakt ? `Prakt: ${einsatz.prakt}` : null,
+            ].filter(Boolean).join('<br>');
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${highlightMatch(einsatz.interne_einsatznummer, einsatznummer)}</td>
+                    <td>${highlightMatch(einsatz.einsatznummer_lts, einsatznummer)}</td>
+                    <td>${highlightMatch(einsatz.stichwort, stichwort)}</td>
+                    <td>${highlightMatch(einsatz.alarmuhrzeit, datum)}</td>
+                    <td>${highlightMatch(einsatz.zurueckzeit, datum)}</td>
+                    <td>${highlightMatch(einsatz.adresse, adresse)}</td>
+                    <td>${highlightMatch(einsatz.stadtteil, adresse)}</td>
+                    <td><details><summary>Details anzeigen</summary>${personal}</details></td>
+                </tr>
+            `;
+        });
+
+        renderPagination(totalEntries); // Pagination aktualisieren
+    }
+}
+
+// Hervorheben von Suchbegriffen
+function highlightMatch(text, query) {
+    if (!query) return text;
+    const regex = new RegExp(`(${query})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+}
+
+// Pagination Rendern
+function renderPagination(totalEntries) {
+    const paginationDiv = document.getElementById('pagination');
+    paginationDiv.innerHTML = '';
+    const totalPages = Math.ceil(totalEntries / entriesPerPage);
+
+    for (let i = 1; i <= totalPages; i++) {
+        const button = document.createElement('button');
+        button.textContent = i;
+        button.className = i === currentPage ? 'active' : '';
+        button.onclick = () => filterEinsaetze(i);
+        paginationDiv.appendChild(button);
+    }
+}
+
+// Initialer Filter beim Laden der Seite
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('input').forEach(input => input.addEventListener('input', debounceFilterEinsaetze));
+    filterEinsaetze(); // Erste Ladung
+});
+
 
 // AJAX-Anfrage
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -208,6 +310,8 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
                     <tr><td colspan="9" style="text-align: center;">Daten werden geladen...</td></tr>
                 </tbody>
             </table>
+            <!-- Pagination -->
+                <div id="pagination" style="margin-top: 15px; text-align: center;"></div>
         </section>
     </main>
 </body>
