@@ -150,19 +150,40 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
 
         <!-- Filterbereich -->
         <section id="filter-section" style="display: none; margin-top: 15px;">
-            <form style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-                <label for="einsatznummer">Einsatznummer:</label>
-                <input type="text" id="einsatznummer" placeholder="Einsatznummer">
+        <form style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+            <label for="einsatznummer">Einsatznummer:</label>
+            <input type="text" id="einsatznummer" placeholder="Einsatznummer">
 
-                <label for="stichwort">Stichwort:</label>
-                <input type="text" id="stichwort" placeholder="Stichwort" style="width: auto;">
+            <label for="stichwort">Stichwort:</label>
+            <input type="text" id="stichwort" placeholder="Stichwort" style="width: auto;">
 
-                <label for="datum">Datum:</label>
-                <input type="date" id="datum">
+            <label for="datum">Datum:</label>
+            <input type="date" id="datum">
 
-                <label for="adresse">Adresse:</label>
-                <input type="text" id="adresse" placeholder="Adresse" style="width: auto;">
-            </form>
+            <label for="adresse">Adresse:</label>
+            <input type="text" id="adresse" placeholder="Adresse oder Stadtteil" style="width: auto;">
+            <button type="button" onclick="clearFiltersAndCollapse()">Filter entfernen</button>
+        </form>
+
+        <script>
+            function clearFiltersAndCollapse() {
+                // Leert alle Eingabefelder
+                document.getElementById('einsatznummer').value = '';
+                document.getElementById('stichwort').value = '';
+                document.getElementById('datum').value = '';
+                document.getElementById('adresse').value = '';
+                
+                // Aktualisiert die Tabelle ohne Filter
+                filterEinsaetze();
+
+                // Einklappen des Filterbereichs
+                const filterSection = document.getElementById('filter-section');
+                const filterButton = document.getElementById('toggle-filter-btn');
+                filterSection.style.display = 'none';
+                filterButton.textContent = 'Filter einblenden';
+            }
+        </script>
+
         </section>
 
         <!-- Tabelle -->
