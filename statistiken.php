@@ -112,7 +112,6 @@ try {
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
 
 
 
@@ -287,45 +286,6 @@ try {
             // Cluster-Gruppe zur Karte hinzufügen
             map.addLayer(markers);
         </script>
-
-    </section>
-
-
-    <section>
-    <div id="map" style="width: 100%; height: 500px;"></div>
-    <script>
-        // Karte initialisieren
-        const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
-
-        // Tile Layer hinzufügen (OpenStreetMap)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
-        // Pin-Daten aus der Datenbank abrufen
-        const pinData = <?= json_encode($pinData) ?>;
-
-        // Heatmap-Daten vorbereiten
-        const heatPoints = pinData
-            .filter(pin => pin.latitude && pin.longitude) // Validierung der Koordinaten
-            .map(pin => [parseFloat(pin.latitude), parseFloat(pin.longitude), 0.5]); // 0.5 ist die Intensität
-
-        // Heatmap hinzufügen
-        L.heatLayer(heatPoints, {
-            radius: 25,    // Radius der Punkte
-            blur: 15,      // Weiche Übergänge
-            maxZoom: 17,   // Maximales Zoom-Level
-            gradient: {    // Farbverlauf
-                0.2: 'blue',
-                0.4: 'lime',
-                0.6: 'yellow',
-                0.8: 'orange',
-                1.0: 'red'
-            }
-        }).addTo(map);
-    </script>
-
 
     </section>
 
