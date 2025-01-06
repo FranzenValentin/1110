@@ -287,6 +287,7 @@ try {
 
     // Punkte verarbeiten
     Object.values(groupedPins).forEach(group => {
+        const center = [parseFloat(group[0].latitude), parseFloat(group[0].longitude)];
         if (group.length === 1) {
             // Nur ein Punkt, normalen Marker anzeigen
             const pin = group[0];
@@ -295,7 +296,7 @@ try {
                 html: "<div style='background-color: red; width: 10px; height: 10px; border-radius: 50%;'></div>",
                 iconSize: [10, 10]
             });
-            const marker = L.marker([pin.latitude, pin.longitude], { icon: redIcon });
+            const marker = L.marker(center, { icon: redIcon });
 
             // Popup-Inhalt
             marker.bindPopup(`
@@ -305,37 +306,46 @@ try {
             `);
             markers.addLayer(marker);
         } else {
-            // Mehrere Punkte, kreisförmig anordnen
-            const center = [parseFloat(group[0].latitude), parseFloat(group[0].longitude)];
-            const radius = 0.0005; // Verschiebungsradius in Grad
-            const angleStep = (2 * Math.PI) / group.length;
-
-            const points = [];
+            // Mehrere Punkte mit Hover-Effekt
+            const markersInGroup = [];
             group.forEach((pin, index) => {
-                const angle = index * angleStep;
-                const lat = center[0] + radius * Math.cos(angle);
-                const lng = center[1] + radius * Math.sin(angle);
-
-                points.push([lat, lng]);
-
-                // Marker erstellen
                 const redIcon = L.divIcon({
                     className: 'custom-div-icon',
-                    html: "<div style='background-color: red; width: 10px; height: 10px; border-radius: 50%;'></div>",
-                    iconSize: [10, 10]
+                    html: "<div style='background-color: red; width: 8px; height: 8px; border-radius: 50%;'></div>",
+                    iconSize: [8, 8]
                 });
-                const marker = L.marker([lat, lng], { icon: redIcon });
 
-                // Popup-Inhalt
+                // Marker erstellen und speichern
+                const marker = L.marker(center, { icon: redIcon });
                 marker.bindPopup(`
-                    <strong>Stichwort:</strong> ${pin.stichwort}<br>
-                    <strong>Datum:</strong> ${pin.alarmuhrzeit}
-                    
+                    <strong>Einsatzdetails:</strong><br>
+                    <strong>Datum:</strong> ${pin.alarmuhrzeit}<br>
+                    <strong>Stichwort:</strong> ${pin.stichwort}
                 `);
                 markers.addLayer(marker);
+                markersInGroup.push(marker);
+            });
 
-                // Linie vom Marker zum Zentrum
-                L.polyline([center, [lat, lng]], { color: 'blue', weight: 1 }).addTo(map);
+            // Hover-Effekt
+            markersInGroup.forEach((marker, index) => {
+                const angleStep = (2 * Math.PI) / group.length;
+                const radius = 0.0003; // Kleinere Verschiebung
+                const angle = index * angleStep;
+
+                const lat = center[0] + radius * Math.cos(angle);
+                const lng = center[1] + radius * Math.sin(angle);
+                const newPosition = [lat, lng];
+
+                marker.on('mouseover', function () {
+                    marker.setLatLng(newPosition);
+
+                    // Linien verbinden
+                    const line = L.polyline([center, newPosition], { color: 'blue', weight: 1 }).addTo(map);
+                    marker.on('mouseout', function () {
+                        marker.setLatLng(center); // Zurück zur Mitte
+                        map.removeLayer(line); // Linie entfernen
+                    });
+                });
             });
         }
     });
@@ -343,6 +353,7 @@ try {
     // Cluster-Gruppe zur Karte hinzufügen
     map.addLayer(markers);
 </script>
+
 
 
 
