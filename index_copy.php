@@ -66,6 +66,10 @@ require 'db.php';
                             $zurueckzeit = DateTime::createFromFormat('Y-m-d\TH:i', $zurueckzeit)->format('d.m.Y H:i');
                         }
 
+                        // Koordinaten abrufen
+                        $coordinates = fetchCoordinates($adresse, $stadtteil);
+
+
                         try {
                             // Alarmuhrzeit validieren
                             if (!preg_match('/^\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}$/', $alarmuhrzeit)) {
@@ -106,9 +110,9 @@ require 'db.php';
                         // Einsatz in die Datenbank einfügen
                         $einsatzQuery = "
                             INSERT INTO einsaetze 
-                            (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, stadtteil, fahrzeug_name, dienst_id) 
+                            (einsatznummer_lts, stichwort, alarmuhrzeit, zurueckzeit, adresse, stadtteil, fahrzeug_name, dienst_id, latitude, longitude) 
                             VALUES 
-                            (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :stadtteil, :fahrzeug_name, :dienst_id)
+                            (:einsatznummer_lts, :stichwort, :alarmuhrzeit, :zurueckzeit, :adresse, :stadtteil, :fahrzeug_name, :dienst_id, :latitude, :longitude)
                         ";
                         $einsatzStmt = $pdo->prepare($einsatzQuery);
                         $einsatzStmt->execute([
@@ -119,7 +123,9 @@ require 'db.php';
                             ':adresse' => $adresse,
                             ':stadtteil' => $stadtteil,
                             ':fahrzeug_name' => $fahrzeug_name,
-                            ':dienst_id' => $dienst_id
+                            ':dienst_id' => $dienst_id,
+                            ':latitude' => $coordinates["latitude"],
+                            ':longitude' => $coordinates["longitude"]
                         ]);
                 
                         echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
@@ -171,6 +177,36 @@ require 'db.php';
                 </td>
 
                 <script>
+                    // Funktion zur Abfrage der Koordinaten von OpenStreetMap
+                    function fetchCoordinates($address, $district) {
+                        $fullAddress = $address . ', ' . $district . ', Deutschland';
+                        $url = "https://nominatim.openstreetmap.org/search?format=json&q=" . urlencode($fullAddress);
+                        
+                        $options = [
+                            "http" => [
+                                "header" => "User-Agent: EinsatzGeoCoder/1.0 (kontakt@example.com)\r\n"
+                            ]
+                        ];
+                        $context = stream_context_create($options);
+
+                        try {
+                            $response = file_get_contents($url, false, $context);
+                            $data = json_decode($response, true);
+                            
+                            if (!empty($data)) {
+                                return [
+                                    "latitude" => $data[0]["lat"],
+                                    "longitude" => $data[0]["lon"]
+                                ];
+                            } else {
+                                return ["latitude" => null, "longitude" => null];
+                            }
+                        } catch (Exception $e) {
+                            error_log("Fehler beim Abrufen der Koordinaten: " . $e->getMessage());
+                            return ["latitude" => null, "longitude" => null];
+                        }
+                    }
+
                     function syncZurueckzeit() {
                         const alarmzeitInput = document.getElementById('alarmuhrzeit');
                         const zurueckzeitInput = document.getElementById('zurueckzeit');
@@ -369,199 +405,7 @@ if ($zeitResult) {
 ?>
 
 
-<section id="aktueller-dienste">
-    <h2>
-        Aktueller Dienst mit dem 
-        <form method="GET" class="dropdown-form" style="display: inline;">
-            <select name="fahrzeug" onchange="this.form.submit()">
-                <?php foreach ($fahrzeuge as $fahrzeug): ?>
-                    <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
-                        <?php echo ($fahrzeugId == $fahrzeug['id']) ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($fahrzeug['name']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </form>
-        <?php echo "vom $inDienstZeit bis zum $ausserDienstZeit"; ?>
-    </h2>
-</section>
-
-<table>
-    <thead>
-        <tr>
-            <th>Funktion</th>
-            <th>Aktuell zugewiesen</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php
-        // Besatzungsrollen definieren
-        $roles = [
-            'stf' => 'Staffel-Führer',
-            'ma' => 'Maschinist',
-            'atf' => 'Angriffstrupp-Führer',
-            'atm' => 'Angriffstrupp-Mann',
-            'wtf' => 'Wassertrupp-Führer',
-            'wtm' => 'Wassertrupp-Mann',
-            'prakt' => 'Praktikant'
-        ];
-
-        // Besatzung basierend auf den ermittelten Zeiten und Fahrzeug abrufen
-        $besatzungStmt = $pdo->prepare("
-            SELECT * 
-            FROM dienste 
-            WHERE fahrzeug_id = :fahrzeug_id 
-            AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:inDienstZeit, '%d.%m.%Y %H:%i')
-            AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:ausserDienstZeit, '%d.%m.%Y %H:%i') OR :ausserDienstZeit IS NULL)
-        ");
-        $besatzungStmt->execute([
-            ':fahrzeug_id' => $fahrzeugId,
-            ':inDienstZeit' => $inDienstZeit,
-            ':ausserDienstZeit' => $ausserDienstZeit !== 'Keine Daten' ? $ausserDienstZeit : null,
-        ]);
-        $besatzung = $besatzungStmt->fetch();
-
-        foreach ($roles as $key => $label) {
-            echo "<tr>";
-            echo "<td>$label</td>";
-
-            if ($besatzung && $besatzung[$key . '_id']) {
-                // Zuweisung der Person abrufen
-                $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM personal WHERE id = :id");
-                $personStmt->execute([':id' => $besatzung[$key . '_id']]);
-                $person = $personStmt->fetch();
-
-                // Name anzeigen, falls vorhanden
-                echo "<td>" . ($person['name'] ?? '<em>NICHT BESETZT</em>') . "</td>";
-            } else {
-                // Kein Name zugewiesen
-                echo "<td><em>NICHT BESETZT</em></td>";
-            }
-
-            echo "</tr>";
-        }
-        ?>
-    </tbody>
-</table>
-<div class="button-container">
-<button onclick="location.href='editDienst.php?fahrzeug=<?php echo $fahrzeugId; ?>&dienst=<?php echo $dienstId; ?>'">Dienst bearbeiten</button>
-<button onclick="location.href='neuerDienst.php'">Neuer Dienst</button>
-</div>
-
-
-
-
-
-
-        <!-- Letzte Einsätze -->
-        <section id="letzte-einsaetze">
-            <h2>Letzte 15 Alarme</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Interne Einsatznummer</th>
-                        <th>Stichwort</th>
-                        <th>Alarmzeit</th>
-                        <th>Fahrzeug</th>
-                        <th>Personal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    // SQL-Abfrage: Abrufen der letzten 15 Einsätze mit Besatzung und Personal
-                    $stmt = $pdo->query("
-                        SELECT e.interne_einsatznummer, e.alarmuhrzeit, e.fahrzeug_name, e.stichwort,
-                            p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf,
-                            p4.nachname AS atm, p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
-                        FROM einsaetze e
-                        LEFT JOIN dienste b ON e.dienst_id = b.id
-                        LEFT JOIN personal p1 ON b.stf_id = p1.id
-                        LEFT JOIN personal p2 ON b.ma_id = p2.id
-                        LEFT JOIN personal p3 ON b.atf_id = p3.id
-                        LEFT JOIN personal p4 ON b.atm_id = p4.id
-                        LEFT JOIN personal p5 ON b.wtf_id = p5.id
-                        LEFT JOIN personal p6 ON b.wtm_id = p6.id
-                        LEFT JOIN personal p7 ON b.prakt_id = p7.id
-                        ORDER BY 
-                            CAST(SUBSTRING_INDEX(e.interne_einsatznummer, '_', 1) AS UNSIGNED) DESC,
-                            CAST(SUBSTRING_INDEX(e.interne_einsatznummer, '_', -1) AS UNSIGNED) DESC
-                        LIMIT 15
-                    ");
-
-
-                    // Ergebnisse anzeigen
-                    while ($row = $stmt->fetch()) {
-                        // Personal zusammenstellen
-                        $personal = [];
-                        if ($row['stf']) $personal[] = "StF: " . htmlspecialchars($row['stf']);
-                        if ($row['ma']) $personal[] = "Ma: " . htmlspecialchars($row['ma']);
-                        if ($row['atf']) $personal[] = "AtF: " . htmlspecialchars($row['atf']);
-                        if ($row['atm']) $personal[] = "AtM: " . htmlspecialchars($row['atm']);
-                        if ($row['wtf']) $personal[] = "WtF: " . htmlspecialchars($row['wtf']);
-                        if ($row['wtm']) $personal[] = "WtM: " . htmlspecialchars($row['wtm']);
-                        if ($row['prakt']) $personal[] = "Prakt: " . htmlspecialchars($row['prakt']);
-
-                        echo "<tr>
-                                <td>" . htmlspecialchars($row['interne_einsatznummer']) . "</td>
-                                <td>" . htmlspecialchars($row['stichwort']) . "</td>
-                                <td>" . htmlspecialchars($row['alarmuhrzeit']) . "</td>
-                                <td>" . htmlspecialchars($row['fahrzeug_name']) . "</td>
-                                <td>
-                                    <details>
-                                        <summary>Details anzeigen</summary>
-                                        " . implode('<br>', $personal) . "
-                                    </details>
-                                </td>
-                              </tr>";
-                    }
-                    ?>
-                </tbody>
-            </table>
-            <div class="button-container">
-                <button onclick="location.href='historie.php'">Alle Alarme</button>
-            </div>
-        </section>
-
-        <!-- Navigation als Buttons -->
-        <section id="navigation-buttons">
-            <h2>Einstellungen</h2>
-            <div class="button-container">
-                <button onclick="location.href='neuer_benutzer.php'">Neuer Benutzer</button>
-                <button onclick="location.href='stichworte.php'">Stichworte verwalten</button>
-                <button onclick="location.href='statistiken.php'">Gesamtstatistiken anzeigen</button>
-                <button onclick="location.href='statistiken_personal.php'">Personal-Statistiken anzeigen</button>
-            </div>
-        </section>
-
-        <!--Export -->
-        <section id="navigation-buttons">
-            <h2>Export der Einsätze</h2>
-            <div class="button-container">
-                <form action="export_einsaetze.php" method="post">
-                    <label for="monat">Monat:</label>
-                        <select id="monat" name="monat" required>
-                            <option value="01">Januar</option>
-                            <option value="02">Februar</option>
-                            <option value="03">März</option>
-                            <option value="04">April</option>
-                            <option value="05">Mai</option>
-                            <option value="06">Juni</option>
-                            <option value="07">Juli</option>
-                            <option value="08">August</option>
-                            <option value="09">September</option>
-                            <option value="10">Oktober</option>
-                            <option value="11">November</option>
-                            <option value="12">Dezember</option>
-                        </select>
-
-                    <label for="jahr">Jahr:</label>
-                        <input type="number" id="jahr" name="jahr" value="<?= date('Y') ?>" required>
-
-            <button type="submit">Einsätze exportieren</button>
-
-
-            </div>
-        </section>
+        
     </main>
 </body>
 </html>
