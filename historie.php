@@ -64,7 +64,6 @@ require 'db.php';
                             CAST(SUBSTRING_INDEX(e.interne_einsatznummer, '_', -1) AS UNSIGNED) DESC
                     ");
 
-
                     // Ergebnisse anzeigen
                     while ($row = $stmt->fetch()) {
                         // Personal zusammenstellen
