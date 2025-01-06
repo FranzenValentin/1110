@@ -156,7 +156,7 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
         });
 
         let currentPage = 1; // Startseite
-        const entriesPerPage = 20; // Einträge pro Seite
+        let entriesPerPage = 20; // Standard-Einträge pro Seite
 
         async function filterEinsaetze(page = 1) {
             currentPage = page;
@@ -169,7 +169,7 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
             const response = await fetch('historie.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ einsatznummer, stichwort, datum, adresse, page, entriesPerPage })
+                body: JSON.stringify({ einsatznummer, stichwort, datum, adresse, page: currentPage, entriesPerPage })
             });
 
             const { data, totalEntries } = await response.json();
@@ -221,26 +221,6 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
                 button.onclick = () => filterEinsaetze(i);
                 paginationDiv.appendChild(button);
             }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('input').forEach(input => input.addEventListener('input', () => filterEinsaetze(1)));
-            filterEinsaetze(); // Initiales Laden
-        });
-
-        function renderPagination(totalEntries) {
-            const paginationDiv = document.getElementById('pagination');
-            paginationDiv.innerHTML = '';
-
-            const totalPages = Math.ceil(totalEntries / entriesPerPage);
-
-            for (let i = 1; i <= totalPages; i++) {
-                const button = document.createElement('button');
-                button.textContent = i;
-                button.className = i === currentPage ? 'active' : '';
-                button.onclick = () => filterEinsaetze(i);
-                paginationDiv.appendChild(button);
-            }
 
             // Einträge anzeigen (z. B., "1-20 von 300")
             const fromEntry = (currentPage - 1) * entriesPerPage + 1;
@@ -257,6 +237,13 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
                 filterEinsaetze(1); // Lade die erste Seite mit der neuen Einstellung
             }
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input').forEach(input => input.addEventListener('input', () => filterEinsaetze(1)));
+            document.getElementById('entries-per-page').addEventListener('change', updateEntriesPerPage);
+            filterEinsaetze(); // Initiales Laden
+        });
+
 
     </script>
 
