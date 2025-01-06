@@ -5,6 +5,10 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     exit;
 }
 require 'db.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 ?>
 
 <!DOCTYPE html>
@@ -211,6 +215,7 @@ require 'db.php';
                             return ["latitude" => null, "longitude" => null];
                         }
                     }
+
 
                     function syncZurueckzeit() {
                         const alarmzeitInput = document.getElementById('alarmuhrzeit');
