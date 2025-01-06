@@ -264,7 +264,7 @@ try {
 
         // Cluster-Gruppe erstellen mit Option disableClusteringAtZoom
         const markers = L.markerClusterGroup({
-            disableClusteringAtZoom: 14 // Gruppierung wird ab Zoom-Level 14 aufgehoben
+            disableClusteringAtZoom: 30 // Gruppierung wird ab Zoom-Level 14 aufgehoben
         });
 
         // Pin-Daten aus der Datenbank
