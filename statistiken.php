@@ -85,14 +85,15 @@ try {
 
 // Heatmap-Daten aus der Datenbank abrufen
 try {
-    $heatmapQuery = $pdo->prepare("SELECT latitude, longitude FROM einsaetze WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')");
+    $pinQuery = $pdo->prepare("SELECT latitude, longitude, einsatzbeschreibung FROM einsaetze WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')");
 
-    $heatmapQuery->execute([
+    $pinQuery->execute([
         ':startdatum' => $startdatum,
         ':enddatum' => $enddatum
     ]);
 
-    $heatmapData = $heatmapQuery->fetchAll(PDO::FETCH_ASSOC);
+    $pinData = $pinQuery->fetchAll(PDO::FETCH_ASSOC);
+
 
 } catch (PDOException $e) {
     $error = "Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage());
@@ -250,10 +251,8 @@ try {
         <h2>Heatmap</h2>
         <div id="map" style="width: 100%; height: 500px;"></div>
         <script>
-            // Heatmap-Daten aus PHP
-            const heatmapData = <?= json_encode(array_map(function($row) {
-                return [(float)$row['latitude'], (float)$row['longitude'], 1]; // Gewicht auf 1 setzen
-            }, $heatmapData)) ?>;
+            // Pin-Daten aus PHP
+            const pinData = <?= json_encode($pinData) ?>;
 
             // Karte initialisieren
             const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
@@ -263,19 +262,15 @@ try {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
-            // Heatmap hinzufügen
-            L.heatLayer(heatmapData, {
-                radius: 40, // Größerer Radius der Punkte
-                blur: 25,   // Mehr Weichzeichnung
-                maxZoom: 17, // Maximale Zoomstufe
-                gradient: {
-                    0.2: 'darkblue',
-                    0.4: 'blue',
-                    0.6: 'cyan',
-                    0.8: 'lime',
-                    1.0: 'red'
-                } // Dunklere Farben für Heatspots
-            }).addTo(map);
+            // Pins hinzufügen
+            pinData.forEach(function(pin) {
+                if (pin.latitude && pin.longitude) {
+                    L.marker([pin.latitude, pin.longitude])
+                        .addTo(map)
+                        .bindPopup(`<strong>Einsatzbeschreibung:</strong> ${pin.einsatzbeschreibung || 'Keine Beschreibung verfügbar'}`);
+                }
+            });
+
         </script>
     </section>
 
