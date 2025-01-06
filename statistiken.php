@@ -258,52 +258,91 @@ try {
     <h2>Heatmap</h2>
     <div id="map" style="width: 100%; height: 700px;"></div>
     <script>
-        // Karte initialisieren
-        const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
+    // Karte initialisieren
+    const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
 
-        // Tile Layer hinzufügen (OpenStreetMap)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+    // Tile Layer hinzufügen (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-        // Cluster-Gruppe erstellen mit Option disableClusteringAtZoom
-        const markers = L.markerClusterGroup({
-            disableClusteringAtZoom: 15 // Gruppierung wird ab Zoom-Level 15 aufgehoben
-        });
+    // Cluster-Gruppe erstellen
+    const markers = L.markerClusterGroup({
+        disableClusteringAtZoom: 15
+    });
 
-        // Pin-Daten aus der Datenbank
-        const pinData = <?= json_encode($pinData) ?>;
+    // Pin-Daten aus der Datenbank
+    const pinData = <?= json_encode($pinData) ?>;
 
-        // Pins hinzufügen
-        pinData.forEach(function(pin) {
-            if (pin.latitude && pin.longitude) {
+    // Koordinaten gruppieren
+    const groupedPins = {};
+    pinData.forEach(pin => {
+        const key = `${pin.latitude},${pin.longitude}`;
+        if (!groupedPins[key]) {
+            groupedPins[key] = [];
+        }
+        groupedPins[key].push(pin);
+    });
+
+    // Punkte verarbeiten
+    Object.values(groupedPins).forEach(group => {
+        if (group.length === 1) {
+            // Nur ein Punkt, normalen Marker anzeigen
+            const pin = group[0];
+            const redIcon = L.divIcon({
+                className: 'custom-div-icon',
+                html: "<div style='background-color: red; width: 10px; height: 10px; border-radius: 50%;'></div>",
+                iconSize: [10, 10]
+            });
+            const marker = L.marker([pin.latitude, pin.longitude], { icon: redIcon });
+
+            // Popup-Inhalt
+            marker.bindPopup(`
+                <strong>Einsatzdetails:</strong><br>
+                <strong>Datum:</strong> ${pin.alarmuhrzeit}<br>
+                <strong>Stichwort:</strong> ${pin.stichwort}
+            `);
+            markers.addLayer(marker);
+        } else {
+            // Mehrere Punkte, kreisförmig anordnen
+            const center = [parseFloat(group[0].latitude), parseFloat(group[0].longitude)];
+            const radius = 0.0005; // Verschiebungsradius in Grad
+            const angleStep = (2 * Math.PI) / group.length;
+
+            const points = [];
+            group.forEach((pin, index) => {
+                const angle = index * angleStep;
+                const lat = center[0] + radius * Math.cos(angle);
+                const lng = center[1] + radius * Math.sin(angle);
+
+                points.push([lat, lng]);
+
+                // Marker erstellen
                 const redIcon = L.divIcon({
                     className: 'custom-div-icon',
                     html: "<div style='background-color: red; width: 10px; height: 10px; border-radius: 50%;'></div>",
                     iconSize: [10, 10]
                 });
+                const marker = L.marker([lat, lng], { icon: redIcon });
 
-                // Marker erstellen
-                const marker = L.marker([pin.latitude, pin.longitude], { icon: redIcon });
-
-                // Popup-Inhalt erstellen
-                const popupContent = `
+                // Popup-Inhalt
+                marker.bindPopup(`
                     <strong>Stichwort:</strong> ${pin.stichwort}<br>
-                    <strong>Datum:</strong> ${pin.alarmuhrzeit}<br>
-                `;
-
-                // Popup an den Marker anhängen
-                marker.bindPopup(popupContent);
-
-                // Marker zur Cluster-Gruppe hinzufügen
+                    <strong>Datum:</strong> ${pin.alarmuhrzeit}
+                `);
                 markers.addLayer(marker);
-            }
-        });
+            });
 
-        // Cluster-Gruppe zur Karte hinzufügen
-        map.addLayer(markers);
-    </script>
+            // Linie zwischen den verschobenen Punkten
+            L.polyline(points, { color: 'blue', weight: 1 }).addTo(map);
+        }
+    });
+
+    // Cluster-Gruppe zur Karte hinzufügen
+    map.addLayer(markers);
+</script>
+
 
 </section>
 
