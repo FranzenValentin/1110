@@ -253,12 +253,20 @@ try {
         <h2>Heatmap</h2>
         <div id="map" style="width: 100%; height: 500px;"></div>
         <script>
-            // Cluster-Gruppe erstellen
+            // Karte initialisieren
             const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
-            map.addLayer(markers);
-            const markers = L.markerClusterGroup();
-            const pinData = <?= json_encode($pinData) ?>;
 
+            // Tile Layer hinzufügen (OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Cluster-Gruppe erstellen
+            const markers = L.markerClusterGroup();
+
+            // Pin-Daten aus der Datenbank
+            const pinData = <?= json_encode($pinData) ?>;
 
             // Pins hinzufügen
             pinData.forEach(function(pin) {
@@ -276,9 +284,8 @@ try {
 
             // Cluster-Gruppe zur Karte hinzufügen
             map.addLayer(markers);
-
-
         </script>
+
     </section>
 
 </main>
