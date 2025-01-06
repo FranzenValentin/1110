@@ -302,9 +302,9 @@ try {
 
             // Popup-Inhalt
             marker.bindPopup(`
-                <strong>Einsatzdetails:</strong><br>
-                <strong>Datum:</strong> ${pin.alarmuhrzeit}<br>
-                <strong>Stichwort:</strong> ${pin.stichwort}
+                <strong>Stichwort:</strong> ${pin.stichwort}<br>
+                <strong>Datum:</strong> ${pin.alarmuhrzeit}
+                
             `);
 
             // Marker zur Cluster-Gruppe hinzufügen
