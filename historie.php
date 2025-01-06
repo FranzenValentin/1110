@@ -24,6 +24,11 @@ function fetchFilteredEinsaetze($pdo, $filters) {
         $whereClauses[] = "DATE(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i')) = :datum";
         $params[':datum'] = $filters['datum'];
     }
+    if (!empty($filters['adresse'])) {
+        $whereClauses[] = "(e.adresse LIKE :adresse OR e.stadtteil LIKE :adresse)";
+        $params[':adresse'] = "%" . $filters['adresse'] . "%";
+    }
+    
 
     $whereSql = $whereClauses ? "WHERE " . implode(" AND ", $whereClauses) : "";
     $sql = "
