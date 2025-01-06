@@ -73,92 +73,14 @@ function fetchFilteredEinsaetze($pdo, $filters) {
     return ['data' => $stmt->fetchAll(PDO::FETCH_ASSOC), 'totalEntries' => $totalEntries];
 }
 
-let currentPage = 1; // Start auf der ersten Seite
-const entriesPerPage = 20; // Einträge pro Seite
-
-async function filterEinsaetze(page = 1) {
-    currentPage = page;
-    const einsatznummer = document.getElementById('einsatznummer').value;
-    const stichwort = document.getElementById('stichwort').value;
-    const datum = document.getElementById('datum').value;
-    const adresse = document.getElementById('adresse').value;
-
-    const response = await fetch('historie.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ einsatznummer, stichwort, datum, adresse, page, entriesPerPage })
-    });
-
-    const { data, totalEntries } = await response.json();
-    console.log({ data, totalEntries }); // Debugging
-
-    const tbody = document.querySelector('#einsaetze-table tbody');
-    tbody.innerHTML = '';
-
-    if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Keine Einsätze gefunden.</td></tr>';
-    } else {
-        data.forEach(einsatz => {
-            const personal = [
-                einsatz.stf ? `StF: ${einsatz.stf}` : null,
-                einsatz.ma ? `Ma: ${einsatz.ma}` : null,
-                einsatz.atf ? `AtF: ${einsatz.atf}` : null,
-                einsatz.atm ? `AtM: ${einsatz.atm}` : null,
-                einsatz.wtf ? `WtF: ${einsatz.wtf}` : null,
-                einsatz.wtm ? `WtM: ${einsatz.wtm}` : null,
-                einsatz.prakt ? `Prakt: ${einsatz.prakt}` : null,
-            ].filter(Boolean).join('<br>');
-
-            tbody.innerHTML += `
-                <tr>
-                    <td>${highlightMatch(einsatz.interne_einsatznummer, einsatznummer)}</td>
-                    <td>${highlightMatch(einsatz.einsatznummer_lts, einsatznummer)}</td>
-                    <td>${highlightMatch(einsatz.stichwort, stichwort)}</td>
-                    <td>${highlightMatch(einsatz.alarmuhrzeit, datum)}</td>
-                    <td>${highlightMatch(einsatz.zurueckzeit, datum)}</td>
-                    <td>${highlightMatch(einsatz.adresse, adresse)}</td>
-                    <td>${highlightMatch(einsatz.stadtteil, adresse)}</td>
-                    <td><details><summary>Details anzeigen</summary>${personal}</details></td>
-                </tr>
-            `;
-        });
-        renderPagination(totalEntries);
-    }
-}
-
-function renderPagination(totalEntries) {
-    const paginationDiv = document.getElementById('pagination');
-    paginationDiv.innerHTML = '';
-    const totalPages = Math.ceil(totalEntries / entriesPerPage);
-
-    for (let i = 1; i <= totalPages; i++) {
-        const button = document.createElement('button');
-        button.textContent = i;
-        button.className = i === currentPage ? 'active' : '';
-        button.onclick = () => filterEinsaetze(i);
-        paginationDiv.appendChild(button);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('input').forEach(input => input.addEventListener('input', filterEinsaetze));
-    filterEinsaetze(); // Initiales Laden
-});
-
-
-
 // AJAX-Anfrage
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $filters = json_decode(file_get_contents('php://input'), true);
     $result = fetchFilteredEinsaetze($pdo, $filters);
     header('Content-Type: application/json');
-    echo json_encode([
-        'data' => $result['data'],
-        'totalEntries' => $result['totalEntries']
-    ]);
+    echo json_encode($result);
     exit;
 }
-
 
 // Standardmäßig alle Einsätze abrufen
 $einsaetze = fetchFilteredEinsaetze($pdo, []);
@@ -232,7 +154,82 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
             document.querySelectorAll('input').forEach(input => input.addEventListener('input', filterEinsaetze));
             filterEinsaetze(); // Initiales Laden
         });
+
+        let currentPage = 1; // Startseite
+        const entriesPerPage = 20; // Einträge pro Seite
+
+        async function filterEinsaetze(page = 1) {
+            currentPage = page;
+
+            const einsatznummer = document.getElementById('einsatznummer').value;
+            const stichwort = document.getElementById('stichwort').value;
+            const datum = document.getElementById('datum').value;
+            const adresse = document.getElementById('adresse').value;
+
+            const response = await fetch('historie.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ einsatznummer, stichwort, datum, adresse, page, entriesPerPage })
+            });
+
+            const { data, totalEntries } = await response.json();
+            const tbody = document.querySelector('#einsaetze-table tbody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Keine Einsätze gefunden.</td></tr>';
+            } else {
+                data.forEach(einsatz => {
+                    const personal = [
+                        einsatz.stf ? `StF: ${einsatz.stf}` : null,
+                        einsatz.ma ? `Ma: ${einsatz.ma}` : null,
+                        einsatz.atf ? `AtF: ${einsatz.atf}` : null,
+                        einsatz.atm ? `AtM: ${einsatz.atm}` : null,
+                        einsatz.wtf ? `WtF: ${einsatz.wtf}` : null,
+                        einsatz.wtm ? `WtM: ${einsatz.wtm}` : null,
+                        einsatz.prakt ? `Prakt: ${einsatz.prakt}` : null,
+                    ].filter(Boolean).join('<br>');
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${einsatz.interne_einsatznummer}</td>
+                            <td>${einsatz.einsatznummer_lts}</td>
+                            <td>${einsatz.stichwort}</td>
+                            <td>${einsatz.alarmuhrzeit}</td>
+                            <td>${einsatz.zurueckzeit}</td>
+                            <td>${einsatz.adresse}</td>
+                            <td>${einsatz.stadtteil}</td>
+                            <td><details><summary>Details anzeigen</summary>${personal}</details></td>
+                        </tr>
+                    `;
+                });
+
+                renderPagination(totalEntries);
+            }
+        }
+
+        function renderPagination(totalEntries) {
+            const paginationDiv = document.getElementById('pagination');
+            paginationDiv.innerHTML = '';
+
+            const totalPages = Math.ceil(totalEntries / entriesPerPage);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className = i === currentPage ? 'active' : '';
+                button.onclick = () => filterEinsaetze(i);
+                paginationDiv.appendChild(button);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('input').forEach(input => input.addEventListener('input', () => filterEinsaetze(1)));
+            filterEinsaetze(); // Initiales Laden
+        });
+
     </script>
+
 </head>
 <body>
     <header>
