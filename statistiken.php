@@ -86,13 +86,9 @@ try {
 // Heatmap-Daten aus der Datenbank abrufen
 try {
     $pinQuery = $pdo->prepare("SELECT latitude, longitude FROM einsaetze WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')");
-
-    $pinQuery->execute([
-        ':startdatum' => $startdatum,
-        ':enddatum' => $enddatum
-    ]);
-
+    $pinQuery->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
     $pinData = $pinQuery->fetchAll(PDO::FETCH_ASSOC);
+
 
 
 } catch (PDOException $e) {
