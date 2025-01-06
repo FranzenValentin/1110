@@ -228,6 +228,28 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
             filterEinsaetze(); // Initiales Laden
         });
 
+        function renderPagination(totalEntries) {
+            const paginationDiv = document.getElementById('pagination');
+            paginationDiv.innerHTML = '';
+
+            const totalPages = Math.ceil(totalEntries / entriesPerPage);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.className = i === currentPage ? 'active' : '';
+                button.onclick = () => filterEinsaetze(i);
+                paginationDiv.appendChild(button);
+            }
+
+            // Einträge anzeigen (z. B., "1-20 von 300")
+            const fromEntry = (currentPage - 1) * entriesPerPage + 1;
+            const toEntry = Math.min(currentPage * entriesPerPage, totalEntries);
+            const entriesStatus = document.getElementById('entries-status');
+            entriesStatus.textContent = `${fromEntry}-${toEntry} von ${totalEntries}`;
+        }
+
+
     </script>
 
 </head>
@@ -305,6 +327,7 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
             </table>
             <!-- Pagination -->
                 <div id="pagination" style="margin-top: 15px; text-align: center;"></div>
+                <div id="entries-status" style="margin-top: 10px; text-align: center; font-weight: bold;"></div>
         </section>
     </main>
 </body>
