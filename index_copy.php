@@ -9,6 +9,36 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+function fetchCoordinates($address, $district) {
+    $fullAddress = $address . ', ' . $district . ', Deutschland';
+    $url = "https://nominatim.openstreetmap.org/search?format=json&q=" . urlencode($fullAddress);
+
+    $options = [
+        "http" => [
+            "header" => "User-Agent: EinsatzGeoCoder/1.0 (kontakt@example.com)\r\n"
+        ]
+    ];
+    $context = stream_context_create($options);
+
+    try {
+        $response = file_get_contents($url, false, $context);
+        $data = json_decode($response, true);
+
+        if (!empty($data)) {
+            return [
+                "latitude" => $data[0]["lat"],
+                "longitude" => $data[0]["lon"]
+            ];
+        } else {
+            return ["latitude" => null, "longitude" => null];
+        }
+    } catch (Exception $e) {
+        error_log("Fehler beim Abrufen der Koordinaten: " . $e->getMessage());
+        return ["latitude" => null, "longitude" => null];
+    }
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -186,35 +216,6 @@ error_reporting(E_ALL);
                 </td>
 
                 <script>
-                    // Funktion zur Abfrage der Koordinaten von OpenStreetMap
-                    function fetchCoordinates($address, $district) {
-                        $fullAddress = $address . ', ' . $district . ', Deutschland';
-                        $url = "https://nominatim.openstreetmap.org/search?format=json&q=" . urlencode($fullAddress);
-                        
-                        $options = [
-                            "http" => [
-                                "header" => "User-Agent: EinsatzGeoCoder/1.0 (kontakt@example.com)\r\n"
-                            ]
-                        ];
-                        $context = stream_context_create($options);
-
-                        try {
-                            $response = file_get_contents($url, false, $context);
-                            $data = json_decode($response, true);
-                            
-                            if (!empty($data)) {
-                                return [
-                                    "latitude" => $data[0]["lat"],
-                                    "longitude" => $data[0]["lon"]
-                                ];
-                            } else {
-                                return ["latitude" => null, "longitude" => null];
-                            }
-                        } catch (Exception $e) {
-                            error_log("Fehler beim Abrufen der Koordinaten: " . $e->getMessage());
-                            return ["latitude" => null, "longitude" => null];
-                        }
-                    }
 
 
                     function syncZurueckzeit() {
