@@ -181,8 +181,6 @@ try {
         <?php if ($totalEinsaetze != 0): ?>
         <h2>Häufigste Stichworte</h2>    
         <?php endif; ?>
-        
-        <canvas id="stichwortChart" ></canvas>
         <canvas id="stichwortChart" style="max-width: 300px; max-height: 150px;"></canvas>
         <script>
             const stichwortLabels = <?= json_encode(array_column($stichworte, 'stichwort')) ?>;
@@ -252,7 +250,7 @@ try {
 
 <section>
         <h2>Heatmap</h2>
-        <div id="map" style="width: 100%; height: 500px;"></div>
+        <div id="map" style="width: 100%; height: 700px;"></div>
         <script>
             // Karte initialisieren
             const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
