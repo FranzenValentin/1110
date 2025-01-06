@@ -267,11 +267,6 @@ try {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Cluster-Gruppe erstellen
-    const markers = L.markerClusterGroup({
-        disableClusteringAtZoom: 15
-    });
-
     // Pin-Daten aus der Datenbank
     const pinData = <?= json_encode($pinData) ?>;
 
@@ -280,79 +275,67 @@ try {
     pinData.forEach(pin => {
         const key = `${pin.latitude},${pin.longitude}`;
         if (!groupedPins[key]) {
-            groupedPins[key] = [];
+            groupedPins[key] = { coords: [parseFloat(pin.latitude), parseFloat(pin.longitude)], details: [] };
         }
-        groupedPins[key].push(pin);
+        groupedPins[key].details.push(pin);
     });
 
     // Punkte verarbeiten
     Object.values(groupedPins).forEach(group => {
-        const center = [parseFloat(group[0].latitude), parseFloat(group[0].longitude)];
-        if (group.length === 1) {
-            // Nur ein Punkt, normalen Marker anzeigen
-            const pin = group[0];
-            const redIcon = L.divIcon({
-                className: 'custom-div-icon',
-                html: "<div style='background-color: red; width: 10px; height: 10px; border-radius: 50%;'></div>",
-                iconSize: [10, 10]
-            });
-            const marker = L.marker(center, { icon: redIcon });
+        const { coords, details } = group;
 
-            // Popup-Inhalt
-            marker.bindPopup(`
-                <strong>Einsatzdetails:</strong><br>
-                <strong>Datum:</strong> ${pin.alarmuhrzeit}<br>
-                <strong>Stichwort:</strong> ${pin.stichwort}
-            `);
-            markers.addLayer(marker);
-        } else {
-            // Mehrere Punkte mit Hover-Effekt
-            const markersInGroup = [];
-            group.forEach((pin, index) => {
-                const redIcon = L.divIcon({
-                    className: 'custom-div-icon',
-                    html: "<div style='background-color: red; width: 8px; height: 8px; border-radius: 50%;'></div>",
-                    iconSize: [8, 8]
-                });
+        // Anzahl der Einsätze bestimmen
+        const count = details.length;
 
-                // Marker erstellen und speichern
-                const marker = L.marker(center, { icon: redIcon });
-                marker.bindPopup(`
-                    <strong>Einsatzdetails:</strong><br>
-                    <strong>Datum:</strong> ${pin.alarmuhrzeit}<br>
-                    <strong>Stichwort:</strong> ${pin.stichwort}
-                `);
-                markers.addLayer(marker);
-                markersInGroup.push(marker);
-            });
+        // Markergröße basierend auf Anzahl der Einsätze
+        const markerSize = 10 + count * 2; // Dynamische Größe
 
-            // Hover-Effekt
-            markersInGroup.forEach((marker, index) => {
-                const angleStep = (2 * Math.PI) / group.length;
-                const radius = 0.0003; // Kleinere Verschiebung
-                const angle = index * angleStep;
+        // Icon erstellen
+        const redIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div style='
+                background-color: red;
+                width: ${markerSize}px;
+                height: ${markerSize}px;
+                border-radius: 50%;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                font-weight: bold;
+            '>${count}</div>`,
+            iconSize: [markerSize, markerSize],
+            iconAnchor: [markerSize / 2, markerSize / 2] // Zentriert den Marker
+        });
 
-                const lat = center[0] + radius * Math.cos(angle);
-                const lng = center[1] + radius * Math.sin(angle);
-                const newPosition = [lat, lng];
+        // Marker erstellen
+        const marker = L.marker(coords, { icon: redIcon });
 
-                marker.on('mouseover', function () {
-                    marker.setLatLng(newPosition);
+        // Popup-Inhalt erstellen
+        const popupContent = `
+            <strong>Einsatzdetails:</strong>
+            <ul>
+                ${details
+                    .map(
+                        detail =>
+                            `<li>
+                                <strong>Datum:</strong> ${detail.alarmuhrzeit}<br>
+                                <strong>Stichwort:</strong> ${detail.stichwort}
+                            </li>`
+                    )
+                    .join('')}
+            </ul>
+        `;
 
-                    // Linien verbinden
-                    const line = L.polyline([center, newPosition], { color: 'blue', weight: 1 }).addTo(map);
-                    marker.on('mouseout', function () {
-                        marker.setLatLng(center); // Zurück zur Mitte
-                        map.removeLayer(line); // Linie entfernen
-                    });
-                });
-            });
-        }
+        // Popup an den Marker binden
+        marker.bindPopup(popupContent);
+
+        // Marker zur Karte hinzufügen
+        marker.addTo(map);
     });
-
-    // Cluster-Gruppe zur Karte hinzufügen
-    map.addLayer(markers);
 </script>
+
 
 
 
