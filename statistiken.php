@@ -267,6 +267,11 @@ try {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
+    // Cluster-Gruppe erstellen
+    const markers = L.markerClusterGroup({
+        disableClusteringAtZoom: 15 // Gruppierung wird ab Zoom-Level 15 aufgehoben
+    });
+
     // Pin-Daten aus der Datenbank
     const pinData = <?= json_encode($pinData) ?>;
 
@@ -284,8 +289,8 @@ try {
     Object.values(groupedPins).forEach(group => {
         const { coords, details } = group;
 
-        // Einzelne Punkte
         if (details.length === 1) {
+            // Einzelner Punkt
             const pin = details[0];
             const redIcon = L.divIcon({
                 className: 'custom-div-icon',
@@ -302,8 +307,8 @@ try {
                 <strong>Stichwort:</strong> ${pin.stichwort}
             `);
 
-            // Marker zur Karte hinzufügen
-            marker.addTo(map);
+            // Marker zur Cluster-Gruppe hinzufügen
+            markers.addLayer(marker);
 
         } else {
             // Gruppierte Punkte
@@ -347,11 +352,15 @@ try {
             `;
             marker.bindPopup(popupContent);
 
-            // Marker zur Karte hinzufügen
-            marker.addTo(map);
+            // Marker zur Cluster-Gruppe hinzufügen
+            markers.addLayer(marker);
         }
     });
+
+    // Cluster-Gruppe zur Karte hinzufügen
+    map.addLayer(markers);
 </script>
+
 
 
 
