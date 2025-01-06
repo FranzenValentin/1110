@@ -74,11 +74,12 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
             const einsatznummer = document.getElementById('einsatznummer').value;
             const stichwort = document.getElementById('stichwort').value;
             const datum = document.getElementById('datum').value;
+            const adresse = document.getElementById('adresse').value;
 
             const response = await fetch('historie.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ einsatznummer, stichwort, datum })
+                body: JSON.stringify({ einsatznummer, stichwort, datum, adresse })
             });
 
             const data = await response.json();
@@ -149,10 +150,13 @@ $einsaetze = fetchFilteredEinsaetze($pdo, []);
                 <input type="text" id="einsatznummer" placeholder="Einsatznummer">
 
                 <label for="stichwort">Stichwort:</label>
-                <input type="text" id="stichwort" placeholder="Stichwort" style="width: auto;">
+                <input type="text" id="stichwort" placeholder="Stichwort">
 
                 <label for="datum">Datum:</label>
                 <input type="date" id="datum">
+
+                <label for="adresse">Adresse:</label>
+                <input type="text" id="adresse" placeholder="Adresse">
             </form>
         </section>
 
