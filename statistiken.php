@@ -330,18 +330,20 @@ try {
                 marker.bindPopup(`
                     <strong>Stichwort:</strong> ${pin.stichwort}<br>
                     <strong>Datum:</strong> ${pin.alarmuhrzeit}
+                    
                 `);
                 markers.addLayer(marker);
-            });
 
-            // Linie zwischen den verschobenen Punkten
-            L.polyline(points, { color: 'blue', weight: 1 }).addTo(map);
+                // Linie vom Marker zum Zentrum
+                L.polyline([center, [lat, lng]], { color: 'blue', weight: 1 }).addTo(map);
+            });
         }
     });
 
     // Cluster-Gruppe zur Karte hinzufügen
     map.addLayer(markers);
 </script>
+
 
 
 </section>
