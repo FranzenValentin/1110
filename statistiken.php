@@ -289,9 +289,8 @@ try {
 
                 // Popup-Inhalt erstellen
                 const popupContent = `
-                    <strong>Einsatzdetails:</strong><br>
-                    <strong>Datum:</strong> ${pin.alarmuhrzeit}<br>
                     <strong>Stichwort:</strong> ${pin.stichwort}
+                    <strong>Datum:</strong> ${pin.alarmuhrzeit}<br>
                 `;
 
                 // Popup an den Marker anhängen
