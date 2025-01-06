@@ -343,8 +343,8 @@ try {
                         .map(
                             detail =>
                                 `<li>
+                                    <strong>Stichwort:</strong> ${detail.stichwort}<br>
                                     <strong>Datum:</strong> ${detail.alarmuhrzeit}<br>
-                                    <strong>Stichwort:</strong> ${detail.stichwort}
                                 </li>`
                         )
                         .join('')}
