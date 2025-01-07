@@ -59,7 +59,7 @@ if (isset($_GET['lat']) && isset($_GET['lon'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Places & OpenStreetMap - Detaillierte Adressinformationen</title>
+    <title>Google Places & OpenStreetMap - Stadtteilanzeige</title>
     <style>
         .form-container {
             max-width: 600px;
@@ -93,7 +93,7 @@ if (isset($_GET['lat']) && isset($_GET['lon'])) {
 </head>
 <body>
     <header style="text-align: center; padding: 20px;">
-        <h1>Google Places & OpenStreetMap</h1>
+        <h1>Google Places & OpenStreetMap - Stadtteilanzeige</h1>
     </header>
 
     <main>
@@ -105,11 +105,12 @@ if (isset($_GET['lat']) && isset($_GET['lon'])) {
                 <h3>Details zur Adresse:</h3>
                 <p><strong>Formatted Address:</strong> <span id="formatted-address">n/a</span></p>
                 <p><strong>Koordinaten:</strong> Breite: <span id="latitude">n/a</span>, Länge: <span id="longitude">n/a</span></p>
-                <p><strong>Stadtteil:</strong> <span id="district">n/a</span></p>
                 <p><strong>Postleitzahl:</strong> <span id="postal-code">n/a</span></p>
                 <p><strong>Stadt:</strong> <span id="city">n/a</span></p>
                 <p><strong>Bundesland:</strong> <span id="state">n/a</span></p>
                 <p><strong>Land:</strong> <span id="country">n/a</span></p>
+                <h4>OpenStreetMap Stadtteil:</h4>
+                <p><strong>Stadtteil:</strong> <span id="osm-district">n/a</span></p>
             </div>
         </div>
     </main>
@@ -120,16 +121,16 @@ if (isset($_GET['lat']) && isset($_GET['lon'])) {
             const formattedAddressEl = document.getElementById("formatted-address");
             const latitudeEl = document.getElementById("latitude");
             const longitudeEl = document.getElementById("longitude");
-            const districtEl = document.getElementById("district");
             const postalCodeEl = document.getElementById("postal-code");
             const cityEl = document.getElementById("city");
             const stateEl = document.getElementById("state");
             const countryEl = document.getElementById("country");
+            const osmDistrictEl = document.getElementById("osm-district");
 
             // Google Maps Autocomplete Initialisierung
             const autocomplete = new google.maps.places.Autocomplete(addressInput, {
-                types: ['geocode'], // Erlaubt Adressen
-                componentRestrictions: { country: "DE" }, // Nur Deutschland
+                types: ['geocode'],
+                componentRestrictions: { country: "DE" },
             });
 
             // Event Listener: Google Maps liefert neue Daten
@@ -174,11 +175,11 @@ if (isset($_GET['lat']) && isset($_GET['lon'])) {
                     .then(response => response.json())
                     .then(data => {
                         const district = data.address.suburb || data.address.neighbourhood || "n/a";
-                        districtEl.textContent = district;
+                        osmDistrictEl.textContent = district; // Stadtteil von OSM
                     })
                     .catch(error => {
                         console.error("Fehler beim Abrufen der Daten von OpenStreetMap:", error);
-                        districtEl.textContent = "Fehler";
+                        osmDistrictEl.textContent = "Fehler";
                     });
             });
         }
