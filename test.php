@@ -19,22 +19,14 @@ function loadEnv($filePath)
     $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
     foreach ($lines as $line) {
-        // Kommentare ignorieren
         if (strpos(trim($line), '#') === 0) {
             continue;
         }
-
-        // Zeilen in Schlüssel-Wert-Paare aufteilen
         $parts = explode('=', $line, 2);
-
         if (count($parts) == 2) {
             $key = trim($parts[0]);
             $value = trim($parts[1]);
-
-            // Entferne Anführungszeichen, falls vorhanden
             $value = trim($value, '"\'');
-            
-            // Speichere die Variable in $_ENV und $_SERVER
             $_ENV[$key] = $value;
             $_SERVER[$key] = $value;
         }
@@ -66,25 +58,34 @@ function loadEnv($filePath)
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+
+        .form-container label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
     </style>
-    <!-- Google Places API laden -->
     <script src="https://maps.googleapis.com/maps/api/js?key=<?= htmlspecialchars($apiKey) ?>&libraries=places"></script>
 </head>
 <body>
     <header style="text-align: center; padding: 20px;">
-        <h1>Berliner Hausadressen Autovervollständigung</h1>
+        <h1>Berliner Adress- und Stadtteil-Autovervollständigung</h1>
     </header>
 
     <main>
         <div class="form-container">
             <label for="address-input">Hausadresse eingeben:</label>
-            <input type="text" id="address-input" placeholder="Geben Sie eine Adresse in Berlin ein">
+            <input type="text" id="address-input" placeholder="Linienstraße 128">
+            
+            <label for="district-input">Stadtteil:</label>
+            <input type="text" id="district-input" placeholder="Mitte" readonly>
         </div>
     </main>
 
     <script>
         function initAutocomplete() {
-            const input = document.getElementById("address-input");
+            const addressInput = document.getElementById("address-input");
+            const districtInput = document.getElementById("district-input");
 
             // Einschränkungen auf Berlin und Adresstypen
             const options = {
@@ -93,9 +94,9 @@ function loadEnv($filePath)
             };
 
             // Google Places Autocomplete initialisieren
-            const autocomplete = new google.maps.places.Autocomplete(input, options);
+            const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
 
-            // Filtern der Ergebnisse nur für Berlin
+            // Filtern der Ergebnisse nur für Berlin und automatisches Ausfüllen des Stadtteils
             autocomplete.addListener("place_changed", () => {
                 const place = autocomplete.getPlace();
 
@@ -104,15 +105,25 @@ function loadEnv($filePath)
                     const city = place.address_components.find(component =>
                         component.types.includes("locality")
                     );
+                    const district = place.address_components.find(component =>
+                        component.types.includes("sublocality_level_1") || component.types.includes("political")
+                    );
                     const housenumber = place.address_components.find(component =>
                         component.types.includes("street_number")
                     );
 
+                    // Gültigkeit überprüfen
                     if (city && city.long_name === "Berlin" && housenumber) {
+                        if (district) {
+                            districtInput.value = district.long_name;
+                        } else {
+                            districtInput.value = "Unbekannt";
+                        }
                         console.log("Valid address:", place.formatted_address);
                     } else {
                         alert("Bitte wählen Sie eine Hausadresse in Berlin aus.");
-                        input.value = ""; // Eingabe leeren
+                        addressInput.value = ""; // Adresse leeren
+                        districtInput.value = ""; // Stadtteil leeren
                     }
                 }
             });
