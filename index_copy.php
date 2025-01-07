@@ -20,21 +20,20 @@ function loadEnv($filePath)
     $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
     foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0 || trim($line) === '') {
+        if (strpos(trim($line), '#') === 0) {
             continue;
         }
         $parts = explode('=', $line, 2);
-        if (count($parts) !== 2) {
-            throw new Exception("Ungültige Zeile in der .env-Datei: " . $line);
+        if (count($parts) == 2) {
+            $key = trim($parts[0]);
+            $value = trim($parts[1]);
+            $value = trim($value, '"\'');
+            $_ENV[$key] = $value;
+            $_SERVER[$key] = $value;
         }
-        $key = trim($parts[0]);
-        $value = trim($parts[1], '"\' ');
-        $_ENV[$key] = $value;
-        $_SERVER[$key] = $value;
     }
+
 }
-
-
 session_start();
 if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     header('Location: login.php'); // Weiterleitung zur Login-Seite
