@@ -87,24 +87,20 @@ function loadEnv($filePath)
             const addressInput = document.getElementById("address-input");
             const districtInput = document.getElementById("district-input");
 
-            // Einschränkungen auf Berlin und Adresstypen
+            // Einschränkungen auf Adresstypen und Land
             const options = {
                 types: ['address'], // Nur Adressen
                 componentRestrictions: { country: "DE" }, // Nur Deutschland
-                location: new google.maps.LatLng(52.5200, 13.4050), // Mittelpunkt von Berlin
-                radius: 15000 // Umkreis von 15 km
+                locationRestriction: 'rectangle:52.3383,13.0884|52.6755,13.7611' // Bounding box für Berlin
             };
-
-
 
             // Google Places Autocomplete initialisieren
             const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
 
-            // Filtern der Ergebnisse nur für Berlin und automatisches Ausfüllen des Stadtteils
+            // Automatisches Ausfüllen des Stadtteils
             autocomplete.addListener("place_changed", () => {
                 const place = autocomplete.getPlace();
 
-                // Überprüfen, ob die Adresse in Berlin liegt
                 if (place.address_components) {
                     const city = place.address_components.find(component =>
                         component.types.includes("locality")
@@ -116,13 +112,9 @@ function loadEnv($filePath)
                         component.types.includes("street_number")
                     );
 
-                    // Gültigkeit überprüfen
+                    // Überprüfen, ob die Adresse in Berlin liegt
                     if (city && city.long_name === "Berlin" && housenumber) {
-                        if (district) {
-                            districtInput.value = district.long_name;
-                        } else {
-                            districtInput.value = "Unbekannt";
-                        }
+                        districtInput.value = district ? district.long_name : "Unbekannt";
                         console.log("Valid address:", place.formatted_address);
                     } else {
                         alert("Bitte wählen Sie eine Hausadresse in Berlin aus.");
@@ -136,5 +128,6 @@ function loadEnv($filePath)
         // Initialisiere Autocomplete bei Seitenladevorgang
         document.addEventListener("DOMContentLoaded", initAutocomplete);
     </script>
+
 </body>
 </html>
