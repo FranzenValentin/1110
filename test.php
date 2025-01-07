@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adresssuche mit Autovervollständigung</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Berliner Adressen Autovervollständigung</title>
     <style>
         #autocomplete-list {
             position: absolute;
@@ -45,13 +44,13 @@
 </head>
 <body>
     <header style="text-align: center; padding: 20px;">
-        <h1>Adresssuche mit Autovervollständigung</h1>
+        <h1>Berliner Adressen Autovervollständigung</h1>
     </header>
 
     <main>
         <div class="form-container">
             <label for="address-input">Adresse eingeben:</label>
-            <input type="text" id="address-input" placeholder="Geben Sie eine Adresse ein" autocomplete="off">
+            <input type="text" id="address-input" placeholder="Geben Sie eine Adresse in Berlin ein" autocomplete="off">
             <div id="autocomplete-list"></div>
         </div>
     </main>
@@ -60,7 +59,7 @@
         const input = document.getElementById("address-input");
         const autocompleteList = document.getElementById("autocomplete-list");
 
-        input.addEventListener("input", async function() {
+        input.addEventListener("input", async function () {
             const query = this.value.trim();
 
             // Clear previous suggestions
@@ -69,16 +68,23 @@
             if (query.length < 3) return; // Start searching only after 3 characters
 
             try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+                // Define a viewbox for Berlin (coordinates: South-West and North-East corners)
+                const berlinViewBox = "13.0884,52.3383,13.7612,52.6755"; // Approx Berlin bounding box
+
+                // Fetch suggestions from Nominatim API limited to the Berlin area
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&viewbox=${berlinViewBox}&bounded=1`
+                );
+
                 const data = await response.json();
 
                 if (data.length === 0) return;
 
                 // Populate suggestions
-                data.forEach(item => {
+                data.forEach((item) => {
                     const suggestion = document.createElement("div");
                     suggestion.textContent = `${item.display_name}`;
-                    suggestion.addEventListener("click", function() {
+                    suggestion.addEventListener("click", function () {
                         input.value = item.display_name; // Set the selected value
                         autocompleteList.innerHTML = ""; // Clear suggestions
                     });
@@ -90,7 +96,7 @@
         });
 
         // Close the list if clicked outside
-        document.addEventListener("click", function(event) {
+        document.addEventListener("click", function (event) {
             if (!autocompleteList.contains(event.target) && event.target !== input) {
                 autocompleteList.innerHTML = ""; // Clear suggestions
             }
