@@ -284,7 +284,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                 <div>
                     <label for="address-input">Adresse:</label>
                     <input type="text" id="address-input" name="adresse" placeholder="Linienstraße 128" required>
-                    <input type="hidden" id="latitude" name="latitude">
+                    <input type="text" id="latitude" name="latitude">
                     <input type="hidden" id="longitude" name="longitude">
                 </div>
                     <div id="coordinates">
@@ -439,95 +439,97 @@ if ($zeitResult) {
 ?>
 
 
+        <!-- Aktueller Dienst -->
+        <section id="aktueller-dienste">
+            <h2>
+                Aktueller Dienst mit dem 
+                <form method="GET" class="dropdown-form" style="display: inline;">
+                    <select name="fahrzeug" onchange="this.form.submit()">
+                        <?php foreach ($fahrzeuge as $fahrzeug): ?>
+                            <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
+                                <?php echo ($fahrzeugId == $fahrzeug['id']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($fahrzeug['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </form>
+                <?php echo "vom $inDienstZeit bis zum $ausserDienstZeit"; ?>
+            </h2>
 
-<section id="aktueller-dienste">
-    <h2>
-        Aktueller Dienst mit dem 
-        <form method="GET" class="dropdown-form" style="display: inline;">
-            <select name="fahrzeug" onchange="this.form.submit()">
-                <?php foreach ($fahrzeuge as $fahrzeug): ?>
-                    <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
-                        <?php echo ($fahrzeugId == $fahrzeug['id']) ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($fahrzeug['name']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </form>
-        <?php echo "vom $inDienstZeit bis zum $ausserDienstZeit"; ?>
-    </h2>
-</section>
 
-<table>
-    <thead>
-        <tr>
-            <th>Funktion</th>
-            <th>Aktuell zugewiesen</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php
-        // Besatzungsrollen definieren
-        $roles = [
-            'stf' => 'Staffel-Führer',
-            'ma' => 'Maschinist',
-            'atf' => 'Angriffstrupp-Führer',
-            'atm' => 'Angriffstrupp-Mann',
-            'wtf' => 'Wassertrupp-Führer',
-            'wtm' => 'Wassertrupp-Mann',
-            'prakt' => 'Praktikant'
-        ];
+            <table>
+                <thead>
+                    <tr>
+                        <th>Funktion</th>
+                        <th>Aktuell zugewiesen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    // Besatzungsrollen definieren
+                    $roles = [
+                        'stf' => 'Staffel-Führer',
+                        'ma' => 'Maschinist',
+                        'atf' => 'Angriffstrupp-Führer',
+                        'atm' => 'Angriffstrupp-Mann',
+                        'wtf' => 'Wassertrupp-Führer',
+                        'wtm' => 'Wassertrupp-Mann',
+                        'prakt' => 'Praktikant'
+                    ];
 
-        // Besatzung basierend auf den ermittelten Zeiten und Fahrzeug abrufen
-        $besatzungStmt = $pdo->prepare("
-            SELECT * 
-            FROM dienste 
-            WHERE fahrzeug_id = :fahrzeug_id 
-            AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:inDienstZeit, '%d.%m.%Y %H:%i')
-            AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:ausserDienstZeit, '%d.%m.%Y %H:%i') OR :ausserDienstZeit IS NULL)
-        ");
-        $besatzungStmt->execute([
-            ':fahrzeug_id' => $fahrzeugId,
-            ':inDienstZeit' => $inDienstZeit,
-            ':ausserDienstZeit' => $ausserDienstZeit !== 'Keine Daten' ? $ausserDienstZeit : null,
-        ]);
-        $besatzung = $besatzungStmt->fetch();
+                    // Besatzung basierend auf den ermittelten Zeiten und Fahrzeug abrufen
+                    $besatzungStmt = $pdo->prepare("
+                        SELECT * 
+                        FROM dienste 
+                        WHERE fahrzeug_id = :fahrzeug_id 
+                        AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:inDienstZeit, '%d.%m.%Y %H:%i')
+                        AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:ausserDienstZeit, '%d.%m.%Y %H:%i') OR :ausserDienstZeit IS NULL)
+                    ");
+                    $besatzungStmt->execute([
+                        ':fahrzeug_id' => $fahrzeugId,
+                        ':inDienstZeit' => $inDienstZeit,
+                        ':ausserDienstZeit' => $ausserDienstZeit !== 'Keine Daten' ? $ausserDienstZeit : null,
+                    ]);
+                    $besatzung = $besatzungStmt->fetch();
 
-        foreach ($roles as $key => $label) {
-            echo "<tr>";
-            echo "<td>$label</td>";
+                    foreach ($roles as $key => $label) {
+                        echo "<tr>";
+                        echo "<td>$label</td>";
 
-            if ($besatzung && $besatzung[$key . '_id']) {
-                // Zuweisung der Person abrufen
-                $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM personal WHERE id = :id");
-                $personStmt->execute([':id' => $besatzung[$key . '_id']]);
-                $person = $personStmt->fetch();
+                        if ($besatzung && $besatzung[$key . '_id']) {
+                            // Zuweisung der Person abrufen
+                            $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM personal WHERE id = :id");
+                            $personStmt->execute([':id' => $besatzung[$key . '_id']]);
+                            $person = $personStmt->fetch();
 
-                // Name anzeigen, falls vorhanden
-                echo "<td>" . ($person['name'] ?? '<em>NICHT BESETZT</em>') . "</td>";
-            } else {
-                // Kein Name zugewiesen
-                echo "<td><em>NICHT BESETZT</em></td>";
-            }
+                            // Name anzeigen, falls vorhanden
+                            echo "<td>" . ($person['name'] ?? '<em>NICHT BESETZT</em>') . "</td>";
+                        } else {
+                            // Kein Name zugewiesen
+                            echo "<td><em>NICHT BESETZT</em></td>";
+                        }
 
-            echo "</tr>";
-        }
-        ?>
-    </tbody>
-</table>
-<div class="button-container">
-<button onclick="location.href='editDienst.php?fahrzeug=<?php echo $fahrzeugId; ?>&dienst=<?php echo $dienstId; ?>'">Dienst bearbeiten</button>
-<button onclick="location.href='neuerDienst.php'">Weiterer Dienst</button>
-</div>
-
-<?php else: ?>
-        <!-- Keine Dienste vorhanden -->
-        <section>
-            <h2 style="text-align: center;">Zum Anlegen eines Einsatzes muss zuerst ein Dienst eingetragen werden.</h2>
-            <div class="button-container" style="text-align: center;">
-            <button onclick="location.href='neuerDienst.php'" style="padding: 16px 20px;font-size: 1.1em;">Neuer Dienst</button>
+                        echo "</tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+            <div class="button-container">
+            <button onclick="location.href='editDienst.php?fahrzeug=<?php echo $fahrzeugId; ?>&dienst=<?php echo $dienstId; ?>'">Dienst bearbeiten</button>
+            <button onclick="location.href='neuerDienst.php'">Weiterer Dienst</button>
             </div>
+
+            <?php else: ?>
+                <!-- Keine Dienste vorhanden -->
+                <section>
+                    <h2 style="text-align: center;">Zum Anlegen eines Einsatzes muss zuerst ein Dienst eingetragen werden.</h2>
+                    <div class="button-container" style="text-align: center;">
+                    <button onclick="location.href='neuerDienst.php'" style="padding: 16px 20px;font-size: 1.1em;">Neuer Dienst</button>
+                    </div>
+                </section>
+            <?php endif; ?>
+
         </section>
-    <?php endif; ?>
 
 
         <!-- Letzte Einsätze -->
@@ -602,147 +604,148 @@ if ($zeitResult) {
 
         <!-- letzten 5 Dienste -->
         <section id="letzte-dienste">
-    <h2>Letzte 5 Dienste</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Fahrzeug</th>
-                <th>Zeitraum</th>
-                <th>Dienst Dauer</th>
-                <th>Alarmanzahl</th>
-                <th>Alarme (Stichworte)</th>
-                <th>Personal</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            // Debug: Fahrzeug-ID und Abfrage-Start
-            echo "<!-- Debug: Starte Abfrage für letzte 5 Dienste -->";
+                <h2>Letzte 5 Dienste</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fahrzeug</th>
+                            <th>Zeitraum</th>
+                            <th>Dienst Dauer</th>
+                            <th>Alarmanzahl</th>
+                            <th>Alarme (Stichworte)</th>
+                            <th>Personal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        // Debug: Fahrzeug-ID und Abfrage-Start
+                        echo "<!-- Debug: Starte Abfrage für letzte 5 Dienste -->";
 
-            // SQL-Abfrage, um die letzten 5 Dienste aller Fahrzeuge nach Datum zu erhalten
-            $dienstStmt = $pdo->prepare("
-                SELECT d.id, f.name AS fahrzeug_name, d.inDienstZeit, d.ausserDienstZeit,
-                       TIMESTAMPDIFF(MINUTE, STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i'), 
-                       STR_TO_DATE(d.ausserDienstZeit, '%d.%m.%Y %H:%i')) AS dauer_minuten,
-                       COUNT(e.id) AS alarmanzahl
-                FROM dienste d
-                JOIN fahrzeuge f ON f.id = d.fahrzeug_id
-                LEFT JOIN einsaetze e ON e.dienst_id = d.id
-                GROUP BY d.id
-                ORDER BY STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i') DESC
-                LIMIT 5
-            ");
+                        // SQL-Abfrage, um die letzten 5 Dienste aller Fahrzeuge nach Datum zu erhalten
+                        $dienstStmt = $pdo->prepare("
+                            SELECT d.id, f.name AS fahrzeug_name, d.inDienstZeit, d.ausserDienstZeit,
+                                TIMESTAMPDIFF(MINUTE, STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i'), 
+                                STR_TO_DATE(d.ausserDienstZeit, '%d.%m.%Y %H:%i')) AS dauer_minuten,
+                                COUNT(e.id) AS alarmanzahl
+                            FROM dienste d
+                            JOIN fahrzeuge f ON f.id = d.fahrzeug_id
+                            LEFT JOIN einsaetze e ON e.dienst_id = d.id
+                            GROUP BY d.id
+                            ORDER BY STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i') DESC
+                            LIMIT 5
+                        ");
 
-            try {
-                $dienstStmt->execute();
-                $dienste = $dienstStmt->fetchAll(PDO::FETCH_ASSOC);
+                        try {
+                            $dienstStmt->execute();
+                            $dienste = $dienstStmt->fetchAll(PDO::FETCH_ASSOC);
 
-                // Debug: Ergebnis der Abfrage anzeigen
-                echo "<!-- Debug: Dienste = " . print_r($dienste, true) . " -->";
-            } catch (PDOException $e) {
-                echo "<p style='color: red;'>Fehler bei der Abfrage der letzten Dienste: " . htmlspecialchars($e->getMessage()) . "</p>";
-            }
+                            // Debug: Ergebnis der Abfrage anzeigen
+                            echo "<!-- Debug: Dienste = " . print_r($dienste, true) . " -->";
+                        } catch (PDOException $e) {
+                            echo "<p style='color: red;'>Fehler bei der Abfrage der letzten Dienste: " . htmlspecialchars($e->getMessage()) . "</p>";
+                        }
 
-            foreach ($dienste as $dienst) {
-                // Personal abrufen
-                $personalStmt = $pdo->prepare("
-                    SELECT 
-                        CASE 
-                            WHEN p.id = d.stf_id THEN 'StF'
-                            WHEN p.id = d.ma_id THEN 'Ma'
-                            WHEN p.id = d.atf_id THEN 'AtF'
-                            WHEN p.id = d.atm_id THEN 'AtM'
-                            WHEN p.id = d.wtf_id THEN 'WtF'
-                            WHEN p.id = d.wtm_id THEN 'WtM'
-                            WHEN p.id = d.prakt_id THEN 'Prakt'
-                        END AS funktion,
-                        CONCAT(p.vorname, ' ', p.nachname) AS name
-                    FROM personal p
-                    JOIN dienste d ON p.id IN (
-                        d.stf_id, d.ma_id, d.atf_id, d.atm_id, d.wtf_id, d.wtm_id, d.prakt_id
-                    )
-                    WHERE d.id = :dienst_id
-                ");
-                try {
-                    $personalStmt->execute([':dienst_id' => $dienst['id']]);
-                    $personalList = $personalStmt->fetchAll(PDO::FETCH_ASSOC);
+                        foreach ($dienste as $dienst) {
+                            // Personal abrufen
+                            $personalStmt = $pdo->prepare("
+                                SELECT 
+                                    CASE 
+                                        WHEN p.id = d.stf_id THEN 'StF'
+                                        WHEN p.id = d.ma_id THEN 'Ma'
+                                        WHEN p.id = d.atf_id THEN 'AtF'
+                                        WHEN p.id = d.atm_id THEN 'AtM'
+                                        WHEN p.id = d.wtf_id THEN 'WtF'
+                                        WHEN p.id = d.wtm_id THEN 'WtM'
+                                        WHEN p.id = d.prakt_id THEN 'Prakt'
+                                    END AS funktion,
+                                    CONCAT(p.vorname, ' ', p.nachname) AS name
+                                FROM personal p
+                                JOIN dienste d ON p.id IN (
+                                    d.stf_id, d.ma_id, d.atf_id, d.atm_id, d.wtf_id, d.wtm_id, d.prakt_id
+                                )
+                                WHERE d.id = :dienst_id
+                            ");
+                            try {
+                                $personalStmt->execute([':dienst_id' => $dienst['id']]);
+                                $personalList = $personalStmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    // Debug: Personal-Ergebnisse anzeigen
-                    echo "<!-- Debug: Personal für Dienst-ID {$dienst['id']} = " . print_r($personalList, true) . " -->";
-                } catch (PDOException $e) {
-                    echo "<p style='color: red;'>Fehler beim Abrufen des Personals: " . htmlspecialchars($e->getMessage()) . "</p>";
-                }
+                                // Debug: Personal-Ergebnisse anzeigen
+                                echo "<!-- Debug: Personal für Dienst-ID {$dienst['id']} = " . print_r($personalList, true) . " -->";
+                            } catch (PDOException $e) {
+                                echo "<p style='color: red;'>Fehler beim Abrufen des Personals: " . htmlspecialchars($e->getMessage()) . "</p>";
+                            }
 
-                // Alarme (Stichworte) abrufen
-                $alarmeStmt = $pdo->prepare("
-                    SELECT stichwort
-                    FROM einsaetze
-                    WHERE dienst_id = :dienst_id
-                ");
-                try {
-                    $alarmeStmt->execute([':dienst_id' => $dienst['id']]);
-                    $alarmeList = $alarmeStmt->fetchAll(PDO::FETCH_COLUMN);
+                            // Alarme (Stichworte) abrufen
+                            $alarmeStmt = $pdo->prepare("
+                                SELECT stichwort
+                                FROM einsaetze
+                                WHERE dienst_id = :dienst_id
+                            ");
+                            try {
+                                $alarmeStmt->execute([':dienst_id' => $dienst['id']]);
+                                $alarmeList = $alarmeStmt->fetchAll(PDO::FETCH_COLUMN);
 
-                    // Debug: Alarm-Ergebnisse anzeigen
-                    echo "<!-- Debug: Alarme für Dienst-ID {$dienst['id']} = " . print_r($alarmeList, true) . " -->";
-                } catch (PDOException $e) {
-                    echo "<p style='color: red;'>Fehler beim Abrufen der Alarme: " . htmlspecialchars($e->getMessage()) . "</p>";
-                }
+                                // Debug: Alarm-Ergebnisse anzeigen
+                                echo "<!-- Debug: Alarme für Dienst-ID {$dienst['id']} = " . print_r($alarmeList, true) . " -->";
+                            } catch (PDOException $e) {
+                                echo "<p style='color: red;'>Fehler beim Abrufen der Alarme: " . htmlspecialchars($e->getMessage()) . "</p>";
+                            }
 
-                // Dienst Dauer im Format 00:00 Stunden berechnen
-                $dauer_stunden = floor($dienst['dauer_minuten'] / 60);
-                $dauer_minuten = $dienst['dauer_minuten'] % 60;
-                $dauer_formatiert = sprintf('%02d:%02d Stunden', $dauer_stunden, $dauer_minuten);
+                            // Dienst Dauer im Format 00:00 Stunden berechnen
+                            $dauer_stunden = floor($dienst['dauer_minuten'] / 60);
+                            $dauer_minuten = $dienst['dauer_minuten'] % 60;
+                            $dauer_formatiert = sprintf('%02d:%02d Stunden', $dauer_stunden, $dauer_minuten);
 
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($dienst['fahrzeug_name']) . "</td>";
-                echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . " - " . htmlspecialchars($dienst['ausserDienstZeit']) . "</td>";
-                echo "<td>" . htmlspecialchars($dauer_formatiert) . "</td>";
-                echo "<td>" . htmlspecialchars($dienst['alarmanzahl']) . "</td>";
+                            echo "<tr>";
+                            echo "<td>" . htmlspecialchars($dienst['fahrzeug_name']) . "</td>";
+                            echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . " - " . htmlspecialchars($dienst['ausserDienstZeit']) . "</td>";
+                            echo "<td>" . htmlspecialchars($dauer_formatiert) . "</td>";
+                            echo "<td>" . htmlspecialchars($dienst['alarmanzahl']) . "</td>";
 
 
-                
-                // Alarme (Stichworte) ausklappbar
-                echo "<td>
-                        <details>
-                            <summary>Details anzeigen</summary>
-                            <ul>";
-                foreach ($alarmeList as $alarm) {
-                    echo "<li>" . htmlspecialchars($alarm) . "</li>";
-                }
-                echo "    </ul>
-                        </details>
-                      </td>";
+                            
+                            // Alarme (Stichworte) ausklappbar
+                            echo "<td>
+                                    <details>
+                                        <summary>Details anzeigen</summary>
+                                        <ul>";
+                            foreach ($alarmeList as $alarm) {
+                                echo "<li>" . htmlspecialchars($alarm) . "</li>";
+                            }
+                            echo "    </ul>
+                                    </details>
+                                </td>";
 
-                // Personal ausklappbar mit Funktion
-                echo "<td>
-                        <details>
-                            <summary>Details anzeigen</summary>
-                            <ul>";
-                foreach ($personalList as $person) {
-                    echo "<li>" . htmlspecialchars($person['funktion'] . ': ' . $person['name']) . "</li>";
-                }
-                echo "    </ul>
-                        </details>
-                      </td>";
+                            // Personal ausklappbar mit Funktion
+                            echo "<td>
+                                    <details>
+                                        <summary>Details anzeigen</summary>
+                                        <ul>";
+                            foreach ($personalList as $person) {
+                                echo "<li>" . htmlspecialchars($person['funktion'] . ': ' . $person['name']) . "</li>";
+                            }
+                            echo "    </ul>
+                                    </details>
+                                </td>";
 
-                echo "</tr>";
-            }
-            ?>
-        </tbody>
-    </table>
-        <div class="button-container">
-            <button onclick="location.href='alleDienste.php'">Alle Dienste</button>
-        </div>
-</section>
+                            echo "</tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
+                    <div class="button-container">
+                        <button onclick="location.href='alleDienste.php'">Alle Dienste</button>
+                    </div>
+            
+        </section>
 
-<!-- Navigation als Buttons -->
-<section id="navigation-buttons">
-            <h2>Statistiken</h2>
-            <div class="button-container">
-                <button onclick="location.href='statistiken.php'">Gesamtstatistiken anzeigen</button>
-                <button onclick="location.href='statistiken_personal.php'">Personal-Statistiken anzeigen</button>
-            </div>
+        <!-- Navigation als Buttons -->
+        <section id="navigation-buttons">
+                    <h2>Statistiken</h2>
+                    <div class="button-container">
+                        <button onclick="location.href='statistiken.php'">Gesamtstatistiken anzeigen</button>
+                        <button onclick="location.href='statistiken_personal.php'">Personal-Statistiken anzeigen</button>
+                    </div>
         </section>
 
 
