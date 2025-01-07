@@ -89,7 +89,7 @@ function loadEnv($filePath)
     </main>
 
     <script>
-           function initAutocomplete() {
+function initAutocomplete() {
     const addressInput = document.getElementById("address-input");
     const districtInput = document.getElementById("district-input");
     const latitudeEl = document.getElementById("latitude");
@@ -98,8 +98,9 @@ function loadEnv($filePath)
     const berlinCenter = { lat: 52.5200, lng: 13.4050 };
 
     const options = {
-        types: ['geocode'], // Erlaubt Adressen und Kreuzungen
+        types: ['geocode'], // Erlaubt Adressen
         componentRestrictions: { country: "DE" },
+        fields: ['address_components', 'formatted_address', 'geometry'], // Einschränkung auf relevante Felder
     };
 
     const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
@@ -112,6 +113,7 @@ function loadEnv($filePath)
     );
     autocomplete.setOptions({ strictBounds: true });
 
+    // Bei Änderung der Auswahl
     autocomplete.addListener("place_changed", () => {
         const place = autocomplete.getPlace();
 
@@ -126,9 +128,6 @@ function loadEnv($filePath)
         );
         const streetNumber = place.address_components.find(component =>
             component.types.includes("street_number")
-        );
-        const intersection = place.address_components.find(component =>
-            component.types.includes("intersection")
         );
         const city = place.address_components.find(component =>
             component.types.includes("locality")
@@ -146,24 +145,15 @@ function loadEnv($filePath)
             return;
         }
 
-        // Adresse bereinigen: Kreuzung oder normale Adresse
-        let formattedAddress = place.formatted_address;
-        formattedAddress = formattedAddress.replace(/, \d{5} Berlin, Deutschland$/, ''); // Entfernt ", 10117 Berlin, Deutschland"
-
-        if (intersection) {
-            // Wenn Kreuzung vorhanden, direkt verwenden
-            addressInput.value = formattedAddress;
-        } else {
-            // Nur Straße und Hausnummer für normale Adressen
-            let cleanAddress = "";
-            if (street) {
-                cleanAddress = street.long_name;
-            }
-            if (streetNumber) {
-                cleanAddress += ` ${streetNumber.long_name}`;
-            }
-            addressInput.value = cleanAddress.trim();
+        // Nur die Straße anzeigen
+        let formattedAddress = "";
+        if (street) {
+            formattedAddress = street.long_name; // Nur die Straße
         }
+        if (streetNumber) {
+            formattedAddress += ` ${streetNumber.long_name}`; // Hausnummer anhängen
+        }
+        addressInput.value = formattedAddress.trim();
 
         // Stadtteil anzeigen
         if (district) {
