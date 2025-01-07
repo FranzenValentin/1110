@@ -98,7 +98,7 @@ function loadEnv($filePath)
     const berlinCenter = { lat: 52.5200, lng: 13.4050 };
 
     const options = {
-        types: ['address'],
+        types: ['geocode'], // Erlaubt Adressen und Kreuzungen
         componentRestrictions: { country: "DE" },
     };
 
@@ -107,7 +107,7 @@ function loadEnv($filePath)
     autocomplete.setBounds(
         new google.maps.Circle({
             center: berlinCenter,
-            radius: 15000
+            radius: 15000,
         }).getBounds()
     );
     autocomplete.setOptions({ strictBounds: true });
@@ -120,20 +120,22 @@ function loadEnv($filePath)
             return;
         }
 
+        // Extrahiere relevante Adressbestandteile
+        const street = place.address_components.find(component =>
+            component.types.includes("route")
+        );
+        const streetNumber = place.address_components.find(component =>
+            component.types.includes("street_number")
+        );
         const city = place.address_components.find(component =>
             component.types.includes("locality")
         );
-
         const district = place.address_components.find(component =>
             component.types.includes("sublocality_level_1") || component.types.includes("political")
         );
 
-        const housenumber = place.address_components.find(component =>
-            component.types.includes("street_number")
-        );
-
-        if (!city || city.long_name !== "Berlin" || !housenumber) {
-            alert("Bitte wählen Sie eine Hausadresse in Berlin aus.");
+        if (!city || city.long_name !== "Berlin") {
+            alert("Bitte wählen Sie eine Adresse oder Kreuzung in Berlin aus.");
             addressInput.value = "";
             districtInput.value = "";
             latitudeEl.textContent = "n/a";
@@ -141,15 +143,24 @@ function loadEnv($filePath)
             return;
         }
 
+        // Adresse bereinigen: Nur Straße und Hausnummer
+        let formattedAddress = "";
+        if (street) {
+            formattedAddress = street.long_name;
+        }
+        if (streetNumber) {
+            formattedAddress += ` ${streetNumber.long_name}`;
+        }
+        addressInput.value = formattedAddress.trim();
+
+        // Stadtteil anzeigen
         if (district) {
             districtInput.value = district.long_name;
         } else {
-            districtInput.value = city.long_name; // Fallback
+            districtInput.value = "Unbekannt";
         }
 
-        let formattedAddress = place.formatted_address.replace(/, Berlin, Deutschland$/, '').replace(/, Deutschland$/, '');
-        addressInput.value = formattedAddress;
-
+        // Koordinaten anzeigen
         const latitude = place.geometry.location.lat();
         const longitude = place.geometry.location.lng();
         latitudeEl.textContent = latitude.toFixed(6);
