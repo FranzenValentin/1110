@@ -87,15 +87,26 @@ function loadEnv($filePath)
             const addressInput = document.getElementById("address-input");
             const districtInput = document.getElementById("district-input");
 
+            // Create a LatLng for Berlin's center
+            const berlinCenter = { lat: 52.5200, lng: 13.4050 };
+
             // Einschränkungen auf Adresstypen und Land
             const options = {
                 types: ['address'], // Nur Adressen
                 componentRestrictions: { country: "DE" }, // Nur Deutschland
-                locationRestriction: 'circle:20000@52.5200,13.4050' // 20 km radius from Berlin's center
             };
 
             // Google Places Autocomplete initialisieren
             const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
+
+            // Set location and radius with strict bounds
+            autocomplete.setBounds(
+                new google.maps.Circle({
+                    center: berlinCenter,
+                    radius: 15000 // 15 km radius to cover Berlin
+                }).getBounds()
+            );
+            autocomplete.setOptions({ strictBounds: true });
 
             // Automatisches Ausfüllen des Stadtteils
             autocomplete.addListener("place_changed", () => {
@@ -128,6 +139,7 @@ function loadEnv($filePath)
         // Initialisiere Autocomplete bei Seitenladevorgang
         document.addEventListener("DOMContentLoaded", initAutocomplete);
     </script>
+
 
 </body>
 </html>
