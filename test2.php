@@ -33,7 +33,26 @@ function loadEnv($filePath)
         }
     }
 }
+
+// OpenStreetMap API-Aufruf
+if (isset($_GET['lat']) && isset($_GET['lon'])) {
+    $lat = htmlspecialchars($_GET['lat']);
+    $lon = htmlspecialchars($_GET['lon']);
+    $url = "https://nominatim.openstreetmap.org/reverse?format=json&lat=$lat&lon=$lon";
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'YourAppName/1.0 (your@email.com)');
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    header('Content-Type: application/json');
+    echo $response;
+    exit;
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="de">
@@ -166,6 +185,49 @@ function initAutocomplete() {
 }
 
 document.addEventListener("DOMContentLoaded", initAutocomplete);
+
+
+function initAutocomplete() {
+        const addressInput = document.getElementById("address-input");
+        const districtEl = document.getElementById("district");
+        const latitudeEl = document.getElementById("latitude");
+        const longitudeEl = document.getElementById("longitude");
+
+        const options = {
+            types: ['geocode'],
+            componentRestrictions: { country: "DE" },
+        };
+
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
+
+        autocomplete.addListener("place_changed", () => {
+            const place = autocomplete.getPlace();
+            if (!place.geometry || !place.geometry.location) {
+                alert("Koordinaten konnten nicht bestimmt werden.");
+                return;
+            }
+
+            // Koordinaten
+            const latitude = place.geometry.location.lat();
+            const longitude = place.geometry.location.lng();
+            latitudeEl.textContent = latitude.toFixed(6);
+            longitudeEl.textContent = longitude.toFixed(6);
+
+            // Nominatim API-Aufruf
+            fetch(`?lat=${latitude}&lon=${longitude}`)
+                .then(response => response.json())
+                .then(data => {
+                    const suburb = data.address.suburb || data.address.neighbourhood || "n/a";
+                    districtEl.textContent = suburb;
+                })
+                .catch(error => {
+                    console.error("Fehler beim Abrufen der Daten von OpenStreetMap:", error);
+                    districtEl.textContent = "Fehler";
+                });
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", initAutocomplete);
     </script>
 </body>
 </html>
