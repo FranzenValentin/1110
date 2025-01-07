@@ -806,7 +806,6 @@ if ($zeitResult) {
 
             <button type="submit">Einsätze exportieren</button>
 
-
             </div>
         </section>
     </main>
