@@ -178,8 +178,8 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                 ':stadtteil' => $stadtteil,
                                 ':fahrzeug_name' => $fahrzeug_name,
                                 ':dienst_id' => $dienst_id,
-                               // ':latitude' => document.getElementById("latitude"),
-                                //':longitude' => document.getElementById("longitude");
+                                ':latitude' => latitudeEl.value,
+                                ':longitude' => longitudeEl.value
                             ]);
                         
                             echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
