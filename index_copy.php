@@ -178,8 +178,8 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                 ':stadtteil' => $stadtteil,
                                 ':fahrzeug_name' => $fahrzeug_name,
                                 ':dienst_id' => $dienst_id,
-                                //':latitude' => $coordinates["latitude"],
-                                //':longitude' => $coordinates["longitude"]
+                                ':latitude' => $coordinates["latitude"],
+                                ':longitude' => $coordinates["longitude"]
                             ]);
                         
                             echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
@@ -284,7 +284,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                 <div>
                     <label for="address-input">Adresse:</label>
                     <input type="text" id="address-input" name="adresse" placeholder="Linienstraße 128" required>
-                    <input type="text" id="latitude" name="latitude">
+                    <input type="hidden" id="latitude" name="latitude">
                     <input type="hidden" id="longitude" name="longitude">
                 </div>
                     <div id="coordinates">
