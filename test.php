@@ -62,39 +62,46 @@
         input.addEventListener("input", async function () {
             const query = this.value.trim();
 
-            // Clear previous suggestions
+            // Alte Vorschläge löschen
             autocompleteList.innerHTML = "";
 
-            if (query.length < 3) return; // Start searching only after 3 characters
+            if (query.length < 3) return; // Suche startet ab 3 Zeichen
 
             try {
+                // Photon API Anfrage
                 const response = await fetch(
                     `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lang=de&limit=10`
                 );
 
                 const data = await response.json();
 
-                // Filter results for Berlin and include house numbers
+                // Filtere Ergebnisse auf Berlin und Hausnummern
                 const filteredData = data.features.filter((item) => {
                     const city = item.properties.city || item.properties.locality;
                     return city === "Berlin" && item.properties.housenumber;
                 });
 
-                // Populate suggestions
+                // Vorschläge hinzufügen
                 filteredData.forEach((item) => {
                     const suggestion = document.createElement("div");
                     suggestion.textContent = `${item.properties.street} ${item.properties.housenumber}, ${item.properties.city}`;
                     suggestion.addEventListener("click", function () {
                         input.value = suggestion.textContent;
-                        autocompleteList.innerHTML = "";
+                        autocompleteList.innerHTML = ""; // Liste leeren
                     });
                     autocompleteList.appendChild(suggestion);
                 });
+
+                // Keine Ergebnisse
+                if (filteredData.length === 0) {
+                    autocompleteList.innerHTML = '<div style="text-align: center; color: gray;">Keine Ergebnisse</div>';
+                }
             } catch (error) {
                 console.error("Fehler beim Abrufen der Daten:", error);
             }
         });
 
+        // Schließe Vorschläge, wenn außerhalb geklickt wird
         document.addEventListener("click", function (event) {
             if (!autocompleteList.contains(event.target) && event.target !== input) {
                 autocompleteList.innerHTML = "";
