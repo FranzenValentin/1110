@@ -1,5 +1,4 @@
 <?php
-//API Key laden
 try {
     loadEnv(__DIR__ . '/../config.env');
 } catch (Exception $e) {
