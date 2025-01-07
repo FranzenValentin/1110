@@ -89,7 +89,7 @@ function loadEnv($filePath)
     </main>
 
     <script>
-        function initAutocomplete() {
+function initAutocomplete() {
     const addressInput = document.getElementById("address-input");
     const districtInput = document.getElementById("district-input");
     const latitudeEl = document.getElementById("latitude");
@@ -127,6 +127,9 @@ function loadEnv($filePath)
         const streetNumber = place.address_components.find(component =>
             component.types.includes("street_number")
         );
+        const intersection = place.address_components.find(component =>
+            component.types.includes("intersection")
+        );
         const city = place.address_components.find(component =>
             component.types.includes("locality")
         );
@@ -143,15 +146,21 @@ function loadEnv($filePath)
             return;
         }
 
-        // Adresse bereinigen: Nur Straße und Hausnummer
-        let formattedAddress = "";
-        if (street) {
-            formattedAddress = street.long_name;
+        // Kreuzung oder Adresse bestimmen
+        if (intersection) {
+            // Wenn Kreuzung vorhanden, diese verwenden
+            addressInput.value = place.formatted_address;
+        } else {
+            // Nur Straße und Hausnummer für normale Adressen
+            let formattedAddress = "";
+            if (street) {
+                formattedAddress = street.long_name;
+            }
+            if (streetNumber) {
+                formattedAddress += ` ${streetNumber.long_name}`;
+            }
+            addressInput.value = formattedAddress.trim();
         }
-        if (streetNumber) {
-            formattedAddress += ` ${streetNumber.long_name}`;
-        }
-        addressInput.value = formattedAddress.trim();
 
         // Stadtteil anzeigen
         if (district) {
