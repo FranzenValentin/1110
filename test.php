@@ -89,7 +89,7 @@ function loadEnv($filePath)
     </main>
 
     <script>
-function initAutocomplete() {
+           function initAutocomplete() {
     const addressInput = document.getElementById("address-input");
     const districtInput = document.getElementById("district-input");
     const latitudeEl = document.getElementById("latitude");
@@ -146,20 +146,23 @@ function initAutocomplete() {
             return;
         }
 
-        // Kreuzung oder Adresse bestimmen
+        // Adresse bereinigen: Kreuzung oder normale Adresse
+        let formattedAddress = place.formatted_address;
+        formattedAddress = formattedAddress.replace(/, \d{5} Berlin, Deutschland$/, ''); // Entfernt ", 10117 Berlin, Deutschland"
+
         if (intersection) {
-            // Wenn Kreuzung vorhanden, diese verwenden
-            addressInput.value = place.formatted_address;
+            // Wenn Kreuzung vorhanden, direkt verwenden
+            addressInput.value = formattedAddress;
         } else {
             // Nur Straße und Hausnummer für normale Adressen
-            let formattedAddress = "";
+            let cleanAddress = "";
             if (street) {
-                formattedAddress = street.long_name;
+                cleanAddress = street.long_name;
             }
             if (streetNumber) {
-                formattedAddress += ` ${streetNumber.long_name}`;
+                cleanAddress += ` ${streetNumber.long_name}`;
             }
-            addressInput.value = formattedAddress.trim();
+            addressInput.value = cleanAddress.trim();
         }
 
         // Stadtteil anzeigen
