@@ -7,6 +7,7 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 
 require 'db.php';
 
+
 // Debugging: Aktuelle Uhrzeit anzeigen
 // Zeitzone setzen (z. B. für Deutschland)
 date_default_timezone_set('Europe/Berlin');
@@ -40,36 +41,6 @@ $dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC);
 // Setze $dienstVorhanden auf 1, wenn ein aktiver Dienst existiert
 $dienstVorhanden = $dienstResult ? 1 : 0;
 
-// Funktion zur Abfrage der Koordinaten von OpenStreetMap
-function fetchCoordinates($address, $district) {
-    $fullAddress = $address . ', ' . $district . ', Berlin, Deutschland';
-    $url = "https://nominatim.openstreetmap.org/search?format=json&q=" . urlencode($fullAddress);
-    
-    $options = [
-        "http" => [
-            "header" => "User-Agent: EinsatzGeoCoder/1.0 (https://example.com; kontakt@example.com)\r\n"
-        ]
-    ];
-    $context = stream_context_create($options);
-
-    try {
-        $response = file_get_contents($url, false, $context);
-        $data = json_decode($response, true);
-        
-        if (!empty($data)) {
-            return [
-                "latitude" => $data[0]["lat"],
-                "longitude" => $data[0]["lon"]
-            ];
-        } else {
-            return ["latitude" => null, "longitude" => null];
-        }
-    } catch (Exception $e) {
-        error_log("Fehler beim Abrufen der Koordinaten: " . $e->getMessage());
-        return ["latitude" => null, "longitude" => null];
-    }
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -79,6 +50,7 @@ function fetchCoordinates($address, $district) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Einsatzverwaltung</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=<?= htmlspecialchars($apiKey) ?>&libraries=places"></script>
 </head>
 <body>
 <header>
@@ -120,6 +92,9 @@ function fetchCoordinates($address, $district) {
                         $adresse = $_POST['adresse'] ?? null;
                         $stadtteil = $_POST['stadtteil'] ?? null;
                         $fahrzeug_name = $_POST['fahrzeug_name'] ?? null;
+                        $latitude = $_POST['latitude'] ?? null;
+                        $longitude = $_POST['longitude'] ?? null;
+
                 
                         // Alarmuhrzeit ins richtige Format konvertieren
                         if ($alarmuhrzeit) {
@@ -188,8 +163,6 @@ function fetchCoordinates($address, $district) {
                             if ($exists) {
                                 throw new Exception("Ein Einsatz mit dieser Einsatznummer, Alarmuhrzeit und Fahrzeug existiert bereits.");
                             }
-
-                            $coordinates = fetchCoordinates($adresse, $stadtteil);
                         
                             // Einsatz in die Datenbank einfügen
                             $einsatzQuery = "
@@ -208,8 +181,8 @@ function fetchCoordinates($address, $district) {
                                 ':stadtteil' => $stadtteil,
                                 ':fahrzeug_name' => $fahrzeug_name,
                                 ':dienst_id' => $dienst_id,
-                                ':latitude' => $coordinates["latitude"],
-                                ':longitude' => $coordinates["longitude"]
+                                ':latitude' => $latitude,
+                                ':longitude' => $longitude
                             ]);
                         
                             echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
@@ -241,6 +214,7 @@ function fetchCoordinates($address, $district) {
                                         type="datetime-local" 
                                         id="alarmuhrzeit" 
                                         name="alarmuhrzeit" 
+                                        value="<?= htmlspecialchars($_POST['alarmuhrzeit'] ?? '') ?>" 
                                         oninput="syncZurueckzeit()" 
                                         onfocus="hidePlaceholder('alarmPlaceholder')" 
                                         onblur="showPlaceholder('alarmPlaceholder', this)" 
@@ -256,12 +230,14 @@ function fetchCoordinates($address, $district) {
                                         type="datetime-local" 
                                         id="zurueckzeit" 
                                         name="zurueckzeit" 
+                                        value="<?= htmlspecialchars($_POST['zurueckzeit'] ?? '') ?>" 
                                         onfocus="hidePlaceholder('returnPlaceholder')" 
                                         onblur="showPlaceholder('returnPlaceholder', this)" 
                                         style="padding-left: 5px;">
                                     <span id="returnPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Zurückzeit</span>
                                 </div>
                             </td>
+
 
                             <script>
                                 function syncZurueckzeit() {
@@ -311,10 +287,13 @@ function fetchCoordinates($address, $district) {
 
                 <!-- Straße Hausnummer -->
                 <td id="dick">
-                   <div>
-                        <input type="text" id="adresse" name="adresse" placeholder="Straße + Hausnummer" >
-                    </div>
+                <div>
+                    <input type="text" id="address-input" name="adresse" placeholder="Linienstraße 128" style="width: 100%;"required>
+                    <input type="hidden" id="latitude" name="latitude">
+                    <input type="hidden" id="longitude" name="longitude">
+                </div>
                 </td>
+                
                 <!-- Stadtteil -->
                 <td id="dick">
                     <div>
@@ -462,95 +441,97 @@ if ($zeitResult) {
 ?>
 
 
+        <!-- Aktueller Dienst -->
+        <section id="aktueller-dienste">
+            <h2>
+                Aktueller Dienst mit dem 
+                <form method="GET" class="dropdown-form" style="display: inline;">
+                    <select name="fahrzeug" onchange="this.form.submit()">
+                        <?php foreach ($fahrzeuge as $fahrzeug): ?>
+                            <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
+                                <?php echo ($fahrzeugId == $fahrzeug['id']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($fahrzeug['name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </form>
+                <?php echo "vom $inDienstZeit bis zum $ausserDienstZeit"; ?>
+            </h2>
 
-<section id="aktueller-dienste">
-    <h2>
-        Aktueller Dienst mit dem 
-        <form method="GET" class="dropdown-form" style="display: inline;">
-            <select name="fahrzeug" onchange="this.form.submit()">
-                <?php foreach ($fahrzeuge as $fahrzeug): ?>
-                    <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
-                        <?php echo ($fahrzeugId == $fahrzeug['id']) ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($fahrzeug['name']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </form>
-        <?php echo "vom $inDienstZeit bis zum $ausserDienstZeit"; ?>
-    </h2>
-</section>
 
-<table>
-    <thead>
-        <tr>
-            <th>Funktion</th>
-            <th>Aktuell zugewiesen</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php
-        // Besatzungsrollen definieren
-        $roles = [
-            'stf' => 'Staffel-Führer',
-            'ma' => 'Maschinist',
-            'atf' => 'Angriffstrupp-Führer',
-            'atm' => 'Angriffstrupp-Mann',
-            'wtf' => 'Wassertrupp-Führer',
-            'wtm' => 'Wassertrupp-Mann',
-            'prakt' => 'Praktikant'
-        ];
+            <table>
+                <thead>
+                    <tr>
+                        <th>Funktion</th>
+                        <th>Aktuell zugewiesen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    // Besatzungsrollen definieren
+                    $roles = [
+                        'stf' => 'Staffel-Führer',
+                        'ma' => 'Maschinist',
+                        'atf' => 'Angriffstrupp-Führer',
+                        'atm' => 'Angriffstrupp-Mann',
+                        'wtf' => 'Wassertrupp-Führer',
+                        'wtm' => 'Wassertrupp-Mann',
+                        'prakt' => 'Praktikant'
+                    ];
 
-        // Besatzung basierend auf den ermittelten Zeiten und Fahrzeug abrufen
-        $besatzungStmt = $pdo->prepare("
-            SELECT * 
-            FROM dienste 
-            WHERE fahrzeug_id = :fahrzeug_id 
-            AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:inDienstZeit, '%d.%m.%Y %H:%i')
-            AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:ausserDienstZeit, '%d.%m.%Y %H:%i') OR :ausserDienstZeit IS NULL)
-        ");
-        $besatzungStmt->execute([
-            ':fahrzeug_id' => $fahrzeugId,
-            ':inDienstZeit' => $inDienstZeit,
-            ':ausserDienstZeit' => $ausserDienstZeit !== 'Keine Daten' ? $ausserDienstZeit : null,
-        ]);
-        $besatzung = $besatzungStmt->fetch();
+                    // Besatzung basierend auf den ermittelten Zeiten und Fahrzeug abrufen
+                    $besatzungStmt = $pdo->prepare("
+                        SELECT * 
+                        FROM dienste 
+                        WHERE fahrzeug_id = :fahrzeug_id 
+                        AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:inDienstZeit, '%d.%m.%Y %H:%i')
+                        AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:ausserDienstZeit, '%d.%m.%Y %H:%i') OR :ausserDienstZeit IS NULL)
+                    ");
+                    $besatzungStmt->execute([
+                        ':fahrzeug_id' => $fahrzeugId,
+                        ':inDienstZeit' => $inDienstZeit,
+                        ':ausserDienstZeit' => $ausserDienstZeit !== 'Keine Daten' ? $ausserDienstZeit : null,
+                    ]);
+                    $besatzung = $besatzungStmt->fetch();
 
-        foreach ($roles as $key => $label) {
-            echo "<tr>";
-            echo "<td>$label</td>";
+                    foreach ($roles as $key => $label) {
+                        echo "<tr>";
+                        echo "<td>$label</td>";
 
-            if ($besatzung && $besatzung[$key . '_id']) {
-                // Zuweisung der Person abrufen
-                $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM personal WHERE id = :id");
-                $personStmt->execute([':id' => $besatzung[$key . '_id']]);
-                $person = $personStmt->fetch();
+                        if ($besatzung && $besatzung[$key . '_id']) {
+                            // Zuweisung der Person abrufen
+                            $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM personal WHERE id = :id");
+                            $personStmt->execute([':id' => $besatzung[$key . '_id']]);
+                            $person = $personStmt->fetch();
 
-                // Name anzeigen, falls vorhanden
-                echo "<td>" . ($person['name'] ?? '<em>NICHT BESETZT</em>') . "</td>";
-            } else {
-                // Kein Name zugewiesen
-                echo "<td><em>NICHT BESETZT</em></td>";
-            }
+                            // Name anzeigen, falls vorhanden
+                            echo "<td>" . ($person['name'] ?? '<em>NICHT BESETZT</em>') . "</td>";
+                        } else {
+                            // Kein Name zugewiesen
+                            echo "<td><em>NICHT BESETZT</em></td>";
+                        }
 
-            echo "</tr>";
-        }
-        ?>
-    </tbody>
-</table>
-<div class="button-container">
-<button onclick="location.href='editDienst.php?fahrzeug=<?php echo $fahrzeugId; ?>&dienst=<?php echo $dienstId; ?>'">Dienst bearbeiten</button>
-<button onclick="location.href='neuerDienst.php'">Weiterer Dienst</button>
-</div>
-
-<?php else: ?>
-        <!-- Keine Dienste vorhanden -->
-        <section>
-            <h2 style="text-align: center;">Zum Anlegen eines Einsatzes muss zuerst ein Dienst eingetragen werden.</h2>
-            <div class="button-container" style="text-align: center;">
-            <button onclick="location.href='neuerDienst.php'" style="padding: 16px 20px;font-size: 1.1em;">Neuer Dienst</button>
+                        echo "</tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+            <div class="button-container">
+            <button onclick="location.href='editDienst.php?fahrzeug=<?php echo $fahrzeugId; ?>&dienst=<?php echo $dienstId; ?>'">Dienst bearbeiten</button>
+            <button onclick="location.href='neuerDienst.php'">Weiterer Dienst</button>
             </div>
+
+            <?php else: ?>
+                <!-- Keine Dienste vorhanden -->
+                <section>
+                    <h2 style="text-align: center;">Zum Anlegen eines Einsatzes muss zuerst ein Dienst eingetragen werden.</h2>
+                    <div class="button-container" style="text-align: center;">
+                    <button onclick="location.href='neuerDienst.php'" style="padding: 16px 20px;font-size: 1.1em;">Neuer Dienst</button>
+                    </div>
+                </section>
+            <?php endif; ?>
+
         </section>
-    <?php endif; ?>
 
 
         <!-- Letzte Einsätze -->
@@ -625,147 +606,148 @@ if ($zeitResult) {
 
         <!-- letzten 5 Dienste -->
         <section id="letzte-dienste">
-    <h2>Letzte 5 Dienste</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Fahrzeug</th>
-                <th>Zeitraum</th>
-                <th>Dienst Dauer</th>
-                <th>Alarmanzahl</th>
-                <th>Alarme (Stichworte)</th>
-                <th>Personal</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            // Debug: Fahrzeug-ID und Abfrage-Start
-            echo "<!-- Debug: Starte Abfrage für letzte 5 Dienste -->";
+                <h2>Letzte 5 Dienste</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fahrzeug</th>
+                            <th>Zeitraum</th>
+                            <th>Dienst Dauer</th>
+                            <th>Alarmanzahl</th>
+                            <th>Alarme (Stichworte)</th>
+                            <th>Personal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        // Debug: Fahrzeug-ID und Abfrage-Start
+                        echo "<!-- Debug: Starte Abfrage für letzte 5 Dienste -->";
 
-            // SQL-Abfrage, um die letzten 5 Dienste aller Fahrzeuge nach Datum zu erhalten
-            $dienstStmt = $pdo->prepare("
-                SELECT d.id, f.name AS fahrzeug_name, d.inDienstZeit, d.ausserDienstZeit,
-                       TIMESTAMPDIFF(MINUTE, STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i'), 
-                       STR_TO_DATE(d.ausserDienstZeit, '%d.%m.%Y %H:%i')) AS dauer_minuten,
-                       COUNT(e.id) AS alarmanzahl
-                FROM dienste d
-                JOIN fahrzeuge f ON f.id = d.fahrzeug_id
-                LEFT JOIN einsaetze e ON e.dienst_id = d.id
-                GROUP BY d.id
-                ORDER BY STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i') DESC
-                LIMIT 5
-            ");
+                        // SQL-Abfrage, um die letzten 5 Dienste aller Fahrzeuge nach Datum zu erhalten
+                        $dienstStmt = $pdo->prepare("
+                            SELECT d.id, f.name AS fahrzeug_name, d.inDienstZeit, d.ausserDienstZeit,
+                                TIMESTAMPDIFF(MINUTE, STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i'), 
+                                STR_TO_DATE(d.ausserDienstZeit, '%d.%m.%Y %H:%i')) AS dauer_minuten,
+                                COUNT(e.id) AS alarmanzahl
+                            FROM dienste d
+                            JOIN fahrzeuge f ON f.id = d.fahrzeug_id
+                            LEFT JOIN einsaetze e ON e.dienst_id = d.id
+                            GROUP BY d.id
+                            ORDER BY STR_TO_DATE(d.inDienstZeit, '%d.%m.%Y %H:%i') DESC
+                            LIMIT 5
+                        ");
 
-            try {
-                $dienstStmt->execute();
-                $dienste = $dienstStmt->fetchAll(PDO::FETCH_ASSOC);
+                        try {
+                            $dienstStmt->execute();
+                            $dienste = $dienstStmt->fetchAll(PDO::FETCH_ASSOC);
 
-                // Debug: Ergebnis der Abfrage anzeigen
-                echo "<!-- Debug: Dienste = " . print_r($dienste, true) . " -->";
-            } catch (PDOException $e) {
-                echo "<p style='color: red;'>Fehler bei der Abfrage der letzten Dienste: " . htmlspecialchars($e->getMessage()) . "</p>";
-            }
+                            // Debug: Ergebnis der Abfrage anzeigen
+                            echo "<!-- Debug: Dienste = " . print_r($dienste, true) . " -->";
+                        } catch (PDOException $e) {
+                            echo "<p style='color: red;'>Fehler bei der Abfrage der letzten Dienste: " . htmlspecialchars($e->getMessage()) . "</p>";
+                        }
 
-            foreach ($dienste as $dienst) {
-                // Personal abrufen
-                $personalStmt = $pdo->prepare("
-                    SELECT 
-                        CASE 
-                            WHEN p.id = d.stf_id THEN 'StF'
-                            WHEN p.id = d.ma_id THEN 'Ma'
-                            WHEN p.id = d.atf_id THEN 'AtF'
-                            WHEN p.id = d.atm_id THEN 'AtM'
-                            WHEN p.id = d.wtf_id THEN 'WtF'
-                            WHEN p.id = d.wtm_id THEN 'WtM'
-                            WHEN p.id = d.prakt_id THEN 'Prakt'
-                        END AS funktion,
-                        CONCAT(p.vorname, ' ', p.nachname) AS name
-                    FROM personal p
-                    JOIN dienste d ON p.id IN (
-                        d.stf_id, d.ma_id, d.atf_id, d.atm_id, d.wtf_id, d.wtm_id, d.prakt_id
-                    )
-                    WHERE d.id = :dienst_id
-                ");
-                try {
-                    $personalStmt->execute([':dienst_id' => $dienst['id']]);
-                    $personalList = $personalStmt->fetchAll(PDO::FETCH_ASSOC);
+                        foreach ($dienste as $dienst) {
+                            // Personal abrufen
+                            $personalStmt = $pdo->prepare("
+                                SELECT 
+                                    CASE 
+                                        WHEN p.id = d.stf_id THEN 'StF'
+                                        WHEN p.id = d.ma_id THEN 'Ma'
+                                        WHEN p.id = d.atf_id THEN 'AtF'
+                                        WHEN p.id = d.atm_id THEN 'AtM'
+                                        WHEN p.id = d.wtf_id THEN 'WtF'
+                                        WHEN p.id = d.wtm_id THEN 'WtM'
+                                        WHEN p.id = d.prakt_id THEN 'Prakt'
+                                    END AS funktion,
+                                    CONCAT(p.vorname, ' ', p.nachname) AS name
+                                FROM personal p
+                                JOIN dienste d ON p.id IN (
+                                    d.stf_id, d.ma_id, d.atf_id, d.atm_id, d.wtf_id, d.wtm_id, d.prakt_id
+                                )
+                                WHERE d.id = :dienst_id
+                            ");
+                            try {
+                                $personalStmt->execute([':dienst_id' => $dienst['id']]);
+                                $personalList = $personalStmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    // Debug: Personal-Ergebnisse anzeigen
-                    echo "<!-- Debug: Personal für Dienst-ID {$dienst['id']} = " . print_r($personalList, true) . " -->";
-                } catch (PDOException $e) {
-                    echo "<p style='color: red;'>Fehler beim Abrufen des Personals: " . htmlspecialchars($e->getMessage()) . "</p>";
-                }
+                                // Debug: Personal-Ergebnisse anzeigen
+                                echo "<!-- Debug: Personal für Dienst-ID {$dienst['id']} = " . print_r($personalList, true) . " -->";
+                            } catch (PDOException $e) {
+                                echo "<p style='color: red;'>Fehler beim Abrufen des Personals: " . htmlspecialchars($e->getMessage()) . "</p>";
+                            }
 
-                // Alarme (Stichworte) abrufen
-                $alarmeStmt = $pdo->prepare("
-                    SELECT stichwort
-                    FROM einsaetze
-                    WHERE dienst_id = :dienst_id
-                ");
-                try {
-                    $alarmeStmt->execute([':dienst_id' => $dienst['id']]);
-                    $alarmeList = $alarmeStmt->fetchAll(PDO::FETCH_COLUMN);
+                            // Alarme (Stichworte) abrufen
+                            $alarmeStmt = $pdo->prepare("
+                                SELECT stichwort
+                                FROM einsaetze
+                                WHERE dienst_id = :dienst_id
+                            ");
+                            try {
+                                $alarmeStmt->execute([':dienst_id' => $dienst['id']]);
+                                $alarmeList = $alarmeStmt->fetchAll(PDO::FETCH_COLUMN);
 
-                    // Debug: Alarm-Ergebnisse anzeigen
-                    echo "<!-- Debug: Alarme für Dienst-ID {$dienst['id']} = " . print_r($alarmeList, true) . " -->";
-                } catch (PDOException $e) {
-                    echo "<p style='color: red;'>Fehler beim Abrufen der Alarme: " . htmlspecialchars($e->getMessage()) . "</p>";
-                }
+                                // Debug: Alarm-Ergebnisse anzeigen
+                                echo "<!-- Debug: Alarme für Dienst-ID {$dienst['id']} = " . print_r($alarmeList, true) . " -->";
+                            } catch (PDOException $e) {
+                                echo "<p style='color: red;'>Fehler beim Abrufen der Alarme: " . htmlspecialchars($e->getMessage()) . "</p>";
+                            }
 
-                // Dienst Dauer im Format 00:00 Stunden berechnen
-                $dauer_stunden = floor($dienst['dauer_minuten'] / 60);
-                $dauer_minuten = $dienst['dauer_minuten'] % 60;
-                $dauer_formatiert = sprintf('%02d:%02d Stunden', $dauer_stunden, $dauer_minuten);
+                            // Dienst Dauer im Format 00:00 Stunden berechnen
+                            $dauer_stunden = floor($dienst['dauer_minuten'] / 60);
+                            $dauer_minuten = $dienst['dauer_minuten'] % 60;
+                            $dauer_formatiert = sprintf('%02d:%02d Stunden', $dauer_stunden, $dauer_minuten);
 
-                echo "<tr>";
-                echo "<td>" . htmlspecialchars($dienst['fahrzeug_name']) . "</td>";
-                echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . " - " . htmlspecialchars($dienst['ausserDienstZeit']) . "</td>";
-                echo "<td>" . htmlspecialchars($dauer_formatiert) . "</td>";
-                echo "<td>" . htmlspecialchars($dienst['alarmanzahl']) . "</td>";
+                            echo "<tr>";
+                            echo "<td>" . htmlspecialchars($dienst['fahrzeug_name']) . "</td>";
+                            echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . " - " . htmlspecialchars($dienst['ausserDienstZeit']) . "</td>";
+                            echo "<td>" . htmlspecialchars($dauer_formatiert) . "</td>";
+                            echo "<td>" . htmlspecialchars($dienst['alarmanzahl']) . "</td>";
 
 
-                
-                // Alarme (Stichworte) ausklappbar
-                echo "<td>
-                        <details>
-                            <summary>Details anzeigen</summary>
-                            <ul>";
-                foreach ($alarmeList as $alarm) {
-                    echo "<li>" . htmlspecialchars($alarm) . "</li>";
-                }
-                echo "    </ul>
-                        </details>
-                      </td>";
+                            
+                            // Alarme (Stichworte) ausklappbar
+                            echo "<td>
+                                    <details>
+                                        <summary>Details anzeigen</summary>
+                                        <ul>";
+                            foreach ($alarmeList as $alarm) {
+                                echo "<li>" . htmlspecialchars($alarm) . "</li>";
+                            }
+                            echo "    </ul>
+                                    </details>
+                                </td>";
 
-                // Personal ausklappbar mit Funktion
-                echo "<td>
-                        <details>
-                            <summary>Details anzeigen</summary>
-                            <ul>";
-                foreach ($personalList as $person) {
-                    echo "<li>" . htmlspecialchars($person['funktion'] . ': ' . $person['name']) . "</li>";
-                }
-                echo "    </ul>
-                        </details>
-                      </td>";
+                            // Personal ausklappbar mit Funktion
+                            echo "<td>
+                                    <details>
+                                        <summary>Details anzeigen</summary>
+                                        <ul>";
+                            foreach ($personalList as $person) {
+                                echo "<li>" . htmlspecialchars($person['funktion'] . ': ' . $person['name']) . "</li>";
+                            }
+                            echo "    </ul>
+                                    </details>
+                                </td>";
 
-                echo "</tr>";
-            }
-            ?>
-        </tbody>
-    </table>
-        <div class="button-container">
-            <button onclick="location.href='alleDienste.php'">Alle Dienste</button>
-        </div>
-</section>
+                            echo "</tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
+                    <div class="button-container">
+                        <button onclick="location.href='alleDienste.php'">Alle Dienste</button>
+                    </div>
+            
+        </section>
 
-<!-- Navigation als Buttons -->
-<section id="navigation-buttons">
-            <h2>Statistiken</h2>
-            <div class="button-container">
-                <button onclick="location.href='statistiken.php'">Gesamtstatistiken anzeigen</button>
-                <button onclick="location.href='statistiken_personal.php'">Personal-Statistiken anzeigen</button>
-            </div>
+        <!-- Navigation als Buttons -->
+        <section id="navigation-buttons">
+                    <h2>Statistiken</h2>
+                    <div class="button-container">
+                        <button onclick="location.href='statistiken.php'">Gesamtstatistiken anzeigen</button>
+                        <button onclick="location.href='statistiken_personal.php'">Personal-Statistiken anzeigen</button>
+                    </div>
         </section>
 
 
@@ -809,5 +791,68 @@ if ($zeitResult) {
             </div>
         </section>
     </main>
+    <script>
+    function initAutocomplete() {
+        const addressInput = document.getElementById("address-input");
+        const latitudeEl = document.getElementById("latitude");
+        const longitudeEl = document.getElementById("longitude");
+
+        const berlinBounds = {
+            north: 52.6755,
+            south: 52.3383,
+            east: 13.7612,
+            west: 13.0884,
+        };
+
+        const options = {
+            types: ["geocode"],
+            componentRestrictions: { country: "DE" },
+            fields: ["address_components", "geometry"],
+        };
+
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
+        autocomplete.setBounds(new google.maps.LatLngBounds(
+            { lat: berlinBounds.south, lng: berlinBounds.west },
+            { lat: berlinBounds.north, lng: berlinBounds.east }
+        ));
+        autocomplete.setOptions({ strictBounds: true });
+
+        autocomplete.addListener("place_changed", () => {
+            const place = autocomplete.getPlace();
+
+            if (!place.geometry || !place.geometry.location) {
+                alert("Koordinaten konnten nicht bestimmt werden.");
+                return;
+            }
+
+            const latitude = place.geometry.location.lat();
+            const longitude = place.geometry.location.lng();
+            latitudeEl.value = latitude.toFixed(10); // Genauigkeit von 10 Dezimalstellen
+            longitudeEl.value = longitude.toFixed(10);
+
+            let formattedAddress = "";
+
+            // Kreuzungen erkennen
+            const intersection = place.address_components.find(comp => comp.types.includes("intersection"));
+            if (intersection) {
+                formattedAddress = intersection.long_name;
+            } else {
+                // Standard: Straße und Hausnummer kombinieren
+                const street = place.address_components.find(comp => comp.types.includes("route"));
+                const streetNumber = place.address_components.find(comp => comp.types.includes("street_number"));
+
+                formattedAddress = street ? street.long_name : "";
+                if (streetNumber) {
+                    formattedAddress += " " + streetNumber.long_name;
+                }
+            }
+
+            addressInput.value = formattedAddress.trim();
+        });
+    }
+
+
+    document.addEventListener("DOMContentLoaded", initAutocomplete);
+</script>
 </body>
 </html>
