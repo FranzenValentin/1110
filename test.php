@@ -1,15 +1,16 @@
 <?php
-
 try {
     loadEnv(__DIR__ . '/../config.env');
 } catch (Exception $e) {
-    echo "Fehler: " . $e->getMessage();
+    die("Fehler: " . $e->getMessage());
 }
 
-// Definiere den Zugangscode
-$apiKey = $_ENV['GOOGLE_MAPS_API_KEY'];
+$apiKey = $_ENV['GOOGLE_MAPS_API_KEY'] ?? null;
 
-// Funktion, um die .env-Datei zu laden
+if (empty($apiKey)) {
+    die("Google Maps API-Key fehlt oder ist ungültig.");
+}
+
 function loadEnv($filePath)
 {
     if (!file_exists($filePath)) {
@@ -32,6 +33,7 @@ function loadEnv($filePath)
         }
     }
 }
+
 
 ?>
 
@@ -88,80 +90,75 @@ function loadEnv($filePath)
 
     <script>
         function initAutocomplete() {
-            const addressInput = document.getElementById("address-input");
-            const districtInput = document.getElementById("district-input");
-            const latitudeEl = document.getElementById("latitude");
-            const longitudeEl = document.getElementById("longitude");
+    const addressInput = document.getElementById("address-input");
+    const districtInput = document.getElementById("district-input");
+    const latitudeEl = document.getElementById("latitude");
+    const longitudeEl = document.getElementById("longitude");
 
-            // Create a LatLng for Berlin's center
-            const berlinCenter = { lat: 52.5200, lng: 13.4050 };
+    const berlinCenter = { lat: 52.5200, lng: 13.4050 };
 
-            // Einschränkungen auf Adresstypen und Land
-            const options = {
-                types: ['address'], // Nur Adressen
-                componentRestrictions: { country: "DE" }, // Nur Deutschland
-            };
+    const options = {
+        types: ['address'],
+        componentRestrictions: { country: "DE" },
+    };
 
-            // Google Places Autocomplete initialisieren
-            const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
+    const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
 
-            // Set location and radius with strict bounds
-            autocomplete.setBounds(
-                new google.maps.Circle({
-                    center: berlinCenter,
-                    radius: 15000 // 15 km radius to cover Berlin
-                }).getBounds()
-            );
-            autocomplete.setOptions({ strictBounds: true });
+    autocomplete.setBounds(
+        new google.maps.Circle({
+            center: berlinCenter,
+            radius: 15000
+        }).getBounds()
+    );
+    autocomplete.setOptions({ strictBounds: true });
 
-            // Automatisches Ausfüllen des Stadtteils, Bereinigung der Adresse, und Koordinaten
-            autocomplete.addListener("place_changed", () => {
-                const place = autocomplete.getPlace();
+    autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
 
-                if (place.address_components) {
-                    const city = place.address_components.find(component =>
-                        component.types.includes("locality")
-                    );
-                    const district = place.address_components.find(component =>
-                        component.types.includes("sublocality_level_1") || component.types.includes("political")
-                    );
-                    const housenumber = place.address_components.find(component =>
-                        component.types.includes("street_number")
-                    );
-
-                    // Überprüfen, ob die Adresse in Berlin liegt
-                    if (city && city.long_name === "Berlin" && housenumber) {
-                        if (district) {
-                            districtInput.value = district.long_name;
-                        } else {
-                            districtInput.value = "Unbekannt";
-                        }
-
-                        // Bereinige die Adresse: Entferne "Berlin, Deutschland"
-                        let formattedAddress = place.formatted_address;
-                        formattedAddress = formattedAddress.replace(/, Berlin, Deutschland$/, ''); // Entferne genau "Berlin, Deutschland"
-                        formattedAddress = formattedAddress.replace(/, Deutschland$/, ''); // Fallback: Entferne "Deutschland" falls nötig
-                        addressInput.value = formattedAddress;
-
-                        // Zeige die Koordinaten an
-                        const latitude = place.geometry.location.lat();
-                        const longitude = place.geometry.location.lng();
-                        latitudeEl.textContent = latitude.toFixed(6); // Breite
-                        longitudeEl.textContent = longitude.toFixed(6); // Länge
-                    } else {
-                        alert("Bitte wählen Sie eine Hausadresse in Berlin aus.");
-                        addressInput.value = ""; // Adresse leeren
-                        districtInput.value = ""; // Stadtteil leeren
-                        latitudeEl.textContent = "n/a";
-                        longitudeEl.textContent = "n/a";
-                    }
-                }
-            });
-
+        if (!place.geometry || !place.geometry.location) {
+            alert("Koordinaten konnten nicht bestimmt werden.");
+            return;
         }
 
-        // Initialisiere Autocomplete bei Seitenladevorgang
-        document.addEventListener("DOMContentLoaded", initAutocomplete);
+        const city = place.address_components.find(component =>
+            component.types.includes("locality")
+        );
+
+        const district = place.address_components.find(component =>
+            component.types.includes("sublocality_level_1") || component.types.includes("political")
+        );
+
+        const housenumber = place.address_components.find(component =>
+            component.types.includes("street_number")
+        );
+
+        if (!city || city.long_name !== "Berlin" || !housenumber) {
+            alert("Bitte wählen Sie eine Hausadresse in Berlin aus.");
+            addressInput.value = "";
+            districtInput.value = "";
+            latitudeEl.textContent = "n/a";
+            longitudeEl.textContent = "n/a";
+            return;
+        }
+
+        if (district) {
+            districtInput.value = district.long_name;
+        } else {
+            districtInput.value = city.long_name; // Fallback
+        }
+
+        let formattedAddress = place.formatted_address.replace(/, Berlin, Deutschland$/, '').replace(/, Deutschland$/, '');
+        addressInput.value = formattedAddress;
+
+        const latitude = place.geometry.location.lat();
+        const longitude = place.geometry.location.lng();
+        latitudeEl.textContent = latitude.toFixed(6);
+        longitudeEl.textContent = longitude.toFixed(6);
+    });
+}
+
+document.addEventListener("DOMContentLoaded", initAutocomplete);
+
     </script>
 </body>
 </html>
