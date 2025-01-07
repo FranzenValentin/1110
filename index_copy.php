@@ -1,4 +1,40 @@
 <?php
+// Debugging aktivieren
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+echo "Debugging: Script gestartet.<br>";
+
+function loadEnv($filePath)
+{
+    echo "Debugging: loadEnv gestartet mit Datei: $filePath<br>";
+
+    if (!file_exists($filePath)) {
+        throw new Exception("Die Datei $filePath wurde nicht gefunden.");
+    }
+
+    $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    foreach ($lines as $line) {
+        echo "Debugging: Verarbeite Zeile: " . htmlspecialchars($line) . "<br>";
+        if (strpos(trim($line), '#') === 0 || trim($line) === '') {
+            echo "Debugging: Kommentar oder leere Zeile übersprungen.<br>";
+            continue;
+        }
+        $parts = explode('=', $line, 2);
+        if (count($parts) !== 2) {
+            throw new Exception("Ungültige Zeile in der .env-Datei: " . htmlspecialchars($line));
+        }
+        $key = trim($parts[0]);
+        $value = trim($parts[1], '"\' ');
+        echo "Debugging: Setze Umgebungsvariable $key = $value<br>";
+        $_ENV[$key] = $value;
+        $_SERVER[$key] = $value;
+    }
+}
+
+echo "Debugging: Lade Umgebungsvariablen.<br>";
 try {
     loadEnv(__DIR__ . '/../config.env');
 } catch (Exception $e) {
@@ -11,42 +47,25 @@ if (empty($apiKey)) {
     die("Google Maps API-Key fehlt oder ist ungültig.");
 }
 
-function loadEnv($filePath)
-{
-    if (!file_exists($filePath)) {
-        throw new Exception("Die Datei $filePath wurde nicht gefunden.");
-    }
+echo "Debugging: API-Key erfolgreich geladen: " . htmlspecialchars($apiKey) . "<br>";
 
-    $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-    foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) {
-            continue;
-        }
-        $parts = explode('=', $line, 2);
-        if (count($parts) == 2) {
-            $key = trim($parts[0]);
-            $value = trim($parts[1]);
-            $value = trim($value, '"\'');
-            $_ENV[$key] = $value;
-            $_SERVER[$key] = $value;
-        }
-    }
-
-}
+// Session starten
+echo "Debugging: Starte Session.<br>";
 session_start();
 if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     header('Location: login.php'); // Weiterleitung zur Login-Seite
     exit;
 }
 
+echo "Debugging: Session erfolgreich gestartet.<br>";
+
+// Datenbankverbindung herstellen
 require 'db.php';
 
-
-// Debugging: Aktuelle Uhrzeit anzeigen
-// Zeitzone setzen (z. B. für Deutschland)
+echo "Debugging: Zeitzone setzen.<br>";
 date_default_timezone_set('Europe/Berlin');
 $aktuelleUhrzeit = date('d.m.Y H:i');
+echo "Debugging: Aktuelle Uhrzeit: $aktuelleUhrzeit<br>";
 
 // SQL-Abfrage
 $dienstQuery = "
@@ -58,25 +77,28 @@ $dienstQuery = "
     LIMIT 1
 ";
 
-$dienstStmt = $pdo->prepare($dienstQuery);
-$dienstStmt->execute([
-    ':fahrzeug_id' => $fahrzeugId,
-    ':aktuelleUhrzeit' => $aktuelleUhrzeit,
-]);
-
-$dienstStmt = $pdo->prepare($dienstQuery);
-$dienstStmt->execute([
-    ':fahrzeug_id' => $fahrzeugId,
-    ':aktuelleUhrzeit' => $aktuelleUhrzeit,
-]);
-
-// Dienstdaten abrufen, falls ein aktiver Dienst existiert
-$dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC);
+echo "Debugging: SQL-Abfrage vorbereiten.<br>";
+try {
+    $dienstStmt = $pdo->prepare($dienstQuery);
+    $fahrzeugId = 1; // Beispielwert, sollte aus dem Kontext kommen
+    echo "Debugging: SQL-Abfrage ausführen.<br>";
+    $dienstStmt->execute([
+        ':fahrzeug_id' => $fahrzeugId,
+        ':aktuelleUhrzeit' => $aktuelleUhrzeit,
+    ]);
+    echo "Debugging: SQL-Abfrage erfolgreich ausgeführt.<br>";
+    $dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC);
+    echo "Debugging: SQL-Ergebnis: " . htmlspecialchars(json_encode($dienstResult)) . "<br>";
+} catch (PDOException $e) {
+    die("Datenbankfehler: " . $e->getMessage());
+}
 
 // Setze $dienstVorhanden auf 1, wenn ein aktiver Dienst existiert
 $dienstVorhanden = $dienstResult ? 1 : 0;
+echo "Debugging: Dienst vorhanden: $dienstVorhanden<br>";
 
 ?>
+
 
 <!DOCTYPE html>
 <html lang="de">
