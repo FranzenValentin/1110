@@ -109,6 +109,7 @@ function fetchCoordinates($address, $district) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Einsatzverwaltung</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=<?= htmlspecialchars($apiKey) ?>&libraries=places"></script>
 </head>
 <body>
 <header>
@@ -342,7 +343,10 @@ function fetchCoordinates($address, $district) {
                 <!-- Straße Hausnummer -->
                 <td id="dick">
                    <div>
-                        <input type="text" id="adresse" name="adresse" placeholder="Straße + Hausnummer" >
+                       <input type="text" id="address-input" placeholder="Linienstraße 128">   
+                    </div>
+                    <div id="coordinates">
+                <p>Koordinaten: <span id="latitude">n/a</span>, <span id="longitude">n/a</span></p>
                     </div>
                 </td>
                 <!-- Stadtteil -->
