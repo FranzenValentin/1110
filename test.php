@@ -68,30 +68,25 @@
             if (query.length < 3) return; // Start searching only after 3 characters
 
             try {
-                // Define a viewbox for Berlin (coordinates: South-West and North-East corners)
-                const berlinViewBox = "13.0884,52.3383,13.7612,52.6755"; // Approx Berlin bounding box
-
-                // Fetch suggestions from Nominatim API limited to the Berlin area
                 const response = await fetch(
-                    `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${encodeURIComponent(query)}&viewbox=${berlinViewBox}&bounded=1`
+                    `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lang=de&limit=10`
                 );
 
                 const data = await response.json();
 
-                if (data.length === 0) return;
-
-                // Filter results to include only those with house numbers
-                const filteredData = data.filter((item) => {
-                    return item.address && item.address.house_number; // Only addresses with house numbers
+                // Filter results for Berlin and include house numbers
+                const filteredData = data.features.filter((item) => {
+                    const city = item.properties.city || item.properties.locality;
+                    return city === "Berlin" && item.properties.housenumber;
                 });
 
                 // Populate suggestions
                 filteredData.forEach((item) => {
                     const suggestion = document.createElement("div");
-                    suggestion.textContent = `${item.address.road} ${item.address.house_number}, ${item.address.city || item.address.town || item.address.village}`;
+                    suggestion.textContent = `${item.properties.street} ${item.properties.housenumber}, ${item.properties.city}`;
                     suggestion.addEventListener("click", function () {
-                        input.value = suggestion.textContent; // Set the selected value
-                        autocompleteList.innerHTML = ""; // Clear suggestions
+                        input.value = suggestion.textContent;
+                        autocompleteList.innerHTML = "";
                     });
                     autocompleteList.appendChild(suggestion);
                 });
@@ -100,10 +95,9 @@
             }
         });
 
-        // Close the list if clicked outside
         document.addEventListener("click", function (event) {
             if (!autocompleteList.contains(event.target) && event.target !== input) {
-                autocompleteList.innerHTML = ""; // Clear suggestions
+                autocompleteList.innerHTML = "";
             }
         });
     </script>
