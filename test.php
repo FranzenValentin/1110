@@ -113,8 +113,8 @@
                         // Zeige die Koordinaten an
                         const latitude = place.geometry.location.lat();
                         const longitude = place.geometry.location.lng();
-                        latitudeEl.textContent = latitude.toFixed(10); // Breite
-                        longitudeEl.textContent = longitude.toFixed(10); // Länge
+                        latitudeEl.textContent = latitude.toFixed(6); // Breite
+                        longitudeEl.textContent = longitude.toFixed(6); // Länge
 
                         console.log("Valid address:", formattedAddress);
                         console.log("Koordinaten:", latitude, longitude);
