@@ -1,29 +1,23 @@
+<?php
+
+try {
+    loadEnv(__DIR__ . '/../config.env');
+} catch (Exception $e) {
+    echo "Fehler: " . $e->getMessage();
+}
+
+// Definiere den Zugangscode
+$apiKey = $_ENV['GOOGLE_MAPS_API_KEY'];
+
+?>
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Berliner Hausadressen Autovervollständigung</title>
+    <title>Google Places Autovervollständigung</title>
     <style>
-        #autocomplete-list {
-            position: absolute;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background-color: white;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-        }
-
-        #autocomplete-list div {
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        #autocomplete-list div:hover {
-            background-color: #e9e9e9;
-        }
-
         .form-container {
             max-width: 500px;
             margin: 50px auto;
@@ -41,6 +35,8 @@
             border-radius: 4px;
         }
     </style>
+    <!-- Google Places API laden -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=<?= htmlspecialchars($apiKey) ?>&libraries=places"></script>
 </head>
 <body>
     <header style="text-align: center; padding: 20px;">
@@ -50,63 +46,48 @@
     <main>
         <div class="form-container">
             <label for="address-input">Hausadresse eingeben:</label>
-            <input type="text" id="address-input" placeholder="Geben Sie eine Adresse in Berlin ein" autocomplete="off">
-            <div id="autocomplete-list"></div>
+            <input type="text" id="address-input" placeholder="Geben Sie eine Adresse in Berlin ein">
         </div>
     </main>
 
     <script>
-        const input = document.getElementById("address-input");
-        const autocompleteList = document.getElementById("autocomplete-list");
+        function initAutocomplete() {
+            const input = document.getElementById("address-input");
 
-        input.addEventListener("input", async function () {
-            const query = this.value.trim();
+            // Einschränkungen auf Berlin und Adresstypen
+            const options = {
+                types: ['address'], // Nur Adressen
+                componentRestrictions: { country: "DE" }, // Nur Deutschland
+            };
 
-            // Alte Vorschläge löschen
-            autocompleteList.innerHTML = "";
+            // Google Places Autocomplete initialisieren
+            const autocomplete = new google.maps.places.Autocomplete(input, options);
 
-            if (query.length < 3) return; // Suche startet ab 3 Zeichen
+            // Filtern der Ergebnisse nur für Berlin
+            autocomplete.addListener("place_changed", () => {
+                const place = autocomplete.getPlace();
 
-            try {
-                // Photon API Anfrage
-                const response = await fetch(
-                    `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lang=de&limit=10`
-                );
+                // Überprüfen, ob die Adresse in Berlin liegt
+                if (place.address_components) {
+                    const city = place.address_components.find(component =>
+                        component.types.includes("locality")
+                    );
+                    const housenumber = place.address_components.find(component =>
+                        component.types.includes("street_number")
+                    );
 
-                const data = await response.json();
-
-                // Filtere Ergebnisse auf Berlin und Hausnummern
-                const filteredData = data.features.filter((item) => {
-                    const city = item.properties.city || item.properties.locality;
-                    return city === "Berlin" && item.properties.housenumber;
-                });
-
-                // Vorschläge hinzufügen
-                filteredData.forEach((item) => {
-                    const suggestion = document.createElement("div");
-                    suggestion.textContent = `${item.properties.street} ${item.properties.housenumber}, ${item.properties.city}`;
-                    suggestion.addEventListener("click", function () {
-                        input.value = suggestion.textContent;
-                        autocompleteList.innerHTML = ""; // Liste leeren
-                    });
-                    autocompleteList.appendChild(suggestion);
-                });
-
-                // Keine Ergebnisse
-                if (filteredData.length === 0) {
-                    autocompleteList.innerHTML = '<div style="text-align: center; color: gray;">Keine Ergebnisse</div>';
+                    if (city && city.long_name === "Berlin" && housenumber) {
+                        console.log("Valid address:", place.formatted_address);
+                    } else {
+                        alert("Bitte wählen Sie eine Hausadresse in Berlin aus.");
+                        input.value = ""; // Eingabe leeren
+                    }
                 }
-            } catch (error) {
-                console.error("Fehler beim Abrufen der Daten:", error);
-            }
-        });
+            });
+        }
 
-        // Schließe Vorschläge, wenn außerhalb geklickt wird
-        document.addEventListener("click", function (event) {
-            if (!autocompleteList.contains(event.target) && event.target !== input) {
-                autocompleteList.innerHTML = "";
-            }
-        });
+        // Initialisiere Autocomplete bei Seitenladevorgang
+        document.addEventListener("DOMContentLoaded", initAutocomplete);
     </script>
 </body>
 </html>
