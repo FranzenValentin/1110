@@ -285,7 +285,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                 <!-- Straße Hausnummer -->
                 <td id="dick">
                 <div>
-                    <input type="text" id="address-input" name="adresse" placeholder="Linienstraße 128" required>
+                    <input type="text" id="address-input" name="adresse" placeholder="Linienstraße 128" style="width: 100%;"required>
                     <input type="hidden" id="latitude" name="latitude">
                     <input type="hidden" id="longitude" name="longitude">
                 </div>
