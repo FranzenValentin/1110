@@ -76,36 +76,6 @@ $dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC);
 // Setze $dienstVorhanden auf 1, wenn ein aktiver Dienst existiert
 $dienstVorhanden = $dienstResult ? 1 : 0;
 
-// Funktion zur Abfrage der Koordinaten von OpenStreetMap
-function fetchCoordinates($address, $district) {
-    $fullAddress = $address . ', ' . $district . ', Berlin, Deutschland';
-    $url = "https://nominatim.openstreetmap.org/search?format=json&q=" . urlencode($fullAddress);
-    
-    $options = [
-        "http" => [
-            "header" => "User-Agent: EinsatzGeoCoder/1.0 (https://example.com; kontakt@example.com)\r\n"
-        ]
-    ];
-    $context = stream_context_create($options);
-
-    try {
-        $response = file_get_contents($url, false, $context);
-        $data = json_decode($response, true);
-        
-        if (!empty($data)) {
-            return [
-                "latitude" => $data[0]["lat"],
-                "longitude" => $data[0]["lon"]
-            ];
-        } else {
-            return ["latitude" => null, "longitude" => null];
-        }
-    } catch (Exception $e) {
-        error_log("Fehler beim Abrufen der Koordinaten: " . $e->getMessage());
-        return ["latitude" => null, "longitude" => null];
-    }
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -225,8 +195,6 @@ function fetchCoordinates($address, $district) {
                             if ($exists) {
                                 throw new Exception("Ein Einsatz mit dieser Einsatznummer, Alarmuhrzeit und Fahrzeug existiert bereits.");
                             }
-
-                            $coordinates = fetchCoordinates($adresse, $stadtteil);
                         
                             // Einsatz in die Datenbank einfügen
                             $einsatzQuery = "
@@ -245,8 +213,8 @@ function fetchCoordinates($address, $district) {
                                 ':stadtteil' => $stadtteil,
                                 ':fahrzeug_name' => $fahrzeug_name,
                                 ':dienst_id' => $dienst_id,
-                                ':latitude' => $coordinates["latitude"],
-                                ':longitude' => $coordinates["longitude"]
+                                //':latitude' => $coordinates["latitude"],
+                                //':longitude' => $coordinates["longitude"]
                             ]);
                         
                             echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
