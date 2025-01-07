@@ -138,7 +138,9 @@ function loadEnv($filePath)
                         }
 
                         // Bereinige die Adresse: Entferne "Berlin, Deutschland"
-                        const formattedAddress = place.formatted_address.replace(/, Berlin, Deutschland$/, '');
+                        let formattedAddress = place.formatted_address;
+                        formattedAddress = formattedAddress.replace(/, Berlin, Deutschland$/, ''); // Entferne genau "Berlin, Deutschland"
+                        formattedAddress = formattedAddress.replace(/, Deutschland$/, ''); // Fallback: Entferne "Deutschland" falls nötig
                         addressInput.value = formattedAddress;
 
                         // Zeige die Koordinaten an
@@ -146,9 +148,6 @@ function loadEnv($filePath)
                         const longitude = place.geometry.location.lng();
                         latitudeEl.textContent = latitude.toFixed(6); // Breite
                         longitudeEl.textContent = longitude.toFixed(6); // Länge
-
-                        console.log("Valid address:", formattedAddress);
-                        console.log("Koordinaten:", latitude, longitude);
                     } else {
                         alert("Bitte wählen Sie eine Hausadresse in Berlin aus.");
                         addressInput.value = ""; // Adresse leeren
@@ -158,6 +157,7 @@ function loadEnv($filePath)
                     }
                 }
             });
+
         }
 
         // Initialisiere Autocomplete bei Seitenladevorgang
