@@ -214,6 +214,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                         type="datetime-local" 
                                         id="alarmuhrzeit" 
                                         name="alarmuhrzeit" 
+                                        value="<?= htmlspecialchars($_POST['alarmuhrzeit'] ?? '') ?>" 
                                         oninput="syncZurueckzeit()" 
                                         onfocus="hidePlaceholder('alarmPlaceholder')" 
                                         onblur="showPlaceholder('alarmPlaceholder', this)" 
@@ -229,12 +230,14 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                         type="datetime-local" 
                                         id="zurueckzeit" 
                                         name="zurueckzeit" 
+                                        value="<?= htmlspecialchars($_POST['zurueckzeit'] ?? '') ?>" 
                                         onfocus="hidePlaceholder('returnPlaceholder')" 
                                         onblur="showPlaceholder('returnPlaceholder', this)" 
                                         style="padding-left: 5px;">
                                     <span id="returnPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Zurückzeit</span>
                                 </div>
                             </td>
+
 
                             <script>
                                 function syncZurueckzeit() {
