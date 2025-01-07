@@ -59,7 +59,7 @@ if (isset($_GET['lat']) && isset($_GET['lon'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Places - Detaillierte Adressinformationen</title>
+    <title>Google Places & OpenStreetMap - Detaillierte Adressinformationen</title>
     <style>
         .form-container {
             max-width: 600px;
@@ -78,12 +78,6 @@ if (isset($_GET['lat']) && isset($_GET['lon'])) {
             border-radius: 4px;
         }
 
-        .form-container label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            display: block;
-        }
-
         .details {
             margin-top: 20px;
             font-size: 14px;
@@ -94,11 +88,12 @@ if (isset($_GET['lat']) && isset($_GET['lon'])) {
             margin: 5px 0;
         }
     </style>
+    <!-- Google Maps API -->
     <script src="https://maps.googleapis.com/maps/api/js?key=<?= htmlspecialchars($apiKey) ?>&libraries=places"></script>
 </head>
 <body>
     <header style="text-align: center; padding: 20px;">
-        <h1>Google Places - Detaillierte Adressinformationen</h1>
+        <h1>Google Places & OpenStreetMap</h1>
     </header>
 
     <main>
@@ -106,128 +101,90 @@ if (isset($_GET['lat']) && isset($_GET['lon'])) {
             <label for="address-input">Hausadresse eingeben:</label>
             <input type="text" id="address-input" placeholder="Linienstraße 128">
             
-            <div class="details" id="details">
+            <div class="details">
                 <h3>Details zur Adresse:</h3>
                 <p><strong>Formatted Address:</strong> <span id="formatted-address">n/a</span></p>
                 <p><strong>Koordinaten:</strong> Breite: <span id="latitude">n/a</span>, Länge: <span id="longitude">n/a</span></p>
+                <p><strong>Stadtteil:</strong> <span id="district">n/a</span></p>
                 <p><strong>Postleitzahl:</strong> <span id="postal-code">n/a</span></p>
                 <p><strong>Stadt:</strong> <span id="city">n/a</span></p>
                 <p><strong>Bundesland:</strong> <span id="state">n/a</span></p>
                 <p><strong>Land:</strong> <span id="country">n/a</span></p>
-                <h4>Alle Adresskomponenten:</h4>
-                <div id="all-components">n/a</div>
             </div>
         </div>
     </main>
 
     <script>
-function initAutocomplete() {
-    const addressInput = document.getElementById("address-input");
-    const formattedAddressEl = document.getElementById("formatted-address");
-    const latitudeEl = document.getElementById("latitude");
-    const longitudeEl = document.getElementById("longitude");
-    const postalCodeEl = document.getElementById("postal-code");
-    const cityEl = document.getElementById("city");
-    const stateEl = document.getElementById("state");
-    const countryEl = document.getElementById("country");
-    const allComponentsEl = document.getElementById("all-components");
+        function initAutocomplete() {
+            const addressInput = document.getElementById("address-input");
+            const formattedAddressEl = document.getElementById("formatted-address");
+            const latitudeEl = document.getElementById("latitude");
+            const longitudeEl = document.getElementById("longitude");
+            const districtEl = document.getElementById("district");
+            const postalCodeEl = document.getElementById("postal-code");
+            const cityEl = document.getElementById("city");
+            const stateEl = document.getElementById("state");
+            const countryEl = document.getElementById("country");
 
-    const options = {
-        types: ['geocode'], // Erlaubt Adressen
-        componentRestrictions: { country: "DE" },
-        fields: ['address_components', 'formatted_address', 'geometry'], // Nur relevante Felder
-    };
+            // Google Maps Autocomplete Initialisierung
+            const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+                types: ['geocode'], // Erlaubt Adressen
+                componentRestrictions: { country: "DE" }, // Nur Deutschland
+            });
 
-    const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
+            // Event Listener: Google Maps liefert neue Daten
+            autocomplete.addListener("place_changed", () => {
+                const place = autocomplete.getPlace();
 
-    autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
+                if (!place.geometry || !place.geometry.location) {
+                    alert("Koordinaten konnten nicht bestimmt werden.");
+                    return;
+                }
 
-        if (!place.geometry || !place.geometry.location) {
-            alert("Koordinaten konnten nicht bestimmt werden.");
-            return;
+                // Google Maps: Koordinaten
+                const latitude = place.geometry.location.lat();
+                const longitude = place.geometry.location.lng();
+                latitudeEl.textContent = latitude.toFixed(6);
+                longitudeEl.textContent = longitude.toFixed(6);
+
+                // Google Maps: Adresskomponenten
+                const addressComponents = place.address_components;
+                const postalCode = addressComponents.find(component =>
+                    component.types.includes("postal_code")
+                );
+                const city = addressComponents.find(component =>
+                    component.types.includes("locality")
+                );
+                const state = addressComponents.find(component =>
+                    component.types.includes("administrative_area_level_1")
+                );
+                const country = addressComponents.find(component =>
+                    component.types.includes("country")
+                );
+
+                // Daten im Frontend anzeigen
+                formattedAddressEl.textContent = place.formatted_address || "n/a";
+                postalCodeEl.textContent = postalCode ? postalCode.long_name : "n/a";
+                cityEl.textContent = city ? city.long_name : "n/a";
+                stateEl.textContent = state ? state.long_name : "n/a";
+                countryEl.textContent = country ? country.long_name : "n/a";
+
+                // OpenStreetMap API: Stadtteil abfragen
+                fetch(`?lat=${latitude}&lon=${longitude}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const district = data.address.suburb || data.address.neighbourhood || "n/a";
+                        districtEl.textContent = district;
+                    })
+                    .catch(error => {
+                        console.error("Fehler beim Abrufen der Daten von OpenStreetMap:", error);
+                        districtEl.textContent = "Fehler";
+                    });
+            });
         }
 
-        // Adresskomponenten extrahieren
-        const addressComponents = place.address_components;
-        const formattedAddress = place.formatted_address;
-        const latitude = place.geometry.location.lat();
-        const longitude = place.geometry.location.lng();
-
-        // Einzelne Felder zuweisen
-        const postalCode = addressComponents.find(component =>
-            component.types.includes("postal_code")
-        );
-        const city = addressComponents.find(component =>
-            component.types.includes("locality")
-        );
-        const state = addressComponents.find(component =>
-            component.types.includes("administrative_area_level_1")
-        );
-        const country = addressComponents.find(component =>
-            component.types.includes("country")
-        );
-
-        // HTML mit den extrahierten Daten aktualisieren
-        formattedAddressEl.textContent = formattedAddress || "n/a";
-        latitudeEl.textContent = latitude.toFixed(6);
-        longitudeEl.textContent = longitude.toFixed(6);
-        postalCodeEl.textContent = postalCode ? postalCode.long_name : "n/a";
-        cityEl.textContent = city ? city.long_name : "n/a";
-        stateEl.textContent = state ? state.long_name : "n/a";
-        countryEl.textContent = country ? country.long_name : "n/a";
-
-        // Alle Adresskomponenten anzeigen
-        allComponentsEl.innerHTML = addressComponents.map(component => `
-            <p><strong>${component.types.join(", ")}:</strong> ${component.long_name}</p>
-        `).join("");
-    });
-}
-
-document.addEventListener("DOMContentLoaded", initAutocomplete);
-
-
-function initAutocomplete() {
-        const addressInput = document.getElementById("address-input");
-        const districtEl = document.getElementById("district");
-        const latitudeEl = document.getElementById("latitude");
-        const longitudeEl = document.getElementById("longitude");
-
-        const options = {
-            types: ['geocode'],
-            componentRestrictions: { country: "DE" },
-        };
-
-        const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
-
-        autocomplete.addListener("place_changed", () => {
-            const place = autocomplete.getPlace();
-            if (!place.geometry || !place.geometry.location) {
-                alert("Koordinaten konnten nicht bestimmt werden.");
-                return;
-            }
-
-            // Koordinaten
-            const latitude = place.geometry.location.lat();
-            const longitude = place.geometry.location.lng();
-            latitudeEl.textContent = latitude.toFixed(6);
-            longitudeEl.textContent = longitude.toFixed(6);
-
-            // Nominatim API-Aufruf
-            fetch(`?lat=${latitude}&lon=${longitude}`)
-                .then(response => response.json())
-                .then(data => {
-                    const suburb = data.address.suburb || data.address.neighbourhood || "n/a";
-                    districtEl.textContent = suburb;
-                })
-                .catch(error => {
-                    console.error("Fehler beim Abrufen der Daten von OpenStreetMap:", error);
-                    districtEl.textContent = "Fehler";
-                });
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", initAutocomplete);
+        // Initialisierung von Autocomplete
+        document.addEventListener("DOMContentLoaded", initAutocomplete);
     </script>
 </body>
 </html>
