@@ -786,5 +786,58 @@ if ($zeitResult) {
             </div>
         </section>
     </main>
+    <script>
+    function initAutocomplete() {
+        const addressInput = document.getElementById("address-input");
+        const latitudeEl = document.getElementById("latitude");
+        const longitudeEl = document.getElementById("longitude");
+
+        const berlinBounds = {
+            north: 52.6755,
+            south: 52.3383,
+            east: 13.7612,
+            west: 13.0884,
+        };
+
+        const options = {
+            types: ["geocode"],
+            componentRestrictions: { country: "DE" },
+            fields: ["address_components", "geometry"],
+        };
+
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
+        autocomplete.setBounds(new google.maps.LatLngBounds(
+            { lat: berlinBounds.south, lng: berlinBounds.west },
+            { lat: berlinBounds.north, lng: berlinBounds.east }
+        ));
+        autocomplete.setOptions({ strictBounds: true });
+
+        autocomplete.addListener("place_changed", () => {
+            const place = autocomplete.getPlace();
+
+            if (!place.geometry || !place.geometry.location) {
+                alert("Koordinaten konnten nicht bestimmt werden.");
+                return;
+            }
+
+            const latitude = place.geometry.location.lat();
+            const longitude = place.geometry.location.lng();
+            latitudeEl.value = latitude.toFixed(6);
+            longitudeEl.value = longitude.toFixed(6);
+
+            const street = place.address_components.find(comp => comp.types.includes("route"));
+            const streetNumber = place.address_components.find(comp => comp.types.includes("street_number"));
+
+            let formattedAddress = street ? street.long_name : "";
+            if (streetNumber) {
+                formattedAddress += " " + streetNumber.long_name;
+            }
+
+            addressInput.value = formattedAddress.trim();
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", initAutocomplete);
+</script>
 </body>
 </html>
