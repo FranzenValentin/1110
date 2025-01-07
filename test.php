@@ -48,10 +48,6 @@
             
             <label for="district-input">Stadtteil:</label>
             <input type="text" id="district-input" placeholder="Mitte" readonly>
-
-            <div id="coordinates">
-                <p>Koordinaten: <span id="latitude"></span>, <span id="longitude"></span></p>
-            </div>
         </div>
     </main>
 
