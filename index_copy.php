@@ -824,20 +824,30 @@ if ($zeitResult) {
 
             const latitude = place.geometry.location.lat();
             const longitude = place.geometry.location.lng();
-            latitudeEl.value = latitude.toFixed(10);
+            latitudeEl.value = latitude.toFixed(10); // Genauigkeit von 10 Dezimalstellen
             longitudeEl.value = longitude.toFixed(10);
 
-            const street = place.address_components.find(comp => comp.types.includes("route"));
-            const streetNumber = place.address_components.find(comp => comp.types.includes("street_number"));
+            let formattedAddress = "";
 
-            let formattedAddress = street ? street.long_name : "";
-            if (streetNumber) {
-                formattedAddress += " " + streetNumber.long_name;
+            // Kreuzungen erkennen
+            const intersection = place.address_components.find(comp => comp.types.includes("intersection"));
+            if (intersection) {
+                formattedAddress = intersection.long_name;
+            } else {
+                // Standard: Straße und Hausnummer kombinieren
+                const street = place.address_components.find(comp => comp.types.includes("route"));
+                const streetNumber = place.address_components.find(comp => comp.types.includes("street_number"));
+
+                formattedAddress = street ? street.long_name : "";
+                if (streetNumber) {
+                    formattedAddress += " " + streetNumber.long_name;
+                }
             }
 
             addressInput.value = formattedAddress.trim();
         });
     }
+
 
     document.addEventListener("DOMContentLoaded", initAutocomplete);
 </script>
