@@ -1,9 +1,4 @@
 <?php
-session_start();
-if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-    header('Location: login.php'); // Weiterleitung zur Login-Seite
-    exit;
-}
 //API Key laden
 try {
     loadEnv(__DIR__ . '/../config.env');
@@ -38,9 +33,14 @@ function loadEnv($filePath)
             $_SERVER[$key] = $value;
         }
     }
-}
-require 'db.php';
 
+}session_start();
+if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
+    header('Location: login.php'); // Weiterleitung zur Login-Seite
+    exit;
+}
+
+require 'db.php';
 
 
 // Debugging: Aktuelle Uhrzeit anzeigen
