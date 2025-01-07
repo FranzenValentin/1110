@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Berliner Adressen Autovervollständigung</title>
+    <title>Berliner Hausadressen Autovervollständigung</title>
     <style>
         #autocomplete-list {
             position: absolute;
@@ -44,12 +44,12 @@
 </head>
 <body>
     <header style="text-align: center; padding: 20px;">
-        <h1>Berliner Adressen Autovervollständigung</h1>
+        <h1>Berliner Hausadressen Autovervollständigung</h1>
     </header>
 
     <main>
         <div class="form-container">
-            <label for="address-input">Adresse eingeben:</label>
+            <label for="address-input">Hausadresse eingeben:</label>
             <input type="text" id="address-input" placeholder="Geben Sie eine Adresse in Berlin ein" autocomplete="off">
             <div id="autocomplete-list"></div>
         </div>
@@ -80,12 +80,17 @@
 
                 if (data.length === 0) return;
 
+                // Filter results to include only those with house numbers
+                const filteredData = data.filter((item) => {
+                    return item.address && item.address.house_number; // Only addresses with house numbers
+                });
+
                 // Populate suggestions
-                data.forEach((item) => {
+                filteredData.forEach((item) => {
                     const suggestion = document.createElement("div");
-                    suggestion.textContent = `${item.display_name}`;
+                    suggestion.textContent = `${item.address.road} ${item.address.house_number}, ${item.address.city || item.address.town || item.address.village}`;
                     suggestion.addEventListener("click", function () {
-                        input.value = item.display_name; // Set the selected value
+                        input.value = suggestion.textContent; // Set the selected value
                         autocompleteList.innerHTML = ""; // Clear suggestions
                     });
                     autocompleteList.appendChild(suggestion);
