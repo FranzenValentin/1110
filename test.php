@@ -83,62 +83,68 @@ function loadEnv($filePath)
     </main>
 
     <script>
-        function initAutocomplete() {
-            const addressInput = document.getElementById("address-input");
-            const districtInput = document.getElementById("district-input");
+    function initAutocomplete() {
+        const addressInput = document.getElementById("address-input");
+        const districtInput = document.getElementById("district-input");
 
-            // Create a LatLng for Berlin's center
-            const berlinCenter = { lat: 52.5200, lng: 13.4050 };
+        // Create a LatLng for Berlin's center
+        const berlinCenter = { lat: 52.5200, lng: 13.4050 };
 
-            // Einschränkungen auf Adresstypen und Land
-            const options = {
-                types: ['address'], // Nur Adressen
-                componentRestrictions: { country: "DE" }, // Nur Deutschland
-            };
+        // Einschränkungen auf Adresstypen und Land
+        const options = {
+            types: ['address'], // Nur Adressen
+            componentRestrictions: { country: "DE" }, // Nur Deutschland
+        };
 
-            // Google Places Autocomplete initialisieren
-            const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
+        // Google Places Autocomplete initialisieren
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
 
-            // Set location and radius with strict bounds
-            autocomplete.setBounds(
-                new google.maps.Circle({
-                    center: berlinCenter,
-                    radius: 15000 // 15 km radius to cover Berlin
-                }).getBounds()
-            );
-            autocomplete.setOptions({ strictBounds: true });
+        // Set location and radius with strict bounds
+        autocomplete.setBounds(
+            new google.maps.Circle({
+                center: berlinCenter,
+                radius: 15000 // 15 km radius to cover Berlin
+            }).getBounds()
+        );
+        autocomplete.setOptions({ strictBounds: true });
 
-            // Automatisches Ausfüllen des Stadtteils
-            autocomplete.addListener("place_changed", () => {
-                const place = autocomplete.getPlace();
+        // Automatisches Ausfüllen des Stadtteils und Bereinigung der Adresse
+        autocomplete.addListener("place_changed", () => {
+            const place = autocomplete.getPlace();
 
-                if (place.address_components) {
-                    const city = place.address_components.find(component =>
-                        component.types.includes("locality")
-                    );
-                    const district = place.address_components.find(component =>
-                        component.types.includes("sublocality_level_1") || component.types.includes("political")
-                    );
-                    const housenumber = place.address_components.find(component =>
-                        component.types.includes("street_number")
-                    );
+            if (place.address_components) {
+                const city = place.address_components.find(component =>
+                    component.types.includes("locality")
+                );
+                const district = place.address_components.find(component =>
+                    component.types.includes("sublocality_level_1") || component.types.includes("political")
+                );
+                const housenumber = place.address_components.find(component =>
+                    component.types.includes("street_number")
+                );
 
-                    // Überprüfen, ob die Adresse in Berlin liegt
-                    if (city && city.long_name === "Berlin" && housenumber) {
-                        districtInput.value = district ? district.long_name : "Unbekannt";
-                        console.log("Valid address:", place.formatted_address);
-                    } else {
-                        alert("Bitte wählen Sie eine Hausadresse in Berlin aus.");
-                        addressInput.value = ""; // Adresse leeren
-                        districtInput.value = ""; // Stadtteil leeren
-                    }
+                // Überprüfen, ob die Adresse in Berlin liegt
+                if (city && city.long_name === "Berlin" && housenumber) {
+                    districtInput.value = district ? district.long_name : "Unbekannt";
+
+                    // Bereinige die Adresse: Entferne "Berlin, Deutschland"
+                    const formattedAddress = place.formatted_address.replace(/, Berlin, Deutschland$/, '');
+                    addressInput.value = formattedAddress;
+
+                    console.log("Valid address:", formattedAddress);
+                } else {
+                    alert("Bitte wählen Sie eine Hausadresse in Berlin aus.");
+                    addressInput.value = ""; // Adresse leeren
+                    districtInput.value = ""; // Stadtteil leeren
                 }
-            });
-        }
+            }
+        });
+    }
 
-        // Initialisiere Autocomplete bei Seitenladevorgang
-        document.addEventListener("DOMContentLoaded", initAutocomplete);
-    </script>
+    // Initialisiere Autocomplete bei Seitenladevorgang
+    document.addEventListener("DOMContentLoaded", initAutocomplete);
+</script>
+
 
 
 </body>
