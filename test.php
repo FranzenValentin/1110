@@ -91,7 +91,7 @@ function loadEnv($filePath)
             const options = {
                 types: ['address'], // Nur Adressen
                 componentRestrictions: { country: "DE" }, // Nur Deutschland
-                locationRestriction: 'rectangle:52.3383,13.0884|52.6755,13.7611' // Bounding box für Berlin
+                locationRestriction: 'circle:20000@52.5200,13.4050' // 20 km radius from Berlin's center
             };
 
             // Google Places Autocomplete initialisieren
