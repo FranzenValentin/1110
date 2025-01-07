@@ -290,9 +290,6 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                     <input type="hidden" id="latitude" name="latitude">
                     <input type="hidden" id="longitude" name="longitude">
                 </div>
-                    <div id="coordinates">
-                <p>Koordinaten: <span id="latitude">n/a</span>, <span id="longitude">n/a</span></p>
-                    </div>
                 </td>
                 
                 <!-- Stadtteil -->
