@@ -825,8 +825,8 @@ if ($zeitResult) {
 
             const latitude = place.geometry.location.lat();
             const longitude = place.geometry.location.lng();
-            latitudeEl.value = latitude.toFixed(6);
-            longitudeEl.value = longitude.toFixed(6);
+            latitudeEl.value = latitude.toFixed(10);
+            longitudeEl.value = longitude.toFixed(10);
 
             const street = place.address_components.find(comp => comp.types.includes("route"));
             const streetNumber = place.address_components.find(comp => comp.types.includes("street_number"));
