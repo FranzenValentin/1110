@@ -7,6 +7,36 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 
 require 'db.php';
 
+//API Key laden
+$apiKey = $_ENV['GOOGLE_MAPS_API_KEY'] ?? null;
+
+if (empty($apiKey)) {
+    die("Google Maps API-Key fehlt oder ist ungültig.");
+}
+
+function loadEnv($filePath)
+{
+    if (!file_exists($filePath)) {
+        throw new Exception("Die Datei $filePath wurde nicht gefunden.");
+    }
+
+    $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+        $parts = explode('=', $line, 2);
+        if (count($parts) == 2) {
+            $key = trim($parts[0]);
+            $value = trim($parts[1]);
+            $value = trim($value, '"\'');
+            $_ENV[$key] = $value;
+            $_SERVER[$key] = $value;
+        }
+    }
+}
+
 // Debugging: Aktuelle Uhrzeit anzeigen
 // Zeitzone setzen (z. B. für Deutschland)
 date_default_timezone_set('Europe/Berlin');
