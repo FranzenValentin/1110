@@ -91,7 +91,10 @@ function loadEnv($filePath)
             const options = {
                 types: ['address'], // Nur Adressen
                 componentRestrictions: { country: "DE" }, // Nur Deutschland
+                location: new google.maps.LatLng(52.5200, 13.4050), // Mittelpunkt von Berlin
+                radius: 15000 // Umkreis von 15 km
             };
+
 
             // Google Places Autocomplete initialisieren
             const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
