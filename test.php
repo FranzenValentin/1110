@@ -96,6 +96,7 @@ function loadEnv($filePath)
             };
 
 
+
             // Google Places Autocomplete initialisieren
             const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
 
