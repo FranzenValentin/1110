@@ -42,7 +42,7 @@ function loadEnv($filePath)
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Places Autovervollständigung</title>
+    <title>Google Places Autovervollständigung - Berlin</title>
     <style>
         .form-container {
             max-width: 500px;
@@ -66,112 +66,96 @@ function loadEnv($filePath)
             margin-bottom: 5px;
             display: block;
         }
+
+        #coordinates {
+            font-size: 14px;
+            margin-top: 10px;
+            color: #333;
+        }
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?key=<?= htmlspecialchars($apiKey) ?>&libraries=places"></script>
 </head>
 <body>
     <header style="text-align: center; padding: 20px;">
-        <h1>Berliner Adress- und Stadtteil-Autovervollständigung</h1>
+        <h1>Berliner Adress-Autovervollständigung</h1>
     </header>
 
     <main>
         <div class="form-container">
             <label for="address-input">Hausadresse eingeben:</label>
             <input type="text" id="address-input" placeholder="Linienstraße 128">
-            
-            <label for="district-input">Stadtteil:</label>
-            <input type="text" id="district-input" placeholder="Mitte" readonly>
 
             <div id="coordinates">
-                <p>Koordinaten: <span id="latitude"></span>, <span id="longitude"></span></p>
+                <p>Koordinaten: <span id="latitude">n/a</span>, <span id="longitude">n/a</span></p>
             </div>
         </div>
     </main>
 
     <script>
-function initAutocomplete() {
-    const addressInput = document.getElementById("address-input");
-    const districtInput = document.getElementById("district-input");
-    const latitudeEl = document.getElementById("latitude");
-    const longitudeEl = document.getElementById("longitude");
+        function initAutocomplete() {
+            const addressInput = document.getElementById("address-input");
+            const latitudeEl = document.getElementById("latitude");
+            const longitudeEl = document.getElementById("longitude");
 
-    const berlinCenter = { lat: 52.5200, lng: 13.4050 };
+            // Grenzen von Berlin definieren (strict bounds)
+            const berlinBounds = {
+                north: 52.6755, // Nördlichster Punkt von Berlin
+                south: 52.3383, // Südlichster Punkt von Berlin
+                east: 13.7612,  // Östlichster Punkt von Berlin
+                west: 13.0884,  // Westlichster Punkt von Berlin
+            };
 
-    const options = {
-        types: ['geocode'], // Erlaubt Adressen
-        componentRestrictions: { country: "DE" },
-        fields: ['address_components', 'formatted_address', 'geometry'], // Einschränkung auf relevante Felder
-    };
+            const options = {
+                types: ['geocode'], // Nur Adressen erlauben
+                componentRestrictions: { country: "DE" }, // Nur Deutschland
+                fields: ['address_components', 'geometry'], // Nur relevante Felder abrufen
+            };
 
-    const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
+            const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
 
-    autocomplete.setBounds(
-        new google.maps.Circle({
-            center: berlinCenter,
-            radius: 15000,
-        }).getBounds()
-    );
-    autocomplete.setOptions({ strictBounds: true });
+            // Setze die Begrenzungen (Bounds) auf Berlin
+            const bounds = new google.maps.LatLngBounds(
+                { lat: berlinBounds.south, lng: berlinBounds.west },
+                { lat: berlinBounds.north, lng: berlinBounds.east }
+            );
 
-    // Bei Änderung der Auswahl
-    autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
+            autocomplete.setBounds(bounds);
+            autocomplete.setOptions({ strictBounds: true }); // Aktiviert strictBounds
 
-        if (!place.geometry || !place.geometry.location) {
-            alert("Koordinaten konnten nicht bestimmt werden.");
-            return;
+            // Listener für Änderungen bei der Adressauswahl
+            autocomplete.addListener("place_changed", () => {
+                const place = autocomplete.getPlace();
+
+                if (!place.geometry || !place.geometry.location) {
+                    alert("Koordinaten konnten nicht bestimmt werden.");
+                    return;
+                }
+
+                // Koordinaten abrufen und anzeigen
+                const latitude = place.geometry.location.lat();
+                const longitude = place.geometry.location.lng();
+                latitudeEl.textContent = latitude.toFixed(6);
+                longitudeEl.textContent = longitude.toFixed(6);
+
+                // Adressfeld bereinigen (nur Straße und Hausnummer)
+                const street = place.address_components.find(component =>
+                    component.types.includes("route")
+                );
+                const streetNumber = place.address_components.find(component =>
+                    component.types.includes("street_number")
+                );
+
+                let formattedAddress = street ? street.long_name : "";
+                if (streetNumber) {
+                    formattedAddress +=  ${streetNumber.long_name};
+                }
+
+                addressInput.value = formattedAddress.trim();
+            });
         }
 
-        // Extrahiere relevante Adressbestandteile
-        const street = place.address_components.find(component =>
-            component.types.includes("route")
-        );
-        const streetNumber = place.address_components.find(component =>
-            component.types.includes("street_number")
-        );
-        const city = place.address_components.find(component =>
-            component.types.includes("locality")
-        );
-        const district = place.address_components.find(component =>
-            component.types.includes("sublocality_level_1") || component.types.includes("political")
-        );
-
-        if (!city || city.long_name !== "Berlin") {
-            alert("Bitte wählen Sie eine Adresse oder Kreuzung in Berlin aus.");
-            addressInput.value = "";
-            districtInput.value = "";
-            latitudeEl.textContent = "n/a";
-            longitudeEl.textContent = "n/a";
-            return;
-        }
-
-        // Nur die Straße anzeigen
-        let formattedAddress = "";
-        if (street) {
-            formattedAddress = street.long_name; // Nur die Straße
-        }
-        if (streetNumber) {
-            formattedAddress += ` ${streetNumber.long_name}`; // Hausnummer anhängen
-        }
-        addressInput.value = formattedAddress.trim();
-
-        // Stadtteil anzeigen
-        if (district) {
-            districtInput.value = district.long_name;
-        } else {
-            districtInput.value = "Unbekannt";
-        }
-
-        // Koordinaten anzeigen
-        const latitude = place.geometry.location.lat();
-        const longitude = place.geometry.location.lng();
-        latitudeEl.textContent = latitude.toFixed(6);
-        longitudeEl.textContent = longitude.toFixed(6);
-    });
-}
-
-document.addEventListener("DOMContentLoaded", initAutocomplete);
-
+        // Initialisierung von Google Autocomplete
+        document.addEventListener("DOMContentLoaded", initAutocomplete);
     </script>
 </body>
 </html>
