@@ -92,6 +92,9 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                         $adresse = $_POST['adresse'] ?? null;
                         $stadtteil = $_POST['stadtteil'] ?? null;
                         $fahrzeug_name = $_POST['fahrzeug_name'] ?? null;
+                        $latitude = $_POST['latitude'] ?? null;
+                        $longitude = $_POST['longitude'] ?? null;
+
                 
                         // Alarmuhrzeit ins richtige Format konvertieren
                         if ($alarmuhrzeit) {
@@ -178,8 +181,8 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                 ':stadtteil' => $stadtteil,
                                 ':fahrzeug_name' => $fahrzeug_name,
                                 ':dienst_id' => $dienst_id,
-                                ':latitude' => latitudeEl.value,
-                                ':longitude' => longitudeEl.value
+                                ':latitude' => $latitude,
+                                ':longitude' => $longitude
                             ]);
                         
                             echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
