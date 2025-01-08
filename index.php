@@ -866,11 +866,6 @@ if ($zeitResult) {
     
         });
     }
-
-
-    document.addEventListener("DOMContentLoaded", initAutocomplete);
-
-
     // Initialisierung der Autocomplete-Funktion, nachdem die Seite geladen ist
     document.addEventListener("DOMContentLoaded", initAutocomplete);
 </script>
