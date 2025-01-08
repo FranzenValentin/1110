@@ -296,8 +296,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                 <!-- Stadtteil -->
                 <td id="dick">
                     <div>
-                        <input type="text" id="stadtteil" name="stadtteil" placeholder="Stadtteil eingeben" autocomplete="off">
-                        <div id="autocomplete-list" class="autocomplete-items"></div>
+                        <input type="text" id="stadtteil" name="stadtteil" placeholder="Stadtteil" autocomplete="off" readonly>
                     </div>
                 </td>
 
@@ -795,6 +794,7 @@ if ($zeitResult) {
         const addressInput = document.getElementById("address-input");
         const latitudeEl = document.getElementById("latitude");
         const longitudeEl = document.getElementById("longitude");
+        const districtEl = document.getElementById("stadtteil"); // Das Stadtteil-Feld
 
         const berlinBounds = {
             north: 52.6755,
@@ -839,12 +839,16 @@ if ($zeitResult) {
                 // Standard: Straße und Hausnummer kombinieren
                 const street = place.address_components.find(comp => comp.types.includes("route"));
                 const streetNumber = place.address_components.find(comp => comp.types.includes("street_number"));
+                const district = place.address_components.find(comp => comp.types.includes("sublocality") || comp.types.includes("locality"));
 
                 formattedAddress = street ? street.long_name : "";
                 if (streetNumber) {
                     formattedAddress += " " + streetNumber.long_name;
                 }
             }
+
+            // Aktualisiere das Stadtteil-Feld
+            districtEl.value = district ? district.long_name : "";
 
             addressInput.value = formattedAddress.trim();
         });
