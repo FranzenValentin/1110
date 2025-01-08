@@ -845,16 +845,19 @@ if ($zeitResult) {
                 if (streetNumber) {
                     formattedAddress += " " + streetNumber.long_name;
                 }
+                addressInput.value = formattedAddress.trim();
             }
 
             // Aktualisiere das Stadtteil-Feld
             districtEl.value = district ? district.long_name : "";
-
-            addressInput.value = formattedAddress.trim();
         });
     }
 
 
+    document.addEventListener("DOMContentLoaded", initAutocomplete);
+
+
+    // Initialisierung der Autocomplete-Funktion, nachdem die Seite geladen ist
     document.addEventListener("DOMContentLoaded", initAutocomplete);
 </script>
 </body>
