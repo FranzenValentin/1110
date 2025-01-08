@@ -214,7 +214,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                         type="datetime-local" 
                                         id="alarmuhrzeit" 
                                         name="alarmuhrzeit" 
-                                        value="<?= htmlspecialchars($_POST['alarmuhrzeit'] ?? '') ?>" 
+                                        value="<?= htmlspecialchars($_POST['zurueckzeit'] ?? '') ?>" 
                                         oninput="syncZurueckzeit()" 
                                         onfocus="hidePlaceholder('alarmPlaceholder')" 
                                         onblur="showPlaceholder('alarmPlaceholder', this)" 
