@@ -791,84 +791,87 @@ if ($zeitResult) {
     </main>
     <script>
     function initAutocomplete() {
-        function initAutocomplete() {
-    const addressInput = document.getElementById("address-input");
-    const latitudeEl = document.getElementById("latitude");
-    const longitudeEl = document.getElementById("longitude");
-    const districtEl = document.getElementById("stadtteil");
+        const addressInput = document.getElementById("address-input");
+        const latitudeEl = document.getElementById("latitude");
+        const longitudeEl = document.getElementById("longitude");
+        const districtEl = document.getElementById("stadtteil"); // Das Stadtteil-Feld
 
-    const berlinBounds = {
-        north: 52.6755,
-        south: 52.3383,
-        east: 13.7612,
-        west: 13.0884,
-    };
+        const berlinBounds = {
+            north: 52.6755,
+            south: 52.3383,
+            east: 13.7612,
+            west: 13.0884,
+        };
 
-    const options = {
-        types: ["geocode"],
-        componentRestrictions: { country: "DE" },
-        fields: ["address_components", "geometry"],
-    };
+        const options = {
+            types: ["geocode"],
+            componentRestrictions: { country: "DE" },
+            fields: ["address_components", "geometry"],
+        };
 
-    const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
-    autocomplete.setBounds(new google.maps.LatLngBounds(
-        { lat: berlinBounds.south, lng: berlinBounds.west },
-        { lat: berlinBounds.north, lng: berlinBounds.east }
-    ));
-    autocomplete.setOptions({ strictBounds: true });
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
+        autocomplete.setBounds(new google.maps.LatLngBounds(
+            { lat: berlinBounds.south, lng: berlinBounds.west },
+            { lat: berlinBounds.north, lng: berlinBounds.east }
+        ));
+        autocomplete.setOptions({ strictBounds: true });
 
-    autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
+        autocomplete.addListener("place_changed", () => {
+            const place = autocomplete.getPlace();
 
-        if (!place.geometry || !place.geometry.location) {
-            alert("Koordinaten konnten nicht bestimmt werden.");
-            return;
-        }
-
-        const latitude = place.geometry.location.lat();
-        const longitude = place.geometry.location.lng();
-        latitudeEl.value = latitude.toFixed(10); // Genauigkeit von 10 Dezimalstellen
-        longitudeEl.value = longitude.toFixed(10);
-
-        let formattedAddress = "";
-
-        // Kreuzungen erkennen
-        const intersection = place.address_components.find(comp => comp.types.includes("intersection"));
-        if (intersection) {
-            formattedAddress = intersection.long_name;
-        } else {
-            // Standard: Straße und Hausnummer kombinieren
-            const street = place.address_components.find(comp => comp.types.includes("route"));
-            const streetNumber = place.address_components.find(comp => comp.types.includes("street_number"));
-
-            formattedAddress = street ? street.long_name : "";
-            if (streetNumber) {
-                formattedAddress += " " + streetNumber.long_name;
+            if (!place.geometry || !place.geometry.location) {
+                alert("Koordinaten konnten nicht bestimmt werden.");
+                return;
             }
-            addressInput.value = formattedAddress.trim();
-        }
 
-        // Stadtteil ermitteln
-        const district = place.address_components.find(comp =>
+            const latitude = place.geometry.location.lat();
+            const longitude = place.geometry.location.lng();
+            latitudeEl.value = latitude.toFixed(10); // Genauigkeit von 10 Dezimalstellen
+            longitudeEl.value = longitude.toFixed(10);
+
+            let formattedAddress = "";
+
+            // Kreuzungen erkennen
+            const intersection = place.address_components.find(comp => comp.types.includes("intersection"));
+            if (intersection) {
+                formattedAddress = intersection.long_name;
+            } else {
+                // Standard: Straße und Hausnummer kombinieren
+                const street = place.address_components.find(comp => comp.types.includes("route"));
+                const streetNumber = place.address_components.find(comp => comp.types.includes("street_number"));
+                const district = place.address_components.find(comp => comp.types.includes("sublocality") || comp.types.includes("locality"));
+
+                formattedAddress = street ? street.long_name : "";
+                if (streetNumber) {
+                    formattedAddress += " " + streetNumber.long_name;
+                }
+                addressInput.value = formattedAddress.trim();
+            }
+
+            const district = place.address_components.find(comp =>
             comp.types.includes("sublocality") || 
             comp.types.includes("locality") || 
             comp.types.includes("administrative_area_level_2")
         );
 
-        if (district) {
-            districtEl.value = district.long_name; // Setze den gefundenen Stadtteil
+            if (district) {
+            districtEl.value = district.long_name;
         } else {
-            districtEl.value = "Stadtteil nicht gefunden"; // Fallback, wenn kein Stadtteil gefunden wurde
+            districtEl.value = "Stadtteil nicht gefunden";
         }
 
-        // Debugging-Ausgaben
-        console.log("Address Components: ", place.address_components);
+        // Debug: Stadtteil prüfen
         console.log("Gefundener Stadtteil: ", district ? district.long_name : "Kein Stadtteil");
-    });
-}
+    
+        });
+    }
 
-// Initialisierung der Autocomplete-Funktion, nachdem die Seite geladen ist
-document.addEventListener("DOMContentLoaded", initAutocomplete);
 
+    document.addEventListener("DOMContentLoaded", initAutocomplete);
+
+
+    // Initialisierung der Autocomplete-Funktion, nachdem die Seite geladen ist
+    document.addEventListener("DOMContentLoaded", initAutocomplete);
+</script>
 </body>
 </html>
