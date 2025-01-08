@@ -854,10 +854,11 @@ if ($zeitResult) {
             comp.types.includes("administrative_area_level_2")
         );
 
-            if (district) {
-            districtEl.value = district.long_name;
+        if (district) {
+            // Entferne das Präfix "Bezirk", falls vorhanden
+            districtEl.value = district.long_name.replace(/^Bezirk\s+/i, "").trim();
         } else {
-            districtEl.value = "Stadtteil nicht gefunden";
+            districtEl.value = "Stadtteil nicht gefunden"; // Fallback, wenn kein Stadtteil gefunden wurde
         }
 
         // Debug: Stadtteil prüfen
