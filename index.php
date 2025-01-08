@@ -284,7 +284,6 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                     </div>
                 </td>
 
-
                 <!-- Straße Hausnummer -->
                 <td id="dick">
                 <div>
