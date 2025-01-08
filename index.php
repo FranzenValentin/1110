@@ -848,8 +848,15 @@ if ($zeitResult) {
                 addressInput.value = formattedAddress.trim();
             }
 
-            // Aktualisiere das Stadtteil-Feld
-            districtEl.value = district ? district.long_name : "";
+            if (district) {
+            districtEl.value = district.long_name;
+        } else {
+            districtEl.value = "Stadtteil nicht gefunden";
+        }
+
+        // Debug: Stadtteil prüfen
+        console.log("Gefundener Stadtteil: ", district ? district.long_name : "Kein Stadtteil");
+    
         });
     }
 
