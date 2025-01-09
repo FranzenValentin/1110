@@ -849,6 +849,31 @@ if ($zeitResult) {
                 addressInput.value = formattedAddress.trim();
             }
 
+            let formattedAddress = "";
+
+            // Prüfen, ob ein Park oder ein anderes benanntes Feature vorhanden ist
+            const park = place.address_components.find(comp => comp.types.includes("point_of_interest") || comp.types.includes("park"));
+            const intersection = place.address_components.find(comp => comp.types.includes("intersection"));
+            const street = place.address_components.find(comp => comp.types.includes("route"));
+            const streetNumber = place.address_components.find(comp => comp.types.includes("street_number"));
+
+            // Wenn ein Park oder benannter Ort gefunden wird, diesen verwenden
+            if (park) {
+                formattedAddress = park.long_name;
+            } else if (intersection) {
+                formattedAddress = intersection.long_name;
+            } else if (street) {
+                // Standard: Straße und Hausnummer
+                formattedAddress = street.long_name;
+                if (streetNumber) {
+                    formattedAddress += " " + streetNumber.long_name;
+                }
+            }
+
+            // Setze die berechnete Adresse in das Eingabefeld
+            addressInput.value = formattedAddress.trim();
+
+
             // Stadtteil ermitteln
             const district = place.address_components.find(comp =>
                 comp.types.includes("sublocality") || 
@@ -857,11 +882,12 @@ if ($zeitResult) {
             );
 
             if (district) {
-                // Entferne das Präfix "Bezirk" und kombiniere mit dem Ortsnamen
-                districtEl.value = `${district.long_name.replace(/^Bezirk\s+/i, "").trim()}${placeName ? " - " + placeName : ""}`;
+                // Entferne das Präfix "Bezirk" und setze nur den Stadtteil
+                districtEl.value = district.long_name.replace(/^Bezirk\s+/i, "").trim();
             } else {
-                districtEl.value = placeName || "Stadtteil nicht gefunden"; // Fallback
+                districtEl.value = "Stadtteil nicht gefunden"; // Fallback
             }
+
 
             // Debug: Stadtteil prüfen
             console.log("Gefundener Stadtteil: ", district ? district.long_name : "Kein Stadtteil");
