@@ -831,24 +831,6 @@ if ($zeitResult) {
 
             // Adresse oder Parkname ermitteln
             const placeName = place.name || ""; // Name des Ortes, z. B. Parkname
-            let formattedAddress = placeName;
-
-            // Kreuzungen erkennen
-            const intersection = place.address_components.find(comp => comp.types.includes("intersection"));
-            if (intersection) {
-                formattedAddress = intersection.long_name;
-            } else {
-                // Standard: Straße und Hausnummer kombinieren
-                const street = place.address_components.find(comp => comp.types.includes("route"));
-                const streetNumber = place.address_components.find(comp => comp.types.includes("street_number"));
-
-                formattedAddress = street ? street.long_name : "";
-                if (streetNumber) {
-                    formattedAddress += " " + streetNumber.long_name;
-                }
-                addressInput.value = formattedAddress.trim();
-            }
-
             let formattedAddress = "";
 
             // Prüfen, ob ein Park oder ein anderes benanntes Feature vorhanden ist
@@ -869,6 +851,23 @@ if ($zeitResult) {
                     formattedAddress += " " + streetNumber.long_name;
                 }
             }
+            // Kreuzungen erkennen
+            const intersection = place.address_components.find(comp => comp.types.includes("intersection"));
+            if (intersection) {
+                formattedAddress = intersection.long_name;
+            } else {
+                // Standard: Straße und Hausnummer kombinieren
+                const street = place.address_components.find(comp => comp.types.includes("route"));
+                const streetNumber = place.address_components.find(comp => comp.types.includes("street_number"));
+
+                formattedAddress = street ? street.long_name : "";
+                if (streetNumber) {
+                    formattedAddress += " " + streetNumber.long_name;
+                }
+                addressInput.value = formattedAddress.trim();
+            }
+
+            
 
             // Setze die berechnete Adresse in das Eingabefeld
             addressInput.value = formattedAddress.trim();
