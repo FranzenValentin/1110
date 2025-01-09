@@ -804,9 +804,9 @@ if ($zeitResult) {
         };
 
         const options = {
-            types: ["geocode"],
+            types: ["geocode", "establishment"], // Parks und andere Orte einbeziehen
             componentRestrictions: { country: "DE" },
-            fields: ["address_components", "geometry"],
+            fields: ["address_components", "geometry", "name"], // Name für Orte wie Parks hinzufügen
         };
 
         const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
@@ -829,7 +829,9 @@ if ($zeitResult) {
             latitudeEl.value = latitude.toFixed(10); // Genauigkeit von 10 Dezimalstellen
             longitudeEl.value = longitude.toFixed(10);
 
-            let formattedAddress = "";
+            // Adresse oder Parkname ermitteln
+            const placeName = place.name || ""; // Name des Ortes, z. B. Parkname
+            let formattedAddress = placeName;
 
             // Kreuzungen erkennen
             const intersection = place.address_components.find(comp => comp.types.includes("intersection"));
@@ -839,7 +841,6 @@ if ($zeitResult) {
                 // Standard: Straße und Hausnummer kombinieren
                 const street = place.address_components.find(comp => comp.types.includes("route"));
                 const streetNumber = place.address_components.find(comp => comp.types.includes("street_number"));
-                const district = place.address_components.find(comp => comp.types.includes("sublocality") || comp.types.includes("locality"));
 
                 formattedAddress = street ? street.long_name : "";
                 if (streetNumber) {
@@ -848,26 +849,29 @@ if ($zeitResult) {
                 addressInput.value = formattedAddress.trim();
             }
 
+            // Stadtteil ermitteln
             const district = place.address_components.find(comp =>
-            comp.types.includes("sublocality") || 
-            comp.types.includes("locality") || 
-            comp.types.includes("administrative_area_level_2")
-        );
+                comp.types.includes("sublocality") || 
+                comp.types.includes("locality") || 
+                comp.types.includes("administrative_area_level_2")
+            );
 
-        if (district) {
-            // Entferne das Präfix "Bezirk", falls vorhanden
-            districtEl.value = district.long_name.replace(/^Bezirk\s+/i, "").trim();
-        } else {
-            districtEl.value = "Stadtteil nicht gefunden"; // Fallback, wenn kein Stadtteil gefunden wurde
-        }
+            if (district) {
+                // Entferne das Präfix "Bezirk" und kombiniere mit dem Ortsnamen
+                districtEl.value = `${district.long_name.replace(/^Bezirk\s+/i, "").trim()}${placeName ? " - " + placeName : ""}`;
+            } else {
+                districtEl.value = placeName || "Stadtteil nicht gefunden"; // Fallback
+            }
 
-        // Debug: Stadtteil prüfen
-        console.log("Gefundener Stadtteil: ", district ? district.long_name : "Kein Stadtteil");
-    
+            // Debug: Stadtteil prüfen
+            console.log("Gefundener Stadtteil: ", district ? district.long_name : "Kein Stadtteil");
+            console.log("Ort gefunden: ", placeName);
         });
     }
+
     // Initialisierung der Autocomplete-Funktion, nachdem die Seite geladen ist
     document.addEventListener("DOMContentLoaded", initAutocomplete);
+
 </script>
 </body>
 </html>
