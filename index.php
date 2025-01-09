@@ -831,26 +831,8 @@ if ($zeitResult) {
 
             // Adresse oder Parkname ermitteln
             const placeName = place.name || ""; // Name des Ortes, z. B. Parkname
-            let formattedAddress = "";
+            let formattedAddress = placeName;
 
-            // Prüfen, ob ein Park oder ein anderes benanntes Feature vorhanden ist
-            const park = place.address_components.find(comp => comp.types.includes("point_of_interest") || comp.types.includes("park"));
-            const intersection = place.address_components.find(comp => comp.types.includes("intersection"));
-            const street = place.address_components.find(comp => comp.types.includes("route"));
-            const streetNumber = place.address_components.find(comp => comp.types.includes("street_number"));
-
-            // Wenn ein Park oder benannter Ort gefunden wird, diesen verwenden
-            if (park) {
-                formattedAddress = park.long_name;
-            } else if (intersection) {
-                formattedAddress = intersection.long_name;
-            } else if (street) {
-                // Standard: Straße und Hausnummer
-                formattedAddress = street.long_name;
-                if (streetNumber) {
-                    formattedAddress += " " + streetNumber.long_name;
-                }
-            }
             // Kreuzungen erkennen
             const intersection = place.address_components.find(comp => comp.types.includes("intersection"));
             if (intersection) {
