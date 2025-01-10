@@ -46,67 +46,7 @@ foreach ($daten as $row) {
         $kumuliertVorjahr[$monat] = ($kumuliertVorjahr[$monat - 1] ?? 0) + $anzahl;
     }
 }
-
-// Berechnung der kumulierten Einsätze mit Zwischenschritten
-$kumuliertAktuellesJahrDetail = [];
-$kumuliertVorjahrDetail = [];
-
-// Detaillierte Daten für das aktuelle Jahr
-for ($monat = 1; $monat <= 12; $monat++) {
-    // Start- und Endwerte für die Interpolation
-    $startAktuell = $kumuliertAktuellesJahr[$monat - 1] ?? 0;
-    $endAktuell = $kumuliertAktuellesJahr[$monat];
-
-    // Füge Zwischenschritte hinzu (z. B. 30 Schritte für 30 Tage)
-    for ($step = 0; $step <= 30; $step++) {
-        $kumuliertAktuellesJahrDetail[] = $startAktuell + (($endAktuell - $startAktuell) * ($step / 30));
-    }
-}
-
-// Detaillierte Daten für das Vorjahr
-for ($monat = 1; $monat <= 12; $monat++) {
-    $startVorjahr = $kumuliertVorjahr[$monat - 1] ?? 0;
-    $endVorjahr = $kumuliertVorjahr[$monat];
-
-    // Füge Zwischenschritte hinzu
-    for ($step = 0; $step <= 30; $step++) {
-        $kumuliertVorjahrDetail[] = $startVorjahr + (($endVorjahr - $startVorjahr) * ($step / 30));
-    }
-}
-
-// Berechnung der kumulierten Einsätze pro Woche
-$woechentlichAktuellesJahr = [];
-$woechentlichVorjahr = [];
-
-// Funktion zur Berechnung der wöchentlichen Einsätze
-function berechneWoechentlich($daten, $jahr)
-{
-    $woechentlich = array_fill(1, 52, 0); // 52 Wochen initialisieren
-    $kumuliert = 0;
-
-    foreach ($daten as $row) {
-        if ((int)$row['jahr'] === $jahr) {
-            $monat = (int)$row['monat'];
-            $anzahl = (int)$row['anzahl'];
-            $kumuliert += $anzahl;
-            $woche = (int)date('W', mktime(0, 0, 0, $monat, 1, $jahr));
-            $woechentlich[$woche] = $kumuliert;
-        }
-    }
-
-    return $woechentlich;
-}
-
-// Wöchentliche Einsatzzahlen berechnen
-$woechentlichAktuellesJahr = berechneWoechentlich($daten, $jahr);
-$woechentlichVorjahr = berechneWoechentlich($daten, $vorjahr);
-
-
-
-
-
 ?>
-
 
 
 <!DOCTYPE html>
@@ -123,38 +63,56 @@ $woechentlichVorjahr = berechneWoechentlich($daten, $vorjahr);
     
     <script>
         // Daten aus PHP übertragen
-        const woechentlichAktuellesJahr = <?= json_encode(array_values($woechentlichAktuellesJahr)) ?>;
-        const woechentlichVorjahr = <?= json_encode(array_values($woechentlichVorjahr)) ?>;
-        const wochen = Array.from({ length: 52 }, (_, i) => `Woche ${i + 1}`);
+        const datenAktuellesJahr = <?= json_encode(array_values($datenAktuellesJahr)) ?>;
+        const datenVorjahr = <?= json_encode(array_values($datenVorjahr)) ?>;
+        const kumuliertAktuellesJahr = <?= json_encode(array_values($kumuliertAktuellesJahr)) ?>;
+        const kumuliertVorjahr = <?= json_encode(array_values($kumuliertVorjahr)) ?>;
+        const monate = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
 
         // Chart erstellen
         const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
         new Chart(ctx, {
-            type: 'line',
+            type: 'bar',
             data: {
-                labels: wochen,
+                labels: monate,
                 datasets: [
+                    // Balkendiagramme für Einsatzzahlen je Monat
                     {
-                        label: 'Kumuliert <?= $vorjahr ?>',
-                        data: woechentlichVorjahr,
-                        borderColor: 'rgba(54, 162, 235, 1)', // Blau
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        fill: false,
-                        tension: 0.4, // Glattere Linie
-                        pointStyle: 'circle',
-                        pointRadius: 5,
+                        label: 'Einsätze je Monat <?= $vorjahr ?>',
+                        data: datenVorjahr,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)', // Blau
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        type: 'bar',
                         yAxisID: 'y'
                     },
                     {
+                        label: 'Einsätze je Monat <?= $jahr ?>',
+                        data: datenAktuellesJahr,
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)', // Rot
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                        type: 'bar',
+                        yAxisID: 'y'
+                    },
+                    // Liniendiagramme für kumulierte Einsatzzahlen
+                    {
+                        label: 'Kumuliert <?= $vorjahr ?>',
+                        data: kumuliertVorjahr,
+                        borderColor: 'rgba(54, 162, 235, 1)', // Blau
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        fill: false,
+                        type: 'line',
+                        yAxisID: 'y2'
+                    },
+                    {
                         label: 'Kumuliert <?= $jahr ?>',
-                        data: woechentlichAktuellesJahr,
+                        data: kumuliertAktuellesJahr,
                         borderColor: 'rgba(255, 99, 132, 1)', // Rot
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
                         fill: false,
-                        tension: 0.4, // Glattere Linie
-                        pointStyle: 'circle',
-                        pointRadius: 5,
-                        yAxisID: 'y'
+                        type: 'line',
+                        yAxisID: 'y2'
                     }
                 ]
             },
@@ -173,14 +131,25 @@ $woechentlichVorjahr = berechneWoechentlich($daten, $vorjahr);
                         beginAtZero: true,
                         title: {
                             display: true,
+                            text: 'Einsätze je Monat'
+                        },
+                        position: 'left' // Linke Achse
+                    },
+                    y2: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
                             text: 'Kumulierte Einsätze'
                         },
-                        position: 'left'
+                        position: 'right', // Rechte Achse
+                        grid: {
+                            drawOnChartArea: false // Keine Gitterlinien für rechte Achse
+                        }
                     },
                     x: {
                         title: {
                             display: true,
-                            text: 'Wochen'
+                            text: 'Monate'
                         }
                     }
                 }
