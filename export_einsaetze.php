@@ -92,6 +92,18 @@ $query = "
 $stmt = $pdo->prepare($query);
 $stmt->execute(['monat' => $monat, 'jahr' => $jahr]);
 
+if ($stmt->rowCount() === 0) {
+    die("Keine Daten gefunden für Monat: $monat und Jahr: $jahr.");
+}
+
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    print_r($row); // Debugging: Prüfe die Ergebnisse
+}
+
+
+$stmt = $pdo->prepare($query);
+$stmt->execute(['monat' => $monat, 'jahr' => $jahr]);
+
 // Datenzeilen einfügen
 $rowIndex = 3; // Startreihe nach Header
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
