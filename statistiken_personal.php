@@ -202,13 +202,8 @@ try {
             <div style="width: 50%; margin: 0 auto;"> <!-- Begrenze die Breite des Diagramms -->
                 <canvas id="funktionenChart"></canvas>
             </div>
-            <section id="funktionen-verteilung">
-    <?php if (count($funktionenVerteilung) > 0): ?>
-        <h2>Funktionen von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?></h2>
-        <div style="width: 50%; margin: 0 auto;"> <!-- Begrenze die Breite des Diagramms -->
-            <canvas id="funktionenChart"></canvas>
-        </div>
-        <script>
+            <script>
+                // Original-Funktionsnamen aus der Datenbank
                 const funktionenLabelsOriginal = <?= json_encode(array_column($funktionenVerteilung, 'funktion')) ?>;
                 const funktionenData = <?= json_encode(array_column($funktionenVerteilung, 'anzahl')) ?>;
 
@@ -261,20 +256,24 @@ try {
                         responsive: true,
                         plugins: {
                             legend: {
-                                position: 'top'
+                                position: 'top' // Position der Legende
                             },
                             tooltip: {
-                                enabled: true
+                                enabled: true // Tooltips für zusätzliche Informationen
                             },
                             datalabels: {
-                                color: '#fff', // Farbe der Schrift
+                                color: '#fff', // Farbe der Schrift auf den Kuchenstücken
                                 formatter: (value, context) => {
-                                    return context.chart.data.labels[context.dataIndex]; // Abkürzungen anzeigen
+                                    // Zeige die Abkürzung und den Wert
+                                    const label = context.chart.data.labels[context.dataIndex];
+                                    return `${label}: ${value}`;
                                 },
                                 font: {
                                     size: 14, // Schriftgröße
                                     weight: 'bold' // Schriftgewicht
-                                }
+                                },
+                                align: 'center', // Position in der Mitte der Segmente
+                                anchor: 'center' // Verankerung
                             }
                         }
                     },
