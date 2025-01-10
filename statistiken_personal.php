@@ -204,29 +204,36 @@ try {
                 const funktionenLabels = <?= json_encode(array_column($funktionenVerteilung, 'funktion')) ?>;
                 const funktionenData = <?= json_encode(array_column($funktionenVerteilung, 'anzahl')) ?>;
 
+                // Farbzurodnung für die Funktionen
+                const farben = {
+                    "Angriffstrupp": 'rgba(255, 99, 132, 0.5)', // rot
+                    "Wassertrupp": 'rgba(54, 162, 235, 0.5)',  // blau
+                    "Staffel-Führer": 'rgba(255, 206, 86, 0.5)', // gelb
+                    "Maschinist": 'rgba(153, 102, 255, 0.5)',   // lila
+                    "Praktikant": 'rgba(128, 128, 128, 0.5)'    // grau
+                };
+
+                const farbenRand = {
+                    "Angriffstrupp": 'rgba(255, 99, 132, 1)', 
+                    "Wassertrupp": 'rgba(54, 162, 235, 1)',  
+                    "Staffel-Führer": 'rgba(255, 206, 86, 1)', 
+                    "Maschinist": 'rgba(153, 102, 255, 1)',   
+                    "Praktikant": 'rgba(128, 128, 128, 1)'    
+                };
+
+                // Farben basierend auf den Labels auswählen
+                const backgroundColors = funktionenLabels.map(label => farben[label] || 'rgba(0, 0, 0, 0.5)');
+                const borderColors = funktionenLabels.map(label => farbenRand[label] || 'rgba(0, 0, 0, 1)');
+
                 new Chart(document.getElementById('funktionenChart'), {
-                    type: 'pie', // Tortendiagramm
+                    type: 'pie',
                     data: {
                         labels: funktionenLabels,
                         datasets: [{
                             label: 'Anzahl der Dienste',
                             data: funktionenData,
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 0.5)',
-                                'rgba(54, 162, 235, 0.5)',
-                                'rgba(255, 206, 86, 0.5)',
-                                'rgba(75, 192, 192, 0.5)',
-                                'rgba(153, 102, 255, 0.5)',
-                                'rgba(255, 159, 64, 0.5)'
-                            ],
-                            borderColor: [
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(255, 206, 86, 1)',
-                                'rgba(75, 192, 192, 1)',
-                                'rgba(153, 102, 255, 1)',
-                                'rgba(255, 159, 64, 1)'
-                            ],
+                            backgroundColor: backgroundColors,
+                            borderColor: borderColors,
                             borderWidth: 1
                         }]
                     },
@@ -234,20 +241,20 @@ try {
                         responsive: true,
                         plugins: {
                             legend: {
-                                position: 'top' // Position der Legende
+                                position: 'top'
                             },
                             tooltip: {
-                                enabled: true // Tooltips für zusätzliche Informationen
+                                enabled: true
                             }
                         }
                     }
                 });
             </script>
-
         <?php else: ?>
             <p>Keine Daten zur Verteilung der Funktionen verfügbar.</p>
         <?php endif; ?>
     </section>
+
 
     <!-- Anzeige der Einsätze -->
     <section id="einsatz-statistik">
