@@ -75,7 +75,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                     $fahrzeuge = $fahrzeugeStmt->fetchAll(PDO::FETCH_ASSOC);
 
                     // Stichworte laden, sortiert nach Kategorie und Stichwort
-                    $stichworteStmt = $pdo->prepare("SELECT id, kategorie, stichwort, priority FROM stichworte ORDER BY priority ASC ");
+                    $stichworteStmt = $pdo->prepare("SELECT id, kategorie, stichwort, priority FROM stichworte ORDER BY priority ASC, id ASC");
                     $stichworteStmt->execute();
                     $stichworte = $stichworteStmt->fetchAll(PDO::FETCH_ASSOC);
                 } catch (PDOException $e) {
