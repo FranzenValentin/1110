@@ -32,15 +32,22 @@ $daten = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Initialisiere Arrays für beide Jahre
 $datenAktuellesJahr = array_fill(1, 12, 0); // 12 Monate mit 0 initialisieren
 $datenVorjahr = array_fill(1, 12, 0);
+$kumuliertAktuellesJahr = array_fill(1, 12, 0);
+$kumuliertVorjahr = array_fill(1, 12, 0);
 
 foreach ($daten as $row) {
+    $monat = (int)$row['monat'];
+    $anzahl = (int)$row['anzahl'];
     if ($row['jahr'] == $jahr) {
-        $datenAktuellesJahr[(int)$row['monat']] = (int)$row['anzahl'];
+        $datenAktuellesJahr[$monat] = $anzahl;
+        $kumuliertAktuellesJahr[$monat] = ($kumuliertAktuellesJahr[$monat - 1] ?? 0) + $anzahl;
     } elseif ($row['jahr'] == $vorjahr) {
-        $datenVorjahr[(int)$row['monat']] = (int)$row['anzahl'];
+        $datenVorjahr[$monat] = $anzahl;
+        $kumuliertVorjahr[$monat] = ($kumuliertVorjahr[$monat - 1] ?? 0) + $anzahl;
     }
 }
 ?>
+
 
 
 <!DOCTYPE html>
@@ -56,31 +63,57 @@ foreach ($daten as $row) {
     <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
     
     <script>
-        // PHP-Daten in JavaScript übertragen
+        // Daten aus PHP übertragen
         const datenAktuellesJahr = <?= json_encode(array_values($datenAktuellesJahr)) ?>;
         const datenVorjahr = <?= json_encode(array_values($datenVorjahr)) ?>;
+        const kumuliertAktuellesJahr = <?= json_encode(array_values($kumuliertAktuellesJahr)) ?>;
+        const kumuliertVorjahr = <?= json_encode(array_values($kumuliertVorjahr)) ?>;
         const monate = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
 
-        // Liniendiagramm erstellen
+        // Chart erstellen
         const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
         new Chart(ctx, {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: monate,
                 datasets: [
+                    // Balkendiagramme für Einsatzzahlen je Monat
                     {
-                        label: '<?= $vorjahr ?>',
+                        label: 'Einsätze je Monat <?= $vorjahr ?>',
                         data: datenVorjahr,
-                        borderColor: 'rgba(54, 162, 235, 1)', // Blau
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        fill: true
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)', // Blau
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        type: 'bar',
+                        yAxisID: 'y'
                     },
                     {
-                        label: '<?= $jahr ?>',
+                        label: 'Einsätze je Monat <?= $jahr ?>',
                         data: datenAktuellesJahr,
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)', // Rot
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                        type: 'bar',
+                        yAxisID: 'y'
+                    },
+                    // Liniendiagramme für kumulierte Einsatzzahlen
+                    {
+                        label: 'Kumuliert <?= $vorjahr ?>',
+                        data: kumuliertVorjahr,
+                        borderColor: 'rgba(54, 162, 235, 1)', // Blau
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        fill: false,
+                        type: 'line',
+                        yAxisID: 'y2'
+                    },
+                    {
+                        label: 'Kumuliert <?= $jahr ?>',
+                        data: kumuliertAktuellesJahr,
                         borderColor: 'rgba(255, 99, 132, 1)', // Rot
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        fill: true
+                        fill: false,
+                        type: 'line',
+                        yAxisID: 'y2'
                     }
                 ]
             },
@@ -88,10 +121,10 @@ foreach ($daten as $row) {
                 responsive: true,
                 plugins: {
                     legend: {
-                        position: 'top' // Position der Legende
+                        position: 'top'
                     },
                     tooltip: {
-                        enabled: true // Tooltips für zusätzliche Informationen
+                        enabled: true
                     }
                 },
                 scales: {
@@ -99,7 +132,19 @@ foreach ($daten as $row) {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Einsatzzahlen'
+                            text: 'Einsätze je Monat'
+                        },
+                        position: 'left' // Linke Achse
+                    },
+                    y2: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Kumulierte Einsätze'
+                        },
+                        position: 'right', // Rechte Achse
+                        grid: {
+                            drawOnChartArea: false // Keine Gitterlinien für rechte Achse
                         }
                     },
                     x: {
