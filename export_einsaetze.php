@@ -65,19 +65,16 @@ $query = "
         e.alarmuhrzeit
     FROM einsaetze e
     WHERE 
-        MONTH(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i')) = 1 
-        AND YEAR(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i')) = 2025
+        MONTH(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i')) = :monat 
+        AND YEAR(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i')) = :jahr
 ";
 
-$stmt = $pdo->query($query);
-
-while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    print_r($row);
-}
-
-
 $stmt = $pdo->prepare($query);
-$stmt->execute(['monat' => $monat, 'jahr' => $jahr]);
+
+// Stellen Sie sicher, dass beide Parameter übergeben werden
+$params = ['monat' => (int)$monat, 'jahr' => (int)$jahr];
+$stmt->execute($params);
+
 
 if ($stmt->rowCount() === 0) {
     die("Keine Daten gefunden für Monat: $monat und Jahr: $jahr.");
@@ -117,4 +114,12 @@ header('Cache-Control: max-age=0');
 $writer = new Xlsx($spreadsheet);
 $writer->save('php://output');
 exit;
+
+echo "SQL Query: $query<br>";
+echo "Parameter: " . json_encode($params) . "<br>";
+
+if ($stmt->rowCount() === 0) {
+    die("Keine Daten gefunden für Monat $monat und Jahr $jahr.");
+}
+
 ?>
