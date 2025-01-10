@@ -693,8 +693,9 @@ if ($zeitResult) {
         <section id="navigation-buttons">
                     <h2>Statistiken</h2>
                     <div class="button-container">
-                        <button onclick="location.href='statistiken.php'">Gesamtstatistiken anzeigen</button>
-                        <button onclick="location.href='statistiken_personal.php'">Personal-Statistiken anzeigen</button>
+                        <button onclick="location.href='statistiken.php'">Gesamtstatistiken</button>
+                        <button onclick="location.href='statistiken_personal.php'">Personal-Statistiken</button>
+                        <button onclick="location.href='einsatzentwicklung.php'">Einsatzentwicklung</button>
                     </div>
         </section>
 
