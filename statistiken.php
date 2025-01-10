@@ -83,6 +83,25 @@ try {
     $error = "Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage());
 }
 
+try {
+    // Einsätze nach Kategorie summieren
+    $categoryStmt = $pdo->prepare("
+    SELECT kategorie, COUNT(*) AS anzahl 
+    FROM einsaetze 
+    WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i') 
+          BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') 
+              AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')
+    GROUP BY kategorie
+    ORDER BY anzahl DESC
+    ");
+
+    $categoryStmt->execute([':startdatum' => $startdatum, ':enddatum' => $enddatum]);
+    $einsaetzeNachKategorie = $categoryStmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $error = "Fehler beim Laden der Daten nach Kategorien: " . htmlspecialchars($e->getMessage());
+}
+
+
 
 // Heatmap-Daten aus der Datenbank abrufen
 try {
@@ -179,6 +198,18 @@ try {
 
         <?php if ($totalEinsaetze != 0): ?>
             <p>Durchschnittliche Einsatzdauer: <strong><?= htmlspecialchars(round($durchschnittsdauer, 2)) ?> Minuten</strong></p>
+        <?php endif; ?>
+
+        <?php if (!empty($einsaetzeNachKategorie)): ?>
+            <h3>Einsätze nach Kategorie</h3>
+            <ul>
+                <?php foreach ($einsaetzeNachKategorie as $kategorie): ?>
+                    <li>
+                        <strong><?= htmlspecialchars($kategorie['kategorie']) ?>:</strong> 
+                        <?= htmlspecialchars($kategorie['anzahl']) ?> Einsätze
+                    </li>
+                <?php endforeach; ?>
+            </ul>
         <?php endif; ?>
     <?php endif; ?>
 </section>
