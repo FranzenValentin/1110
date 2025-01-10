@@ -125,4 +125,40 @@ header('Cache-Control: max-age=0');
 $writer = new Xlsx($spreadsheet);
 $writer->save('php://output');
 exit;
+
+// Spaltenbreite automatisch anpassen
+foreach (range('A', 'O') as $columnID) {
+    $sheet->getColumnDimension($columnID)->setAutoSize(true);
+}
+
+// Überschrift zentrieren und fett machen
+$sheet->mergeCells('A1:O1');
+$sheet->getStyle('A1')->applyFromArray([
+    'font' => [
+        'bold' => true,
+        'size' => 16,
+    ],
+    'alignment' => [
+        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+    ],
+]);
+
+// Tabellenüberschrift formatieren
+$sheet->getStyle('A2:O2')->applyFromArray([
+    'font' => [
+        'bold' => true,
+        'color' => ['argb' => 'FFFFFF'], // Weiß
+    ],
+    'fill' => [
+        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+        'startColor' => ['argb' => '4CAF50'], // Grün
+    ],
+    'alignment' => [
+        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+    ],
+]);
+
+// Rahmen hinzufügen
+$sheet->getStyle('A2:O100')->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+
 ?>
