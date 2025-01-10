@@ -202,34 +202,46 @@ try {
                 const funktionenLabels = <?= json_encode(array_column($funktionenVerteilung, 'funktion')) ?>;
                 const funktionenData = <?= json_encode(array_column($funktionenVerteilung, 'anzahl')) ?>;
 
-                // Funktion zur Generierung zufälliger Farben
-                function getRandomColor(opacity) {
-                    const r = Math.floor(Math.random() * 200); // Werte bis 200, um helle Farben zu vermeiden
-                    const g = Math.floor(Math.random() * 200);
-                    const b = Math.floor(Math.random() * 200);
-                    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-                }
-
-                const backgroundColors = funktionenData.map(() => getRandomColor(0.5));
-                const borderColors = backgroundColors.map(color => color.replace(/0\.5\)$/, '1)')); // Opazität auf 1 setzen
-
                 new Chart(document.getElementById('funktionenChart'), {
-                    type: 'pie',
+                    type: 'pie', // Ändere den Diagrammtyp auf "pie"
                     data: {
                         labels: funktionenLabels,
                         datasets: [{
                             label: 'Anzahl der Einsätze',
                             data: funktionenData,
-                            backgroundColor: backgroundColors,
-                            borderColor: borderColors,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.5)',
+                                'rgba(54, 162, 235, 0.5)',
+                                'rgba(255, 206, 86, 0.5)',
+                                'rgba(75, 192, 192, 0.5)',
+                                'rgba(153, 102, 255, 0.5)',
+                                'rgba(255, 159, 64, 0.5)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
                             borderWidth: 1
                         }]
                     },
                     options: {
                         responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top' // Position der Legende
+                            },
+                            tooltip: {
+                                enabled: true // Tooltips für zusätzliche Informationen
+                            }
+                        }
                     }
                 });
             </script>
+
 
         <?php else: ?>
             <p>Keine Daten zur Verteilung der Funktionen verfügbar.</p>
