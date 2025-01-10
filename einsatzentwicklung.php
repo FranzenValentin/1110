@@ -29,24 +29,31 @@ $stmt->execute([':jahr' => $jahr, ':vorjahr' => $vorjahr]);
 // Daten aufbereiten
 $daten = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Initialisiere Arrays für beide Jahre
-$datenAktuellesJahr = array_fill(1, 12, 0); // 12 Monate mit 0 initialisieren
-$datenVorjahr = array_fill(1, 12, 0);
-$kumuliertAktuellesJahr = array_fill(1, 12, 0);
-$kumuliertVorjahr = array_fill(1, 12, 0);
+// Berechnung der kumulierten Einsätze mit Zwischenschritten (z. B. tägliche Werte)
+$kumuliertAktuellesJahrDetail = [];
+$kumuliertVorjahrDetail = [];
+for ($monat = 1; $monat <= 12; $monat++) {
+    // Aktuelles Jahr
+    $kumuliertAktuellesJahrDetail[$monat] = $kumuliertAktuellesJahr[$monat];
+    if ($monat > 1) {
+        $start = $kumuliertAktuellesJahr[$monat - 1];
+        $end = $kumuliertAktuellesJahr[$monat];
+        for ($step = 1; $step <= 30; $step++) {
+            $kumuliertAktuellesJahrDetail[] = $start + (($end - $start) * ($step / 30));
+        }
+    }
 
-foreach ($daten as $row) {
-    $monat = (int)$row['monat'];
-    $anzahl = (int)$row['anzahl'];
-    if ($row['jahr'] == $jahr) {
-        $datenAktuellesJahr[$monat] = $anzahl;
-        $kumuliertAktuellesJahr[$monat] = ($kumuliertAktuellesJahr[$monat - 1] ?? 0) + $anzahl;
-    } elseif ($row['jahr'] == $vorjahr) {
-        $datenVorjahr[$monat] = $anzahl;
-        $kumuliertVorjahr[$monat] = ($kumuliertVorjahr[$monat - 1] ?? 0) + $anzahl;
+    // Vorjahr
+    $kumuliertVorjahrDetail[$monat] = $kumuliertVorjahr[$monat];
+    if ($monat > 1) {
+        $start = $kumuliertVorjahr[$monat - 1];
+        $end = $kumuliertVorjahr[$monat];
+        for ($step = 1; $step <= 30; $step++) {
+            $kumuliertVorjahrDetail[] = $start + (($end - $start) * ($step / 30));
+        }
     }
 }
-?>
+
 
 
 
@@ -64,10 +71,8 @@ foreach ($daten as $row) {
     
     <script>
         // Daten aus PHP übertragen
-        const datenAktuellesJahr = <?= json_encode(array_values($datenAktuellesJahr)) ?>;
-        const datenVorjahr = <?= json_encode(array_values($datenVorjahr)) ?>;
-        const kumuliertAktuellesJahr = <?= json_encode(array_values($kumuliertAktuellesJahr)) ?>;
-        const kumuliertVorjahr = <?= json_encode(array_values($kumuliertVorjahr)) ?>;
+        const kumuliertAktuellesJahrDetail = <?= json_encode(array_values($kumuliertAktuellesJahrDetail)) ?>;
+        const kumuliertVorjahrDetail = <?= json_encode(array_values($kumuliertVorjahrDetail)) ?>;
         const monate = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
 
         // Chart erstellen
@@ -99,21 +104,23 @@ foreach ($daten as $row) {
                     // Liniendiagramme für kumulierte Einsatzzahlen
                     {
                         label: 'Kumuliert <?= $vorjahr ?>',
-                        data: kumuliertVorjahr,
+                        data: kumuliertVorjahrDetail,
                         borderColor: 'rgba(54, 162, 235, 1)', // Blau
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         fill: false,
                         type: 'line',
-                        yAxisID: 'y2'
+                        yAxisID: 'y2',
+                        tension: 0.4 // Glattere Linie
                     },
                     {
                         label: 'Kumuliert <?= $jahr ?>',
-                        data: kumuliertAktuellesJahr,
+                        data: kumuliertAktuellesJahrDetail,
                         borderColor: 'rgba(255, 99, 132, 1)', // Rot
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
                         fill: false,
                         type: 'line',
-                        yAxisID: 'y2'
+                        yAxisID: 'y2',
+                        tension: 0.4 // Glattere Linie
                     }
                 ]
             },
@@ -121,10 +128,10 @@ foreach ($daten as $row) {
                 responsive: true,
                 plugins: {
                     legend: {
-                        position: 'top'
+                        position: 'top' // Position der Legende
                     },
                     tooltip: {
-                        enabled: true
+                        enabled: true // Tooltips für zusätzliche Informationen
                     }
                 },
                 scales: {
@@ -157,5 +164,6 @@ foreach ($daten as $row) {
             }
         });
     </script>
+
 </body>
 </html>
