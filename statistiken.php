@@ -86,12 +86,13 @@ try {
 try {
     // Einsätze nach Kategorie summieren
     $categoryStmt = $pdo->prepare("
-    SELECT kategorie, COUNT(*) AS anzahl 
-    FROM einsaetze 
-    WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i') 
+    SELECT s.kategorie, COUNT(*) AS anzahl 
+    FROM einsaetze e
+    JOIN stichwort s ON e.stichwort_id = s.id
+    WHERE STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') 
           BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s') 
               AND STR_TO_DATE(:enddatum, '%Y-%m-%d %H:%i:%s')
-    GROUP BY kategorie
+    GROUP BY s.kategorie
     ORDER BY anzahl DESC
     ");
 
@@ -100,6 +101,7 @@ try {
 } catch (PDOException $e) {
     $error = "Fehler beim Laden der Daten nach Kategorien: " . htmlspecialchars($e->getMessage());
 }
+
 
 
 
