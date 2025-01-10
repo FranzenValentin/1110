@@ -56,6 +56,11 @@ foreach ($daten as $row) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Einsatzentwicklung</title>
     <link rel="stylesheet" href="styles.css">
+    
+</head>
+<body>
+    <header>
+    <h1>Einsatzentwicklung</h1>
     <form method="POST" action="logout.php" class="logout-form">
         <button type="submit">Logout</button>
     </form>
@@ -63,9 +68,9 @@ foreach ($daten as $row) {
         <button type="submit">Zurück</button>
     </form>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <h1>Einsatzentwicklung</h1>
+
+    </header>
+
     <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
     
     <script>
