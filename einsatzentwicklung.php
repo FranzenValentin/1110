@@ -83,7 +83,6 @@ foreach ($daten as $row) {
                         backgroundColor: 'rgba(54, 162, 235, 0.5)', // Blau
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 1,
-                        type: 'bar',
                         yAxisID: 'y'
                     },
                     {
@@ -92,7 +91,6 @@ foreach ($daten as $row) {
                         backgroundColor: 'rgba(255, 99, 132, 0.5)', // Rot
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 1,
-                        type: 'bar',
                         yAxisID: 'y'
                     },
                     // Liniendiagramme für kumulierte Einsatzzahlen
@@ -133,7 +131,7 @@ foreach ($daten as $row) {
                             display: true,
                             text: 'Einsätze je Monat'
                         },
-                        position: 'left' // Linke Achse
+                        position: 'left'
                     },
                     y2: {
                         beginAtZero: true,
@@ -141,9 +139,9 @@ foreach ($daten as $row) {
                             display: true,
                             text: 'Kumulierte Einsätze'
                         },
-                        position: 'right', // Rechte Achse
+                        position: 'right',
                         grid: {
-                            drawOnChartArea: false // Keine Gitterlinien für rechte Achse
+                            drawOnChartArea: false
                         }
                     },
                     x: {
