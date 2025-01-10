@@ -15,6 +15,9 @@ require $autoloadPath;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 // Debugging aktivieren
 ini_set('display_errors', 1);
@@ -32,8 +35,19 @@ $sheet = $spreadsheet->getActiveSheet();
 // Titelzeile setzen
 $sheet->setCellValue('A1', "FF 1110 - Einsatzübersicht - $monat/$jahr");
 $sheet->mergeCells('A1:O1');
+$sheet->getStyle('A1')->applyFromArray([
+    'font' => [
+        'bold' => true,
+        'size' => 16,
+        'color' => ['argb' => '000000'], // Schwarz
+    ],
+    'alignment' => [
+        'horizontal' => Alignment::HORIZONTAL_CENTER,
+        'vertical' => Alignment::VERTICAL_CENTER,
+    ],
+]);
 
-// Tabellenüberschrift hinzufügen
+// Header für die Tabelle
 $headers = [
     'A2' => 'Interne Einsatznummer',
     'B2' => 'Einsatznummer',
@@ -55,6 +69,22 @@ $headers = [
 foreach ($headers as $cell => $headerText) {
     $sheet->setCellValue($cell, $headerText);
 }
+
+// Tabellenüberschrift designen
+$sheet->getStyle('A2:O2')->applyFromArray([
+    'font' => [
+        'bold' => true,
+        'color' => ['argb' => 'FFFFFF'], // Weiß
+    ],
+    'fill' => [
+        'fillType' => Fill::FILL_SOLID,
+        'startColor' => ['argb' => '4CAF50'], // Grün
+    ],
+    'alignment' => [
+        'horizontal' => Alignment::HORIZONTAL_CENTER,
+        'vertical' => Alignment::VERTICAL_CENTER,
+    ],
+]);
 
 // Datenbankabfrage
 $query = "
@@ -96,7 +126,7 @@ if ($stmt->rowCount() === 0) {
     die("Keine Daten gefunden für Monat: $monat und Jahr: $jahr.");
 }
 
-// Daten einfügen
+// Datenzeilen einfügen
 $rowIndex = 3;
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $sheet->setCellValue("A$rowIndex", $row['interne_einsatznummer']);
@@ -117,6 +147,22 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $rowIndex++;
 }
 
+// Rahmen für Datenbereich setzen
+$sheet->getStyle("A2:O" . ($rowIndex - 1))->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
+
+// Spaltenbreite automatisch anpassen
+foreach (range('A', 'O') as $columnID) {
+    $sheet->getColumnDimension($columnID)->setAutoSize(true);
+}
+
+// Seitenlayout einstellen
+$sheet->getPageSetup()
+    ->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE)
+    ->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
+
+// Gitterlinien deaktivieren
+$spreadsheet->getActiveSheet()->setShowGridLines(false);
+
 // Kopfzeile für den Download
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
 header("Content-Disposition: attachment; filename=FF1110_einsaetze_{$monat}_{$jahr}.xlsx");
@@ -126,3 +172,4 @@ header('Cache-Control: max-age=0');
 $writer = new Xlsx($spreadsheet);
 $writer->save('php://output');
 exit;
+?>
