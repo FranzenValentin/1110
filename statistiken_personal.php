@@ -197,7 +197,9 @@ try {
     <section id="funktionen-verteilung">
         <?php if (count($funktionenVerteilung) > 0): ?>
             <h2>Funktionen von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?></h2>
-            <canvas id="funktionenChart" width="400" height="200"></canvas>
+            <div style="width: 50%; margin: 0 auto;"> <!-- Begrenze die Breite des Diagramms -->
+                <canvas id="funktionenChart"></canvas>
+            </div>
             <script>
                 const funktionenLabels = <?= json_encode(array_column($funktionenVerteilung, 'funktion')) ?>;
                 const funktionenData = <?= json_encode(array_column($funktionenVerteilung, 'anzahl')) ?>;
