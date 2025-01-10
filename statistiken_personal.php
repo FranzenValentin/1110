@@ -203,7 +203,7 @@ try {
                 const funktionenData = <?= json_encode(array_column($funktionenVerteilung, 'anzahl')) ?>;
 
                 new Chart(document.getElementById('funktionenChart'), {
-                    type: 'bar',
+                    type: 'pie',
                     data: {
                         labels: funktionenLabels,
                         datasets: [{
