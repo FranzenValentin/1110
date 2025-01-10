@@ -12,8 +12,8 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 // Monat und Jahr aus dem Formular abrufen
-$monat = $_POST['monat'];
-$jahr = $_POST['jahr'];
+$monat = 10;
+$jahr = 2024;
 
 // Neues Spreadsheet erstellen
 $spreadsheet = new Spreadsheet();
@@ -31,13 +31,14 @@ $headers = [
     'E2' => 'Zurückzeit',
     'F2' => 'Fahrzeug',
     'G2' => 'Adresse',
-    'H2' => 'StF',
-    'I2' => 'Ma',
-    'J2' => 'AtF',
-    'K2' => 'AtM',
-    'L2' => 'WtF',
-    'M2' => 'WtM',
-    'N2' => 'Praktikant',
+    'H2' => 'Stadtteil',
+    'I2' => 'StF',
+    'J2' => 'Ma',
+    'K2' => 'AtF',
+    'L2' => 'AtM',
+    'M2' => 'WtF',
+    'N2' => 'WtM',
+    'O2' => 'Praktikant',
 ];
 
 foreach ($headers as $cell => $headerText) {
@@ -54,6 +55,7 @@ $query = "
         e.zurueckzeit,
         e.fahrzeug_name,
         e.adresse,
+        e.stadtteil,
         p1.nachname AS stf,
         p2.nachname AS ma,
         p3.nachname AS atf,
@@ -61,8 +63,8 @@ $query = "
         p5.nachname AS wtf,
         p6.nachname AS wtm,
         p7.nachname AS praktikant
-    FROM Einsaetze e
-    LEFT JOIN besatzung b ON e.dienst_id = b.id
+    FROM einsaetze e
+    LEFT JOIN dienste b ON e.dienst_id = b.id
     LEFT JOIN personal p1 ON b.stf_id = p1.id
     LEFT JOIN personal p2 ON b.ma_id = p2.id
     LEFT JOIN personal p3 ON b.atf_id = p3.id
@@ -89,6 +91,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $sheet->setCellValue("E$rowIndex", $row['zurueckzeit']);
     $sheet->setCellValue("F$rowIndex", $row['fahrzeug_name']);
     $sheet->setCellValue("G$rowIndex", $row['adresse']);
+    $sheet->setCellValue("H$rowIndex", $row['stadtteil']);
     $sheet->setCellValue("H$rowIndex", $row['stf']);
     $sheet->setCellValue("I$rowIndex", $row['ma']);
     $sheet->setCellValue("J$rowIndex", $row['atf']);
