@@ -47,32 +47,33 @@ foreach ($daten as $row) {
     }
 }
 
-// Berechnung der kumulierten Einsätze mit Zwischenschritten (z. B. tägliche Werte)
 // Berechnung der kumulierten Einsätze mit Zwischenschritten
 $kumuliertAktuellesJahrDetail = [];
 $kumuliertVorjahrDetail = [];
 
 // Detaillierte Daten für das aktuelle Jahr
 for ($monat = 1; $monat <= 12; $monat++) {
-    $start = $kumuliertAktuellesJahr[$monat - 1] ?? 0;
-    $end = $kumuliertAktuellesJahr[$monat];
+    // Start- und Endwerte für die Interpolation
+    $startAktuell = $kumuliertAktuellesJahr[$monat - 1] ?? 0;
+    $endAktuell = $kumuliertAktuellesJahr[$monat];
 
-    // Füge die Zwischenschritte hinzu
+    // Füge Zwischenschritte hinzu (z. B. 30 Schritte für 30 Tage)
     for ($step = 0; $step <= 30; $step++) {
-        $kumuliertAktuellesJahrDetail[] = $start + (($end - $start) * ($step / 30));
+        $kumuliertAktuellesJahrDetail[] = $startAktuell + (($endAktuell - $startAktuell) * ($step / 30));
     }
 }
 
 // Detaillierte Daten für das Vorjahr
 for ($monat = 1; $monat <= 12; $monat++) {
-    $start = $kumuliertVorjahr[$monat - 1] ?? 0;
-    $end = $kumuliertVorjahr[$monat];
+    $startVorjahr = $kumuliertVorjahr[$monat - 1] ?? 0;
+    $endVorjahr = $kumuliertVorjahr[$monat];
 
-    // Füge die Zwischenschritte hinzu
+    // Füge Zwischenschritte hinzu
     for ($step = 0; $step <= 30; $step++) {
-        $kumuliertVorjahrDetail[] = $start + (($end - $start) * ($step / 30));
+        $kumuliertVorjahrDetail[] = $startVorjahr + (($endVorjahr - $startVorjahr) * ($step / 30));
     }
 }
+
 
 
 
@@ -93,28 +94,24 @@ for ($monat = 1; $monat <= 12; $monat++) {
     <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
     
     <script>
-        // Daten aus PHP übertragen
         const datenVorjahr = <?= json_encode(array_values($datenVorjahr)) ?>;
         const datenAktuellesJahr = <?= json_encode(array_values($datenAktuellesJahr)) ?>;
-        const kumuliertAktuellesJahrDetail = <?= json_encode(array_values($kumuliertAktuellesJahrDetail)) ?>;
-        const kumuliertVorjahrDetail = <?= json_encode(array_values($kumuliertVorjahrDetail)) ?>;
+        const kumuliertAktuellesJahrDetail = <?= json_encode($kumuliertAktuellesJahrDetail) ?>;
+        const kumuliertVorjahrDetail = <?= json_encode($kumuliertVorjahrDetail) ?>;
         const monate = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
 
-        // Chart erstellen
         const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
         new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: monate,
                 datasets: [
-                    // Balkendiagramme für Einsatzzahlen je Monat
                     {
                         label: 'Einsätze je Monat <?= $vorjahr ?>',
                         data: datenVorjahr,
                         backgroundColor: 'rgba(54, 162, 235, 0.5)', // Blau
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 1,
-                        type: 'bar',
                         yAxisID: 'y'
                     },
                     {
@@ -123,29 +120,27 @@ for ($monat = 1; $monat <= 12; $monat++) {
                         backgroundColor: 'rgba(255, 99, 132, 0.5)', // Rot
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 1,
-                        type: 'bar',
                         yAxisID: 'y'
                     },
-                    // Liniendiagramme für kumulierte Einsatzzahlen
                     {
                         label: 'Kumuliert <?= $vorjahr ?>',
                         data: kumuliertVorjahrDetail,
                         borderColor: 'rgba(54, 162, 235, 1)', // Blau
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        fill: false,
                         type: 'line',
+                        fill: false,
                         yAxisID: 'y2',
-                        tension: 0.4 // Glattere Linie
+                        tension: 0.4
                     },
                     {
                         label: 'Kumuliert <?= $jahr ?>',
                         data: kumuliertAktuellesJahrDetail,
                         borderColor: 'rgba(255, 99, 132, 1)', // Rot
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        fill: false,
                         type: 'line',
+                        fill: false,
                         yAxisID: 'y2',
-                        tension: 0.4 // Glattere Linie
+                        tension: 0.4
                     }
                 ]
             },
@@ -153,10 +148,10 @@ for ($monat = 1; $monat <= 12; $monat++) {
                 responsive: true,
                 plugins: {
                     legend: {
-                        position: 'top' // Position der Legende
+                        position: 'top'
                     },
                     tooltip: {
-                        enabled: true // Tooltips für zusätzliche Informationen
+                        enabled: true
                     }
                 },
                 scales: {
@@ -165,18 +160,17 @@ for ($monat = 1; $monat <= 12; $monat++) {
                         title: {
                             display: true,
                             text: 'Einsätze je Monat'
-                        },
-                        position: 'left' // Linke Achse
+                        }
                     },
                     y2: {
                         beginAtZero: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false
+                        },
                         title: {
                             display: true,
                             text: 'Kumulierte Einsätze'
-                        },
-                        position: 'right', // Rechte Achse
-                        grid: {
-                            drawOnChartArea: false // Keine Gitterlinien für rechte Achse
                         }
                     },
                     x: {
@@ -189,6 +183,7 @@ for ($monat = 1; $monat <= 12; $monat++) {
             }
         });
     </script>
+
 
 </body>
 </html>
