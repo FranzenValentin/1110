@@ -23,8 +23,8 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Monat und Jahr aus dem Formular abrufen
-$monat = $_POST['monat'] ?? 10; // Fallback für Testzwecke
-$jahr = $_POST['jahr'] ?? 2024;
+$monat = $_POST['monat'];
+$jahr = $_POST['jahr'];
 
 // Neues Spreadsheet erstellen
 $spreadsheet = new Spreadsheet();
