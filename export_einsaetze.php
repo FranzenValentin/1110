@@ -7,7 +7,7 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 
 require 'db.php';
 
-$autoloadPath = "vendor/autoload.php"; // Anpassen des Pfades bei Bedarf
+$autoloadPath = "../vendor/autoload.php"; // Anpassen des Pfades bei Bedarf
 if (!file_exists($autoloadPath)) {
     die("Autoload.php nicht gefunden unter: $autoloadPath");
 }
