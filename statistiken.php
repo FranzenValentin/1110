@@ -198,20 +198,19 @@ try {
     <?php else: ?>
         <p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($totalEinsaetze) ?></strong></p>
 
+            <?php if (!empty($einsaetzeNachKategorie)): ?>
+                <ul>
+                    <?php foreach ($einsaetzeNachKategorie as $kategorie): ?>
+                        <li>
+                            <strong><?= htmlspecialchars($kategorie['kategorie']) ?>:</strong> 
+                            <?= htmlspecialchars($kategorie['anzahl']) ?> Einsätze
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+
         <?php if ($totalEinsaetze != 0): ?>
             <p>Durchschnittliche Einsatzdauer: <strong><?= htmlspecialchars(round($durchschnittsdauer, 2)) ?> Minuten</strong></p>
-        <?php endif; ?>
-
-        <?php if (!empty($einsaetzeNachKategorie)): ?>
-            <h3>Einsätze nach Kategorie</h3>
-            <ul>
-                <?php foreach ($einsaetzeNachKategorie as $kategorie): ?>
-                    <li>
-                        <strong><?= htmlspecialchars($kategorie['kategorie']) ?>:</strong> 
-                        <?= htmlspecialchars($kategorie['anzahl']) ?> Einsätze
-                    </li>
-                <?php endforeach; ?>
-            </ul>
         <?php endif; ?>
     <?php endif; ?>
 </section>
