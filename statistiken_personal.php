@@ -202,6 +202,17 @@ try {
                 const funktionenLabels = <?= json_encode(array_column($funktionenVerteilung, 'funktion')) ?>;
                 const funktionenData = <?= json_encode(array_column($funktionenVerteilung, 'anzahl')) ?>;
 
+                // Funktion zur Generierung zufälliger Farben
+                function getRandomColor(opacity) {
+                    const r = Math.floor(Math.random() * 200); // Werte bis 200, um helle Farben zu vermeiden
+                    const g = Math.floor(Math.random() * 200);
+                    const b = Math.floor(Math.random() * 200);
+                    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                }
+
+                const backgroundColors = funktionenData.map(() => getRandomColor(0.5));
+                const borderColors = backgroundColors.map(color => color.replace(/0\.5\)$/, '1)')); // Opazität auf 1 setzen
+
                 new Chart(document.getElementById('funktionenChart'), {
                     type: 'pie',
                     data: {
@@ -209,36 +220,17 @@ try {
                         datasets: [{
                             label: 'Anzahl der Einsätze',
                             data: funktionenData,
-                            bbackgroundColor: [
-                                'rgba(54, 162, 235, 0.5)',    // Farbe für das erste Segment
-                                'rgba(255, 99, 132, 0.5)',    // Farbe für das zweite Segment
-                                'rgba(255, 206, 86, 0.5)',    // usw.
-                                'rgba(75, 192, 192, 0.5)',
-                                'rgba(153, 102, 255, 0.5)',
-                                'rgba(255, 159, 64, 0.5)',
-                                'rgba(201, 203, 207, 0.5)'
-                            ],
-                            borderColor: [
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(255, 206, 86, 1)',
-                                'rgba(75, 192, 192, 1)',
-                                'rgba(153, 102, 255, 1)',
-                                'rgba(255, 159, 64, 1)',
-                                'rgba(201, 203, 207, 1)'
-                            ],
+                            backgroundColor: backgroundColors,
+                            borderColor: borderColors,
                             borderWidth: 1
-                                        
                         }]
                     },
                     options: {
                         responsive: true,
-                        scales: {
-                            y: { beginAtZero: true }
-                        }
                     }
                 });
             </script>
+
         <?php else: ?>
             <p>Keine Daten zur Verteilung der Funktionen verfügbar.</p>
         <?php endif; ?>
