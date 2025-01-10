@@ -58,30 +58,30 @@ try {
         ]);
         $einsaetze = $einsaetzeStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Verteilung der Funktionen abrufen
+        // Verteilung der Dienste nach Funktionen abrufen
         $funktionenStmt = $pdo->prepare("
-            SELECT 
-                CASE
-                    WHEN b.stf_id = :personId THEN 'Staffel-Führer'
-                    WHEN b.ma_id = :personId THEN 'Maschinist'
-                    WHEN b.atf_id = :personId OR b.atm_id = :personId THEN 'Angriffstrupp'
-                    WHEN b.wtf_id = :personId OR b.wtm_id = :personId THEN 'Wassertrupp'
-                    WHEN b.prakt_id = :personId THEN 'Praktikant'
-                    ELSE 'Unbekannt'
-                END AS funktion,
-                COUNT(*) AS anzahl
-            FROM einsaetze e
-            LEFT JOIN dienste b ON e.dienst_id = b.id
-            WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
-            AND STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%d.%m.%Y %H:%i') AND STR_TO_DATE(:enddatum, '%d.%m.%Y %H:%i')
-            GROUP BY funktion
+        SELECT 
+            CASE
+                WHEN b.stf_id = :personId THEN 'Staffel-Führer'
+                WHEN b.ma_id = :personId THEN 'Maschinist'
+                WHEN b.atf_id = :personId OR b.atm_id = :personId THEN 'Angriffstrupp'
+                WHEN b.wtf_id = :personId OR b.wtm_id = :personId THEN 'Wassertrupp'
+                WHEN b.prakt_id = :personId THEN 'Praktikant'
+                ELSE 'Unbekannt'
+            END AS funktion,
+            COUNT(*) AS anzahl
+        FROM dienste b
+        WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
+        AND STR_TO_DATE(b.inDienstZeit, '%d.%m.%Y %H:%i') BETWEEN STR_TO_DATE(:startdatum, '%d.%m.%Y %H:%i') AND STR_TO_DATE(:enddatum, '%d.%m.%Y %H:%i')
+        GROUP BY funktion
         ");
         $funktionenStmt->execute([
-            ':personId' => $personId,
-            ':startdatum' => $startdatum,
-            ':enddatum' => $enddatum
+        ':personId' => $personId,
+        ':startdatum' => $startdatum,
+        ':enddatum' => $enddatum
         ]);
         $funktionenVerteilung = $funktionenStmt->fetchAll(PDO::FETCH_ASSOC);
+
 
         // Gesamtanzahl der Einsätze im Zeitraum
         $totalEinsaetzeStmt = $pdo->prepare("
@@ -203,11 +203,11 @@ try {
                 const funktionenData = <?= json_encode(array_column($funktionenVerteilung, 'anzahl')) ?>;
 
                 new Chart(document.getElementById('funktionenChart'), {
-                    type: 'pie', // Ändere den Diagrammtyp auf "pie"
+                    type: 'pie', // Tortendiagramm
                     data: {
                         labels: funktionenLabels,
                         datasets: [{
-                            label: 'Anzahl der Einsätze',
+                            label: 'Anzahl der Dienste',
                             data: funktionenData,
                             backgroundColor: [
                                 'rgba(255, 99, 132, 0.5)',
@@ -241,7 +241,6 @@ try {
                     }
                 });
             </script>
-
 
         <?php else: ?>
             <p>Keine Daten zur Verteilung der Funktionen verfügbar.</p>
