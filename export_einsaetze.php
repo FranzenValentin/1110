@@ -9,7 +9,7 @@ require 'db.php';
 
 $autoloadPath = "../vendor/autoload.php";
 if (!file_exists($autoloadPath)) {
-    die("Autoload.php nicht gefunden unter: $autoloadPath");
+    die("Autoload.php wurde unter nicht gefunden: $autoloadPath");
 }
 require $autoloadPath;
 
