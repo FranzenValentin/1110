@@ -149,6 +149,8 @@ try {
     <title>Statistiken - Personal</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Für Diagramme -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
 </head>
 <body>
 <header>
@@ -200,35 +202,53 @@ try {
             <div style="width: 50%; margin: 0 auto;"> <!-- Begrenze die Breite des Diagramms -->
                 <canvas id="funktionenChart"></canvas>
             </div>
-            <script>
-                const funktionenLabels = <?= json_encode(array_column($funktionenVerteilung, 'funktion')) ?>;
+            <section id="funktionen-verteilung">
+    <?php if (count($funktionenVerteilung) > 0): ?>
+        <h2>Funktionen von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?></h2>
+        <div style="width: 50%; margin: 0 auto;"> <!-- Begrenze die Breite des Diagramms -->
+            <canvas id="funktionenChart"></canvas>
+        </div>
+        <script>
+                const funktionenLabelsOriginal = <?= json_encode(array_column($funktionenVerteilung, 'funktion')) ?>;
                 const funktionenData = <?= json_encode(array_column($funktionenVerteilung, 'anzahl')) ?>;
+
+                // Mapping für die Abkürzungen
+                const abkuerzungen = {
+                    "Angriffstrupp": "AT",
+                    "Wassertrupp": "WT",
+                    "Staffel-Führer": "StF",
+                    "Maschinist": "Ma",
+                    "Praktikant": "Prakt"
+                };
 
                 // Farbzurodnung für die Funktionen
                 const farben = {
-                    "Angriffstrupp": 'rgba(255, 99, 132, 0.5)', // rot
-                    "Wassertrupp": 'rgba(54, 162, 235, 0.5)',  // blau
-                    "Staffel-Führer": 'rgba(255, 206, 86, 0.5)', // gelb
-                    "Maschinist": 'rgba(153, 102, 255, 0.5)',   // lila
-                    "Praktikant": 'rgba(128, 128, 128, 0.5)'    // grau
+                    "AT": 'rgba(255, 99, 132, 0.5)', // rot
+                    "WT": 'rgba(54, 162, 235, 0.5)',  // blau
+                    "StF": 'rgba(255, 206, 86, 0.5)', // gelb
+                    "Ma": 'rgba(153, 102, 255, 0.5)',   // lila
+                    "Prakt": 'rgba(128, 128, 128, 0.5)'    // grau
                 };
 
                 const farbenRand = {
-                    "Angriffstrupp": 'rgba(255, 99, 132, 1)', 
-                    "Wassertrupp": 'rgba(54, 162, 235, 1)',  
-                    "Staffel-Führer": 'rgba(255, 206, 86, 1)', 
-                    "Maschinist": 'rgba(153, 102, 255, 1)',   
-                    "Praktikant": 'rgba(128, 128, 128, 1)'    
+                    "AT": 'rgba(255, 99, 132, 1)', 
+                    "WT": 'rgba(54, 162, 235, 1)',  
+                    "StF": 'rgba(255, 206, 86, 1)', 
+                    "Ma": 'rgba(153, 102, 255, 1)',   
+                    "Prakt": 'rgba(128, 128, 128, 1)'    
                 };
 
-                // Farben basierend auf den Labels auswählen
+                // Labels in Abkürzungen umwandeln
+                const funktionenLabels = funktionenLabelsOriginal.map(label => abkuerzungen[label] || label);
+
+                // Farben basierend auf den Abkürzungen auswählen
                 const backgroundColors = funktionenLabels.map(label => farben[label] || 'rgba(0, 0, 0, 0.5)');
                 const borderColors = funktionenLabels.map(label => farbenRand[label] || 'rgba(0, 0, 0, 1)');
 
                 new Chart(document.getElementById('funktionenChart'), {
                     type: 'pie',
                     data: {
-                        labels: funktionenLabels,
+                        labels: funktionenLabels, // Abkürzungen als Labels
                         datasets: [{
                             label: 'Anzahl der Dienste',
                             data: funktionenData,
@@ -245,15 +265,27 @@ try {
                             },
                             tooltip: {
                                 enabled: true
+                            },
+                            datalabels: {
+                                color: '#fff', // Farbe der Schrift
+                                formatter: (value, context) => {
+                                    return context.chart.data.labels[context.dataIndex]; // Abkürzungen anzeigen
+                                },
+                                font: {
+                                    size: 14, // Schriftgröße
+                                    weight: 'bold' // Schriftgewicht
+                                }
                             }
                         }
-                    }
+                    },
+                    plugins: [ChartDataLabels] // Data Labels Plugin aktivieren
                 });
             </script>
         <?php else: ?>
             <p>Keine Daten zur Verteilung der Funktionen verfügbar.</p>
         <?php endif; ?>
     </section>
+
 
 
     <!-- Anzeige der Einsätze -->
