@@ -42,6 +42,13 @@ $headers = [
     'F2' => 'Fahrzeug',
     'G2' => 'Adresse',
     'H2' => 'Stadtteil',
+    'I2' => 'StF',
+    'J2' => 'Ma',
+    'K2' => 'AtF',
+    'L2' => 'AtM',
+    'M2' => 'WtF',
+    'N2' => 'WtM',
+    'O2' => 'Praktikant',
 ];
 
 foreach ($headers as $cell => $headerText) {
@@ -58,8 +65,23 @@ $query = "
         e.zurueckzeit,
         e.fahrzeug_name,
         e.adresse,
-        e.stadtteil
+        e.stadtteil,
+        p1.nachname AS stf,
+        p2.nachname AS ma,
+        p3.nachname AS atf,
+        p4.nachname AS atm,
+        p5.nachname AS wtf,
+        p6.nachname AS wtm,
+        p7.nachname AS praktikant
     FROM einsaetze e
+    LEFT JOIN dienste d ON e.dienst_id = d.id
+    LEFT JOIN personal p1 ON d.stf_id = p1.id
+    LEFT JOIN personal p2 ON d.ma_id = p2.id
+    LEFT JOIN personal p3 ON d.atf_id = p3.id
+    LEFT JOIN personal p4 ON d.atm_id = p4.id
+    LEFT JOIN personal p5 ON d.wtf_id = p5.id
+    LEFT JOIN personal p6 ON d.wtm_id = p6.id
+    LEFT JOIN personal p7 ON d.prakt_id = p7.id
     WHERE 
         MONTH(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i')) = :monat 
         AND YEAR(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i')) = :jahr
@@ -84,6 +106,13 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $sheet->setCellValue("F$rowIndex", $row['fahrzeug_name'] ?? 'N/A');
     $sheet->setCellValue("G$rowIndex", $row['adresse'] ?? 'N/A');
     $sheet->setCellValue("H$rowIndex", $row['stadtteil'] ?? 'N/A');
+    $sheet->setCellValue("I$rowIndex", $row['stf'] ?? 'N/A');
+    $sheet->setCellValue("J$rowIndex", $row['ma'] ?? 'N/A');
+    $sheet->setCellValue("K$rowIndex", $row['atf'] ?? 'N/A');
+    $sheet->setCellValue("L$rowIndex", $row['atm'] ?? 'N/A');
+    $sheet->setCellValue("M$rowIndex", $row['wtf'] ?? 'N/A');
+    $sheet->setCellValue("N$rowIndex", $row['wtm'] ?? 'N/A');
+    $sheet->setCellValue("O$rowIndex", $row['praktikant'] ?? 'N/A');
     $rowIndex++;
 }
 
