@@ -48,26 +48,32 @@ foreach ($daten as $row) {
 }
 
 // Berechnung der kumulierten Einsätze mit Zwischenschritten (z. B. tägliche Werte)
+// Berechnung der kumulierten Einsätze mit Zwischenschritten
 $kumuliertAktuellesJahrDetail = [];
 $kumuliertVorjahrDetail = [];
-for ($monat = 1; $monat <= 12; $monat++) {
-    if ($monat > 1) {
-        $startAktuell = $kumuliertAktuellesJahr[$monat - 1];
-        $endAktuell = $kumuliertAktuellesJahr[$monat];
-        for ($step = 1; $step <= 30; $step++) {
-            $kumuliertAktuellesJahrDetail[] = $startAktuell + (($endAktuell - $startAktuell) * ($step / 30));
-        }
 
-        $startVorjahr = $kumuliertVorjahr[$monat - 1];
-        $endVorjahr = $kumuliertVorjahr[$monat];
-        for ($step = 1; $step <= 30; $step++) {
-            $kumuliertVorjahrDetail[] = $startVorjahr + (($endVorjahr - $startVorjahr) * ($step / 30));
-        }
-    } else {
-        $kumuliertAktuellesJahrDetail[] = $kumuliertAktuellesJahr[$monat];
-        $kumuliertVorjahrDetail[] = $kumuliertVorjahr[$monat];
+// Detaillierte Daten für das aktuelle Jahr
+for ($monat = 1; $monat <= 12; $monat++) {
+    $start = $kumuliertAktuellesJahr[$monat - 1] ?? 0;
+    $end = $kumuliertAktuellesJahr[$monat];
+
+    // Füge die Zwischenschritte hinzu
+    for ($step = 0; $step <= 30; $step++) {
+        $kumuliertAktuellesJahrDetail[] = $start + (($end - $start) * ($step / 30));
     }
 }
+
+// Detaillierte Daten für das Vorjahr
+for ($monat = 1; $monat <= 12; $monat++) {
+    $start = $kumuliertVorjahr[$monat - 1] ?? 0;
+    $end = $kumuliertVorjahr[$monat];
+
+    // Füge die Zwischenschritte hinzu
+    for ($step = 0; $step <= 30; $step++) {
+        $kumuliertVorjahrDetail[] = $start + (($end - $start) * ($step / 30));
+    }
+}
+
 
 
 ?>
