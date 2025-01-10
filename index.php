@@ -300,56 +300,6 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                     </div>
                 </td>
 
-                <script>
-                    const stadtteile = [
-                        "Adlershof", "Alt-Hohenschönhausen", "Alt-Treptow", "Baumschulenweg", "Biesdorf",
-                        "Blankenburg", "Blankenfelde", "Bohnsdorf", "Borsigwalde", "Britz", "Buch", "Buckow",
-                        "Charlottenburg", "Charlottenburg-Nord", "Dahlem", "Falkenberg", "Falkenhagener Feld",
-                        "Fennpfuhl", "Friedrichsfelde", "Friedrichshagen", "Friedrichshain", "Frohnau",
-                        "Gatow", "Gesundbrunnen", "Gropiusstadt", "Grunewald", "Hakenfelde", "Halensee",
-                        "Haselhorst", "Heiligensee", "Hermsdorf", "Johannisthal", "Karlshorst", "Karow",
-                        "Kaulsdorf", "Kladow", "Konradshöhe", "Köpenick", "Kreuzberg", "Lankwitz", "Lichterfelde",
-                        "Lichtenberg", "Lübars", "Malchow", "Marienfelde", "Mariendorf", "Marzahn", "Mitte",
-                        "Moabit", "Müggelheim", "Neukölln", "Niederschönhausen", "Niederschöneweide", "Nikolassee",
-                        "Oberschöneweide", "Pankow", "Plänterwald", "Prenzlauer Berg", "Rahnsdorf",
-                        "Reinickendorf", "Rosenthal", "Rudow", "Schmargendorf", "Schmöckwitz", "Schöneberg",
-                        "Siemensstadt", "Spandau", "Staaken", "Steglitz", "Tegel", "Tempelhof", "Tiergarten", "Treptow",
-                        "Waidmannslust", "Wannsee", "Wedding", "Weißensee", "Westend", "Wilhelmstadt",
-                        "Wilmersdorf", "Wittenau", "Zehlendorf"
-                    ];
-
-                    const input = document.getElementById("stadtteil");
-                    const autocompleteList = document.getElementById("autocomplete-list");
-
-                    input.addEventListener("input", function() {
-                        const value = this.value.trim().toLowerCase();
-                        autocompleteList.innerHTML = ""; // Clear previous suggestions
-
-                        if (!value) return;
-
-                        // Filter Stadtteile based on input
-                        const filtered = stadtteile.filter(stadtteil => stadtteil.toLowerCase().startsWith(value));
-
-                        // Create list items for suggestions
-                        filtered.forEach(stadtteil => {
-                            const item = document.createElement("div");
-                            item.textContent = stadtteil;
-                            item.addEventListener("click", function() {
-                                input.value = stadtteil; // Set input value to clicked item
-                                autocompleteList.innerHTML = ""; // Clear suggestions
-                            });
-                            autocompleteList.appendChild(item);
-                        });
-                    });
-
-                    // Close the list if clicked outside
-                    document.addEventListener("click", function(event) {
-                        if (!autocompleteList.contains(event.target) && event.target !== input) {
-                            autocompleteList.innerHTML = ""; // Clear suggestions
-                        }
-                    });
-                </script>
-
                 <style>
                     #autocomplete-list {
                         position: absolute;
