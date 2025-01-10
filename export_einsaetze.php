@@ -6,44 +6,43 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 }
 
 require 'db.php';
+require 'vendor/autoload.php'; // PHPSpreadsheet Autoloader
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 // Monat und Jahr aus dem Formular abrufen
 $monat = $_POST['monat'];
 $jahr = $_POST['jahr'];
 
-// Header für den Excel-Export
-header("Content-Type: application/vnd.ms-excel");
-header("Content-Disposition: attachment; filename=FF1110_einsaetze_{$monat}_{$jahr}.xls");
+// Neues Spreadsheet erstellen
+$spreadsheet = new Spreadsheet();
+$sheet = $spreadsheet->getActiveSheet();
 
-// Start der Excel-Datei (HTML-basierte Tabelle)
-echo '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
-echo '<head>';
-echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />';
-echo '<style>
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid black; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-      </style>';
-echo '</head>';
-echo '<body>';
-echo "<h1>FF 1110 - Einsatzübersicht - $monat/$jahr</h1>";
-echo '<table>';
-echo '<tr>
-        <th>Interne Einsatznummer</th>
-        <th>Einsatznummer</th>
-        <th>Stichwort</th>
-        <th>Alarmzeit</th>
-        <th>Zurückzeit</th>
-        <th>Fahrzeug</th>
-        <th>Adresse</th>
-        <th>StF</th>
-        <th>Ma</th>
-        <th>AtF</th>
-        <th>AtM</th>
-        <th>WtF</th>
-        <th>WtM</th>
-        <th>Praktikant</th>
-      </tr>';
+// Titelzeile setzen
+$sheet->setCellValue('A1', "FF 1110 - Einsatzübersicht - $monat/$jahr");
+
+// Header für die Tabelle
+$headers = [
+    'A2' => 'Interne Einsatznummer',
+    'B2' => 'Einsatznummer',
+    'C2' => 'Stichwort',
+    'D2' => 'Alarmzeit',
+    'E2' => 'Zurückzeit',
+    'F2' => 'Fahrzeug',
+    'G2' => 'Adresse',
+    'H2' => 'StF',
+    'I2' => 'Ma',
+    'J2' => 'AtF',
+    'K2' => 'AtM',
+    'L2' => 'WtF',
+    'M2' => 'WtM',
+    'N2' => 'Praktikant',
+];
+
+foreach ($headers as $cell => $headerText) {
+    $sheet->setCellValue($cell, $headerText);
+}
 
 // Datenbankabfrage
 $query = "
@@ -81,25 +80,32 @@ $stmt = $pdo->prepare($query);
 $stmt->execute(['monat' => $monat, 'jahr' => $jahr]);
 
 // Datenzeilen einfügen
+$rowIndex = 3; // Startreihe nach Header
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    echo '<tr>';
-    echo '<td>' . htmlspecialchars($row['interne_einsatznummer']) . '</td>';
-    echo '<td>' . htmlspecialchars($row['einsatznummer_lts']) . '</td>';
-    echo '<td>' . htmlspecialchars($row['stichwort']) . '</td>';
-    echo '<td>' . htmlspecialchars($row['alarmuhrzeit']) . '</td>';
-    echo '<td>' . htmlspecialchars($row['zurueckzeit']) . '</td>';
-    echo '<td>' . htmlspecialchars($row['fahrzeug_name']) . '</td>';
-    echo '<td>' . htmlspecialchars($row['adresse']) . '</td>';
-    echo '<td>' . htmlspecialchars($row['stf']) . '</td>';
-    echo '<td>' . htmlspecialchars($row['ma']) . '</td>';
-    echo '<td>' . htmlspecialchars($row['atf']) . '</td>';
-    echo '<td>' . htmlspecialchars($row['atm']) . '</td>';
-    echo '<td>' . htmlspecialchars($row['wtf']) . '</td>';
-    echo '<td>' . htmlspecialchars($row['wtm']) . '</td>';
-    echo '<td>' . htmlspecialchars($row['praktikant']) . '</td>';
-    echo '</tr>';
+    $sheet->setCellValue("A$rowIndex", $row['interne_einsatznummer']);
+    $sheet->setCellValue("B$rowIndex", $row['einsatznummer_lts']);
+    $sheet->setCellValue("C$rowIndex", $row['stichwort']);
+    $sheet->setCellValue("D$rowIndex", $row['alarmuhrzeit']);
+    $sheet->setCellValue("E$rowIndex", $row['zurueckzeit']);
+    $sheet->setCellValue("F$rowIndex", $row['fahrzeug_name']);
+    $sheet->setCellValue("G$rowIndex", $row['adresse']);
+    $sheet->setCellValue("H$rowIndex", $row['stf']);
+    $sheet->setCellValue("I$rowIndex", $row['ma']);
+    $sheet->setCellValue("J$rowIndex", $row['atf']);
+    $sheet->setCellValue("K$rowIndex", $row['atm']);
+    $sheet->setCellValue("L$rowIndex", $row['wtf']);
+    $sheet->setCellValue("M$rowIndex", $row['wtm']);
+    $sheet->setCellValue("N$rowIndex", $row['praktikant']);
+    $rowIndex++;
 }
 
-echo '</table>';
-echo '</body>';
-echo '</html>';
+// Kopfzeile für den Download
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header("Content-Disposition: attachment; filename=FF1110_einsaetze_{$monat}_{$jahr}.xlsx");
+header('Cache-Control: max-age=0');
+
+// Datei schreiben und ausgeben
+$writer = new Xlsx($spreadsheet);
+$writer->save('php://output');
+exit;
+?>
