@@ -6,14 +6,25 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 }
 
 require 'db.php';
-require '/../vendor/autoload.php'; // PHPSpreadsheet Autoloader
+
+$autoloadPath = "/../vendor/autoload.php" // Anpassen des Pfades bei Bedarf
+if (!file_exists($autoloadPath)) {
+    die("Autoload.php nicht gefunden unter: $autoloadPath");
+}
+require $autoloadPath;
+
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
+// Debugging aktivieren
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Monat und Jahr aus dem Formular abrufen
-$monat = 10;
-$jahr = 2024;
+$monat = $_POST['monat'] ?? 10; // Fallback für Testzwecke
+$jahr = $_POST['jahr'] ?? 2024;
 
 // Neues Spreadsheet erstellen
 $spreadsheet = new Spreadsheet();
@@ -92,13 +103,13 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $sheet->setCellValue("F$rowIndex", $row['fahrzeug_name']);
     $sheet->setCellValue("G$rowIndex", $row['adresse']);
     $sheet->setCellValue("H$rowIndex", $row['stadtteil']);
-    $sheet->setCellValue("H$rowIndex", $row['stf']);
-    $sheet->setCellValue("I$rowIndex", $row['ma']);
-    $sheet->setCellValue("J$rowIndex", $row['atf']);
-    $sheet->setCellValue("K$rowIndex", $row['atm']);
-    $sheet->setCellValue("L$rowIndex", $row['wtf']);
-    $sheet->setCellValue("M$rowIndex", $row['wtm']);
-    $sheet->setCellValue("N$rowIndex", $row['praktikant']);
+    $sheet->setCellValue("I$rowIndex", $row['stf']);
+    $sheet->setCellValue("J$rowIndex", $row['ma']);
+    $sheet->setCellValue("K$rowIndex", $row['atf']);
+    $sheet->setCellValue("L$rowIndex", $row['atm']);
+    $sheet->setCellValue("M$rowIndex", $row['wtf']);
+    $sheet->setCellValue("N$rowIndex", $row['wtm']);
+    $sheet->setCellValue("O$rowIndex", $row['praktikant']);
     $rowIndex++;
 }
 
