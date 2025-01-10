@@ -203,6 +203,7 @@ try {
                     <?php foreach ($einsaetzeNachKategorie as $kategorie): ?>
                             <strong><?= htmlspecialchars($kategorie['kategorie']) ?>:</strong> 
                             <?= htmlspecialchars($kategorie['anzahl']) ?>
+                            </br>
                     <?php endforeach; ?>
                 </ul>
             <?php endif; ?>
