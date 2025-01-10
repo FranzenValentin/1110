@@ -6,7 +6,7 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 }
 
 require 'db.php';
-require 'vendor/autoload.php'; // PHPSpreadsheet Autoloader
+require '/../vendor/autoload.php'; // PHPSpreadsheet Autoloader
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
