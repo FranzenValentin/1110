@@ -55,6 +55,13 @@ foreach ($daten as $row) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Einsatzentwicklung</title>
+    <link rel="stylesheet" href="styles.css">
+    <form method="POST" action="logout.php" class="logout-form">
+        <button type="submit">Logout</button>
+    </form>
+    <form method="POST" action="index.php" class="back-form">
+        <button type="submit">Zurück</button>
+    </form>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
