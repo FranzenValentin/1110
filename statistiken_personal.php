@@ -262,11 +262,11 @@ try {
                                 enabled: true // Tooltips für zusätzliche Informationen
                             },
                             datalabels: {
-                                color: '#fff', // Farbe der Schrift auf den Kuchenstücken
+                                color: 'black', // Farbe der Schrift auf den Kuchenstücken
                                 formatter: (value, context) => {
                                     // Zeige die Abkürzung und den Wert
                                     const label = context.chart.data.labels[context.dataIndex];
-                                    return `${label}: ${value}`;
+                                    return `${label}`;
                                 },
                                 font: {
                                     size: 14, // Schriftgröße
