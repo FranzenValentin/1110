@@ -199,13 +199,11 @@ try {
         <p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($totalEinsaetze) ?></strong></p>
 
             <?php if (!empty($einsaetzeNachKategorie)): ?>
-                <ul>
                     <?php foreach ($einsaetzeNachKategorie as $kategorie): ?>
                             <strong><?= htmlspecialchars($kategorie['kategorie']) ?>:</strong> 
                             <?= htmlspecialchars($kategorie['anzahl']) ?>
                             </br>
                     <?php endforeach; ?>
-                </ul>
             <?php endif; ?>
 
         <?php if ($totalEinsaetze != 0): ?>
