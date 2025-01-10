@@ -29,6 +29,24 @@ $stmt->execute([':jahr' => $jahr, ':vorjahr' => $vorjahr]);
 // Daten aufbereiten
 $daten = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Initialisiere Arrays für beide Jahre
+$datenAktuellesJahr = array_fill(1, 12, 0); // 12 Monate mit 0 initialisieren
+$datenVorjahr = array_fill(1, 12, 0);
+$kumuliertAktuellesJahr = array_fill(1, 12, 0);
+$kumuliertVorjahr = array_fill(1, 12, 0);
+
+foreach ($daten as $row) {
+    $monat = (int)$row['monat'];
+    $anzahl = (int)$row['anzahl'];
+    if ($row['jahr'] == $jahr) {
+        $datenAktuellesJahr[$monat] = $anzahl;
+        $kumuliertAktuellesJahr[$monat] = ($kumuliertAktuellesJahr[$monat - 1] ?? 0) + $anzahl;
+    } elseif ($row['jahr'] == $vorjahr) {
+        $datenVorjahr[$monat] = $anzahl;
+        $kumuliertVorjahr[$monat] = ($kumuliertVorjahr[$monat - 1] ?? 0) + $anzahl;
+    }
+}
+
 // Berechnung der kumulierten Einsätze mit Zwischenschritten (z. B. tägliche Werte)
 $kumuliertAktuellesJahrDetail = [];
 $kumuliertVorjahrDetail = [];
@@ -54,6 +72,7 @@ for ($monat = 1; $monat <= 12; $monat++) {
     }
 }
 
+?>
 
 
 
