@@ -51,26 +51,24 @@ foreach ($daten as $row) {
 $kumuliertAktuellesJahrDetail = [];
 $kumuliertVorjahrDetail = [];
 for ($monat = 1; $monat <= 12; $monat++) {
-    // Aktuelles Jahr
-    $kumuliertAktuellesJahrDetail[$monat] = $kumuliertAktuellesJahr[$monat];
     if ($monat > 1) {
-        $start = $kumuliertAktuellesJahr[$monat - 1];
-        $end = $kumuliertAktuellesJahr[$monat];
+        $startAktuell = $kumuliertAktuellesJahr[$monat - 1];
+        $endAktuell = $kumuliertAktuellesJahr[$monat];
         for ($step = 1; $step <= 30; $step++) {
-            $kumuliertAktuellesJahrDetail[] = $start + (($end - $start) * ($step / 30));
+            $kumuliertAktuellesJahrDetail[] = $startAktuell + (($endAktuell - $startAktuell) * ($step / 30));
         }
-    }
 
-    // Vorjahr
-    $kumuliertVorjahrDetail[$monat] = $kumuliertVorjahr[$monat];
-    if ($monat > 1) {
-        $start = $kumuliertVorjahr[$monat - 1];
-        $end = $kumuliertVorjahr[$monat];
+        $startVorjahr = $kumuliertVorjahr[$monat - 1];
+        $endVorjahr = $kumuliertVorjahr[$monat];
         for ($step = 1; $step <= 30; $step++) {
-            $kumuliertVorjahrDetail[] = $start + (($end - $start) * ($step / 30));
+            $kumuliertVorjahrDetail[] = $startVorjahr + (($endVorjahr - $startVorjahr) * ($step / 30));
         }
+    } else {
+        $kumuliertAktuellesJahrDetail[] = $kumuliertAktuellesJahr[$monat];
+        $kumuliertVorjahrDetail[] = $kumuliertVorjahr[$monat];
     }
 }
+
 
 ?>
 
@@ -90,6 +88,8 @@ for ($monat = 1; $monat <= 12; $monat++) {
     
     <script>
         // Daten aus PHP übertragen
+        const datenVorjahr = <?= json_encode(array_values($datenVorjahr)) ?>;
+        const datenAktuellesJahr = <?= json_encode(array_values($datenAktuellesJahr)) ?>;
         const kumuliertAktuellesJahrDetail = <?= json_encode(array_values($kumuliertAktuellesJahrDetail)) ?>;
         const kumuliertVorjahrDetail = <?= json_encode(array_values($kumuliertVorjahrDetail)) ?>;
         const monate = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
