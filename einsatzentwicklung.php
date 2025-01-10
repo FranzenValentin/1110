@@ -74,6 +74,34 @@ for ($monat = 1; $monat <= 12; $monat++) {
     }
 }
 
+// Berechnung der kumulierten Einsätze pro Woche
+$woechentlichAktuellesJahr = [];
+$woechentlichVorjahr = [];
+
+// Funktion zur Berechnung der wöchentlichen Einsätze
+function berechneWoechentlich($daten, $jahr)
+{
+    $woechentlich = array_fill(1, 52, 0); // 52 Wochen initialisieren
+    $kumuliert = 0;
+
+    foreach ($daten as $row) {
+        if ((int)$row['jahr'] === $jahr) {
+            $monat = (int)$row['monat'];
+            $anzahl = (int)$row['anzahl'];
+            $kumuliert += $anzahl;
+            $woche = (int)date('W', mktime(0, 0, 0, $monat, 1, $jahr));
+            $woechentlich[$woche] = $kumuliert;
+        }
+    }
+
+    return $woechentlich;
+}
+
+// Wöchentliche Einsatzzahlen berechnen
+$woechentlichAktuellesJahr = berechneWoechentlich($daten, $jahr);
+$woechentlichVorjahr = berechneWoechentlich($daten, $vorjahr);
+
+
 
 
 
@@ -94,53 +122,39 @@ for ($monat = 1; $monat <= 12; $monat++) {
     <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
     
     <script>
-        const datenVorjahr = <?= json_encode(array_values($datenVorjahr)) ?>;
-        const datenAktuellesJahr = <?= json_encode(array_values($datenAktuellesJahr)) ?>;
-        const kumuliertAktuellesJahrDetail = <?= json_encode($kumuliertAktuellesJahrDetail) ?>;
-        const kumuliertVorjahrDetail = <?= json_encode($kumuliertVorjahrDetail) ?>;
-        const monate = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+        // Daten aus PHP übertragen
+        const woechentlichAktuellesJahr = <?= json_encode(array_values($woechentlichAktuellesJahr)) ?>;
+        const woechentlichVorjahr = <?= json_encode(array_values($woechentlichVorjahr)) ?>;
+        const wochen = Array.from({ length: 52 }, (_, i) => `Woche ${i + 1}`);
 
+        // Chart erstellen
         const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
         new Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: {
-                labels: monate,
+                labels: wochen,
                 datasets: [
                     {
-                        label: 'Einsätze je Monat <?= $vorjahr ?>',
-                        data: datenVorjahr,
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)', // Blau
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: 'Einsätze je Monat <?= $jahr ?>',
-                        data: datenAktuellesJahr,
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)', // Rot
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1,
-                        yAxisID: 'y'
-                    },
-                    {
                         label: 'Kumuliert <?= $vorjahr ?>',
-                        data: kumuliertVorjahrDetail,
+                        data: woechentlichVorjahr,
                         borderColor: 'rgba(54, 162, 235, 1)', // Blau
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        type: 'line',
                         fill: false,
-                        yAxisID: 'y2',
-                        tension: 0.4
+                        tension: 0.4, // Glattere Linie
+                        pointStyle: 'circle',
+                        pointRadius: 5,
+                        yAxisID: 'y'
                     },
                     {
                         label: 'Kumuliert <?= $jahr ?>',
-                        data: kumuliertAktuellesJahrDetail,
+                        data: woechentlichAktuellesJahr,
                         borderColor: 'rgba(255, 99, 132, 1)', // Rot
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        type: 'line',
                         fill: false,
-                        yAxisID: 'y2',
-                        tension: 0.4
+                        tension: 0.4, // Glattere Linie
+                        pointStyle: 'circle',
+                        pointRadius: 5,
+                        yAxisID: 'y'
                     }
                 ]
             },
@@ -159,31 +173,19 @@ for ($monat = 1; $monat <= 12; $monat++) {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Einsätze je Monat'
-                        }
-                    },
-                    y2: {
-                        beginAtZero: true,
-                        position: 'right',
-                        grid: {
-                            drawOnChartArea: false
-                        },
-                        title: {
-                            display: true,
                             text: 'Kumulierte Einsätze'
-                        }
+                        },
+                        position: 'left'
                     },
                     x: {
                         title: {
                             display: true,
-                            text: 'Monate'
+                            text: 'Wochen'
                         }
                     }
                 }
             }
         });
     </script>
-
-
 </body>
 </html>
