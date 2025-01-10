@@ -201,10 +201,8 @@ try {
             <?php if (!empty($einsaetzeNachKategorie)): ?>
                 <ul>
                     <?php foreach ($einsaetzeNachKategorie as $kategorie): ?>
-                        <li>
                             <strong><?= htmlspecialchars($kategorie['kategorie']) ?>:</strong> 
-                            <?= htmlspecialchars($kategorie['anzahl']) ?> Einsätze
-                        </li>
+                            <?= htmlspecialchars($kategorie['anzahl']) ?>
                     <?php endforeach; ?>
                 </ul>
             <?php endif; ?>
