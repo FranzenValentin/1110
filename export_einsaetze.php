@@ -62,32 +62,19 @@ $query = "
         e.interne_einsatznummer,
         e.einsatznummer_lts,
         e.stichwort,
-        e.alarmuhrzeit,
-        e.zurueckzeit,
-        e.fahrzeug_name,
-        e.adresse,
-        e.stadtteil,
-        p1.nachname AS stf,
-        p2.nachname AS ma,
-        p3.nachname AS atf,
-        p4.nachname AS atm,
-        p5.nachname AS wtf,
-        p6.nachname AS wtm,
-        p7.nachname AS praktikant
+        e.alarmuhrzeit
     FROM einsaetze e
-    LEFT JOIN dienste b ON e.dienst_id = b.id
-    LEFT JOIN personal p1 ON b.stf_id = p1.id
-    LEFT JOIN personal p2 ON b.ma_id = p2.id
-    LEFT JOIN personal p3 ON b.atf_id = p3.id
-    LEFT JOIN personal p4 ON b.atm_id = p4.id
-    LEFT JOIN personal p5 ON b.wtf_id = p5.id
-    LEFT JOIN personal p6 ON b.wtm_id = p6.id
-    LEFT JOIN personal p7 ON b.prakt_id = p7.id
     WHERE 
-        MONTH(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i')) = :monat 
-        AND YEAR(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%y %H:%i')) = :jahr
-    ORDER BY e.id DESC
+        MONTH(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i')) = 1 
+        AND YEAR(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i')) = 2025
 ";
+
+$stmt = $pdo->query($query);
+
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    print_r($row);
+}
+
 
 $stmt = $pdo->prepare($query);
 $stmt->execute(['monat' => $monat, 'jahr' => $jahr]);
@@ -99,10 +86,6 @@ if ($stmt->rowCount() === 0) {
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     print_r($row); // Debugging: Prüfe die Ergebnisse
 }
-
-
-$stmt = $pdo->prepare($query);
-$stmt->execute(['monat' => $monat, 'jahr' => $jahr]);
 
 // Datenzeilen einfügen
 $rowIndex = 3; // Startreihe nach Header
