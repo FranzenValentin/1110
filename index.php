@@ -214,7 +214,6 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                         type="datetime-local" 
                                         id="alarmuhrzeit" 
                                         name="alarmuhrzeit" 
-                                        value="<?= htmlspecialchars($_POST['zurueckzeit'] ?? '') ?>" 
                                         oninput="syncZurueckzeit()" 
                                         onfocus="hidePlaceholder('alarmPlaceholder')" 
                                         onblur="showPlaceholder('alarmPlaceholder', this)" 
@@ -230,7 +229,6 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                         type="datetime-local" 
                                         id="zurueckzeit" 
                                         name="zurueckzeit" 
-                                        value="<?= htmlspecialchars($_POST['zurueckzeit'] ?? '') ?>" 
                                         onfocus="hidePlaceholder('returnPlaceholder')" 
                                         onblur="showPlaceholder('returnPlaceholder', this)" 
                                         style="padding-left: 5px;">
@@ -240,15 +238,6 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
 
 
                             <script>
-                                function syncZurueckzeit() {
-                                    const alarmzeitInput = document.getElementById('alarmuhrzeit');
-                                    const zurueckzeitInput = document.getElementById('zurueckzeit');
-
-                                    // Nur Wert kopieren, wenn Alarmzeit ausgefüllt ist
-                                    if (alarmzeitInput.value) {
-                                        zurueckzeitInput.value = alarmzeitInput.value;
-                                    }
-                                }
 
                                 function hidePlaceholder(placeholderId) {
                                     document.getElementById(placeholderId).style.display = 'none';
