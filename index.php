@@ -473,7 +473,7 @@ if ($zeitResult) {
 
         <!-- Letzte Einsätze -->
         <section id="letzte-einsaetze">
-            <h2>Letzte 15 Alarme</h2>
+            <h2>Letzte 10 Alarme</h2>
             <table>
                 <thead>
                     <tr>
@@ -503,7 +503,7 @@ if ($zeitResult) {
                         ORDER BY 
                             CAST(SUBSTRING_INDEX(e.interne_einsatznummer, '_', 1) AS UNSIGNED) DESC,
                             CAST(SUBSTRING_INDEX(e.interne_einsatznummer, '_', -1) AS UNSIGNED) DESC
-                        LIMIT 15
+                        LIMIT 10
                     ");
 
 
@@ -597,13 +597,24 @@ if ($zeitResult) {
                                         WHEN p.id = d.wtm_id THEN 'WtM'
                                         WHEN p.id = d.prakt_id THEN 'Prakt'
                                     END AS funktion,
-                                    CONCAT(p.vorname, ' ', p.nachname) AS name
+                                    CONCAT(p.vorname, ' ', p.nachname) AS name,
+                                    CASE
+                                        WHEN p.id = d.stf_id THEN 1
+                                        WHEN p.id = d.ma_id THEN 2
+                                        WHEN p.id = d.atf_id THEN 3
+                                        WHEN p.id = d.atm_id THEN 4
+                                        WHEN p.id = d.wtf_id THEN 5
+                                        WHEN p.id = d.wtm_id THEN 6
+                                        WHEN p.id = d.prakt_id THEN 7
+                                    END AS reihenfolge
                                 FROM personal p
                                 JOIN dienste d ON p.id IN (
                                     d.stf_id, d.ma_id, d.atf_id, d.atm_id, d.wtf_id, d.wtm_id, d.prakt_id
                                 )
                                 WHERE d.id = :dienst_id
+                                ORDER BY reihenfolge ASC
                             ");
+
                             try {
                                 $personalStmt->execute([':dienst_id' => $dienst['id']]);
                                 $personalList = $personalStmt->fetchAll(PDO::FETCH_ASSOC);
