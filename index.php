@@ -285,7 +285,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                 <!-- Stadtteil -->
                 <td id="dick">
                     <div>
-                        <input type="text" id="stadtteil" name="stadtteil" placeholder="Stadtteil" autocomplete="off" required>
+                        <input type="text" id="stadtteil" name="stadtteil" placeholder="Bezirk" autocomplete="off" readonly required>
                     </div>
                 </td>
 
