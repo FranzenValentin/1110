@@ -18,7 +18,7 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
 
 <script>
     // Zeit für die automatische Weiterleitung in Millisekunden (5 Minuten = 300000 ms)
-    const timeout = 1000;
+    const timeout = 10000;
 
     // Automatische Weiterleitung nach Timeout
     let inactivityTimer = setTimeout(() => {
