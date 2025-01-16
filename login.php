@@ -10,17 +10,7 @@ try {
 // Definiere den Zugangscode
 define('ACCESS_CODE', $_ENV['app.access_code']);
 
-// Prüfe die Datenbankverbindung
-try {
-    $dsn = "mysql:host=" . $_ENV['db.host'] . ";dbname=" . $_ENV['db.name'] . ";charset=utf8mb4";
-    $pdo = new PDO($dsn, $_ENV['db.user'], $_ENV['db.password'], [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    ]);
-} catch (PDOException $e) {
-    echo "Datenbankfehler: " . $e->getMessage();
-    //exit; // Beende das Skript bei einem Datenbankfehler
-}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $code = $_POST['access_code'];
     if ($code === ACCESS_CODE) {
