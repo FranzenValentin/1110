@@ -1,6 +1,6 @@
 <?php
 session_start();
-define('SESSION_TIMEOUT', 300);
+define('SESSION_TIMEOUT', 10);
 
 if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
     if (isset($_SESSION['last_activity'])) {
