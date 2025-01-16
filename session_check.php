@@ -14,6 +14,7 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
     }
     $_SESSION['last_activity'] = time();
 }
+?>
 
 <script>
     // Zeit für die automatische Weiterleitung in Millisekunden (5 Minuten = 300000 ms)
