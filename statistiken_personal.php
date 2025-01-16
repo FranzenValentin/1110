@@ -184,7 +184,6 @@ try {
                 <?php endforeach; ?>
             </select>
 
-
             <label for="startdatum">Startdatum:</label>
             <input type="date" id="startdatum" name="startdatum" value="<?= htmlspecialchars((new DateTime($startdatum))->format('Y-m-d')) ?>" required>
 
