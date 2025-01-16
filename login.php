@@ -19,7 +19,7 @@ try {
     ]);
 } catch (PDOException $e) {
     echo "Datenbankfehler: " . $e->getMessage();
-    exit; // Beende das Skript bei einem Datenbankfehler
+    //exit; // Beende das Skript bei einem Datenbankfehler
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $code = $_POST['access_code'];
