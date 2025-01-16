@@ -1,6 +1,32 @@
 <?php
 session_start();
 
+// Zeit in Sekunden für die Inaktivität (5 Minuten = 300 Sekunden)
+define('SESSION_TIMEOUT', 300);
+
+// Überprüfen, ob der Benutzer angemeldet ist
+if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
+    // Überprüfen, ob die Zeit der letzten Aktivität gesetzt ist
+    if (isset($_SESSION['last_activity'])) {
+        $inactivityDuration = time() - $_SESSION['last_activity'];
+
+        // Wenn die Inaktivitätsdauer größer als SESSION_TIMEOUT ist, abmelden
+        if ($inactivityDuration > SESSION_TIMEOUT) {
+            // Sitzung zerstören
+            session_unset();
+            session_destroy();
+
+            // Weiterleitung zur Login-Seite
+            header("Location: login.php?timeout=1");
+            exit;
+        }
+    }
+
+    // Zeit der letzten Aktivität aktualisieren
+    $_SESSION['last_activity'] = time();
+}
+
+
 try {
     loadEnv(__DIR__ . '/../config.env');
 } catch (Exception $e) {
@@ -56,6 +82,7 @@ function loadEnv($filePath)
 }
 
 
+
 ?>
 
 <!DOCTYPE html>
@@ -81,7 +108,13 @@ function loadEnv($filePath)
                 pattern="[0-9]*" 
                 required>
             <button type="submit">Anmelden</button>
-            <?php if (isset($error)) { echo "<p class='error'>$error</p>"; } ?>
+            <?php if (isset($error)) { echo "<p class='error'>$error</p>"; } 
+            
+            if (isset($_GET['timeout']) && $_GET['timeout'] == 1) {
+                echo "<p class='error'>Sie wurden wegen Inaktivität abgemeldet. Bitte melden Sie sich erneut an.</p>";
+            }
+            
+            ?>
             
         </form>
     </main>

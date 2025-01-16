@@ -1,10 +1,5 @@
 <?php
-session_start();
-if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-    header('Location: login.php'); // Weiterleitung zur Login-Seite
-    exit;
-}
-
+require_once 'session_check.php';
 require 'db.php';
 
 

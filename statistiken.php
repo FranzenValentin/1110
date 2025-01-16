@@ -1,9 +1,5 @@
 <?php
-session_start();
-if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-    header('Location: login.php');
-    exit;
-}
+require_once 'session_check.php';
 require 'db.php';
 
 ini_set('display_errors', 1);

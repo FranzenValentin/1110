@@ -1,9 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-    header('Location: login.php');
-    exit;
-}
+require_once 'session_check.php';
 require 'db.php';
 
 // Stichwort speichern, wenn das Formular abgeschickt wird
