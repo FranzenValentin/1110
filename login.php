@@ -16,7 +16,7 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
             session_unset();
             session_destroy();
 
-            // Weiterleitung zur Login-Seite
+            // Weiterleitung zur Login-Seite mit Timeout-Parameter
             header("Location: login.php?timeout=1");
             exit;
         }
@@ -25,7 +25,6 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
     // Zeit der letzten Aktivität aktualisieren
     $_SESSION['last_activity'] = time();
 }
-
 
 try {
     loadEnv(__DIR__ . '/../config.env');
@@ -36,18 +35,36 @@ try {
 // Definiere den Zugangscode
 define('ACCESS_CODE', $_ENV['app.access_code']);
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $code = $_POST['access_code'];
+    $deviceInfo = $_SERVER['HTTP_USER_AGENT']; // Gerätename (User-Agent)
+    $logTime = date('Y-m-d H:i:s'); // Aktuelle Serverzeit
+
     if ($code === ACCESS_CODE) {
+        // Benutzer erfolgreich authentifiziert
         $_SESSION['authenticated'] = true;
-        header('Location: index.php'); // Weiterleitung zur geschützten Seite
+
+        // Login erfolgreich protokollieren
+        file_put_contents(
+            __DIR__ . '/login_logs.txt',
+            "Erfolgreicher Login | Gerät: $deviceInfo | Zeit: $logTime" . PHP_EOL,
+            FILE_APPEND
+        );
+
+        // Weiterleitung zur geschützten Seite
+        header('Location: index.php');
         exit;
     } else {
         $error = "Falscher Zugangscode.";
+
+        // Fehlgeschlagener Login protokollieren
+        file_put_contents(
+            __DIR__ . '/login_logs.txt',
+            "Fehlgeschlagener Login | Gerät: $deviceInfo | Zeit: $logTime" . PHP_EOL,
+            FILE_APPEND
+        );
     }
 }
-
 
 // Funktion, um die .env-Datei zu laden
 function loadEnv($filePath)
@@ -80,9 +97,6 @@ function loadEnv($filePath)
         }
     }
 }
-
-
-
 ?>
 
 <!DOCTYPE html>
@@ -108,14 +122,17 @@ function loadEnv($filePath)
                 pattern="[0-9]*" 
                 required>
             <button type="submit">Anmelden</button>
-            <?php if (isset($error)) { echo "<p class='error'>$error</p>"; } 
-            
+            <?php 
+            // Zeige Fehlermeldung bei falschem Zugangscode
+            if (isset($error)) { 
+                echo "<p class='error'>$error</p>"; 
+            }
+
+            // Zeige Timeout-Nachricht bei Inaktivitätsabmeldung
             if (isset($_GET['timeout']) && $_GET['timeout'] == 1) {
                 echo "<p class='error'>Sie wurden wegen Inaktivität abgemeldet. Bitte melden Sie sich erneut an.</p>";
             }
-            
             ?>
-            
         </form>
     </main>
 </body>
