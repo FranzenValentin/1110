@@ -41,22 +41,69 @@ if (isset($_GET['check_status'])) {
 </head>
 <body>
 <script>
-    // Timeout-Dauer in Millisekunden (5 Minuten = 300000 ms)
-    const timeout = 300000;
+    const timeout = 300000; // Timeout-Dauer (5 Minuten in Millisekunden)
+    const warningTime = 30000; // Warnzeit (30 Sekunden vor Timeout)
 
-    // Automatische Weiterleitung nach Timeout
-    let inactivityTimer = setTimeout(() => {
+    let inactivityTimer; // Timer für die automatische Abmeldung
+    let warningTimer; // Timer für die Warnung vor Abmeldung
+
+    // Funktion zum Anzeigen der Warnmeldung
+    function showWarning() {
+        const warningElement = document.createElement('div');
+        warningElement.id = 'session-warning';
+        warningElement.style.position = 'fixed';
+        warningElement.style.bottom = '20px';
+        warningElement.style.right = '20px';
+        warningElement.style.padding = '15px';
+        warningElement.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
+        warningElement.style.color = 'white';
+        warningElement.style.fontSize = '16px';
+        warningElement.style.borderRadius = '5px';
+        warningElement.style.zIndex = '1000';
+        warningElement.innerText = 'Sie werden in 30 Sekunden abgemeldet. Bitte bleiben Sie aktiv!';
+        document.body.appendChild(warningElement);
+    }
+
+    // Funktion zum Entfernen der Warnmeldung
+    function removeWarning() {
+        const warningElement = document.getElementById('session-warning');
+        if (warningElement) {
+            warningElement.remove();
+        }
+    }
+
+    // Funktion zur automatischen Abmeldung
+    function autoLogout() {
         window.location.href = 'login.php?timeout=1';
-    }, timeout);
+    }
+
+    // Timer für Warnung und Abmeldung starten
+    function startTimers() {
+        // Timer für die Warnung
+        warningTimer = setTimeout(() => {
+            showWarning();
+        }, timeout - warningTime);
+
+        // Timer für die automatische Abmeldung
+        inactivityTimer = setTimeout(() => {
+            autoLogout();
+        }, timeout);
+    }
+
+    // Timer zurücksetzen und Warnung entfernen
+    function resetTimers() {
+        clearTimeout(warningTimer);
+        clearTimeout(inactivityTimer);
+        removeWarning(); // Warnung entfernen
+        startTimers(); // Timer neu starten
+    }
+
+    // Timer starten
+    startTimers();
 
     // Benutzerinteraktion überwachen und Timer zurücksetzen
     ['click', 'mousemove', 'keydown', 'scroll'].forEach(event => {
-        window.addEventListener(event, () => {
-            clearTimeout(inactivityTimer);
-            inactivityTimer = setTimeout(() => {
-                window.location.href = 'login.php?timeout=1';
-            }, timeout);
-        });
+        window.addEventListener(event, resetTimers);
     });
 
     // Funktion zur Prüfung des Session-Status
@@ -65,7 +112,7 @@ if (isset($_GET['check_status'])) {
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'inactive') {
-                    window.location.href = 'login.php?timeout=1';
+                    autoLogout(); // Automatische Abmeldung
                 }
             })
             .catch(error => console.error('Fehler beim Prüfen der Session:', error));
