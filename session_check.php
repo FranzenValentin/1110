@@ -47,28 +47,55 @@ if (isset($_GET['check_status'])) {
     let inactivityTimer; // Timer für die automatische Abmeldung
     let warningTimer; // Timer für die Warnung vor Abmeldung
 
-    // Funktion zum Anzeigen der Warnmeldung
-    function showWarning() {
-        const warningElement = document.createElement('div');
-        warningElement.id = 'session-warning';
-        warningElement.style.position = 'fixed';
-        warningElement.style.bottom = '20px';
-        warningElement.style.right = '20px';
-        warningElement.style.padding = '15px';
-        warningElement.style.backgroundColor = 'rgba(255, 0, 0, 0.8)';
-        warningElement.style.color = 'white';
-        warningElement.style.fontSize = '16px';
-        warningElement.style.borderRadius = '5px';
-        warningElement.style.zIndex = '1000';
-        warningElement.innerText = 'Sie werden in 30 Sekunden abgemeldet. Bitte bleiben Sie aktiv!';
-        document.body.appendChild(warningElement);
+    // Funktion zum Anzeigen der modalen Warnung
+    function showModalWarning() {
+        // Modal erstellen
+        const modal = document.createElement('div');
+        modal.id = 'session-warning-modal';
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        modal.style.color = 'white';
+        modal.style.display = 'flex';
+        modal.style.flexDirection = 'column';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+        modal.style.zIndex = '1000';
+
+        // Nachricht
+        const message = document.createElement('p');
+        message.style.fontSize = '20px';
+        message.style.marginBottom = '20px';
+        message.innerText = 'Ihre Sitzung läuft in 30 Sekunden ab! Klicken Sie auf "Aktiv bleiben", um angemeldet zu bleiben.';
+
+        // Schaltfläche
+        const button = document.createElement('button');
+        button.style.padding = '10px 20px';
+        button.style.fontSize = '16px';
+        button.style.backgroundColor = '#007bff';
+        button.style.color = 'white';
+        button.style.border = 'none';
+        button.style.borderRadius = '5px';
+        button.style.cursor = 'pointer';
+        button.innerText = 'Aktiv bleiben';
+        button.onclick = () => {
+            removeModalWarning(); // Modal entfernen
+            resetTimers(); // Timer zurücksetzen
+        };
+
+        modal.appendChild(message);
+        modal.appendChild(button);
+        document.body.appendChild(modal);
     }
 
-    // Funktion zum Entfernen der Warnmeldung
-    function removeWarning() {
-        const warningElement = document.getElementById('session-warning');
-        if (warningElement) {
-            warningElement.remove();
+    // Funktion zum Entfernen der modalen Warnung
+    function removeModalWarning() {
+        const modal = document.getElementById('session-warning-modal');
+        if (modal) {
+            modal.remove();
         }
     }
 
@@ -81,7 +108,7 @@ if (isset($_GET['check_status'])) {
     function startTimers() {
         // Timer für die Warnung
         warningTimer = setTimeout(() => {
-            showWarning();
+            showModalWarning();
         }, timeout - warningTime);
 
         // Timer für die automatische Abmeldung
@@ -94,7 +121,7 @@ if (isset($_GET['check_status'])) {
     function resetTimers() {
         clearTimeout(warningTimer);
         clearTimeout(inactivityTimer);
-        removeWarning(); // Warnung entfernen
+        removeModalWarning(); // Warnung entfernen
         startTimers(); // Timer neu starten
     }
 
@@ -106,27 +133,24 @@ if (isset($_GET['check_status'])) {
         window.addEventListener(event, resetTimers);
     });
 
-    // Funktion zur Prüfung des Session-Status
-    function checkSession() {
-        fetch('session_check.php?check_status=1')
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'inactive') {
-                    autoLogout(); // Automatische Abmeldung
-                }
-            })
-            .catch(error => console.error('Fehler beim Prüfen der Session:', error));
-    }
-
     // Sichtbarkeitsüberwachung (für Tablets und Hintergrundmodus)
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
-            checkSession(); // Session-Status prüfen, wenn die Seite wieder sichtbar wird
+            resetTimers();
         }
     });
 
     // Regelmäßige Überprüfung der Session alle 5 Minuten
-    setInterval(checkSession, timeout);
+    setInterval(() => {
+        fetch('session_check.php?check_status=1')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'inactive') {
+                    autoLogout();
+                }
+            })
+            .catch(error => console.error('Fehler beim Prüfen der Session:', error));
+    }, timeout);
 </script>
 </body>
 </html>
