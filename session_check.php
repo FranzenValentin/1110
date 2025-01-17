@@ -46,8 +46,8 @@ if (isset($_GET['check_status'])) {
 </head>
 <body>
 <script>
-    const timeout = 100000; // Timeout-Dauer (5 Minuten in Millisekunden)
-    const warningTime = 10000; // Warnzeit (30 Sekunden vor Timeout)
+    const timeout = 300000; // Timeout-Dauer (5 Minuten in Millisekunden)
+    const warningTime = 30000; // Warnzeit (30 Sekunden vor Timeout)
 
     let inactivityTimer; // Timer für die automatische Abmeldung
     let warningTimer; // Timer für die Warnung vor Abmeldung
