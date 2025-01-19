@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once 'session_check.php'; // Session-Überprüfung
 require 'db.php'; // Verbindung zur Datenbank herstellen
 
