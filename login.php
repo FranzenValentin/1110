@@ -10,7 +10,22 @@ if (!$pdo) {
     die("Datenbankverbindung fehlgeschlagen.");
 }
 
-// Überprüfen, ob der Benutzer angemeldet ist
+// Benutzerliste abrufen
+$users = [];
+$lastLoggedUser = $_SESSION['last_user'] ?? ($_COOKIE['last_user'] ?? null);
+
+try {
+    $stmt = $pdo->query("SELECT nachname, vorname FROM personal ORDER BY nachname, vorname");
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (!$lastLoggedUser && !empty($users)) {
+        $lastLoggedUser = $users[0]['nachname'] . ' ' . $users[0]['vorname'];
+    }
+} catch (PDOException $e) {
+    die("Fehler beim Abrufen der Benutzerdaten: " . $e->getMessage());
+}
+
+// Prüfen, ob der Benutzer angemeldet ist
 if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
     if (isset($_SESSION['last_activity'])) {
         $inactivityDuration = time() - $_SESSION['last_activity'];
@@ -22,21 +37,6 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
         }
     }
     $_SESSION['last_activity'] = time();
-}
-
-// Benutzerliste abrufen
-$users = [];
-$lastLoggedUser = $_SESSION['last_user'] ?? null;
-
-try {
-    $stmt = $pdo->query("SELECT nachname, vorname FROM personal ORDER BY nachname, vorname");
-    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    if (!$lastLoggedUser && !empty($users)) {
-        $lastLoggedUser = $users[0]['nachname'] . ' ' . $users[0]['vorname'];
-    }
-} catch (PDOException $e) {
-    die("Fehler beim Abrufen der Benutzerdaten: " . $e->getMessage());
 }
 
 // Prüfen, ob der Benutzer einen Login-Versuch unternommen hat
@@ -55,6 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($dbCode && $dbCode == $inputCode) {
             $_SESSION['authenticated'] = true;
             $_SESSION['last_user'] = $username;
+
+            // Letzten Benutzer im Cookie speichern
+            setcookie('last_user', $username, time() + (86400 * 30), '/'); // 30 Tage gültig
 
             file_put_contents(
                 __DIR__ . '/login_logs.txt',
