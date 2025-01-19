@@ -85,6 +85,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="stylesheet" href="styles.css">
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const usernameInput = document.getElementById("username");
+
+            // Beim Klicken in das Eingabefeld wird der Text gelöscht
+            usernameInput.addEventListener("focus", function () {
+                usernameInput.value = "";
+            });
+
+            // Setze den letzten Benutzer, falls vorhanden
+            const lastUser = "<?= htmlspecialchars($lastLoggedUser ?? '') ?>";
+            if (lastUser) {
+                usernameInput.value = lastUser;
+            }
+        });
+    </script>
 </head>
 <body>
     <header>
@@ -97,7 +113,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 list="usernames" 
                 id="username" 
                 name="username" 
-                value="<?= htmlspecialchars($lastLoggedUser ?? '') ?>" 
                 placeholder="Nachname Vorname" 
                 required>
             <datalist id="usernames">
