@@ -150,13 +150,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (target.id === "username" || target.id === "access_code") {
                 setTimeout(() => {
-                // Scrollt das Eingabefeld in den sichtbaren Bereich
-                usernameInput.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start", // Ganz oben im Sichtfenster
-                    top: -10,
-                });
-            }, 300);
+                    const rect = target.getBoundingClientRect(); // Position relativ zum Sichtfenster
+                    const scrollY = window.scrollY || document.documentElement.scrollTop; // Aktuelle Scroll-Position
+
+                    // Zielposition berechnen: 10 Pixel oberhalb des Feldes
+                    const targetPosition = rect.top + scrollY - 10;
+
+                    // Scrollen zur berechneten Position
+                    window.scrollTo({
+                        top: targetPosition, // Zielscrollposition
+                        behavior: "smooth", // Weiche Scrollanimation
+                    });
+                }, 300); // Kurze Verzögerung, damit die Tastatur erscheint
             }
         });
 
