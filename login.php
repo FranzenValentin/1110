@@ -19,16 +19,16 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
     $_SESSION['last_activity'] = time();
 }
 
-// Abrufen der Benutzernamen aus der Tabelle "personal"
+// Abrufen der Benutzerdaten aus der Tabelle "personal"
 $users = [];
-$lastLoggedUser = isset($_SESSION['last_user']) ? $_SESSION['last_user'] : null;
+$lastLoggedUser = $_SESSION['last_user'] ?? null; // Letzter Benutzer aus Session
 
 try {
-    $stmt = $db->query("SELECT name FROM personal");
-    $users = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    $stmt = $db->query("SELECT Nachname, Vorname FROM personal ORDER BY Nachname, Vorname");
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (!$lastLoggedUser && !empty($users)) {
-        $lastLoggedUser = $users[0]; // Standard auf ersten Benutzer setzen
+        $lastLoggedUser = $users[0]['Nachname'] . ' ' . $users[0]['Vorname']; // Standard auf ersten Benutzer setzen
     }
 } catch (PDOException $e) {
     die("Fehler beim Abrufen der Benutzerdaten: " . $e->getMessage());
@@ -41,14 +41,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $deviceInfo = $_SERVER['HTTP_USER_AGENT'];
     $logTime = date('Y-m-d H:i:s');
 
+    // Vor- und Nachname extrahieren
+    [$nachname, $vorname] = explode(' ', $selectedUser, 2);
+
     try {
-        $stmt = $db->prepare("SELECT code FROM personal WHERE name = :name");
-        $stmt->execute(['name' => $selectedUser]);
+        $stmt = $db->prepare("SELECT code FROM personal WHERE Nachname = :nachname AND Vorname = :vorname");
+        $stmt->execute(['nachname' => $nachname, 'vorname' => $vorname]);
         $dbCode = $stmt->fetchColumn();
 
         if ($dbCode && $dbCode == $inputCode) {
             $_SESSION['authenticated'] = true;
-            $_SESSION['last_user'] = $selectedUser;
+            $_SESSION['last_user'] = $selectedUser; // Letzten Benutzer speichern
 
             // Login erfolgreich protokollieren
             file_put_contents(
@@ -89,9 +92,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="POST" class="login-form">
             <label for="username">Benutzername:</label>
             <select id="username" name="username" required>
-                <?php foreach ($users as $user): ?>
-                    <option value="<?= htmlspecialchars($user) ?>" <?= $user === $lastLoggedUser ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($user) ?>
+                <?php foreach ($users as $user): 
+                    $fullName = htmlspecialchars($user['Nachname'] . ' ' . $user['Vorname']); ?>
+                    <option value="<?= $fullName ?>" <?= $fullName === $lastLoggedUser ? 'selected' : '' ?>>
+                        <?= $fullName ?>
                     </option>
                 <?php endforeach; ?>
             </select>
