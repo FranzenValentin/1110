@@ -39,8 +39,8 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
     $_SESSION['last_activity'] = time();
 }
 
-// Prüfen, ob der Benutzer einen Login-Versuch unternommen hat
 $error = null;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $inputCode = trim($_POST['access_code']);
@@ -48,37 +48,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $logTime = date('Y-m-d H:i:s');
 
     try {
-        $stmt = $pdo->prepare("SELECT code FROM personal WHERE CONCAT(nachname, ' ', vorname) = :username");
-        $stmt->execute(['username' => $username]);
-        $dbCode = $stmt->fetchColumn();
-
-        if ($dbCode == $inputCode) {
-            $_SESSION['authenticated'] = true;
-            $_SESSION['last_user'] = $username;
-
-            // Letzten Benutzer im Cookie speichern
-            setcookie('last_user', $username, time() + (86400 * 30), '/'); // 30 Tage gültig
-
-            file_put_contents(
-                __DIR__ . '/login_logs.txt',
-                "Erfolgreicher Login | Benutzer: $username | Gerät: $deviceInfo | Zeit: $logTime" . PHP_EOL,
-                FILE_APPEND
-            );
-
-            header('Location: index.php');
-            exit;
+        // Benutzername aufteilen in Nachname und Vorname
+        $nameParts = explode(' ', $username, 2);
+        if (count($nameParts) < 2) {
+            $error = "Ungültiger Benutzername. Bitte 'Nachname Vorname' eingeben.";
         } else {
-            $error = "Ungültiger Benutzername oder Zugangscode.";
-            file_put_contents(
-                __DIR__ . '/login_logs.txt',
-                "Fehlgeschlagener Login | Benutzer: $username | Gerät: $deviceInfo | Zeit: $logTime" . PHP_EOL,
-                FILE_APPEND
-            );
+            [$nachname, $vorname] = $nameParts;
+
+            // Datenbankabfrage ausführen
+            $stmt = $pdo->prepare("SELECT code FROM personal WHERE nachname = :nachname AND vorname = :vorname");
+            $stmt->execute(['nachname' => $nachname, 'vorname' => $vorname]);
+            $dbCode = $stmt->fetchColumn();
+
+            if ($dbCode && $dbCode == $inputCode) {
+                // Login erfolgreich
+                $_SESSION['authenticated'] = true;
+                $_SESSION['last_user'] = $username;
+
+                // Letzten Benutzer im Cookie speichern
+                setcookie('last_user', $username, time() + (86400 * 30), '/');
+
+                file_put_contents(
+                    __DIR__ . '/login_logs.txt',
+                    "Erfolgreicher Login | Benutzer: $username | Gerät: $deviceInfo | Zeit: $logTime" . PHP_EOL,
+                    FILE_APPEND
+                );
+
+                header('Location: index.php');
+                exit;
+            } else {
+                $error = "Ungültiger Benutzername oder Zugangscode.";
+                file_put_contents(
+                    __DIR__ . '/login_logs.txt',
+                    "Fehlgeschlagener Login | Benutzer: $username | Gerät: $deviceInfo | Zeit: $logTime" . PHP_EOL,
+                    FILE_APPEND
+                );
+            }
         }
     } catch (PDOException $e) {
         die("Fehler beim Login: " . $e->getMessage());
     }
 }
+
 ?>
 
 <!DOCTYPE html>
