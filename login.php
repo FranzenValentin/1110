@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'db_connection.php'; // Verbindung zur Datenbank herstellen
+require_once 'db.php'; // Verbindung zur Datenbank herstellen
 
 // Zeit in Sekunden für die Inaktivität (5 Minuten = 300 Sekunden)
 define('SESSION_TIMEOUT', 300);
