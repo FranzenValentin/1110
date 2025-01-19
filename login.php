@@ -70,8 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Vorname und Nachname separat speichern
                 $nameParts = explode(' ', $username, 2);
-                $_SESSION['last_user_firstname'] = $nameParts[1] ?? ''; // Vorname
-                $_SESSION['last_user_lastname'] = $nameParts[0] ?? '';  // Nachname
+                $_SESSION['last_user_firstname'] = $nameParts[0] ?? ''; // Vorname
+                $_SESSION['last_user_lastname'] = $nameParts[1] ?? '';  // Nachname
 
                 file_put_contents(
                     __DIR__ . '/login_logs.txt',
