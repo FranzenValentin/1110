@@ -9,7 +9,7 @@ if (strlen($query) < 2) {
 
 try {
     $stmt = $pdo->prepare("
-        SELECT CONCAT(nachname, ' ', vorname) AS full_name 
+        SELECT CONCAT(vorname, ' ', nachname) AS full_name 
         FROM personal 
         WHERE nachname LIKE :query OR vorname LIKE :query 
         ORDER BY nachname, vorname
