@@ -155,6 +155,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         block: "start",
                     });
                 }, 300);
+                // Zusätzliche Korrektur, falls zu weit gescrollt wird
+                const offset = 50; // Korrektur in Pixeln (nach oben verschieben)
+                window.scrollBy({
+                    top: -offset, // Negative Werte scrollen nach oben
+                    behavior: "smooth",
+                });
             }
         });
 
