@@ -187,6 +187,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 item.addEventListener("click", () => {
                     usernameInput.value = item.textContent; // Benutzername ins Feld einfügen
                     suggestionsList.innerHTML = ""; // Liste zurücksetzen
+                    // Fokus auf das Zugangscodefeld setzen
+                    const accessCodeInput = document.getElementById("access_code");
+                    accessCodeInput.focus();    
                 });
             });
         });
