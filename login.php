@@ -150,17 +150,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (target.id === "username" || target.id === "access_code") {
                 setTimeout(() => {
-                    target.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start",
-                    });
-                }, 300);
+                // Scrollt das Eingabefeld in den sichtbaren Bereich
+                usernameInput.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start", // Ganz oben im Sichtfenster
+                });
+
                 // Zusätzliche Korrektur, falls zu weit gescrollt wird
                 const offset = 50; // Korrektur in Pixeln (nach oben verschieben)
                 window.scrollBy({
                     top: -offset, // Negative Werte scrollen nach oben
                     behavior: "smooth",
                 });
+            }, 300);
             }
         });
 
