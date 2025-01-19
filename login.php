@@ -19,7 +19,7 @@ try {
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (!$lastLoggedUser && !empty($users)) {
-        $lastLoggedUser = $users[0]['nachname'] . ' ' . $users[0]['vorname'];
+        $lastLoggedUser = $users[0]['vorname'] . ' ' . $users[0]['nachname'];
     }
 } catch (PDOException $e) {
     die("Fehler beim Abrufen der Benutzerdaten: " . $e->getMessage());
@@ -51,9 +51,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Benutzername aufteilen in Nachname und Vorname
         $nameParts = explode(' ', $username, 2);
         if (count($nameParts) < 2) {
-            $error = "Ungültiger Benutzername. Bitte 'Nachname Vorname' eingeben.";
+            $error = "Ungültiger Benutzername. Bitte 'Vorname Nachname' eingeben.";
         } else {
-            [$nachname, $vorname] = $nameParts;
+            [$vorname, $nachname] = $nameParts;
 
             // Datenbankabfrage ausführen
             $stmt = $pdo->prepare("SELECT code FROM personal WHERE nachname = :nachname AND vorname = :vorname");
@@ -128,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     type="text" 
                     id="username" 
                     name="username" 
-                    placeholder="Nachname Vorname" 
+                    placeholder="Vorname Nachname" 
                     required>
                 <ul id="suggestions" class="suggestions"></ul>
             </div>
