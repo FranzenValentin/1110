@@ -116,6 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 list="usernames" 
                 id="username" 
                 name="username" 
+                autocomplete="username"
                 placeholder="Nachname Vorname" 
                 required>
             <datalist id="usernames">
