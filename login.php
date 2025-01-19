@@ -152,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 setTimeout(() => {
                     target.scrollIntoView({
                         behavior: "smooth",
-                        block: "center",
+                        block: "start",
                     });
                 }, 300);
             }
