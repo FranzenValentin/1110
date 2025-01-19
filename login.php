@@ -5,6 +5,11 @@ require_once 'db.php'; // Verbindung zur Datenbank herstellen
 // Zeit in Sekunden für die Inaktivität (5 Minuten = 300 Sekunden)
 define('SESSION_TIMEOUT', 300);
 
+// Überprüfen, ob die Datenbankverbindung existiert
+if (!$db) {
+    die("Datenbankverbindung fehlgeschlagen.");
+}
+
 // Überprüfen, ob der Benutzer angemeldet ist
 if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
     if (isset($_SESSION['last_activity'])) {
@@ -21,14 +26,23 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
 
 // Abrufen der Benutzerdaten aus der Tabelle "personal"
 $users = [];
-$lastLoggedUser = $_SESSION['last_user'] ?? null; // Letzter Benutzer aus Session
+$lastLoggedUser = $_SESSION['last_user'] ?? null;
 
 try {
     $stmt = $db->query("SELECT nachname, vorname FROM personal ORDER BY nachname, vorname");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    if (empty($users)) {
+        echo "Keine Benutzer gefunden.";
+    } else {
+        echo "<!-- Debug: Benutzerliste -->";
+        echo "<pre>";
+        print_r($users); // Debug-Ausgabe der Benutzerliste
+        echo "</pre>";
+    }
+
     if (!$lastLoggedUser && !empty($users)) {
-        $lastLoggedUser = $users[0]['nachname'] . ' ' . $users[0]['vorname']; // Standard auf ersten Benutzer setzen
+        $lastLoggedUser = $users[0]['nachname'] . ' ' . $users[0]['vorname'];
     }
 } catch (PDOException $e) {
     die("Fehler beim Abrufen der Benutzerdaten: " . $e->getMessage());
@@ -53,7 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['authenticated'] = true;
             $_SESSION['last_user'] = $selectedUser; // Letzten Benutzer speichern
 
-            // Login erfolgreich protokollieren
             file_put_contents(
                 __DIR__ . '/login_logs.txt',
                 "Erfolgreicher Login | Benutzer: $selectedUser | Gerät: $deviceInfo | Zeit: $logTime" . PHP_EOL,
@@ -110,15 +123,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 required>
             <button type="submit">Anmelden</button>
             
-            <?php 
-            if (isset($error)) { 
-                echo "<p class='error'>$error</p>"; 
-            }
-
-            if (isset($_GET['timeout']) && $_GET['timeout'] == 1) {
-                echo "<p class='error'>Sie wurden wegen Inaktivität abgemeldet. Bitte melden Sie sich erneut an.</p>";
-            }
-            ?>
+            <?php if (isset($error)): ?>
+                <p class='error'><?= $error ?></p>
+            <?php endif; ?>
+            
+            <?php if (isset($_GET['timeout']) && $_GET['timeout'] == 1): ?>
+                <p class='error'>Sie wurden wegen Inaktivität abgemeldet. Bitte melden Sie sich erneut an.</p>
+            <?php endif; ?>
         </form>
     </main>
 </body>
