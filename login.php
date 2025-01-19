@@ -154,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     const scrollY = window.scrollY || document.documentElement.scrollTop; // Aktuelle Scroll-Position
 
                     // Zielposition berechnen: 10 Pixel oberhalb des Feldes
-                    const targetPosition = rect.top + scrollY - 10;
+                    const targetPosition = rect.top + scrollY - 30;
 
                     // Scrollen zur berechneten Position
                     window.scrollTo({
