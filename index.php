@@ -532,9 +532,11 @@ if ($zeitResult) {
                     ?>
                 </tbody>
             </table>
+            <!--
             <div class="button-container">
                 <button onclick="location.href='historie.php'">Alle Alarme</button>
             </div>
+            -->
         </section>
 
 
