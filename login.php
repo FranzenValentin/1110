@@ -24,9 +24,23 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
     $_SESSION['last_activity'] = time();
 }
 
-$error = null;
+// Benutzerliste abrufen
+$users = [];
+$lastLoggedUser = $_SESSION['last_user'] ?? null;
+
+try {
+    $stmt = $pdo->query("SELECT nachname, vorname FROM personal ORDER BY nachname, vorname");
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (!$lastLoggedUser && !empty($users)) {
+        $lastLoggedUser = $users[0]['nachname'] . ' ' . $users[0]['vorname'];
+    }
+} catch (PDOException $e) {
+    die("Fehler beim Abrufen der Benutzerdaten: " . $e->getMessage());
+}
 
 // Prüfen, ob der Benutzer einen Login-Versuch unternommen hat
+$error = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $inputCode = trim($_POST['access_code']);
@@ -42,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['authenticated'] = true;
             $_SESSION['last_user'] = $username;
 
-            // Login erfolgreich protokollieren
             file_put_contents(
                 __DIR__ . '/login_logs.txt',
                 "Erfolgreicher Login | Benutzer: $username | Gerät: $deviceInfo | Zeit: $logTime" . PHP_EOL,
@@ -71,88 +84,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: #f4f4f4;
-        }
-        .login-form {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
-        }
-        .login-form h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .login-form label {
-            font-size: 16px;
-            display: block;
-            margin-bottom: 5px;
-        }
-        .login-form input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        .login-form button {
-            width: 100%;
-            padding: 10px;
-            font-size: 18px;
-            background: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .login-form button:hover {
-            background: #0056b3;
-        }
-        .error {
-            color: red;
-            font-size: 14px;
-            text-align: center;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <form method="POST" class="login-form">
+    <header>
         <h1>Login</h1>
-        <label for="username">Benutzername:</label>
-        <input type="text" id="username" name="username" placeholder="Nachname Vorname" required>
+    </header>
+    <main>
+        <form method="POST" class="login-form">
+            <label for="username">Benutzername:</label>
+            <input 
+                list="usernames" 
+                id="username" 
+                name="username" 
+                value="<?= htmlspecialchars($lastLoggedUser ?? '') ?>" 
+                placeholder="Nachname Vorname" 
+                required>
+            <datalist id="usernames">
+                <?php foreach ($users as $user): 
+                    $fullName = htmlspecialchars($user['nachname'] . ' ' . $user['vorname']); ?>
+                    <option value="<?= $fullName ?>"></option>
+                <?php endforeach; ?>
+            </datalist>
 
-        <label for="access_code">Zugangscode:</label>
-        <input 
-            type="password" 
-            id="access_code" 
-            name="access_code" 
-            inputmode="numeric" 
-            pattern="[0-9]*" 
-            placeholder="Code eingeben" 
-            required>
+            <label for="access_code">Zugangscode:</label>
+            <input 
+                type="password" 
+                id="access_code" 
+                name="access_code" 
+                inputmode="numeric" 
+                pattern="[0-9]*" 
+                placeholder="Code eingeben" 
+                required>
 
-        <button type="submit">Anmelden</button>
+            <button type="submit">Anmelden</button>
 
-        <?php if ($error): ?>
-            <p class='error'><?= $error ?></p>
-        <?php endif; ?>
-        
-        <?php if (isset($_GET['timeout']) && $_GET['timeout'] == 1): ?>
-            <p class='error'>Sie wurden wegen Inaktivität abgemeldet. Bitte melden Sie sich erneut an.</p>
-        <?php endif; ?>
-    </form>
+            <?php if ($error): ?>
+                <p class='error'><?= $error ?></p>
+            <?php endif; ?>
+            
+            <?php if (isset($_GET['timeout']) && $_GET['timeout'] == 1): ?>
+                <p class='error'>Sie wurden wegen Inaktivität abgemeldet. Bitte melden Sie sich erneut an.</p>
+            <?php endif; ?>
+        </form>
+    </main>
 </body>
 </html>
