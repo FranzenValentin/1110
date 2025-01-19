@@ -144,6 +144,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         const usernameInput = document.getElementById("username");
         const suggestionsList = document.getElementById("suggestions");
 
+        // Automatisches Scrollen bei Fokus
+        document.addEventListener("focusin", (event) => {
+            const target = event.target;
+
+            if (target.id === "username" || target.id === "access_code") {
+                setTimeout(() => {
+                    target.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                    });
+                }, 300);
+            }
+        });
+
         // Event: Eingabe in das Benutzernamenfeld
         usernameInput.addEventListener("input", async () => {
             const query = usernameInput.value.trim();
