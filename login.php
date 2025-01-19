@@ -1,100 +1,74 @@
 <?php
 session_start();
+require_once 'db_connection.php'; // Verbindung zur Datenbank herstellen
 
 // Zeit in Sekunden für die Inaktivität (5 Minuten = 300 Sekunden)
 define('SESSION_TIMEOUT', 300);
 
 // Überprüfen, ob der Benutzer angemeldet ist
 if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
-    // Überprüfen, ob die Zeit der letzten Aktivität gesetzt ist
     if (isset($_SESSION['last_activity'])) {
         $inactivityDuration = time() - $_SESSION['last_activity'];
-
-        // Wenn die Inaktivitätsdauer größer als SESSION_TIMEOUT ist, abmelden
         if ($inactivityDuration > SESSION_TIMEOUT) {
-            // Sitzung zerstören
             session_unset();
             session_destroy();
-
-            // Weiterleitung zur Login-Seite mit Timeout-Parameter
             header("Location: login.php?timeout=1");
             exit;
         }
     }
-
-    // Zeit der letzten Aktivität aktualisieren
     $_SESSION['last_activity'] = time();
 }
 
+// Abrufen der Benutzernamen aus der Tabelle "personal"
+$users = [];
+$lastLoggedUser = isset($_SESSION['last_user']) ? $_SESSION['last_user'] : null;
+
 try {
-    loadEnv(__DIR__ . '/../config.env');
-} catch (Exception $e) {
-    echo "Fehler: " . $e->getMessage();
+    $stmt = $db->query("SELECT name FROM personal");
+    $users = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    if (!$lastLoggedUser && !empty($users)) {
+        $lastLoggedUser = $users[0]; // Standard auf ersten Benutzer setzen
+    }
+} catch (PDOException $e) {
+    die("Fehler beim Abrufen der Benutzerdaten: " . $e->getMessage());
 }
 
-// Definiere den Zugangscode
-define('ACCESS_CODE', $_ENV['app.access_code']);
-
+// Prüfen, ob der Benutzer einen Login-Versuch unternommen hat
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $code = $_POST['access_code'];
-    $deviceInfo = $_SERVER['HTTP_USER_AGENT']; // Gerätename (User-Agent)
-    $logTime = date('Y-m-d H:i:s'); // Aktuelle Serverzeit
+    $selectedUser = $_POST['username'];
+    $inputCode = $_POST['access_code'];
+    $deviceInfo = $_SERVER['HTTP_USER_AGENT'];
+    $logTime = date('Y-m-d H:i:s');
 
-    if ($code === ACCESS_CODE) {
-        // Benutzer erfolgreich authentifiziert
-        $_SESSION['authenticated'] = true;
+    try {
+        $stmt = $db->prepare("SELECT code FROM personal WHERE name = :name");
+        $stmt->execute(['name' => $selectedUser]);
+        $dbCode = $stmt->fetchColumn();
 
-        // Login erfolgreich protokollieren
-        file_put_contents(
-            __DIR__ . '/login_logs.txt',
-            "Erfolgreicher Login | Gerät: $deviceInfo | Zeit: $logTime" . PHP_EOL,
-            FILE_APPEND
-        );
+        if ($dbCode && $dbCode == $inputCode) {
+            $_SESSION['authenticated'] = true;
+            $_SESSION['last_user'] = $selectedUser;
 
-        // Weiterleitung zur geschützten Seite
-        header('Location: index.php');
-        exit;
-    } else {
-        $error = "Falscher Zugangscode.";
+            // Login erfolgreich protokollieren
+            file_put_contents(
+                __DIR__ . '/login_logs.txt',
+                "Erfolgreicher Login | Benutzer: $selectedUser | Gerät: $deviceInfo | Zeit: $logTime" . PHP_EOL,
+                FILE_APPEND
+            );
 
-        // Fehlgeschlagener Login protokollieren
-        file_put_contents(
-            __DIR__ . '/login_logs.txt',
-            "Fehlgeschlagener Login | Gerät: $deviceInfo | Zeit: $logTime" . PHP_EOL,
-            FILE_APPEND
-        );
-    }
-}
-
-// Funktion, um die .env-Datei zu laden
-function loadEnv($filePath)
-{
-    if (!file_exists($filePath)) {
-        throw new Exception("Die Datei $filePath wurde nicht gefunden.");
-    }
-
-    $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-    foreach ($lines as $line) {
-        // Kommentare ignorieren
-        if (strpos(trim($line), '#') === 0) {
-            continue;
+            header('Location: index.php');
+            exit;
+        } else {
+            $error = "Falscher Zugangscode für $selectedUser.";
+            file_put_contents(
+                __DIR__ . '/login_logs.txt',
+                "Fehlgeschlagener Login | Benutzer: $selectedUser | Gerät: $deviceInfo | Zeit: $logTime" . PHP_EOL,
+                FILE_APPEND
+            );
         }
-
-        // Zeilen in Schlüssel-Wert-Paare aufteilen
-        $parts = explode('=', $line, 2);
-
-        if (count($parts) == 2) {
-            $key = trim($parts[0]);
-            $value = trim($parts[1]);
-
-            // Entferne Anführungszeichen, falls vorhanden
-            $value = trim($value, '"\'');
-            
-            // Speichere die Variable in $_ENV und $_SERVER
-            $_ENV[$key] = $value;
-            $_SERVER[$key] = $value;
-        }
+    } catch (PDOException $e) {
+        die("Fehler beim Login: " . $e->getMessage());
     }
 }
 ?>
@@ -113,6 +87,15 @@ function loadEnv($filePath)
     </header>
     <main>
         <form method="POST" class="login-form">
+            <label for="username">Benutzername:</label>
+            <select id="username" name="username" required>
+                <?php foreach ($users as $user): ?>
+                    <option value="<?= htmlspecialchars($user) ?>" <?= $user === $lastLoggedUser ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($user) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+
             <label for="access_code">Zugangscode:</label>
             <input 
                 type="password" 
@@ -122,13 +105,12 @@ function loadEnv($filePath)
                 pattern="[0-9]*" 
                 required>
             <button type="submit">Anmelden</button>
+            
             <?php 
-            // Zeige Fehlermeldung bei falschem Zugangscode
             if (isset($error)) { 
                 echo "<p class='error'>$error</p>"; 
             }
 
-            // Zeige Timeout-Nachricht bei Inaktivitätsabmeldung
             if (isset($_GET['timeout']) && $_GET['timeout'] == 1) {
                 echo "<p class='error'>Sie wurden wegen Inaktivität abgemeldet. Bitte melden Sie sich erneut an.</p>";
             }
