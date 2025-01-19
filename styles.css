@@ -294,3 +294,32 @@ form button {
 }
 
 
+.suggestions {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    max-height: 150px;
+    overflow-y: auto;
+    background: white;
+    position: absolute;
+    width: calc(100% - 2px); /* Gleiche Breite wie das Eingabefeld */
+    z-index: 1000;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.suggestions li {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+}
+
+.suggestions li:last-child {
+    border-bottom: none;
+}
+
+.suggestions li:hover {
+    background-color: #007BFF;
+    color: white;
+}
+

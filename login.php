@@ -110,21 +110,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1>Login</h1>
     </header>
     <main>
-        <form method="POST" class="login-form">
+    form method="POST" class="login-form" autocomplete="off">
             <label for="username">Benutzername:</label>
-            <input 
-                list="usernames" 
-                id="username" 
-                name="username" 
-                autocomplete="username"
-                placeholder="Nachname Vorname" 
-                required>
-            <datalist id="usernames">
-                <?php foreach ($users as $user): 
-                    $fullName = htmlspecialchars($user['nachname'] . ' ' . $user['vorname']); ?>
-                    <option value="<?= $fullName ?>"></option>
-                <?php endforeach; ?>
-            </datalist>
+            <div style="position: relative;">
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    placeholder="Nachname Vorname" 
+                    required>
+                <ul id="suggestions" class="suggestions"></ul>
+            </div>
 
             <label for="access_code">Zugangscode:</label>
             <input 
@@ -137,15 +133,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 required>
 
             <button type="submit">Anmelden</button>
-
-            <?php if ($error): ?>
-                <p class='error'><?= $error ?></p>
-            <?php endif; ?>
-            
+      
             <?php if (isset($_GET['timeout']) && $_GET['timeout'] == 1): ?>
                 <p class='error'>Sie wurden wegen Inaktivität abgemeldet. Bitte melden Sie sich erneut an.</p>
             <?php endif; ?>
         </form>
     </main>
+
+    <script>
+        const usernameInput = document.getElementById("username");
+        const suggestionsList = document.getElementById("suggestions");
+
+        // Event: Eingabe in das Benutzernamenfeld
+        usernameInput.addEventListener("input", async () => {
+            const query = usernameInput.value.trim();
+            if (query.length < 2) {
+                suggestionsList.innerHTML = ""; // Liste zurücksetzen, wenn zu wenig Zeichen
+                return;
+            }
+
+            // AJAX-Anfrage an den Server senden
+            const response = await fetch(`fetch_users.php?query=${encodeURIComponent(query)}`);
+            const results = await response.json();
+
+            // Vorschläge anzeigen
+            suggestionsList.innerHTML = results
+                .map(user => `<li>${user}</li>`)
+                .join("");
+
+            // Klick auf einen Vorschlag
+            suggestionsList.querySelectorAll("li").forEach(item => {
+                item.addEventListener("click", () => {
+                    usernameInput.value = item.textContent; // Benutzername ins Feld einfügen
+                    suggestionsList.innerHTML = ""; // Liste zurücksetzen
+                });
+            });
+        });
+
+        // Liste schließen, wenn der Benutzer außerhalb klickt
+        document.addEventListener("click", (e) => {
+            if (!usernameInput.contains(e.target) && !suggestionsList.contains(e.target)) {
+                suggestionsList.innerHTML = "";
+            }
+        });
+    </script>
 </body>
 </html>
