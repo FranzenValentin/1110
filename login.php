@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute(['username' => $username]);
         $dbCode = $stmt->fetchColumn();
 
-        if ($dbCode && $dbCode == $inputCode) {
+        if ($dbCode == $inputCode) {
             $_SESSION['authenticated'] = true;
             $_SESSION['last_user'] = $username;
 
