@@ -5,6 +5,8 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     exit("Zugriff verweigert. Bitte melden Sie sich an.");
 }
 
+$firstName = $_SESSION['last_user_firstname'] ?? ''; // Vorname aus der Session
+
 
 // Maximale Inaktivitätszeit in Sekunden
 define('SESSION_TIMEOUT', 300);

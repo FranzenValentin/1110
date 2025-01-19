@@ -3,6 +3,7 @@ require_once 'session_check.php';
 require 'db.php';
 
 
+
 // Debugging: Aktuelle Uhrzeit anzeigen
 // Zeitzone setzen (z. B. für Deutschland)
 date_default_timezone_set('Europe/Berlin');
@@ -51,8 +52,9 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
 <header>
         <h1>Einsatzverwaltungssystem</h1>
         <form method="POST" action="logout.php" class="logout-form">
-            <button type="submit">Logout</button>
+            <button type="submit">Logout<?= $firstName ? " - " . htmlspecialchars($firstName) : "" ?></button>
         </form>
+
 </header>
 
 
