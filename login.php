@@ -6,7 +6,7 @@ require 'db.php'; // Verbindung zur Datenbank herstellen
 define('SESSION_TIMEOUT', 300);
 
 // Überprüfen, ob die Datenbankverbindung existiert
-if (!$db) {
+if (!$pdo) {
     die("Datenbankverbindung fehlgeschlagen.");
 }
 
@@ -29,7 +29,7 @@ $users = [];
 $lastLoggedUser = $_SESSION['last_user'] ?? null;
 
 try {
-    $stmt = $db->query("SELECT nachname, vorname FROM personal ORDER BY nachname, vorname");
+    $stmt = $pdo->query("SELECT nachname, vorname FROM personal ORDER BY nachname, vorname");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($users)) {
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     [$nachname, $vorname] = explode(' ', $selectedUser, 2);
 
     try {
-        $stmt = $db->prepare("SELECT code FROM personal WHERE nachname = :nachname AND vorname = :vorname");
+        $stmt = $pdo->prepare("SELECT code FROM personal WHERE nachname = :nachname AND vorname = :vorname");
         $stmt->execute(['nachname' => $nachname, 'vorname' => $vorname]);
         $dbCode = $stmt->fetchColumn();
 
