@@ -24,11 +24,11 @@ $users = [];
 $lastLoggedUser = $_SESSION['last_user'] ?? null; // Letzter Benutzer aus Session
 
 try {
-    $stmt = $db->query("SELECT Nachname, Vorname FROM personal ORDER BY Nachname, Vorname");
+    $stmt = $db->query("SELECT nachname, vorname FROM personal ORDER BY nachname, vorname");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (!$lastLoggedUser && !empty($users)) {
-        $lastLoggedUser = $users[0]['Nachname'] . ' ' . $users[0]['Vorname']; // Standard auf ersten Benutzer setzen
+        $lastLoggedUser = $users[0]['nachname'] . ' ' . $users[0]['vorname']; // Standard auf ersten Benutzer setzen
     }
 } catch (PDOException $e) {
     die("Fehler beim Abrufen der Benutzerdaten: " . $e->getMessage());
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     [$nachname, $vorname] = explode(' ', $selectedUser, 2);
 
     try {
-        $stmt = $db->prepare("SELECT code FROM personal WHERE Nachname = :nachname AND Vorname = :vorname");
+        $stmt = $db->prepare("SELECT code FROM personal WHERE nachname = :nachname AND vorname = :vorname");
         $stmt->execute(['nachname' => $nachname, 'vorname' => $vorname]);
         $dbCode = $stmt->fetchColumn();
 
@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label for="username">Benutzername:</label>
             <select id="username" name="username" required>
                 <?php foreach ($users as $user): 
-                    $fullName = htmlspecialchars($user['Nachname'] . ' ' . $user['Vorname']); ?>
+                    $fullName = htmlspecialchars($user['nachname'] . ' ' . $user['vorname']); ?>
                     <option value="<?= $fullName ?>" <?= $fullName === $lastLoggedUser ? 'selected' : '' ?>>
                         <?= $fullName ?>
                     </option>
