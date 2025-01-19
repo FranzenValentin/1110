@@ -43,7 +43,7 @@ try {
     <header>
         <h1>Stichworte verwalten</h1>
         <form method="POST" action="logout.php" class="logout-form">
-            <button type="submit">Logout</button>
+            <button type="submit">Logout<?= $firstName ? " - " . htmlspecialchars($firstName) : "" ?></button>
         </form>
         <form method="POST" action="index.php" class="back-form">
             <button type="submit">Zurück</button>
