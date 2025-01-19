@@ -154,13 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 usernameInput.scrollIntoView({
                     behavior: "smooth",
                     block: "start", // Ganz oben im Sichtfenster
-                });
-
-                // Zusätzliche Korrektur, falls zu weit gescrollt wird
-                const offset = 5; // Korrektur in Pixeln (nach oben verschieben)
-                window.scrollBy({
-                    top: -offset, // Negative Werte scrollen nach oben
-                    behavior: "smooth",
+                    top: -10,
                 });
             }, 300);
             }
