@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1>Login</h1>
     </header>
     <main>
-    form method="POST" class="login-form" autocomplete="off">
+    <form method="POST" class="login-form" autocomplete="off">
             <label for="username">Benutzername:</label>
             <div style="position: relative;">
                 <input 
