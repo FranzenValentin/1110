@@ -32,15 +32,6 @@ try {
     $stmt = $pdo->query("SELECT nachname, vorname FROM personal ORDER BY nachname, vorname");
     $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if (empty($users)) {
-        echo "Keine Benutzer gefunden.";
-    } else {
-        echo "<!-- Debug: Benutzerliste -->";
-        echo "<pre>";
-        print_r($users); // Debug-Ausgabe der Benutzerliste
-        echo "</pre>";
-    }
-
     if (!$lastLoggedUser && !empty($users)) {
         $lastLoggedUser = $users[0]['nachname'] . ' ' . $users[0]['vorname'];
     }
