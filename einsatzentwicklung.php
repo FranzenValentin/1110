@@ -95,18 +95,22 @@ $tageVorjahr = array_keys($alleTageVorjahr);
                     {
                         label: 'Kumuliert <?= $vorjahr ?>',
                         data: kumuliertVorjahr,
-                        borderColor: 'rgba(54, 162, 235, 1)', // Blau
+                        borderColor: 'rgba(54, 162, 235, 1)',
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         fill: false,
-                        tension: 0.1
+                        tension: 0.4,
+                        pointRadius: 0, // Keine Punkte
+                        pointHoverRadius: 0 // Keine Hover-Punkte
                     },
                     {
                         label: 'Kumuliert <?= $jahr ?>',
                         data: kumuliertAktuellesJahr,
-                        borderColor: 'rgba(255, 99, 132, 1)', // Rot
+                        borderColor: 'rgba(255, 99, 132, 1)',
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
                         fill: false,
-                        tension: 0.1
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 0
                     }
                 ]
             },
@@ -117,7 +121,12 @@ $tageVorjahr = array_keys($alleTageVorjahr);
                         position: 'top'
                     },
                     tooltip: {
-                        enabled: true
+                        enabled: true,
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.raw} Einsätze`;
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -126,6 +135,9 @@ $tageVorjahr = array_keys($alleTageVorjahr);
                         title: {
                             display: true,
                             text: 'Tage'
+                        },
+                        grid: {
+                            display: false // Gitterlinien deaktivieren
                         }
                     },
                     y: {
@@ -133,6 +145,9 @@ $tageVorjahr = array_keys($alleTageVorjahr);
                         title: {
                             display: true,
                             text: 'Kumulierte Einsätze'
+                        },
+                        grid: {
+                            color: 'rgba(200, 200, 200, 0.3)' // Gitterlinienfarbe ändern
                         }
                     }
                 }
