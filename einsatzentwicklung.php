@@ -106,60 +106,71 @@ const kumuliertVorjahr = <?= json_encode(array_values($kumuliertVorjahr)) ?>;
 
 const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
 new Chart(ctx, {
-    type: 'line',
+    type: 'line', // Using line chart for better visualization of cumulative values
     data: {
-        labels: tageAktuellesJahr, // X-Achse mit tagesaktuellen Daten
+        labels: tageAktuellesJahr, // Tageslabels für die X-Achse
         datasets: [
             {
-                label: 'Kumuliert <?= $vorjahr ?>',
-                data: kumuliertVorjahr,
-                borderColor: 'rgba(54, 162, 235, 1)', // Blau
+                label: 'Kumuliert <?= $vorjahr ?>', // Cumulative data for the previous year
+                data: kumuliertVorjahr, // Daily cumulative data for the previous year
+                borderColor: 'rgba(54, 162, 235, 1)', // Blue
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                fill: false,
-                tension: 0.1
+                fill: false, // No fill under the line
+                tension: 0.1 // Smooth lines
             },
             {
-                label: 'Kumuliert <?= $jahr ?>',
-                data: kumuliertAktuellesJahr,
-                borderColor: 'rgba(255, 99, 132, 1)', // Rot
+                label: 'Kumuliert <?= $jahr ?>', // Cumulative data for the current year
+                data: kumuliertAktuellesJahr, // Daily cumulative data for the current year
+                borderColor: 'rgba(255, 99, 132, 1)', // Red
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                fill: false,
-                tension: 0.1
+                fill: false, // No fill under the line
+                tension: 0.1 // Smooth lines
             }
         ]
     },
     options: {
-        responsive: true,
+        responsive: true, // Ensures the chart adapts to the screen size
         plugins: {
             legend: {
-                position: 'top'
+                position: 'top' // Positions the legend at the top
             },
             tooltip: {
-                enabled: true
+                enabled: true, // Enables tooltips
+                callbacks: {
+                    label: function(tooltipItem) {
+                        const dataset = tooltipItem.dataset;
+                        const value = tooltipItem.raw;
+                        return `${dataset.label}: ${value}`;
+                    }
+                }
             }
         },
         scales: {
             x: {
-                type: 'time',
+                type: 'time', // Time-based X-axis
                 time: {
-                    unit: 'day',
-                    tooltipFormat: 'dd.MM.yyyy'
+                    unit: 'day', // Display each day on the X-axis
+                    displayFormats: {
+                        day: 'dd.MM.yyyy' // Format for days
+                    },
+                    tooltipFormat: 'dd.MM.yyyy' // Tooltip format
                 },
                 title: {
                     display: true,
-                    text: 'Tage'
+                    text: 'Tage' // Label for X-axis
                 }
             },
             y: {
-                beginAtZero: true,
+                beginAtZero: true, // Y-axis starts at zero
                 title: {
                     display: true,
-                    text: 'Kumulierte Einsätze'
+                    text: 'Kumulierte Einsätze' // Label for Y-axis
                 }
             }
         }
     }
 });
+
 
 
     </script>
