@@ -43,7 +43,6 @@ foreach ($daten as $row) {
 }
 ?>
 
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
