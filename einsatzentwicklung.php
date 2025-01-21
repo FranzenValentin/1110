@@ -158,7 +158,7 @@ $tageVorjahr = array_keys($alleTageVorjahr);
                         minRotation: 0
                     },
                     grid: {
-                        display: false // Gitterlinien deaktivieren
+                        display: true // Gitterlinien deaktivieren
                     }
                 },
                 y: {
