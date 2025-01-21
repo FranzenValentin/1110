@@ -18,52 +18,37 @@ $query = "
     ORDER BY jahr, tag
 ";
 
-try {
-    $stmt = $pdo->prepare($query);
-    $stmt->execute([':jahr' => $jahr, ':vorjahr' => $vorjahr]);
-    $daten = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Datenbankfehler: " . $e->getMessage());
-}
-
-// Debugging: Rohdaten aus der Datenbank ausgeben
-header('Content-Type: application/json');
-echo json_encode($daten, JSON_PRETTY_PRINT);
-exit;
+$stmt = $pdo->prepare($query);
+$stmt->execute([':jahr' => $jahr, ':vorjahr' => $vorjahr]);
+$daten = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Daten für das aktuelle und das vorherige Jahr initialisieren
-$datenAktuellesJahr = [];
-$datenVorjahr = [];
+$alleTageAktuellesJahr = [];
+$alleTageVorjahr = [];
 $kumuliertAktuellesJahr = [];
 $kumuliertVorjahr = [];
 
-// Liste aller Tage des Jahres erzeugen
-$alleTageAktuellesJahr = [];
-$alleTageVorjahr = [];
+// Alle Tage des aktuellen und vorherigen Jahres initialisieren
 for ($d = 0; $d < 365; $d++) {
     $tagAktuellesJahr = date('Y-m-d', strtotime("$jahr-01-01 +$d days"));
     $tagVorjahr = date('Y-m-d', strtotime("$vorjahr-01-01 +$d days"));
+
+    // Initiale Werte für jeden Tag setzen
     $alleTageAktuellesJahr[$tagAktuellesJahr] = 0;
     $alleTageVorjahr[$tagVorjahr] = 0;
 }
 
-// Datenbankergebnisse verarbeiten
+// Daten aus der Datenbank zuordnen
 foreach ($daten as $row) {
     $tag = $row['tag'];
     $anzahl = (int)$row['anzahl'];
+
     if ($row['jahr'] == $jahr) {
         $alleTageAktuellesJahr[$tag] = $anzahl;
     } elseif ($row['jahr'] == $vorjahr) {
         $alleTageVorjahr[$tag] = $anzahl;
     }
 }
-
-// Debugging: Verarbeitete Daten für beide Jahre ausgeben
-echo json_encode([
-    'alleTageAktuellesJahr' => $alleTageAktuellesJahr,
-    'alleTageVorjahr' => $alleTageVorjahr,
-], JSON_PRETTY_PRINT);
-exit;
 
 // Kumulierte Werte berechnen
 $summeAktuellesJahr = 0;
@@ -77,13 +62,11 @@ foreach ($alleTageVorjahr as $tag => $anzahl) {
     $kumuliertVorjahr[] = $summeVorjahr;
 }
 
-// Debugging: Kumulierte Werte ausgeben
-echo json_encode([
-    'kumuliertAktuellesJahr' => $kumuliertAktuellesJahr,
-    'kumuliertVorjahr' => $kumuliertVorjahr,
-], JSON_PRETTY_PRINT);
-exit;
+// Daten für JavaScript vorbereiten
+$tageAktuellesJahr = array_keys($alleTageAktuellesJahr);
+$tageVorjahr = array_keys($alleTageVorjahr);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="de">
@@ -91,89 +74,78 @@ exit;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Einsatzentwicklung</title>
-    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <header>
-    <h1>Einsatzentwicklung</h1>
-    <form method="POST" action="logout.php" class="logout-form">
-        <button type="submit">Logout<?= $firstName ? " - " . htmlspecialchars($firstName) : "" ?></button>
-    </form>
-    <form method="POST" action="index.php" class="back-form">
-        <button type="submit">Zurück</button>
-    </form>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    </header>
-
     <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
-    
-    <script>
-    // Daten aus PHP
-    const tageAktuellesJahr = <?= json_encode(array_keys($alleTageAktuellesJahr)) ?>;
-    const kumuliertAktuellesJahr = <?= json_encode(array_values($kumuliertAktuellesJahr)) ?>;
-    const tageVorjahr = <?= json_encode(array_keys($alleTageVorjahr)) ?>;
-    const kumuliertVorjahr = <?= json_encode(array_values($kumuliertVorjahr)) ?>;
 
-    const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: tageAktuellesJahr,
-            datasets: [
-                {
-                    label: 'Kumuliert <?= $vorjahr ?>',
-                    data: kumuliertVorjahr,
-                    borderColor: 'rgba(54, 162, 235, 1)', // Blau
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    fill: false,
-                    tension: 0.1
-                },
-                {
-                    label: 'Kumuliert <?= $jahr ?>',
-                    data: kumuliertAktuellesJahr,
-                    borderColor: 'rgba(255, 99, 132, 1)', // Rot
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    fill: false,
-                    tension: 0.1
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top'
-                },
-                tooltip: {
-                    enabled: true
-                }
-            },
-            scales: {
-                x: {
-                    type: 'time',
-                    time: {
-                        unit: 'day',
-                        displayFormats: {
-                            day: 'dd.MM.yyyy'
-                        },
-                        tooltipFormat: 'dd.MM.yyyy'
+    <script>
+        // Daten aus PHP übertragen
+        const tageAktuellesJahr = <?= json_encode($tageAktuellesJahr) ?>;
+        const kumuliertAktuellesJahr = <?= json_encode($kumuliertAktuellesJahr) ?>;
+        const tageVorjahr = <?= json_encode($tageVorjahr) ?>;
+        const kumuliertVorjahr = <?= json_encode($kumuliertVorjahr) ?>;
+
+        // Chart.js-Diagramm erstellen
+        const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: tageAktuellesJahr,
+                datasets: [
+                    {
+                        label: 'Kumuliert <?= $vorjahr ?>',
+                        data: kumuliertVorjahr,
+                        borderColor: 'rgba(54, 162, 235, 1)', // Blau
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        fill: false,
+                        tension: 0.1
                     },
-                    title: {
-                        display: true,
-                        text: 'Tage'
+                    {
+                        label: 'Kumuliert <?= $jahr ?>',
+                        data: kumuliertAktuellesJahr,
+                        borderColor: 'rgba(255, 99, 132, 1)', // Rot
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        fill: false,
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    tooltip: {
+                        enabled: true
                     }
                 },
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Kumulierte Einsätze'
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            displayFormats: {
+                                day: 'dd.MM.yyyy'
+                            },
+                            tooltipFormat: 'dd.MM.yyyy'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Tage'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Kumulierte Einsätze'
+                        }
                     }
                 }
             }
-        }
-    });
-</script>
-
+        });
+    </script>
 </body>
 </html>
