@@ -108,72 +108,72 @@ exit;
     <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
     
     <script>
-        // Daten aus PHP übertragen
-        const datenAktuellesJahr = <?= json_encode(array_values($datenAktuellesJahr)) ?>;
-        const datenVorjahr = <?= json_encode(array_values($datenVorjahr)) ?>;
-        const kumuliertAktuellesJahr = <?= json_encode(array_values($kumuliertAktuellesJahr)) ?>;
-        const kumuliertVorjahr = <?= json_encode(array_values($kumuliertVorjahr)) ?>;
-        const tageAktuellesJahr = <?= json_encode(array_keys($alleTageAktuellesJahr)) ?>;
+    // Daten aus PHP
+    const tageAktuellesJahr = <?= json_encode(array_keys($alleTageAktuellesJahr)) ?>;
+    const kumuliertAktuellesJahr = <?= json_encode(array_values($kumuliertAktuellesJahr)) ?>;
+    const tageVorjahr = <?= json_encode(array_keys($alleTageVorjahr)) ?>;
+    const kumuliertVorjahr = <?= json_encode(array_values($kumuliertVorjahr)) ?>;
 
-        const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: tageAktuellesJahr,
-                datasets: [
-                    {
-                        label: 'Kumuliert <?= $vorjahr ?>',
-                        data: kumuliertVorjahr,
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        fill: false,
-                        tension: 0.1
-                    },
-                    {
-                        label: 'Kumuliert <?= $jahr ?>',
-                        data: kumuliertAktuellesJahr,
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        fill: false,
-                        tension: 0.1
-                    }
-                ]
+    const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: tageAktuellesJahr,
+            datasets: [
+                {
+                    label: 'Kumuliert <?= $vorjahr ?>',
+                    data: kumuliertVorjahr,
+                    borderColor: 'rgba(54, 162, 235, 1)', // Blau
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    fill: false,
+                    tension: 0.1
+                },
+                {
+                    label: 'Kumuliert <?= $jahr ?>',
+                    data: kumuliertAktuellesJahr,
+                    borderColor: 'rgba(255, 99, 132, 1)', // Rot
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    fill: false,
+                    tension: 0.1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                tooltip: {
+                    enabled: true
+                }
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top'
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'day',
+                        displayFormats: {
+                            day: 'dd.MM.yyyy'
+                        },
+                        tooltipFormat: 'dd.MM.yyyy'
                     },
-                    tooltip: {
-                        enabled: true
+                    title: {
+                        display: true,
+                        text: 'Tage'
                     }
                 },
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            unit: 'day',
-                            displayFormats: {
-                                day: 'dd.MM.yyyy'
-                            },
-                            tooltipFormat: 'dd.MM.yyyy'
-                        },
-                        title: {
-                            display: true,
-                            text: 'Tage'
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Kumulierte Einsätze'
-                        }
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Kumulierte Einsätze'
                     }
                 }
             }
-        });
-    </script>
+        }
+    });
+</script>
+
 </body>
 </html>
