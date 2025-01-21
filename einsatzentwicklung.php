@@ -76,6 +76,15 @@ $tageVorjahr = array_keys($alleTageVorjahr);
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <header>
+        <h1>Einsatzentwicklung</h1>
+        <form method="POST" action="logout.php" class="logout-form">
+            <button type="submit">Logout<?= $firstName ? " - " . htmlspecialchars($firstName) : "" ?></button>
+        </form>
+        <form method="POST" action="index.php" class="back-form">
+            <button type="submit">Zurück</button>
+        </form>
+    </header>
     <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
 
     <script>
