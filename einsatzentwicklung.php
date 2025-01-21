@@ -77,88 +77,99 @@ foreach ($daten as $row) {
 
         // Chart erstellen
         const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: monate,
-                datasets: [
-                    // Balkendiagramme für Einsatzzahlen je Monat
-                    {
-                        label: 'Einsätze je Monat <?= $vorjahr ?>',
-                        data: datenVorjahr,
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)', // Blau
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1,
-                        yAxisID: 'y'
-                    },
-                    {
-                        label: 'Einsätze je Monat <?= $jahr ?>',
-                        data: datenAktuellesJahr,
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)', // Rot
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1,
-                        yAxisID: 'y'
-                    },
-                    // Liniendiagramme für kumulierte Einsatzzahlen
-                    {
-                        label: 'Kumuliert <?= $vorjahr ?>',
-                        data: kumuliertVorjahr,
-                        borderColor: 'rgba(54, 162, 235, 1)', // Blau
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        fill: false,
-                        type: 'line',
-                        yAxisID: 'y2'
-                    },
-                    {
-                        label: 'Kumuliert <?= $jahr ?>',
-                        data: kumuliertAktuellesJahr,
-                        borderColor: 'rgba(255, 99, 132, 1)', // Rot
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        fill: false,
-                        type: 'line',
-                        yAxisID: 'y2'
-                    }
-                ]
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: monate,
+        datasets: [
+            // Balkendiagramme für Einsatzzahlen je Monat
+            {
+                label: 'Einsätze je Monat <?= $vorjahr ?>',
+                data: datenVorjahr,
+                backgroundColor: 'rgba(54, 162, 235, 0.7)', // Blau
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                yAxisID: 'y'
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    },
-                    tooltip: {
-                        enabled: true
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Einsätze je Monat'
-                        },
-                        position: 'left'
-                    },
-                    y2: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Kumulierte Einsätze'
-                        },
-                        position: 'right',
-                        grid: {
-                            drawOnChartArea: false
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Monate'
-                        }
+            {
+                label: 'Einsätze je Monat <?= $jahr ?>',
+                data: datenAktuellesJahr,
+                backgroundColor: 'rgba(255, 99, 132, 0.7)', // Rot
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1,
+                yAxisID: 'y'
+            },
+            // Liniendiagramme für kumulierte Einsatzzahlen
+            {
+                label: 'Kumuliert <?= $vorjahr ?>',
+                data: kumuliertVorjahr,
+                borderColor: 'rgba(54, 162, 235, 1)', // Blau
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderDash: [5, 5], // Gestrichelte Linie
+                fill: false,
+                type: 'line',
+                yAxisID: 'y2',
+                tension: 0.4 // Leichte Kurve
+            },
+            {
+                label: 'Kumuliert <?= $jahr ?>',
+                data: kumuliertAktuellesJahr,
+                borderColor: 'rgba(255, 99, 132, 1)', // Rot
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                fill: false,
+                type: 'line',
+                yAxisID: 'y2',
+                tension: 0.4 // Leichte Kurve
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top'
+            },
+            tooltip: {
+                enabled: true,
+                callbacks: {
+                    label: function(tooltipItem) {
+                        const dataset = tooltipItem.dataset;
+                        const value = tooltipItem.raw;
+                        return `${dataset.label}: ${value}`;
                     }
                 }
             }
-        });
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Einsätze je Monat'
+                },
+                position: 'left'
+            },
+            y2: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Kumulierte Einsätze'
+                },
+                position: 'right',
+                grid: {
+                    drawOnChartArea: false
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Monate'
+                }
+            }
+        }
+    }
+});
+
     </script>
 </body>
 </html>
