@@ -79,80 +79,91 @@ $tageVorjahr = array_keys($alleTageVorjahr);
     <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
 
     <script>
-        // Daten aus PHP übertragen
-        const tageAktuellesJahr = <?= json_encode($tageAktuellesJahr) ?>;
-        const kumuliertAktuellesJahr = <?= json_encode($kumuliertAktuellesJahr) ?>;
-        const tageVorjahr = <?= json_encode($tageVorjahr) ?>;
-        const kumuliertVorjahr = <?= json_encode($kumuliertVorjahr) ?>;
+    // Daten aus PHP übertragen
+    const tageAktuellesJahr = <?= json_encode($tageAktuellesJahr) ?>;
+    const kumuliertAktuellesJahr = <?= json_encode($kumuliertAktuellesJahr) ?>;
+    const tageVorjahr = <?= json_encode($tageVorjahr) ?>;
+    const kumuliertVorjahr = <?= json_encode($kumuliertVorjahr) ?>;
 
-        // Chart.js-Diagramm erstellen
-        const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: tageAktuellesJahr,
-                datasets: [
-                    {
-                        label: 'Kumuliert <?= $vorjahr ?>',
-                        data: kumuliertVorjahr,
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        fill: false,
-                        tension: 0.4,
-                        pointRadius: 0, // Keine Punkte
-                        pointHoverRadius: 0 // Keine Hover-Punkte
-                    },
-                    {
-                        label: 'Kumuliert <?= $jahr ?>',
-                        data: kumuliertAktuellesJahr,
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        fill: false,
-                        tension: 0.4,
-                        pointRadius: 0,
-                        pointHoverRadius: 0
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    },
-                    tooltip: {
-                        enabled: true,
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.dataset.label}: ${context.raw} Einsätze`;
-                            }
-                        }
-                    }
+    // Chart.js-Diagramm erstellen
+    const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: tageAktuellesJahr, // Alle Tage als Labels für die X-Achse
+            datasets: [
+                {
+                    label: 'Kumuliert <?= $vorjahr ?>',
+                    data: kumuliertVorjahr,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 0, // Keine Punkte
+                    pointHoverRadius: 0 // Keine Hover-Punkte
                 },
-                scales: {
-                    x: {
-                        type: 'category',
-                        title: {
-                            display: true,
-                            text: 'Tage'
-                        },
-                        grid: {
-                            display: false // Gitterlinien deaktivieren
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Kumulierte Einsätze'
-                        },
-                        grid: {
-                            color: 'rgba(200, 200, 200, 0.3)' // Gitterlinienfarbe ändern
+                {
+                    label: 'Kumuliert <?= $jahr ?>',
+                    data: kumuliertAktuellesJahr,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.raw} Einsätze`;
                         }
                     }
                 }
+            },
+            scales: {
+                x: {
+                    type: 'category', // X-Achse mit Kategorie-Typ
+                    title: {
+                        display: true,
+                        text: 'Monate'
+                    },
+                    ticks: {
+                        callback: function(value, index, ticks) {
+                            // Formatieren des Labels: Nur Monat anzeigen
+                            const date = new Date(tageAktuellesJahr[index]);
+                            const monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+                            return monthNames[date.getMonth()];
+                        },
+                        maxRotation: 0, // Verhindert rotierte Labels
+                        minRotation: 0
+                    },
+                    grid: {
+                        display: false // Gitterlinien deaktivieren
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Kumulierte Einsätze'
+                    },
+                    grid: {
+                        color: 'rgba(200, 200, 200, 0.3)' // Gitterlinienfarbe ändern
+                    }
+                }
             }
-        });
-    </script>
+        }
+    });
+</script>
+
 </body>
 </html>
