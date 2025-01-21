@@ -6,7 +6,7 @@ require 'db.php';
 $jahr = date('Y');
 $vorjahr = $jahr - 1;
 
-// SQL-Abfrage: Einsatzzahlen für das aktuelle Jahr und das Vorjahr
+// SQL-Abfrage: Einsatzzahlen für das aktuelle Jahr und das Vorjahr tagesgenau abrufen
 $query = "
     SELECT 
         DATE(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i')) AS tag,
@@ -22,23 +22,22 @@ $stmt = $pdo->prepare($query);
 $stmt->execute([':jahr' => $jahr, ':vorjahr' => $vorjahr]);
 $daten = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Daten für das aktuelle und das vorherige Jahr initialisieren
+// Initialisierung der Arrays für beide Jahre
 $alleTageAktuellesJahr = [];
 $alleTageVorjahr = [];
 $kumuliertAktuellesJahr = [];
 $kumuliertVorjahr = [];
 
-// Alle Tage des aktuellen und vorherigen Jahres initialisieren
+// Alle Tage des aktuellen und des vorherigen Jahres initialisieren
 for ($d = 0; $d < 365; $d++) {
     $tagAktuellesJahr = date('Y-m-d', strtotime("$jahr-01-01 +$d days"));
     $tagVorjahr = date('Y-m-d', strtotime("$vorjahr-01-01 +$d days"));
 
-    // Initiale Werte für jeden Tag setzen
     $alleTageAktuellesJahr[$tagAktuellesJahr] = 0;
     $alleTageVorjahr[$tagVorjahr] = 0;
 }
 
-// Daten aus der Datenbank zuordnen
+// Daten aus der Datenbank in die Arrays einfügen
 foreach ($daten as $row) {
     $tag = $row['tag'];
     $anzahl = (int)$row['anzahl'];
@@ -53,16 +52,16 @@ foreach ($daten as $row) {
 // Kumulierte Werte berechnen
 $summeAktuellesJahr = 0;
 $summeVorjahr = 0;
-foreach ($alleTageAktuellesJahr as $tag => $anzahl) {
+foreach ($alleTageAktuellesJahr as $anzahl) {
     $summeAktuellesJahr += $anzahl;
     $kumuliertAktuellesJahr[] = $summeAktuellesJahr;
 }
-foreach ($alleTageVorjahr as $tag => $anzahl) {
+foreach ($alleTageVorjahr as $anzahl) {
     $summeVorjahr += $anzahl;
     $kumuliertVorjahr[] = $summeVorjahr;
 }
 
-// Daten für JavaScript vorbereiten
+// Labels für die X-Achse (alle Tage)
 $tageAktuellesJahr = array_keys($alleTageAktuellesJahr);
 $tageVorjahr = array_keys($alleTageVorjahr);
 ?>
@@ -123,14 +122,7 @@ $tageVorjahr = array_keys($alleTageVorjahr);
                 },
                 scales: {
                     x: {
-                        type: 'time',
-                        time: {
-                            unit: 'day',
-                            displayFormats: {
-                                day: 'dd.MM.yyyy'
-                            },
-                            tooltipFormat: 'dd.MM.yyyy'
-                        },
+                        type: 'category',
                         title: {
                             display: true,
                             text: 'Tage'
