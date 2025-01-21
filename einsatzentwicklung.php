@@ -90,7 +90,7 @@ $tageVorjahr = array_keys($alleTageVorjahr);
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: tageAktuellesJahr, // Alle Tage als Labels für die X-Achse
+            labels: tageAktuellesJahr,
             datasets: [
                 {
                     label: 'Kumuliert <?= $vorjahr ?>',
@@ -99,8 +99,8 @@ $tageVorjahr = array_keys($alleTageVorjahr);
                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
                     fill: false,
                     tension: 0.4,
-                    pointRadius: 0, // Keine Punkte
-                    pointHoverRadius: 0 // Keine Hover-Punkte
+                    pointRadius: 0,
+                    pointHoverRadius: 0
                 },
                 {
                     label: 'Kumuliert <?= $jahr ?>',
@@ -131,19 +131,20 @@ $tageVorjahr = array_keys($alleTageVorjahr);
             },
             scales: {
                 x: {
-                    type: 'category', // X-Achse mit Kategorie-Typ
+                    type: 'category',
                     title: {
                         display: true,
                         text: 'Monate'
                     },
                     ticks: {
                         callback: function(value, index, ticks) {
-                            // Formatieren des Labels: Nur Monat anzeigen
                             const date = new Date(tageAktuellesJahr[index]);
                             const monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
                             return monthNames[date.getMonth()];
                         },
-                        maxRotation: 0, // Verhindert rotierte Labels
+                        maxTicksLimit: 12, // Beschränkung auf 12 Ticks (1 pro Monat)
+                        autoSkip: true, // Automatisches Überspringen aktivieren
+                        maxRotation: 0,
                         minRotation: 0
                     },
                     grid: {
@@ -164,6 +165,7 @@ $tageVorjahr = array_keys($alleTageVorjahr);
         }
     });
 </script>
+
 
 </body>
 </html>
