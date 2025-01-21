@@ -9,14 +9,15 @@ $vorjahr = $jahr - 1;
 // SQL-Abfrage: Einsatzzahlen für das aktuelle Jahr und das Vorjahr
 $query = "
     SELECT 
+        DATE(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i')) AS tag,
         YEAR(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i')) AS jahr,
-        MONTH(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i')) AS monat,
         COUNT(*) AS anzahl
     FROM einsaetze e
     WHERE YEAR(STR_TO_DATE(e.alarmuhrzeit, '%d.%m.%Y %H:%i')) IN (:jahr, :vorjahr)
-    GROUP BY jahr, monat
-    ORDER BY jahr, monat
+    GROUP BY jahr, tag
+    ORDER BY jahr, tag
 ";
+
 
 $stmt = $pdo->prepare($query);
 $stmt->execute([':jahr' => $jahr, ':vorjahr' => $vorjahr]);
@@ -24,23 +25,45 @@ $stmt->execute([':jahr' => $jahr, ':vorjahr' => $vorjahr]);
 // Daten aufbereiten
 $daten = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Initialisiere Arrays für beide Jahre
-$datenAktuellesJahr = array_fill(1, 12, 0); // 12 Monate mit 0 initialisieren
-$datenVorjahr = array_fill(1, 12, 0);
-$kumuliertAktuellesJahr = array_fill(1, 12, 0);
-$kumuliertVorjahr = array_fill(1, 12, 0);
+// Daten für das aktuelle und das vorherige Jahr initialisieren
+$datenAktuellesJahr = [];
+$datenVorjahr = [];
+$kumuliertAktuellesJahr = [];
+$kumuliertVorjahr = [];
 
+// Liste aller Tage des Jahres erzeugen
+$alleTageAktuellesJahr = [];
+$alleTageVorjahr = [];
+for ($d = 1; $d <= 365; $d++) {
+    $tagAktuellesJahr = date('Y-m-d', strtotime("$jahr-01-01 +$d days"));
+    $tagVorjahr = date('Y-m-d', strtotime("$vorjahr-01-01 +$d days"));
+    $alleTageAktuellesJahr[$tagAktuellesJahr] = 0;
+    $alleTageVorjahr[$tagVorjahr] = 0;
+}
+
+// Datenbankergebnisse verarbeiten
 foreach ($daten as $row) {
-    $monat = (int)$row['monat'];
+    $tag = $row['tag'];
     $anzahl = (int)$row['anzahl'];
     if ($row['jahr'] == $jahr) {
-        $datenAktuellesJahr[$monat] = $anzahl;
-        $kumuliertAktuellesJahr[$monat] = ($kumuliertAktuellesJahr[$monat - 1] ?? 0) + $anzahl;
+        $alleTageAktuellesJahr[$tag] = $anzahl;
     } elseif ($row['jahr'] == $vorjahr) {
-        $datenVorjahr[$monat] = $anzahl;
-        $kumuliertVorjahr[$monat] = ($kumuliertVorjahr[$monat - 1] ?? 0) + $anzahl;
+        $alleTageVorjahr[$tag] = $anzahl;
     }
 }
+
+// Kumulierte Werte berechnen
+$summeAktuellesJahr = 0;
+$summeVorjahr = 0;
+foreach ($alleTageAktuellesJahr as $tag => $anzahl) {
+    $summeAktuellesJahr += $anzahl;
+    $kumuliertAktuellesJahr[] = $summeAktuellesJahr;
+}
+foreach ($alleTageVorjahr as $tag => $anzahl) {
+    $summeVorjahr += $anzahl;
+    $kumuliertVorjahr[] = $summeVorjahr;
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -76,40 +99,24 @@ foreach ($daten as $row) {
         const monate = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
 
         // Chart erstellen
-        const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
+        const tageAktuellesJahr = <?= json_encode(array_keys($alleTageAktuellesJahr)) ?>;
+const tageVorjahr = <?= json_encode(array_keys($alleTageVorjahr)) ?>;
+const kumuliertAktuellesJahr = <?= json_encode(array_values($kumuliertAktuellesJahr)) ?>;
+const kumuliertVorjahr = <?= json_encode(array_values($kumuliertVorjahr)) ?>;
+
+const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
 new Chart(ctx, {
-    type: 'bar',
+    type: 'line',
     data: {
-        labels: monate,
+        labels: tageAktuellesJahr, // X-Achse mit tagesaktuellen Daten
         datasets: [
-            // Balkendiagramme für Einsatzzahlen je Monat
-            {
-                label: 'Einsätze je Monat <?= $vorjahr ?>',
-                data: datenVorjahr,
-                backgroundColor: 'rgba(54, 162, 235, 0.7)', // Blau
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1,
-                yAxisID: 'y'
-            },
-            {
-                label: 'Einsätze je Monat <?= $jahr ?>',
-                data: datenAktuellesJahr,
-                backgroundColor: 'rgba(255, 99, 132, 0.7)', // Rot
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1,
-                yAxisID: 'y'
-            },
-            // Liniendiagramme für kumulierte Einsatzzahlen
             {
                 label: 'Kumuliert <?= $vorjahr ?>',
                 data: kumuliertVorjahr,
                 borderColor: 'rgba(54, 162, 235, 1)', // Blau
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderDash: [5, 5], // Gestrichelte Linie
                 fill: false,
-                type: 'line',
-                yAxisID: 'y2',
-                tension: 0.4 // Leichte Kurve
+                tension: 0.1
             },
             {
                 label: 'Kumuliert <?= $jahr ?>',
@@ -117,9 +124,7 @@ new Chart(ctx, {
                 borderColor: 'rgba(255, 99, 132, 1)', // Rot
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 fill: false,
-                type: 'line',
-                yAxisID: 'y2',
-                tension: 0.4 // Leichte Kurve
+                tension: 0.1
             }
         ]
     },
@@ -130,45 +135,32 @@ new Chart(ctx, {
                 position: 'top'
             },
             tooltip: {
-                enabled: true,
-                callbacks: {
-                    label: function(tooltipItem) {
-                        const dataset = tooltipItem.dataset;
-                        const value = tooltipItem.raw;
-                        return `${dataset.label}: ${value}`;
-                    }
-                }
+                enabled: true
             }
         },
         scales: {
+            x: {
+                type: 'time',
+                time: {
+                    unit: 'day',
+                    tooltipFormat: 'dd.MM.yyyy'
+                },
+                title: {
+                    display: true,
+                    text: 'Tage'
+                }
+            },
             y: {
                 beginAtZero: true,
                 title: {
                     display: true,
-                    text: 'Einsätze je Monat'
-                },
-                position: 'left'
-            },
-            y2: {
-                beginAtZero: true,
-                title: {
-                    display: true,
                     text: 'Kumulierte Einsätze'
-                },
-                position: 'right',
-                grid: {
-                    drawOnChartArea: false
-                }
-            },
-            x: {
-                title: {
-                    display: true,
-                    text: 'Monate'
                 }
             }
         }
     }
 });
+
 
     </script>
 </body>
