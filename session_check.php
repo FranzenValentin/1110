@@ -6,7 +6,7 @@ if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
 }
 
 $firstName = $_SESSION['last_user_firstname'] ?? ''; // Vorname aus der Session
-
+$userID = $_SESSION['last_user_id'] ?? ''; // Benutzer-ID aus der Session
 
 // Maximale Inaktivitätszeit in Sekunden
 define('SESSION_TIMEOUT', 300);
