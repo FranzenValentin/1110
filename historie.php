@@ -56,6 +56,101 @@ $einsaetze = fetchEinsaetze($pdo, 0, 50);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Einsatz Historie</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        table th {
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        #load-more {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #load-more:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Einsatz Historie</h1>
+    </header>
+    <main>
+        <table id="einsaetze-table">
+            <thead>
+                <tr>
+                    <th>Interne Nr.</th>
+                    <th>Einsatznummer</th>
+                    <th>Alarmzeit</th>
+                    <th>Rückkehrzeit</th>
+                    <th>Stichwort</th>
+                    <th>Adresse</th>
+                    <th>Stadtteil</th>
+                    <th>STF</th>
+                    <th>MA</th>
+                    <th>ATF</th>
+                    <th>ATM</th>
+                    <th>WTF</th>
+                    <th>WTM</th>
+                    <th>Praktikant</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($einsaetze['data'] as $einsatz): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($einsatz['interne_einsatznummer']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['einsatznummer_lts']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['alarmuhrzeit']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['zurueckzeit']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['stichwort']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['adresse']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['stadtteil']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['stf']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['ma']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['atf']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['atm']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['wtf']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['wtm']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['prakt']) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <button id="load-more">Mehr laden</button>
+    </main>
+
     <script>
         let offset = 50; // Start mit den ersten 50 Einträgen
         const limit = 50; // Anzahl der Einträge pro Ladevorgang
@@ -76,5 +171,35 @@ $einsaetze = fetchEinsaetze($pdo, 0, 50);
             }
 
             data.forEach(einsatz => {
-                const personal = [
-                    einsatz
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${einsatz.interne_einsatznummer || ''}</td>
+                    <td>${einsatz.einsatznummer_lts || ''}</td>
+                    <td>${einsatz.alarmuhrzeit || ''}</td>
+                    <td>${einsatz.zurueckzeit || ''}</td>
+                    <td>${einsatz.stichwort || ''}</td>
+                    <td>${einsatz.adresse || ''}</td>
+                    <td>${einsatz.stadtteil || ''}</td>
+                    <td>${einsatz.stf || ''}</td>
+                    <td>${einsatz.ma || ''}</td>
+                    <td>${einsatz.atf || ''}</td>
+                    <td>${einsatz.atm || ''}</td>
+                    <td>${einsatz.wtf || ''}</td>
+                    <td>${einsatz.wtm || ''}</td>
+                    <td>${einsatz.prakt || ''}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            offset += limit;
+
+            // Verstecke die Schaltfläche, wenn alle Einträge geladen sind
+            if (offset >= totalEntries) {
+                document.getElementById('load-more').style.display = 'none';
+            }
+        }
+
+        document.getElementById('load-more').addEventListener('click', loadMoreEinsaetze);
+    </script>
+</body>
+</html>
