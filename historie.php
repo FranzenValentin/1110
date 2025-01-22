@@ -1,15 +1,15 @@
 <?php
-require_once 'session_check.php';
-require 'db.php';
+require_once 'session_check.php'; // Session-Überprüfung
+require 'db.php'; // Verbindung zur Datenbank herstellen
 
 // Hilfsfunktion: Einsätze laden
 function fetchEinsaetze($pdo, $offset, $limit)
 {
     $sql = "
         SELECT e.interne_einsatznummer, e.einsatznummer_lts, e.alarmuhrzeit, e.zurueckzeit, e.stichwort, 
-               CONCAT(e.adresse, ', ', e.stadtteil) AS adresse, 
-               p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf, p4.nachname AS atm, 
-               p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
+               CONCAT(e.adresse, ', ', e.stadtteil) AS adresse,
+               p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf, 
+               p4.nachname AS atm, p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
         FROM einsaetze e
         LEFT JOIN dienste b ON e.dienst_id = b.id
         LEFT JOIN personal p1 ON b.stf_id = p1.id
@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Standardmäßig die ersten 50 Einsätze laden
 $einsaetze = fetchEinsaetze($pdo, 0, 50);
 ?>
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -57,12 +58,41 @@ $einsaetze = fetchEinsaetze($pdo, 0, 50);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Einsatz Historie</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            white-space: nowrap; /* Spaltenbreite nur nach Bedarf */
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        details {
+            cursor: pointer;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
     <script>
         let offset = 50; // Start mit den ersten 50 Einträgen
         const limit = 50; // Anzahl der Einträge pro Ladevorgang
 
         async function loadMoreEinsaetze() {
-            const response = await fetch('', {
+            const response = await fetch('historie.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({ offset, limit })
@@ -71,7 +101,7 @@ $einsaetze = fetchEinsaetze($pdo, 0, 50);
             const { data, totalEntries } = await response.json();
             const tbody = document.querySelector('#einsaetze-table tbody');
 
-            if (data.length === 0 || offset >= totalEntries) {
+            if (data.length === 0) {
                 document.getElementById('load-more').style.display = 'none';
                 return;
             }
@@ -82,54 +112,57 @@ $einsaetze = fetchEinsaetze($pdo, 0, 50);
                 row.innerHTML = `
                     <td>${einsatz.interne_einsatznummer}</td>
                     <td>${einsatz.einsatznummer_lts}</td>
-                    <td>${formatTime(einsatz.alarmuhrzeit, einsatz.zurueckzeit)}</td>
+                    <td>${formatDate(einsatz.alarmuhrzeit)} - ${formatDate(einsatz.zurueckzeit)}</td>
                     <td>${einsatz.stichwort}</td>
                     <td>${einsatz.adresse}</td>
                     <td>
-                        <button onclick="toggleDetails(this)">Details</button>
-                        <div class="details" style="display:none;">
-                            <p>StF: ${einsatz.stf || '-'}</p>
-                            <p>MA: ${einsatz.ma || '-'}</p>
-                            <p>ATF: ${einsatz.atf || '-'}</p>
-                            <p>ATM: ${einsatz.atm || '-'}</p>
-                            <p>WTF: ${einsatz.wtf || '-'}</p>
-                            <p>WTM: ${einsatz.wtm || '-'}</p>
-                            <p>Prakt: ${einsatz.prakt || '-'}</p>
-                        </div>
+                        <details>
+                            <summary>Details anzeigen</summary>
+                            <p>STF: ${einsatz.stf || 'N/A'}</p>
+                            <p>MA: ${einsatz.ma || 'N/A'}</p>
+                            <p>ATF: ${einsatz.atf || 'N/A'}</p>
+                            <p>ATM: ${einsatz.atm || 'N/A'}</p>
+                            <p>WTF: ${einsatz.wtf || 'N/A'}</p>
+                            <p>WTM: ${einsatz.wtm || 'N/A'}</p>
+                            <p>Praktikant: ${einsatz.prakt || 'N/A'}</p>
+                        </details>
                     </td>
                 `;
 
                 tbody.appendChild(row);
             });
 
-            offset += limit; // Offset für die nächsten Einträge erhöhen
+            offset += limit; // Offset aktualisieren
+            if (offset >= totalEntries) {
+                document.getElementById('load-more').style.display = 'none';
+            }
         }
 
-        function formatTime(alarmuhrzeit, zurueckzeit) {
-            const formatDate = dateStr => {
-                const [day, month, year, time] = dateStr.split(/\.|\s/);
-                return `${day}.${month}.${year} ${time}`;
-            };
-            return `${formatDate(alarmuhrzeit)} - ${zurueckzeit ? zurueckzeit.split(' ')[1] : '-'}`;
+        function formatDate(dateString) {
+            const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+            const date = new Date(dateString);
+            return date.toLocaleString('de-DE', options);
         }
 
-        function toggleDetails(button) {
-            const details = button.nextElementSibling;
-            details.style.display = details.style.display === 'none' ? 'block' : 'none';
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('load-more').addEventListener('click', loadMoreEinsaetze);
+        });
     </script>
 </head>
 <body>
-    <h1>Einsatz Historie</h1>
+    <header>
+        <h1>Einsatzhistorie</h1>
+    </header>
+
     <table id="einsaetze-table">
         <thead>
             <tr>
-                <th>Interne Nummer</th>
-                <th>LTS Nummer</th>
+                <th>Interne Einsatznummer</th>
+                <th>Einsatznummer LTS</th>
                 <th>Zeit</th>
                 <th>Stichwort</th>
                 <th>Adresse</th>
-                <th>Funktionen</th>
+                <th>Details</th>
             </tr>
         </thead>
         <tbody>
@@ -137,30 +170,26 @@ $einsaetze = fetchEinsaetze($pdo, 0, 50);
                 <tr>
                     <td><?= htmlspecialchars($einsatz['interne_einsatznummer']) ?></td>
                     <td><?= htmlspecialchars($einsatz['einsatznummer_lts']) ?></td>
-                    <td><?= htmlspecialchars(
-                        date('d.m.Y H:i', strtotime($einsatz['alarmuhrzeit'])) .
-                        ' - ' .
-                        ($einsatz['zurueckzeit'] ? date('H:i', strtotime($einsatz['zurueckzeit'])) : '-')
-                    ) ?></td>
+                    <td><?= htmlspecialchars(date('d.m.Y H:i', strtotime($einsatz['alarmuhrzeit']))) ?> - <?= htmlspecialchars(date('H:i', strtotime($einsatz['zurueckzeit']))) ?></td>
                     <td><?= htmlspecialchars($einsatz['stichwort']) ?></td>
                     <td><?= htmlspecialchars($einsatz['adresse']) ?></td>
                     <td>
-                        <button onclick="toggleDetails(this)">Details</button>
-                        <div class="details" style="display:none;">
-                            <p>StF: <?= htmlspecialchars($einsatz['stf'] ?? '-') ?></p>
-                            <p>MA: <?= htmlspecialchars($einsatz['ma'] ?? '-') ?></p>
-                            <p>ATF: <?= htmlspecialchars($einsatz['atf'] ?? '-') ?></p>
-                            <p>ATM: <?= htmlspecialchars($einsatz['atm'] ?? '-') ?></p>
-                            <p>WTF: <?= htmlspecialchars($einsatz['wtf'] ?? '-') ?></p>
-                            <p>WTM: <?= htmlspecialchars($einsatz['wtm'] ?? '-') ?></p>
-                            <p>Prakt: <?= htmlspecialchars($einsatz['prakt'] ?? '-') ?></p>
-                        </div>
+                        <details>
+                            <summary>Details anzeigen</summary>
+                            <p>STF: <?= htmlspecialchars($einsatz['stf'] ?? 'N/A') ?></p>
+                            <p>MA: <?= htmlspecialchars($einsatz['ma'] ?? 'N/A') ?></p>
+                            <p>ATF: <?= htmlspecialchars($einsatz['atf'] ?? 'N/A') ?></p>
+                            <p>ATM: <?= htmlspecialchars($einsatz['atm'] ?? 'N/A') ?></p>
+                            <p>WTF: <?= htmlspecialchars($einsatz['wtf'] ?? 'N/A') ?></p>
+                            <p>WTM: <?= htmlspecialchars($einsatz['wtm'] ?? 'N/A') ?></p>
+                            <p>Praktikant: <?= htmlspecialchars($einsatz['prakt'] ?? 'N/A') ?></p>
+                        </details>
                     </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
 
-    <button id="load-more" onclick="loadMoreEinsaetze()">Mehr laden</button>
+    <button id="load-more" class="btn">Mehr laden</button>
 </body>
 </html>
