@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             [$vorname, $nachname] = $nameParts;
 
             // Datenbankabfrage ausführen
-            $stmt = $pdo->prepare("SELECT code FROM personal WHERE nachname = :nachname AND vorname = :vorname");
+            $stmt = $pdo->prepare("SELECT id, code FROM personal WHERE nachname = :nachname AND vorname = :vorname");
             $stmt->execute(['nachname' => $nachname, 'vorname' => $vorname]);
             $dbCode = $stmt->fetchColumn();
 
@@ -67,11 +67,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Letzten Benutzer im Cookie speichern
                 setcookie('last_user', $username, time() + (86400 * 30), '/');
+                setcookie('last_user_id', $user['id'], time() + (86400 * 30), '/');
+                setcookie('last_user_firstname', $nameParts[0], time() + (86400 * 30), '/');
+                setcookie('last_user_lastname', $nameParts[1], time() + (86400 * 30), '/');
+                setcookie('last_login_time', $logTime, time() + (86400 * 30), '/');
+                setcookie('last_device_info', $deviceInfo, time() + (86400 * 30), '/');
 
                 // Vorname und Nachname separat speichern
                 $nameParts = explode(' ', $username, 2);
                 $_SESSION['last_user_firstname'] = $nameParts[0] ?? ''; // Vorname
                 $_SESSION['last_user_lastname'] = $nameParts[1] ?? '';  // Nachname
+                $_SESSION['last_user_id'] = $user['id'] ?? ''; //id
+
+
 
                 file_put_contents(
                     __DIR__ . '/login_logs.txt',
