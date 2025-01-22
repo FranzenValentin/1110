@@ -39,6 +39,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
 
 
 echo $userID;
+echo $firstName;
 echo "Test!!!!!!!";
 
 ?>
