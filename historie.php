@@ -2,6 +2,10 @@
 require_once 'session_check.php'; // Session-Überprüfung
 require 'db.php'; // Verbindung zur Datenbank herstellen
 
+// Offset und Limit aus der Anfrage lesen (Standardwerte setzen)
+$offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
+$limit = 50;
+
 // Hilfsfunktion: Einsätze laden
 function fetchEinsaetze($pdo, $offset, $limit)
 {
@@ -24,33 +28,22 @@ function fetchEinsaetze($pdo, $offset, $limit)
     ";
 
     $stmt = $pdo->prepare($sql);
-    $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
-    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
     $stmt->execute();
 
-    // Gesamte Anzahl der Einsätze
+    // Gesamte Anzahl der Einsätze ermitteln
     $countSql = "SELECT COUNT(*) FROM einsaetze";
-    $countStmt = $pdo->query($countSql);
-    $totalEntries = $countStmt->fetchColumn();
+    $totalEntries = $pdo->query($countSql)->fetchColumn();
 
     return ['data' => $stmt->fetchAll(PDO::FETCH_ASSOC), 'totalEntries' => $totalEntries];
 }
 
-// AJAX-Anfrage verarbeiten
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $offset = isset($_POST['offset']) ? (int)$_POST['offset'] : 0;
-    $limit = isset($_POST['limit']) ? (int)$_POST['limit'] : 50;
-
-    $result = fetchEinsaetze($pdo, $offset, $limit);
-    header('Content-Type: application/json');
-    echo json_encode($result);
-    exit;
-}
-
-// Standardmäßig die ersten 50 Einsätze laden
-$einsaetze = fetchEinsaetze($pdo, 0, 50);
+// Einsätze laden
+$result = fetchEinsaetze($pdo, $offset, $limit);
+$data = $result['data'];
+$totalEntries = $result['totalEntries'];
 ?>
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -60,101 +53,44 @@ $einsaetze = fetchEinsaetze($pdo, 0, 50);
     <link rel="stylesheet" href="styles.css">
     <style>
         table {
-            width: 100%;
             border-collapse: collapse;
+            width: 100%;
+            table-layout: auto;
         }
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
-            white-space: nowrap; /* Spaltenbreite nur nach Bedarf */
+            white-space: nowrap;
         }
         th {
-            background-color: #f4f4f4;
+            background-color: #f2f2f2;
+            font-weight: bold;
         }
         details {
             cursor: pointer;
         }
-        .btn {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
+        .center {
+            text-align: center;
         }
-        .btn:hover {
-            background-color: #0056b3;
+        #load-more-container {
+            text-align: center;
+            margin-top: 20px;
         }
     </style>
-    <script>
-        let offset = 50; // Start mit den ersten 50 Einträgen
-        const limit = 50; // Anzahl der Einträge pro Ladevorgang
-
-        async function loadMoreEinsaetze() {
-            const response = await fetch('historie.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ offset, limit })
-            });
-
-            const { data, totalEntries } = await response.json();
-            const tbody = document.querySelector('#einsaetze-table tbody');
-
-            if (data.length === 0) {
-                document.getElementById('load-more').style.display = 'none';
-                return;
-            }
-
-            data.forEach(einsatz => {
-                const row = document.createElement('tr');
-
-                row.innerHTML = `
-                    <td>${einsatz.interne_einsatznummer}</td>
-                    <td>${einsatz.einsatznummer_lts}</td>
-                    <td>${formatDate(einsatz.alarmuhrzeit)} - ${formatDate(einsatz.zurueckzeit)}</td>
-                    <td>${einsatz.stichwort}</td>
-                    <td>${einsatz.adresse}</td>
-                    <td>
-                        <details>
-                            <summary>Details anzeigen</summary>
-                            <p>STF: ${einsatz.stf || 'N/A'}</p>
-                            <p>MA: ${einsatz.ma || 'N/A'}</p>
-                            <p>ATF: ${einsatz.atf || 'N/A'}</p>
-                            <p>ATM: ${einsatz.atm || 'N/A'}</p>
-                            <p>WTF: ${einsatz.wtf || 'N/A'}</p>
-                            <p>WTM: ${einsatz.wtm || 'N/A'}</p>
-                            <p>Praktikant: ${einsatz.prakt || 'N/A'}</p>
-                        </details>
-                    </td>
-                `;
-
-                tbody.appendChild(row);
-            });
-
-            offset += limit; // Offset aktualisieren
-            if (offset >= totalEntries) {
-                document.getElementById('load-more').style.display = 'none';
-            }
-        }
-
-        function formatDate(dateString) {
-            const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' };
-            const date = new Date(dateString);
-            return date.toLocaleString('de-DE', options);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('load-more').addEventListener('click', loadMoreEinsaetze);
-        });
-    </script>
 </head>
 <body>
     <header>
-        <h1>Einsatzhistorie</h1>
+        <h1>Einsatz Historie</h1>
+        <form method="POST" action="logout.php" class="logout-form">
+            <button type="submit">Logout</button>
+        </form>
+        <form method="POST" action="index.php" class="back-form">
+            <button type="submit">Zurück</button>
+        </form>
     </header>
 
-    <table id="einsaetze-table">
+    <table>
         <thead>
             <tr>
                 <th>Interne Einsatznummer</th>
@@ -162,27 +98,35 @@ $einsaetze = fetchEinsaetze($pdo, 0, 50);
                 <th>Zeit</th>
                 <th>Stichwort</th>
                 <th>Adresse</th>
-                <th>Details</th>
+                <th>Personal</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($einsaetze['data'] as $einsatz): ?>
+            <?php foreach ($data as $einsatz): ?>
                 <tr>
                     <td><?= htmlspecialchars($einsatz['interne_einsatznummer']) ?></td>
                     <td><?= htmlspecialchars($einsatz['einsatznummer_lts']) ?></td>
-                    <td><?= htmlspecialchars(date('d.m.Y H:i', strtotime($einsatz['alarmuhrzeit']))) ?> - <?= htmlspecialchars(date('H:i', strtotime($einsatz['zurueckzeit']))) ?></td>
+                    <td>
+                        <?php
+                        $alarmzeit = date('d.m.Y H:i', strtotime($einsatz['alarmuhrzeit']));
+                        $zurueckzeit = date('H:i', strtotime($einsatz['zurueckzeit']));
+                        echo $alarmzeit . ' - ' . $zurueckzeit;
+                        ?>
+                    </td>
                     <td><?= htmlspecialchars($einsatz['stichwort']) ?></td>
                     <td><?= htmlspecialchars($einsatz['adresse']) ?></td>
                     <td>
                         <details>
-                            <summary>Details anzeigen</summary>
-                            <p>STF: <?= htmlspecialchars($einsatz['stf'] ?? 'N/A') ?></p>
-                            <p>MA: <?= htmlspecialchars($einsatz['ma'] ?? 'N/A') ?></p>
-                            <p>ATF: <?= htmlspecialchars($einsatz['atf'] ?? 'N/A') ?></p>
-                            <p>ATM: <?= htmlspecialchars($einsatz['atm'] ?? 'N/A') ?></p>
-                            <p>WTF: <?= htmlspecialchars($einsatz['wtf'] ?? 'N/A') ?></p>
-                            <p>WTM: <?= htmlspecialchars($einsatz['wtm'] ?? 'N/A') ?></p>
-                            <p>Praktikant: <?= htmlspecialchars($einsatz['prakt'] ?? 'N/A') ?></p>
+                            <summary>Details</summary>
+                            <ul>
+                                <li>STF: <?= htmlspecialchars($einsatz['stf'] ?? 'N/A') ?></li>
+                                <li>MA: <?= htmlspecialchars($einsatz['ma'] ?? 'N/A') ?></li>
+                                <li>ATF: <?= htmlspecialchars($einsatz['atf'] ?? 'N/A') ?></li>
+                                <li>ATM: <?= htmlspecialchars($einsatz['atm'] ?? 'N/A') ?></li>
+                                <li>WTF: <?= htmlspecialchars($einsatz['wtf'] ?? 'N/A') ?></li>
+                                <li>WTM: <?= htmlspecialchars($einsatz['wtm'] ?? 'N/A') ?></li>
+                                <li>PRAKT: <?= htmlspecialchars($einsatz['prakt'] ?? 'N/A') ?></li>
+                            </ul>
                         </details>
                     </td>
                 </tr>
@@ -190,6 +134,15 @@ $einsaetze = fetchEinsaetze($pdo, 0, 50);
         </tbody>
     </table>
 
-    <button id="load-more" class="btn">Mehr laden</button>
+    <div id="load-more-container">
+        <?php if ($offset + $limit < $totalEntries): ?>
+            <form method="GET" action="historie.php">
+                <input type="hidden" name="offset" value="<?= $offset + $limit ?>">
+                <button type="submit">Mehr Laden</button>
+            </form>
+        <?php else: ?>
+            <p>Alle Einträge geladen.</p>
+        <?php endif; ?>
+    </div>
 </body>
 </html>
