@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Datenbankabfrage ausführen
             $stmt = $pdo->prepare("SELECT code, id FROM personal WHERE nachname = :nachname AND vorname = :vorname");
             $stmt->execute(['nachname' => $nachname, 'vorname' => $vorname]);
-            $dbCode = $stmt->fetch();
+            $dbCode = $stmt->fetchColumn();
 
             if ($dbCode && $dbCode == $inputCode) {
                 // Login erfolgreich
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $nameParts = explode(' ', $username, 2);
                 $_SESSION['last_user_firstname'] = $nameParts[0] ?? ''; // Vorname
                 $_SESSION['last_user_lastname'] = $nameParts[1] ?? '';  // Nachname
-                $_SESSION['last_user_id'] = $dbCode['id'] ?? ''; //id
+                $_SESSION['last_user_id'] = $stmt['id'] ?? ''; //id
 
 
 
