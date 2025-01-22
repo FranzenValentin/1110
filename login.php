@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $nameParts = explode(' ', $username, 2);
                 $_SESSION['last_user_firstname'] = $nameParts[0] ?? ''; // Vorname
                 $_SESSION['last_user_lastname'] = $nameParts[1] ?? '';  // Nachname
-                $_SESSION['last_user_id'] = $dbCode['id'] ?? ''; //id
+                $_SESSION['last_user_id'] = $stmt['id'] ?? ''; //id
 
 
 
