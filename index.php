@@ -37,11 +37,6 @@ $dienstResult = $dienstStmt->fetch(PDO::FETCH_ASSOC);
 // Setze $dienstVorhanden auf 1, wenn ein aktiver Dienst existiert
 $dienstVorhanden = $dienstResult ? 1 : 0;
 
-
-echo $userID;
-echo $firstName;
-echo "Test!!!!!!!";
-
 ?>
 
 <!DOCTYPE html>
