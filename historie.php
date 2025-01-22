@@ -118,6 +118,7 @@ $einsaetze = fetchEinsaetze($pdo, 0, 50);
         }
     </script>
 </head>
+<link rel="stylesheet" href="styles.css">
 <body>
     <h1>Einsatz Historie</h1>
 
