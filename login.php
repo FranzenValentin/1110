@@ -41,6 +41,8 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
 
 $error = null;
 
+echo $userID;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $inputCode = trim($_POST['access_code']);
