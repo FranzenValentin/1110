@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Datenbankabfrage ausführen
             $stmt = $pdo->prepare("SELECT code, id FROM personal WHERE nachname = :nachname AND vorname = :vorname");
             $stmt->execute(['nachname' => $nachname, 'vorname' => $vorname]);
-            $dbCode = $stmt->fetch(PDO::FETCH_ASSOC);
+            $dbCode = $stmt->fetch();
 
             if ($dbCode && $dbCode == $inputCode) {
                 // Login erfolgreich
