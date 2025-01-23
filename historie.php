@@ -93,8 +93,8 @@ $totalEntries = $result['totalEntries'];
     <table>
         <thead>
             <tr>
-                <th>Interne Einsatznummer</th>
-                <th>Einsatznummer LTS</th>
+                <th>E-Nr. int. </th>
+                <th>E-Nr. LTS</th>
                 <th>Zeit</th>
                 <th>Stichwort</th>
                 <th>Adresse</th>
