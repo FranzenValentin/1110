@@ -545,7 +545,6 @@ if ($zeitResult) {
                         <tr>
                             <th>Fahrzeug</th>
                             <th>Zeitraum</th>
-                            <th>Dienst Dauer</th>
                             <th>Alarmanzahl</th>
                             <th>Alarme (Stichworte)</th>
                             <th>Personal</th>
@@ -645,7 +644,6 @@ if ($zeitResult) {
                             echo "<tr>";
                             echo "<td>" . htmlspecialchars($dienst['fahrzeug_name']) . "</td>";
                             echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . " - " . htmlspecialchars($dienst['ausserDienstZeit']) . " (" . $dauer_formatiert . " h)" . "</td>";
-                            echo "<td>" . htmlspecialchars($dauer_formatiert) . "</td>";
                             echo "<td>" . htmlspecialchars($dienst['alarmanzahl']) . "</td>";
 
 
