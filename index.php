@@ -649,12 +649,12 @@ if ($zeitResult) {
                             // Alarme (Stichworte) ausklappbar
                             echo "<td>
                                     <details>
-                                        <summary><?= htmlspecialchars($dienst['alarmanzahl']) ?></summary>
+                                        <summary>" . htmlspecialchars($dienst['alarmanzahl']) . "</summary>
                                         <ul>";
-                            foreach ($alarmeList as $alarm) {
-                                echo "<li>" . htmlspecialchars($alarm) . "</li>";
-                            }
-                            echo "    </ul>
+                                            foreach ($alarmeList as $alarm) { 
+                                                echo "<li>" . htmlspecialchars($alarm) . "</li>";
+                                            } 
+                            echo "      </ul>
                                     </details>
                                 </td>";
 
