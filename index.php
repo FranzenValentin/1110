@@ -543,7 +543,6 @@ if ($zeitResult) {
                 <table>
                     <thead>
                         <tr>
-                            <th>Fahrzeug</th>
                             <th>Zeitraum</th>
                             <th>Alarmanzahl</th>
                             <th>Alarme (Stichworte)</th>
@@ -642,7 +641,6 @@ if ($zeitResult) {
                             $dauer_formatiert = sprintf('%02d:%02d', $dauer_stunden, $dauer_minuten);
 
                             echo "<tr>";
-                            echo "<td>" . htmlspecialchars($dienst['fahrzeug_name']) . "</td>";
                             echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . " - " . htmlspecialchars($dienst['ausserDienstZeit']) . " (" . $dauer_formatiert . " h)" . "</td>";
                             echo "<td>" . htmlspecialchars($dienst['alarmanzahl']) . "</td>";
 
