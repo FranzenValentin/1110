@@ -478,7 +478,6 @@ if ($zeitResult) {
                         <th>Interne Einsatznummer</th>
                         <th>Stichwort</th>
                         <th>Alarmzeit</th>
-                        <th>Fahrzeug</th>
                         <th>Personal</th>
                     </tr>
                 </thead>
@@ -521,7 +520,6 @@ if ($zeitResult) {
                                 <td>" . htmlspecialchars($row['interne_einsatznummer']) . "</td>
                                 <td>" . htmlspecialchars($row['stichwort']) . "</td>
                                 <td>" . htmlspecialchars($row['alarmuhrzeit']) . "</td>
-                                <td>" . htmlspecialchars($row['fahrzeug_name']) . "</td>
                                 <td>
                                     <details>
                                         <summary>Details anzeigen</summary>
@@ -646,7 +644,7 @@ if ($zeitResult) {
 
                             echo "<tr>";
                             echo "<td>" . htmlspecialchars($dienst['fahrzeug_name']) . "</td>";
-                            echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . " - " . htmlspecialchars($dienst['ausserDienstZeit']) . "</td>";
+                            echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . " - " . htmlspecialchars($dienst['ausserDienstZeit']) . "(" . $dauer_formatiert . " h)" . "</td>";
                             echo "<td>" . htmlspecialchars($dauer_formatiert) . "</td>";
                             echo "<td>" . htmlspecialchars($dienst['alarmanzahl']) . "</td>";
 
