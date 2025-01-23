@@ -640,11 +640,11 @@ if ($zeitResult) {
                             // Dienst Dauer im Format 00:00 Stunden berechnen
                             $dauer_stunden = floor($dienst['dauer_minuten'] / 60);
                             $dauer_minuten = $dienst['dauer_minuten'] % 60;
-                            $dauer_formatiert = sprintf('%02d:%02d Stunden', $dauer_stunden, $dauer_minuten);
+                            $dauer_formatiert = sprintf('%02d:%02d', $dauer_stunden, $dauer_minuten);
 
                             echo "<tr>";
                             echo "<td>" . htmlspecialchars($dienst['fahrzeug_name']) . "</td>";
-                            echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . " - " . htmlspecialchars($dienst['ausserDienstZeit']) . "(" . $dauer_formatiert . " h)" . "</td>";
+                            echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . " - " . htmlspecialchars($dienst['ausserDienstZeit']) . " (" . $dauer_formatiert . " h)" . "</td>";
                             echo "<td>" . htmlspecialchars($dauer_formatiert) . "</td>";
                             echo "<td>" . htmlspecialchars($dienst['alarmanzahl']) . "</td>";
 
