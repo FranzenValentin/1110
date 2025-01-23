@@ -181,6 +181,5 @@ $tageVorjahr = array_keys($alleTageVorjahr);
     });
 </script>
 
-
 </body>
 </html>
