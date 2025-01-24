@@ -144,13 +144,13 @@ const chart = new Chart(ctx, {
                 pointBackgroundColor: (context) => {
                     const index = context.dataIndex;
                     return index === aktuellesDatumIndex
-                        ? 'rgba(255, 99, 132, 0.5)' // 50% Sichtbarkeit
+                        ? 'rgba(255, 99, 132, 0.8)' // 50% Sichtbarkeit
                         : 'rgba(255, 99, 132, 1)';
                 },
                 pointBorderColor: (context) => {
                     const index = context.dataIndex;
                     return index === aktuellesDatumIndex
-                        ? 'rgba(255, 99, 132, 0.5)' // 50% Sichtbarkeit
+                        ? 'rgba(255, 99, 132, 0.8)' // 50% Sichtbarkeit
                         : 'rgba(255, 99, 132, 1)';
                 }
             }
