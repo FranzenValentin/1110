@@ -208,7 +208,7 @@ const chart = new Chart(ctx, {
         animations: {
             radius: {
                 duration: 1500,
-                easing: 'easeInOutQuart', // Verstärkte Ease-In/Ease-Out
+                easing: 'easeInOutQuint', // Verstärkte Ease-In/Ease-Out
                 loop: true,
                 from: (context) => {
                     const index = context.dataIndex;
