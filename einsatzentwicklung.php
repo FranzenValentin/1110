@@ -101,91 +101,109 @@ $tageVorjahr = array_keys($alleTageVorjahr);
     <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
 
     <script>
-    // Daten aus PHP übertragen
-    const tageAktuellesJahr = <?= json_encode($tageAktuellesJahr) ?>;
-    const kumuliertAktuellesJahr = <?= json_encode($kumuliertAktuellesJahr) ?>;
-    const tageVorjahr = <?= json_encode($tageVorjahr) ?>;
-    const kumuliertVorjahr = <?= json_encode($kumuliertVorjahr) ?>;
+    // Aktuelles Datum von PHP
+const aktuellesDatum = new Date(<?= json_encode(date('Y-m-d')) ?>);
+const aktuellesDatumIndex = tageAktuellesJahr.indexOf(aktuellesDatum.toISOString().split('T')[0]);
 
-    // Chart.js-Diagramm erstellen
-    const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: tageAktuellesJahr,
-            datasets: [
-                {
-                    label: 'Kumuliert <?= $vorjahr ?>',
-                    data: kumuliertVorjahr,
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    fill: false,
-                    tension: 0.4,
-                    pointRadius: 0,
-                    pointHoverRadius: 0
-                },
-                {
-                    label: 'Kumuliert <?= $jahr ?>',
-                    data: kumuliertAktuellesJahr,
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    fill: false,
-                    tension: 0.4,
-                    pointRadius: 0,
-                    pointHoverRadius: 0
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top'
-                },
-                tooltip: {
-                    enabled: true,
-                    callbacks: {
-                        label: function(context) {
-                            return `${context.dataset.label}: ${context.raw} Einsätze`;
-                        }
-                    }
-                }
+// Chart.js-Diagramm erstellen
+const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: tageAktuellesJahr,
+        datasets: [
+            {
+                label: 'Kumuliert <?= $vorjahr ?>',
+                data: kumuliertVorjahr,
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                fill: false,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 0
             },
-            scales: {
-                x: {
-                    type: 'category',
-                    title: {
-                        display: true,
-                        text: 'Monate'
-                    },
-                    ticks: {
-                        callback: function(value, index, ticks) {
-                            const date = new Date(tageAktuellesJahr[index]);
-                            const monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
-                            return monthNames[date.getMonth()];
-                        },
-                        maxTicksLimit: 12, // Beschränkung auf 12 Ticks (1 pro Monat)
-                        autoSkip: true, // Automatisches Überspringen aktivieren
-                        maxRotation: 0,
-                        minRotation: 0
-                    },
-                    grid: {
-                        display: true // Gitterlinien deaktivieren
-                    }
+            {
+                label: 'Kumuliert <?= $jahr ?>',
+                data: kumuliertAktuellesJahr,
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                fill: false,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                pointBackgroundColor: (context) => {
+                    const index = context.dataIndex;
+                    return index === aktuellesDatumIndex ? 'rgba(255, 99, 132, 1)' : 'rgba(255, 99, 132, 0.5)';
                 },
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Kumulierte Einsätze'
-                    },
-                    grid: {
-                        color: 'rgba(200, 200, 200, 0.3)' // Gitterlinienfarbe ändern
+                pointBorderWidth: (context) => {
+                    const index = context.dataIndex;
+                    return index === aktuellesDatumIndex ? 5 : 0;
+                }
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top'
+            },
+            tooltip: {
+                enabled: true,
+                callbacks: {
+                    label: function(context) {
+                        return `${context.dataset.label}: ${context.raw} Einsätze`;
                     }
                 }
             }
+        },
+        scales: {
+            x: {
+                type: 'category',
+                title: {
+                    display: true,
+                    text: 'Monate'
+                },
+                ticks: {
+                    callback: function(value, index, ticks) {
+                        const date = new Date(tageAktuellesJahr[index]);
+                        const monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+                        return monthNames[date.getMonth()];
+                    },
+                    maxTicksLimit: 12,
+                    autoSkip: true,
+                    maxRotation: 0,
+                    minRotation: 0
+                },
+                grid: {
+                    display: true
+                }
+            },
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Kumulierte Einsätze'
+                },
+                grid: {
+                    color: 'rgba(200, 200, 200, 0.3)'
+                }
+            }
+        },
+        animation: {
+            duration: 1000,
+            easing: 'easeInOutBounce',
+            onProgress: function(animation) {
+                const index = aktuellesDatumIndex;
+                if (index !== -1) {
+                    this.data.datasets[1].pointRadius[index] =
+                        5 + Math.sin(animation.currentStep / 10) * 2; // Pulsierende Größe
+                }
+            }
         }
-    });
+    }
+});
+
 </script>
 
 </body>
