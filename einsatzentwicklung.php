@@ -116,7 +116,7 @@ const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
 
 // Funktion zum Erstellen eines Gradienten für den heutigen Punkt
 function createGradient(ctx, x, y, radius) {
-    const gradient = ctx.createRadialGradient(x, y, radius * 0, x, y, radius);
+    const gradient = ctx.createRadialGradient(x, y, radius * 0.001, x, y, radius);
     gradient.addColorStop(0, 'rgba(255, 99, 132, 1)'); // 100% Sichtbarkeit in der Mitte
     gradient.addColorStop(1, 'rgba(255, 99, 132, 0.1)'); // 0% Transparenz am Rand
     return gradient;
