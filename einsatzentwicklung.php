@@ -101,8 +101,7 @@ $tageVorjahr = array_keys($alleTageVorjahr);
     <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
 
     <script>
-    // Aktuelles Datum von PHP
-// Daten aus PHP übertragen
+    // Daten aus PHP übertragen
 const tageAktuellesJahr = <?= json_encode($tageAktuellesJahr) ?>;
 const kumuliertAktuellesJahr = <?= json_encode($kumuliertAktuellesJahr) ?>;
 const tageVorjahr = <?= json_encode($tageVorjahr) ?>;
@@ -127,7 +126,7 @@ const chart = new Chart(ctx, {
                 fill: false,
                 tension: 0.4,
                 pointRadius: 0,
-                pointHoverRadius: 0
+                pointHoverRadius: 0,
             },
             {
                 label: 'Kumuliert <?= $jahr ?>',
@@ -138,81 +137,84 @@ const chart = new Chart(ctx, {
                 tension: 0.4,
                 pointRadius: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 8 : 0; // Größerer Punkt am aktuellen Tag
+                    return index === aktuellesDatumIndex ? 10 : 0; // Nur der heutige Punkt hat einen Radius
                 },
                 pointHoverRadius: 10,
                 pointBackgroundColor: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex
-                        ? 'rgba(255, 99, 132, 0.8)' // 50% Sichtbarkeit
-                        : 'rgba(255, 99, 132, 1)';
+                    return index === aktuellesDatumIndex ? 'rgba(255, 99, 132, 0.8)' : 'rgba(255, 99, 132, 1)';
                 },
                 pointBorderColor: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex
-                        ? 'rgba(255, 99, 132, 0.8)' // 50% Sichtbarkeit
-                        : 'rgba(255, 99, 132, 1)';
-                }
-            }
-        ]
+                    return index === aktuellesDatumIndex ? 'rgba(255, 99, 132, 0.8)' : 'rgba(255, 99, 132, 1)';
+                },
+            },
+        ],
     },
     options: {
         responsive: true,
         plugins: {
             legend: {
-                position: 'top'
+                position: 'top',
             },
             tooltip: {
                 enabled: true,
                 callbacks: {
-                    label: function(context) {
+                    label: function (context) {
                         return `${context.dataset.label}: ${context.raw} Einsätze`;
-                    }
-                }
-            }
+                    },
+                },
+            },
         },
         scales: {
             x: {
                 type: 'category',
                 title: {
                     display: true,
-                    text: 'Monate'
+                    text: 'Monate',
                 },
                 ticks: {
-                    callback: function(value, index, ticks) {
+                    callback: function (value, index) {
                         const date = new Date(tageAktuellesJahr[index]);
                         const monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
                         return monthNames[date.getMonth()];
                     },
                     maxTicksLimit: 12,
                     autoSkip: true,
-                    maxRotation: 0,
-                    minRotation: 0
                 },
                 grid: {
-                    display: true
-                }
+                    display: true,
+                },
             },
             y: {
                 beginAtZero: true,
                 title: {
                     display: true,
-                    text: 'Kumulierte Einsätze'
+                    text: 'Kumulierte Einsätze',
                 },
                 grid: {
-                    color: 'rgba(200, 200, 200, 0.3)'
-                }
-            }
+                    color: 'rgba(200, 200, 200, 0.3)',
+                },
+            },
         },
         animations: {
             radius: {
                 duration: 1000,
-                easing: 'easeInOutBounce',
-                loop: true // Punkt blinkt
-            }
-        }
-    }
+                easing: 'easeInOutQuad',
+                loop: true,
+                from: (context) => {
+                    const index = context.dataIndex;
+                    return index === aktuellesDatumIndex ? 5 : 0; // Nur der heutige Punkt startet bei 5
+                },
+                to: (context) => {
+                    const index = context.dataIndex;
+                    return index === aktuellesDatumIndex ? 15 : 0; // Nur der heutige Punkt pulsiert bis 15
+                },
+            },
+        },
+    },
 });
+
 
 </script>
 </body>
