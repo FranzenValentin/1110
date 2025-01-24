@@ -118,7 +118,7 @@ const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
 function createGradient(ctx, x, y, radius) {
     const gradient = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
     gradient.addColorStop(0, 'rgba(255, 99, 132, 1)'); // 100% Sichtbarkeit in der Mitte
-    gradient.addColorStop(1, 'rgba(255, 99, 132, 0.5)'); // 50% Transparenz am Rand
+    gradient.addColorStop(1, 'rgba(255, 99, 132, 0)'); // 0% Transparenz am Rand
     return gradient;
 }
 
@@ -219,7 +219,7 @@ const chart = new Chart(ctx, {
         animations: {
             radius: {
                 duration: 1500,
-                easing: 'easeInOutElastic', // Sanftes Ease-In/Ease-Out
+                easing: 'easeIn', // Sanftes Ease-In/Ease-Out
                 loop: true,
                 from: (context) => {
                     const index = context.dataIndex;
