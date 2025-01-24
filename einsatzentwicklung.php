@@ -215,6 +215,5 @@ const chart = new Chart(ctx, {
 });
 
 </script>
-
 </body>
 </html>
