@@ -102,12 +102,19 @@ $tageVorjahr = array_keys($alleTageVorjahr);
 
     <script>
     // Aktuelles Datum von PHP
+// Daten aus PHP übertragen
+const tageAktuellesJahr = <?= json_encode($tageAktuellesJahr) ?>;
+const kumuliertAktuellesJahr = <?= json_encode($kumuliertAktuellesJahr) ?>;
+const tageVorjahr = <?= json_encode($tageVorjahr) ?>;
+const kumuliertVorjahr = <?= json_encode($kumuliertVorjahr) ?>;
+
+// Aktuelles Datum von PHP
 const aktuellesDatum = new Date(<?= json_encode(date('Y-m-d')) ?>);
 const aktuellesDatumIndex = tageAktuellesJahr.indexOf(aktuellesDatum.toISOString().split('T')[0]);
 
 // Chart.js-Diagramm erstellen
 const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
-new Chart(ctx, {
+const chart = new Chart(ctx, {
     type: 'line',
     data: {
         labels: tageAktuellesJahr,
@@ -129,15 +136,18 @@ new Chart(ctx, {
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 fill: false,
                 tension: 0.4,
-                pointRadius: 0,
-                pointHoverRadius: 0,
+                pointRadius: (context) => {
+                    const index = context.dataIndex;
+                    return index === aktuellesDatumIndex ? 8 : 0; // Größerer Punkt am aktuellen Tag
+                },
+                pointHoverRadius: 10,
                 pointBackgroundColor: (context) => {
                     const index = context.dataIndex;
                     return index === aktuellesDatumIndex ? 'rgba(255, 99, 132, 1)' : 'rgba(255, 99, 132, 0.5)';
                 },
-                pointBorderWidth: (context) => {
+                pointBorderColor: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 5 : 0;
+                    return index === aktuellesDatumIndex ? 'rgba(255, 99, 132, 1)' : 'rgba(255, 99, 132, 0.5)';
                 }
             }
         ]
@@ -190,15 +200,11 @@ new Chart(ctx, {
                 }
             }
         },
-        animation: {
-            duration: 1000,
-            easing: 'easeInOutBounce',
-            onProgress: function(animation) {
-                const index = aktuellesDatumIndex;
-                if (index !== -1) {
-                    this.data.datasets[1].pointRadius[index] =
-                        5 + Math.sin(animation.currentStep / 10) * 2; // Pulsierende Größe
-                }
+        animations: {
+            radius: {
+                duration: 1000,
+                easing: 'easeInOutBounce',
+                loop: true // Punkt blinkt
             }
         }
     }
