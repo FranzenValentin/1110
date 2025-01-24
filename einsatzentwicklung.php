@@ -29,11 +29,15 @@ $kumuliertAktuellesJahr = [];
 $kumuliertVorjahr = [];
 
 // Alle Tage des aktuellen initialisieren
+$heute = date('Y-m-d');
 for ($d = 0; $d < 365; $d++) {
     $tagAktuellesJahr = date('Y-m-d', strtotime("$jahr-01-01 +$d days"));
-
+    if ($tagAktuellesJahr > $heute) {
+        break; // Stoppt, wenn das Datum nach heute liegt
+    }
     $alleTageAktuellesJahr[$tagAktuellesJahr] = 0;
 }
+
 
 // Alle Tage des vorherigen Jahres initialisieren
 for ($d = 0; $d < 365; $d++) {
