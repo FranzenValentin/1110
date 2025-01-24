@@ -223,7 +223,7 @@ const chart = new Chart(ctx, {
                 loop: true,
                 from: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 3 : 0; // Nur der heutige Punkt startet bei 5
+                    return index === aktuellesDatumIndex ? 4 : 0; // Nur der heutige Punkt startet bei 5
                 },
                 to: (context) => {
                     const index = context.dataIndex;
