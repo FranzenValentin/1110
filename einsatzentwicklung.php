@@ -158,7 +158,7 @@ const chart = new Chart(ctx, {
                     if (index === aktuellesDatumIndex && chartArea) {
                         const x = context.chart.scales.x.getPixelForValue(tageAktuellesJahr[index]);
                         const y = context.chart.scales.y.getPixelForValue(kumuliertAktuellesJahr[index]);
-                        return createGradient(ctx, x, y, 100); // Radius 10
+                        return createGradient(ctx, x, y, 10); // Radius 10
                     }
                     return 'rgba(255, 99, 132, 1)';
                 },
@@ -227,7 +227,7 @@ const chart = new Chart(ctx, {
                 },
                 to: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 15 : 0; // Nur der heutige Punkt pulsiert bis 15
+                    return index === aktuellesDatumIndex ? 30 : 0; // Nur der heutige Punkt pulsiert bis 15
                 },
             },
         },
