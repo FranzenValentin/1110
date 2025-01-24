@@ -101,7 +101,7 @@ $tageVorjahr = array_keys($alleTageVorjahr);
     <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
 
     <script>
-    // Daten aus PHP übertragen
+// Daten aus PHP übertragen
 const tageAktuellesJahr = <?= json_encode($tageAktuellesJahr) ?>;
 const kumuliertAktuellesJahr = <?= json_encode($kumuliertAktuellesJahr) ?>;
 const tageVorjahr = <?= json_encode($tageVorjahr) ?>;
@@ -142,11 +142,19 @@ const chart = new Chart(ctx, {
                 pointHoverRadius: 10,
                 pointBackgroundColor: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 'rgba(255, 99, 132, 0.8)' : 'rgba(255, 99, 132, 1)';
+                    return index === aktuellesDatumIndex
+                        ? 'rgba(255, 99, 132, 0.5)' // Halb-transparent in der Mitte
+                        : 'rgba(255, 99, 132, 1)';
                 },
                 pointBorderColor: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 'rgba(255, 99, 132, 0.8)' : 'rgba(255, 99, 132, 1)';
+                    return index === aktuellesDatumIndex
+                        ? 'rgba(255, 99, 132, 0.2)' // Sehr transparent am Rand
+                        : 'rgba(255, 99, 132, 1)';
+                },
+                pointBorderWidth: (context) => {
+                    const index = context.dataIndex;
+                    return index === aktuellesDatumIndex ? 3 : 1; // Breiterer Rand für heutige Punkte
                 },
             },
         ],
@@ -199,8 +207,8 @@ const chart = new Chart(ctx, {
         },
         animations: {
             radius: {
-                duration: 1000,
-                easing: 'easeInOutQuad',
+                duration: 1500,
+                easing: 'easeInOutElastic', // Verstärkte Ease-In/Ease-Out
                 loop: true,
                 from: (context) => {
                     const index = context.dataIndex;
@@ -214,7 +222,6 @@ const chart = new Chart(ctx, {
         },
     },
 });
-
 
 </script>
 </body>
