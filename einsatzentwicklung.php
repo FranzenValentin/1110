@@ -227,7 +227,7 @@ const chart = new Chart(ctx, {
                 },
                 to: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 30 : 0; // Nur der heutige Punkt pulsiert bis 15
+                    return index === aktuellesDatumIndex ? 10 : 0; // Nur der heutige Punkt pulsiert bis 15
                 },
             },
         },
