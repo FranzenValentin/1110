@@ -115,12 +115,18 @@ const aktuellesDatumIndex = tageAktuellesJahr.indexOf(aktuellesDatum.toISOString
 const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
 
 // Funktion zum Erstellen eines Gradienten für den heutigen Punkt
-function createGradient(ctx, x, y, radius) {
-    const gradient = ctx.createRadialGradient(x, y, radius * 5, x, y, radius);
+function createGradient(ctx, x, y, maxRadius, animationProgress) {
+    // Berechne den aktuellen Radius basierend auf der Animation
+    const animatedRadius = maxRadius * animationProgress;
+
+    // Erstelle den Radial-Gradienten
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, animatedRadius);
     gradient.addColorStop(0, 'rgba(255, 99, 132, 1)'); // 100% Sichtbarkeit in der Mitte
     gradient.addColorStop(1, 'rgba(255, 99, 132, 0)'); // 0% Transparenz am Rand
+
     return gradient;
 }
+
 
 // Chart.js-Diagramm erstellen
 const chart = new Chart(ctx, {
