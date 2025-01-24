@@ -113,6 +113,16 @@ const aktuellesDatumIndex = tageAktuellesJahr.indexOf(aktuellesDatum.toISOString
 
 // Chart.js-Diagramm erstellen
 const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
+
+// Funktion zum Erstellen eines Gradienten für den heutigen Punkt
+function createGradient(ctx, x, y, radius) {
+    const gradient = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
+    gradient.addColorStop(0, 'rgba(255, 99, 132, 1)'); // 100% Sichtbarkeit in der Mitte
+    gradient.addColorStop(1, 'rgba(255, 99, 132, 0.5)'); // 50% Transparenz am Rand
+    return gradient;
+}
+
+// Chart.js-Diagramm erstellen
 const chart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -142,19 +152,20 @@ const chart = new Chart(ctx, {
                 pointHoverRadius: 10,
                 pointBackgroundColor: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex
-                        ? 'rgba(255, 99, 132, 0.5)' // Halb-transparent in der Mitte
-                        : 'rgba(255, 99, 132, 1)';
+                    const chartArea = context.chart.chartArea;
+
+                    // Nur für den heutigen Punkt einen Gradienten anwenden
+                    if (index === aktuellesDatumIndex && chartArea) {
+                        const x = context.chart.scales.x.getPixelForValue(tageAktuellesJahr[index]);
+                        const y = context.chart.scales.y.getPixelForValue(kumuliertAktuellesJahr[index]);
+                        return createGradient(ctx, x, y, 10); // Radius 10
+                    }
+                    return 'rgba(255, 99, 132, 1)';
                 },
-                pointBorderColor: (context) => {
-                    const index = context.dataIndex;
-                    return index === aktuellesDatumIndex
-                        ? 'rgba(255, 99, 132, 0.2)' // Sehr transparent am Rand
-                        : 'rgba(255, 99, 132, 1)';
-                },
+                pointBorderColor: 'rgba(255, 99, 132, 0.5)', // Rand mit 50% Transparenz
                 pointBorderWidth: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 3 : 1; // Breiterer Rand für heutige Punkte
+                    return index === aktuellesDatumIndex ? 3 : 1; // Breiterer Rand für den heutigen Punkt
                 },
             },
         ],
@@ -208,7 +219,7 @@ const chart = new Chart(ctx, {
         animations: {
             radius: {
                 duration: 1500,
-                easing: 'easeInOutQuint', // Verstärkte Ease-In/Ease-Out
+                easing: 'easeInOutElastic', // Sanftes Ease-In/Ease-Out
                 loop: true,
                 from: (context) => {
                     const index = context.dataIndex;
@@ -222,6 +233,7 @@ const chart = new Chart(ctx, {
         },
     },
 });
+
 
 </script>
 </body>
