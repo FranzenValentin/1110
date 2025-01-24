@@ -162,7 +162,7 @@ const chart = new Chart(ctx, {
                     }
                     return 'rgba(255, 99, 132, 1)';
                 },
-                pointBorderColor: 'rgba(255, 99, 132, 0.5)', // Rand mit 50% Transparenz
+                pointBorderColor: 'rgba(255, 99, 132, 0)', // Rand mit 50% Transparenz
                 pointBorderWidth: (context) => {
                     const index = context.dataIndex;
                     return index === aktuellesDatumIndex ? 3 : 1; // Breiterer Rand für den heutigen Punkt
