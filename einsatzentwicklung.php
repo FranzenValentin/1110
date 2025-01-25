@@ -121,6 +121,7 @@ function createGradient(ctx, x, y, radius) {
 
 const chart = new Chart(ctx, {
     type: 'line',
+    width: 90%, // Breite des Diagramms
     data: {
         labels: tageAktuellesJahr,
         datasets: [
