@@ -41,7 +41,7 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
 
 $error = null;
 
-echo $smt['id'];
+echo $smt['id'] ?? 'Nix';
 echo "Test";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
