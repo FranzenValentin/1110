@@ -28,20 +28,17 @@ $alleTageVorjahr = [];
 $kumuliertAktuellesJahr = [];
 $kumuliertVorjahr = [];
 
-
 // Alle Tage des vorherigen Jahres initialisieren
 for ($d = 0; $d < 365; $d++) {
     $tagVorjahr = date('Y-m-d', strtotime("$vorjahr-01-01 +$d days"));
     $alleTageVorjahr[$tagVorjahr] = 0;
 }
 
-
 // Alle Tage des aktuellen initialisieren
 for ($d = 0; $d < 365; $d++) {
     $tagAktuellesJahr = date('Y-m-d', strtotime("$jahr-01-01 +$d days"));
-    $alleTageAktuellesJahr[$tagAktuellesJahr] = 0; // Alle Tage des Jahres initialisieren
+    $alleTageAktuellesJahr[$tagAktuellesJahr] = 0;
 }
-
 
 // Daten aus der Datenbank in die Arrays einfügen
 foreach ($daten as $row) {
@@ -86,6 +83,7 @@ $tageVorjahr = array_keys($alleTageVorjahr);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Einsatzentwicklung</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -99,6 +97,7 @@ $tageVorjahr = array_keys($alleTageVorjahr);
         </form>
     </header>
     <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
+    <button id="downloadButton">Diagramm herunterladen</button>
 
     <script>
 // Daten aus PHP übertragen
@@ -111,18 +110,15 @@ const kumuliertVorjahr = <?= json_encode($kumuliertVorjahr) ?>;
 const aktuellesDatum = new Date(<?= json_encode(date('Y-m-d')) ?>);
 const aktuellesDatumIndex = tageAktuellesJahr.indexOf(aktuellesDatum.toISOString().split('T')[0]);
 
-// Chart.js-Diagramm erstellen
 const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
 
-// Funktion zum Erstellen eines Gradienten für den heutigen Punkt
 function createGradient(ctx, x, y, radius) {
     const gradient = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
-    gradient.addColorStop(0, 'rgba(255, 99, 132, 1)'); // 100% Sichtbarkeit in der Mitte
-    gradient.addColorStop(1, 'rgba(255, 99, 132, 0)'); // 0% Transparenz am Rand
+    gradient.addColorStop(0, 'rgba(255, 99, 132, 1)');
+    gradient.addColorStop(1, 'rgba(255, 99, 132, 0)');
     return gradient;
 }
 
-// Chart.js-Diagramm erstellen
 const chart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -131,31 +127,31 @@ const chart = new Chart(ctx, {
             {
                 label: 'Kumuliert <?= $jahr ?>',
                 data: kumuliertAktuellesJahr,
-                borderColor: 'rgba(255, 99, 132, 1)',
+                borderColor: (context) => {
+                    const index = context.dataIndex;
+                    return kumuliertAktuellesJahr[index] > kumuliertAktuellesJahr[index - 1] ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)';
+                },
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 fill: false,
                 tension: 0.4,
                 pointRadius: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 10 : 0; // Nur der heutige Punkt hat einen Radius
+                    return index === aktuellesDatumIndex ? 10 : 0;
                 },
                 pointHoverRadius: 10,
                 pointBackgroundColor: (context) => {
                     const index = context.dataIndex;
-                    const chartArea = context.chart.chartArea;
-
-                    // Nur für den heutigen Punkt einen Gradienten anwenden
-                    if (index === aktuellesDatumIndex && chartArea) {
+                    if (index === aktuellesDatumIndex) {
                         const x = context.chart.scales.x.getPixelForValue(tageAktuellesJahr[index]);
                         const y = context.chart.scales.y.getPixelForValue(kumuliertAktuellesJahr[index]);
-                        return createGradient(ctx, x, y, 10); // Radius 10
+                        return createGradient(ctx, x, y, 10);
                     }
                     return 'rgba(255, 99, 132, 1)';
                 },
-                pointBorderColor: 'rgba(255, 99, 132, 0)', // Rand mit 50% Transparenz
+                pointBorderColor: 'rgba(255, 99, 132, 0)',
                 pointBorderWidth: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 3 : 1; // Breiterer Rand für den heutigen Punkt
+                    return index === aktuellesDatumIndex ? 3 : 1;
                 },
             },
             {
@@ -175,13 +171,41 @@ const chart = new Chart(ctx, {
         plugins: {
             legend: {
                 position: 'top',
+                onClick: (e, legendItem) => {
+                    const index = legendItem.datasetIndex;
+                    const meta = chart.getDatasetMeta(index);
+                    meta.hidden = !meta.hidden;
+                    chart.update();
+                },
             },
             tooltip: {
                 enabled: true,
                 callbacks: {
                     label: function (context) {
-                        return `${context.dataset.label}: ${context.raw} Einsätze`;
+                        const total = kumuliertAktuellesJahr[context.dataIndex];
+                        const previousTotal = kumuliertVorjahr[context.dataIndex] || 0;
+                        const diff = total - previousTotal;
+                        const percentChange = previousTotal > 0 ? ((diff / previousTotal) * 100).toFixed(1) : 0;
+                        return [
+                            `${context.dataset.label}: ${context.raw} Einsätze`,
+                            `Differenz zum Vorjahr: ${diff} (${percentChange}%)`,
+                        ];
                     },
+                },
+            },
+            zoom: {
+                zoom: {
+                    wheel: {
+                        enabled: true,
+                    },
+                    pinch: {
+                        enabled: true,
+                    },
+                    mode: 'x',
+                },
+                pan: {
+                    enabled: true,
+                    mode: 'x',
                 },
             },
         },
@@ -219,19 +243,28 @@ const chart = new Chart(ctx, {
         animations: {
             radius: {
                 duration: 1500,
-                easing: 'easeIn', // Sanftes Ease-In/Ease-Out
+                easing: 'easeInOutBounce',
                 loop: true,
                 from: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 3 : 0; // Nur der heutige Punkt startet bei 5
+                    return index === aktuellesDatumIndex ? 3 : 0;
                 },
                 to: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 10 : 0; // Nur der heutige Punkt pulsiert bis 10
+                    return index === aktuellesDatumIndex ? 10 : 0;
                 },
             },
         },
     },
+});
+
+// Download-Button für das Diagramm
+const downloadButton = document.getElementById('downloadButton');
+downloadButton.addEventListener('click', () => {
+    const a = document.createElement('a');
+    a.href = chart.toBase64Image();
+    a.download = 'einsatzentwicklung.png';
+    a.click();
 });
 
 </script>
