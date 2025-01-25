@@ -41,6 +41,9 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
 
 $error = null;
 
+echo $smt['id'];
+echo "Test";
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $inputCode = trim($_POST['access_code']);
@@ -59,9 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("SELECT code, id FROM personal WHERE nachname = :nachname AND vorname = :vorname");
             $stmt->execute(['nachname' => $nachname, 'vorname' => $vorname]);
             $dbCode = $stmt->fetchColumn();
-
-            echo $smt['id'];
-            echo "Test";
 
             if ($dbCode && $dbCode == $inputCode) {
                 // Login erfolgreich
