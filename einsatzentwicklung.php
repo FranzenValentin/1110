@@ -243,7 +243,7 @@ const chart = new Chart(ctx, {
         animations: {
             radius: {
                 duration: 1500,
-                easing: 'easeInOutBounce',
+                easing: 'easeIn',
                 loop: true,
                 from: (context) => {
                     const index = context.dataIndex;
