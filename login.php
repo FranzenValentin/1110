@@ -60,6 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute(['nachname' => $nachname, 'vorname' => $vorname]);
             $dbCode = $stmt->fetchColumn();
 
+            echo $smt['id'];
+
             if ($dbCode && $dbCode == $inputCode) {
                 // Login erfolgreich
                 $_SESSION['authenticated'] = true;
