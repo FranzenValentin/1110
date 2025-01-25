@@ -61,6 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dbCode = $stmt->fetchColumn();
 
             echo $smt['id'];
+            echo "Test";
 
             if ($dbCode && $dbCode == $inputCode) {
                 // Login erfolgreich
