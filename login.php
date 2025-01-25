@@ -41,9 +41,6 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
 
 $error = null;
 
-echo $smt['id'] ?? 'Nix';
-echo "Test";
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $inputCode = trim($_POST['access_code']);
@@ -58,26 +55,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             [$vorname, $nachname] = $nameParts;
 
-            // Datenbankabfrage ausführen
+            // Datenbankabfrage ausführen, um Code und ID abzurufen
             $stmt = $pdo->prepare("SELECT code, id FROM personal WHERE nachname = :nachname AND vorname = :vorname");
             $stmt->execute(['nachname' => $nachname, 'vorname' => $vorname]);
-            $dbCode = $stmt->fetchColumn();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($dbCode && $dbCode == $inputCode) {
+            if ($user && $user['code'] == $inputCode) {
                 // Login erfolgreich
                 $_SESSION['authenticated'] = true;
                 $_SESSION['last_user'] = $username;
+                $_SESSION['last_user_id'] = $user['id']; // ID in die Session speichern
 
                 // Letzten Benutzer im Cookie speichern
                 setcookie('last_user', $username, time() + (86400 * 30), '/');
 
                 // Vorname und Nachname separat speichern
-                $nameParts = explode(' ', $username, 2);
-                $_SESSION['last_user_firstname'] = $nameParts[0] ?? ''; // Vorname
-                $_SESSION['last_user_lastname'] = $nameParts[1] ?? '';  // Nachname
-                //$_SESSION['last_user_id'] = $smt['id'] ?? ''; //id
-
-
+                $_SESSION['last_user_firstname'] = $vorname;
+                $_SESSION['last_user_lastname'] = $nachname;
 
                 file_put_contents(
                     __DIR__ . '/login_logs.txt',
@@ -100,6 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Fehler beim Login: " . $e->getMessage());
     }
 }
+
 
 ?>
 
