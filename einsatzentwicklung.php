@@ -129,16 +129,6 @@ const chart = new Chart(ctx, {
         labels: tageAktuellesJahr,
         datasets: [
             {
-                label: 'Kumuliert <?= $vorjahr ?>',
-                data: kumuliertVorjahr,
-                borderColor: 'rgba(54, 162, 235, 1)',
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                fill: false,
-                tension: 0.4,
-                pointRadius: 0,
-                pointHoverRadius: 0,
-            },
-            {
                 label: 'Kumuliert <?= $jahr ?>',
                 data: kumuliertAktuellesJahr,
                 borderColor: 'rgba(255, 99, 132, 1)',
@@ -167,6 +157,16 @@ const chart = new Chart(ctx, {
                     const index = context.dataIndex;
                     return index === aktuellesDatumIndex ? 3 : 1; // Breiterer Rand für den heutigen Punkt
                 },
+            },
+            {
+                label: 'Kumuliert <?= $vorjahr ?>',
+                data: kumuliertVorjahr,
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                fill: false,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 0,
             },
         ],
     },
