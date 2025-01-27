@@ -230,7 +230,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                         onfocus="hidePlaceholder('returnPlaceholder')" 
                                         onblur="showPlaceholder('returnPlaceholder', this)" 
                                         style="padding-left: 5px;">
-                                    <span id="returnPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Zurückzeit</span>
+                                    <span id="returnPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Status 1</span>
                                 </div>
                             </td>
 
