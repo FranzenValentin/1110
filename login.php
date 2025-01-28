@@ -139,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <ul id="suggestions" class="suggestions"></ul>
             </div>
 
-            <label for="access_code">Zugangscode: (Standart FW Code)</label>
+            <label for="access_code">Zugangscode: (Standard FW Code)</label>
             <input 
                 type="password" 
                 id="access_code" 
