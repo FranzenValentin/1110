@@ -51,6 +51,27 @@
             .logout-button:hover {
                 background-color: darkred;
             }
+
+            /* Back-Button */
+            .back-form {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+            }
+
+            .back-form button {
+                background-color: #ff4d4d; /* Rot */
+                color: white;
+                border: 1px solid #ddd;
+                padding: 10px 15px;
+                cursor: pointer;
+                border-radius: 5px;
+                font-size: 1em;
+            }
+
+            .back-form button:hover {
+                background-color: #e60000; /* Dunkler Rotton */
+            }
         </style>
 
             <div class="menu-container">
@@ -65,6 +86,13 @@
                     </form>
                 </div>
             </div>
+
+            <?php if (basename($_SERVER['PHP_SELF']) !== 'index.php'): ?>
+                <form method="POST" action="index.php" class="back-form">
+                    <button type="submit">Zurück</button>
+                </form>
+            <?php endif; ?>
+
 
         <script>
             function toggleMenu() {
