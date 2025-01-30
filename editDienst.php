@@ -127,12 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             // Fahrzeugnamen ausgeben
             echo htmlspecialchars($fahrzeugName ?? 'Unbekanntes Fahrzeug');
             ?></h1>
-    <form method="POST" action="logout.php" class="logout-form">
-        <button type="submit">Logout<?= $firstName ? " - " . htmlspecialchars($firstName) : "" ?></button>
-    </form>
-    <form method="POST" action="index.php" class="back-form">
-        <button type="submit">Zurück</button>
-    </form>
+<?php include 'parts/menue.php'; ?>
 </header>
 <main>
     <form method="POST" action="">

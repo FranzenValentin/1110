@@ -89,12 +89,7 @@ $tageVorjahr = array_keys($alleTageVorjahr);
 <body>
     <header>
         <h1>Einsatzentwicklung</h1>
-        <form method="POST" action="logout.php" class="logout-form">
-            <button type="submit">Logout<?= $firstName ? " - " . htmlspecialchars($firstName) : "" ?></button>
-        </form>
-        <form method="POST" action="index.php" class="back-form">
-            <button type="submit">Zurück</button>
-        </form>
+        <?php include 'parts/menue.php'; ?>
     </header>
     <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
     <button id="downloadButton">Diagramm herunterladen</button>
