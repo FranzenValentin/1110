@@ -234,7 +234,6 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                 </div>
                             </td>
 
-
                             <script>
 
                                 function hidePlaceholder(placeholderId) {
