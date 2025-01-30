@@ -191,7 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // AJAX-Anfrage an den Server senden
-            const response = await fetch(`fetch_users.php?query=${encodeURIComponent(query)}`);
+            const response = await fetch(`parts/fetch_users.php?query=${encodeURIComponent(query)}`);
             const results = await response.json();
 
             // Vorschläge anzeigen
