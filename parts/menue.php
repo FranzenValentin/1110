@@ -102,7 +102,7 @@
     <div class="dropdown-menu" id="userMenu">
         <h3 style="color: black;"><?php echo $firstName . ' ' . $lastName; ?></h3>
         <a href="edit_code.php">Code bearbeiten</a>
-        <a href="parts/logout.php" >Logout</a>
+        <a href="parts/logout.php" style="font-weight: bold;">Logout</a>
     </div>
 </div>
 
