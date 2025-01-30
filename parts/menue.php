@@ -17,6 +17,7 @@
         cursor: pointer;
         user-select: none;
         padding: 5px 10px;
+        padding-top: 0;
         color: white;
         border-radius: 5px;
         transition: background 0.3s;
