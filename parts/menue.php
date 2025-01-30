@@ -81,7 +81,7 @@
                 <!-- Dropdown-Menü -->
                 <div class="dropdown-menu" id="userMenu">
                     <a href="edit_code.php">Code bearbeiten</a>
-                    <form method="POST" action="logout.php">
+                    <form method="POST" action="parts/logout.php">
                         <button type="submit" class="logout-button">Logout<?= $firstName ? " - " . htmlspecialchars($firstName) : "" ?></button>
                     </form>
                 </div>
