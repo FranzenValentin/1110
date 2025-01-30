@@ -63,6 +63,7 @@
         background-color: red;
         color: white;
         font-weight: bold;
+        border: 2px solid black;
     }
 
     .logout-button:hover {
@@ -79,7 +80,7 @@
     .back-form button {
         background-color: #ff4d4d;
         color: white;
-        border: 1px solid #ddd;
+        border: 2px solid black;
         padding: 10px 15px;
         cursor: pointer;
         border-radius: 5px;
