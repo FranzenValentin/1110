@@ -51,12 +51,8 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
 <body>
 <header>
         <h1>Einsatzverwaltungssystem</h1>
-        <nav>
-            <ul>
-                <li><a href="index.php">Startseite</a></li>
-                <li><a href="logout.php">Abmelden</a></li>
-            </ul>
-        </header>
+        <?php include 'parts/menue.php'; ?>
+</header>
 
 
     <main>
