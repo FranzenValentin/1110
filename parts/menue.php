@@ -12,11 +12,11 @@
     }
 
     .menu-icon {
+        border: 2px solid black;
         font-size: 26px;
         cursor: pointer;
         user-select: none;
-        padding: 10px;
-        background: #333;
+        padding: 10px 15px;
         color: white;
         border-radius: 5px;
         transition: background 0.3s;
