@@ -16,7 +16,7 @@
         font-size: 26px;
         cursor: pointer;
         user-select: none;
-        padding: 10px 15px;
+        padding: 5px 10px;
         color: white;
         border-radius: 5px;
         transition: background 0.3s;
