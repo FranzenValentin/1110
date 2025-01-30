@@ -1,7 +1,6 @@
 <?php
-session_start();
-require_once 'session_check.php';
-require 'db.php';
+require_once 'parts/session_check.php';
+require 'parts/db.php';
 
 // Stichwort speichern, wenn das Formular abgeschickt wird
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

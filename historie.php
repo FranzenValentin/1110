@@ -1,6 +1,6 @@
 <?php
-require_once 'session_check.php'; // Session-Überprüfung
-require 'db.php'; // Verbindung zur Datenbank herstellen
+require_once 'parts/session_check.php'; // Session-Überprüfung
+require 'parts/db.php'; // Verbindung zur Datenbank herstellen
 
 // Offset und Limit aus der Anfrage lesen (Standardwerte setzen)
 $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;

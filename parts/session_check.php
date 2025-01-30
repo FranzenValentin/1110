@@ -107,7 +107,8 @@ if (isset($_GET['check_status'])) {
 
     // Funktion zur automatischen Abmeldung
     function autoLogout() {
-        window.location.href = 'login.php?timeout=1';
+        window.location.href = '../
+        login.php?timeout=1';
     }
 
     // Timer für Warnung und Abmeldung starten

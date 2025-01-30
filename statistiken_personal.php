@@ -1,6 +1,6 @@
 <?php
-require_once 'session_check.php';
-require 'db.php';
+require_once 'parts/session_check.php';
+require 'parts/db.php';
 
 try {
     // Standardwerte für den Zeitraum (aktueller Monat)

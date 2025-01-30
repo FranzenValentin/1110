@@ -1,6 +1,6 @@
 <?php
-require_once 'session_check.php';
-require 'db.php';
+require_once 'parts/session_check.php';
+require 'parts/db.php';
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);

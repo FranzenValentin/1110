@@ -1,6 +1,6 @@
 <?php
-require_once 'session_check.php';
-require 'db.php';
+require_once 'parts/session_check.php';
+require 'parts/db.php';
 
 // Standardfahrzeug (LHF 1110/1)
 $fahrzeugId = isset($_POST['fahrzeug']) && is_numeric($_POST['fahrzeug']) ? (int)$_POST['fahrzeug'] : null;
