@@ -93,7 +93,6 @@
                 </form>
             <?php endif; ?>
 
-
         <script>
             function toggleMenu() {
                 var menu = document.getElementById("userMenu");
