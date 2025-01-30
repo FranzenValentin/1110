@@ -1,10 +1,4 @@
 <?php
-session_start();
-if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
-    header('Location: ../login.php');
-    exit("Zugriff verweigert. Bitte melden Sie sich an.");
-}
-
 try {
     loadEnv(__DIR__ . '/../../config.env');
 } catch (Exception $e) {
