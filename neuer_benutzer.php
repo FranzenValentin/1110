@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <header>
+        <h1>Neuen Benutzer hinzufügen</h1>
         <?php include 'parts/menue.php'; ?>
     </header>
     <main>
