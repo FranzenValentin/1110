@@ -52,12 +52,6 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
 <header>
         <h1>Einsatzverwaltungssystem</h1>
         <style>
-            /* Stil für das Menü */
-            .menu-container {
-                position: relative;
-                display: inline-block;
-            }
-
             /* Drei Striche als Icon */
             .menu-icon {
                 position: absolute;
