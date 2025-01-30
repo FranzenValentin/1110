@@ -100,7 +100,7 @@
 
     <!-- Dropdown-Menü -->
     <div class="dropdown-menu" id="userMenu">
-        <h3 style="color: white;"><?php echo $firstName . ' ' . $lastName; ?></h3>
+        <h3 style="color: black;"><?php echo $firstName . ' ' . $lastName; ?></h3>
         <a href="edit_code.php">Code bearbeiten</a>
         <form method="POST" action="parts/logout.php">
             <button type="submit" class="logout-button">Logout</button>
