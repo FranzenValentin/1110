@@ -54,15 +54,15 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
         <style>
             /* Stil für das Menü */
             .menu-container {
-                position: absolute;
-                top: 20px;
-                right: 20px;
                 position: relative;
                 display: inline-block;
             }
 
             /* Drei Striche als Icon */
             .menu-icon {
+                position: absolute;
+                top: 20px;
+                right: 20px;
                 font-size: 24px;
                 cursor: pointer;
                 user-select: none;
