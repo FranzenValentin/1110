@@ -190,7 +190,8 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                 }        
                 
             ?>
-
+        <details>
+        <summary>Neuen Einsatz eintragen</summary>
             <form method="POST">
                 <div class="responsive-form">
                 
@@ -301,6 +302,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                     </div>
                 </div>
             </form>
+        </details>
 
         </section>
 
