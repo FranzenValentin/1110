@@ -192,134 +192,98 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
             ?>
 
             <form method="POST">
-            <div class="responsive-form">
+                <div class="responsive-form">
                 
-                            <!-- Einsatznummer LTS -->
-                            <div class="form-group">
-                                <label for="einsatznummer_lts">Einsatznummer LTS</label>
-                                <input 
-                                    type="text" 
-                                    id="einsatznummer_lts" 
-                                    name="einsatznummer_lts" 
-                                    placeholder="Einsatznummer LTS" 
-                                    inputmode="numeric">
-                            </div>
+                    <!-- Einsatznummer LTS -->
+                    <div class="form-group">
+                        <label for="einsatznummer_lts">Einsatznummer LTS</label>
+                        <input 
+                            type="text" 
+                            id="einsatznummer_lts" 
+                            name="einsatznummer_lts" 
+                            placeholder="Einsatznummer LTS" 
+                            inputmode="numeric">
+                    </div>
 
-                            <!-- Alarmzeit -->
-                            <div class="form-group">
-                                <label for="alarmuhrzeit">Alarmzeit</label>
-                                <input 
-                                        type="datetime-local" 
-                                        id="alarmuhrzeit" 
-                                        name="alarmuhrzeit" 
-                                        oninput="syncZurueckzeit()" 
-                                        onfocus="hidePlaceholder('alarmPlaceholder')" 
-                                        onblur="showPlaceholder('alarmPlaceholder', this)" 
-                                        style="padding-left: 5px;">
-                                    <span id="alarmPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Alarmzeit</span>
-                                </>
-                            </div>
+                    <!-- Alarmzeit -->
+                    <div class="form-group">
+                        <label for="alarmuhrzeit">Alarmzeit</label>
+                        <input 
+                                type="datetime-local" 
+                                id="alarmuhrzeit" 
+                                name="alarmuhrzeit"
+                        >
+                    </div>
 
-                            <!-- Zurückzeit -->
-                            <div class="form-group">
-                                <label for="zurueckzeit">Zurückzeit (Status 1)</label>
-                                <input 
-                                        type="datetime-local" 
-                                        id="zurueckzeit" 
-                                        name="zurueckzeit" 
-                                        onfocus="hidePlaceholder('returnPlaceholder')" 
-                                        onblur="showPlaceholder('returnPlaceholder', this)" 
-                                        style="padding-left: 5px;">
-                                    <span id="returnPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Status 1</span>
-                                </>
-                            </div>
+                    <!-- Zurückzeit -->
+                    <div class="form-group">
+                        <label for="zurueckzeit">Zurückzeit (Status 1)</label>
+                        <input 
+                                type="datetime-local" 
+                                id="zurueckzeit" 
+                                name="zurueckzeit"
+                        >
+                    </div>
 
+                    <!-- Stichwort -->
+                    <div class="form-group">
+                        <label for="stichwort">Stichwort</label>
+                        <select id="stichwort" name="stichwort" required>
+                            <option value="">Bitte Stichwort auswählen</option>
+                            <?php foreach ($stichworte as $stichwort): ?>
+                                <option value="<?= htmlspecialchars($stichwort['stichwort']) ?>">
+                                    <?= htmlspecialchars($stichwort['stichwort']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
 
-                            <!--
-                            <script>
+                    <!-- Straße Hausnummer -->
+                    <div class="form-group">
+                        <label for="address-input">Adresse</label>
+                        <input 
+                            type="text" 
+                            id="address-input" 
+                            name="adresse" 
+                            placeholder="Linienstraße 128" 
+                            required>
+                        <input type="hidden" id="latitude" name="latitude">
+                        <input type="hidden" id="longitude" name="longitude">
+                    </div>
+                    
+                    <!-- Stadtteil -->
+                    <div class="form-group">
+                        <label for="stadtteil">Stadtteil</label>
+                        <input 
+                            type="text" 
+                            id="stadtteil" 
+                            name="stadtteil" 
+                            placeholder="Bezirk" 
+                            readonly>
+                    </div>
 
-                                function hidePlaceholder(placeholderId) {
-                                    document.getElementById(placeholderId).style.display = 'none';
-                                }
+                    <style>
+                        #autocomplete-list {
+                            position: absolute;
+                            border: 1px solid #ccc;
+                            border-radius: 4px;
+                            background-color: white;
+                            max-height: 200px;
+                            overflow-y: auto;
+                            z-index: 1000;
+                        }
 
-                                function showPlaceholder(placeholderId, input) {
-                                    if (!input.value) {
-                                        document.getElementById(placeholderId).style.display = 'block';
-                                    }
-                                }
-                                function hidePlaceholder(placeholderId) {
-                                    document.getElementById(placeholderId).style.display = 'none';
-                                }
+                        #autocomplete-list div {
+                            padding: 10px;
+                            cursor: pointer;
+                        }
 
-                                function showPlaceholder(placeholderId, input) {
-                                    if (!input.value) {
-                                        document.getElementById(placeholderId).style.display = 'block';
-                                    }
-                                }
-                            </script>
-                            -->
+                        #autocomplete-list div:hover {
+                            background-color: #e9e9e9;
+                        }
+                    </style>
 
-                <!-- Stichwort -->
-                <div class="form-group">
-                    <label for="stichwort">Stichwort</label>
-                    <select id="stichwort" name="stichwort" required>
-                        <option value="">Bitte Stichwort auswählen</option>
-                        <?php foreach ($stichworte as $stichwort): ?>
-                            <option value="<?= htmlspecialchars($stichwort['stichwort']) ?>">
-                                <?= htmlspecialchars($stichwort['stichwort']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
-                <!-- Straße Hausnummer -->
-                <div class="form-group">
-                    <label for="address-input">Adresse</label>
-                    <input 
-                        type="text" 
-                        id="address-input" 
-                        name="adresse" 
-                        placeholder="Linienstraße 128" 
-                        required>
-                    <input type="hidden" id="latitude" name="latitude">
-                    <input type="hidden" id="longitude" name="longitude">
-                </div>
-                
-                <!-- Stadtteil -->
-                <div class="form-group">
-                    <label for="stadtteil">Stadtteil</label>
-                    <input 
-                        type="text" 
-                        id="stadtteil" 
-                        name="stadtteil" 
-                        placeholder="Bezirk" 
-                        readonly>
-                </div>
-
-                <style>
-                    #autocomplete-list {
-                        position: absolute;
-                        border: 1px solid #ccc;
-                        border-radius: 4px;
-                        background-color: white;
-                        max-height: 200px;
-                        overflow-y: auto;
-                        z-index: 1000;
-                    }
-
-                    #autocomplete-list div {
-                        padding: 10px;
-                        cursor: pointer;
-                    }
-
-                    #autocomplete-list div:hover {
-                        background-color: #e9e9e9;
-                    }
-                </style>
-
-
-
-                <!-- Fahrzeug -->
+                    <!-- Fahrzeug -->
                     <div class="form-group">
                         <label for="fahrzeug_name">Fahrzeug</label>
                         <select id="fahrzeug_name" name="fahrzeug_name" required>
@@ -335,7 +299,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                     <div class="form-group">
                         <button type="submit" name="save" class="submit-button">Speichern</button>
                     </div>
-            </div>
+                </div>
             </form>
 
         </section>
