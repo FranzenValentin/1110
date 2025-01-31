@@ -62,7 +62,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
         <!-- Neuer Alarm -->
         <section id="neuer-alarm">
         <details>
-        <h2><summary>Neuen Einsatz eintragen</summary></h2>
+        <summary><h2>Neuen Einsatz eintragen</h2></summary>
             
             <?php
                 try {
