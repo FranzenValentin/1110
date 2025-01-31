@@ -47,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 ?>
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -55,6 +54,132 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zugangscode ändern</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Hauptlayout */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            width: 100%;
+            text-align: center;
+            padding: 1rem 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        main {
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .change-password-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .change-password-form label {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .change-password-form input {
+            padding: 0.8rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: border-color 0.3s ease;
+        }
+
+        .change-password-form input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .change-password-form button {
+            padding: 0.8rem 1.2rem;
+            font-size: 1.2rem;
+            color: white;
+            background: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .change-password-form button:hover {
+            background: #0056b3;
+        }
+
+        .change-password-form .error {
+            color: #e74c3c;
+            background: #fdecea;
+            padding: 0.8rem;
+            border: 1px solid #e74c3c;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .change-password-form .success {
+            color: #27ae60;
+            background: #eafaf1;
+            padding: 0.8rem;
+            border: 1px solid #27ae60;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        /* Responsives Design */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            main {
+                padding: 1.5rem;
+            }
+
+            .change-password-form input,
+            .change-password-form button {
+                font-size: 0.9rem;
+                padding: 0.7rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .change-password-form {
+                gap: 1rem;
+            }
+
+            .change-password-form label {
+                font-size: 0.9rem;
+            }
+
+            .change-password-form button {
+                padding: 0.6rem;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -65,13 +190,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main>
         <form method="POST" class="change-password-form">
             <label for="current_code">Aktueller Zugangscode:</label>
-            <input type="password" id="current_code" name="current_code" required>
+            <input type="password" id="current_code" name="current_code" required placeholder="Aktuellen Code eingeben">
 
             <label for="new_code">Neuer Zugangscode:</label>
-            <input type="password" id="new_code" name="new_code" pattern="[0-9]*" inputmode="numeric" required>
+            <input type="password" id="new_code" name="new_code" pattern="[0-9]*" inputmode="numeric" required placeholder="Neuen Code eingeben">
 
             <label for="confirm_code">Neuer Zugangscode bestätigen:</label>
-            <input type="password" id="confirm_code" name="confirm_code" pattern="[0-9]*" inputmode="numeric" required>
+            <input type="password" id="confirm_code" name="confirm_code" pattern="[0-9]*" inputmode="numeric" required placeholder="Neuen Code bestätigen">
 
             <button type="submit">Zugangscode ändern</button>
 
@@ -82,9 +207,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </form>
     </main>
-
-    <script>
-        document.getElementById("current_code").focus();
-    </script>
 </body>
 </html>
+
