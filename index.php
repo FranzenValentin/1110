@@ -193,20 +193,22 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
 
             <form method="POST">
             <div class="responsive-form">
-                <table>
-                                <tbody>
-                        <tr>
+                
                             <!-- Einsatznummer LTS -->
-                            <td id="dünn">
                             <div class="form-group">
-                                    <input type="text" inputmode="numeric"  id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS" >
-                                </div>
-                            </td>
+                                <label for="einsatznummer_lts">Einsatznummer LTS</label>
+                                <input 
+                                    type="text" 
+                                    id="einsatznummer_lts" 
+                                    name="einsatznummer_lts" 
+                                    placeholder="Einsatznummer LTS" 
+                                    inputmode="numeric">
+                            </div>
 
                             <!-- Alarmzeit -->
-                            <td id="dünn">
-                                <div class="form-group" style="position: relative;">
-                                    <input 
+                            <div class="form-group">
+                                <label for="alarmuhrzeit">Alarmzeit</label>
+                                <input 
                                         type="datetime-local" 
                                         id="alarmuhrzeit" 
                                         name="alarmuhrzeit" 
@@ -216,12 +218,12 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                         style="padding-left: 5px;">
                                     <span id="alarmPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Alarmzeit</span>
                                 </>
-                            </td>
+                            </div>
 
                             <!-- Zurückzeit -->
-                            <td id="dünn">
-                                <div  class="form-group" style="position: relative;">
-                                    <input 
+                            <div class="form-group">
+                                <label for="zurueckzeit">Zurückzeit (Status 1)</label>
+                                <input 
                                         type="datetime-local" 
                                         id="zurueckzeit" 
                                         name="zurueckzeit" 
@@ -230,7 +232,8 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                         style="padding-left: 5px;">
                                     <span id="returnPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Status 1</span>
                                 </>
-                            </td>
+                            </div>
+
 
                             <script>
 
@@ -255,34 +258,41 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                             </script>
 
                 <!-- Stichwort -->
-                <td id="dick">
                 <div class="form-group">
-                        <select id="stichwort" name="stichwort" required>
-                            <option value="">Bitte Stichwort auswählen</option>
-                            <?php foreach ($stichworte as $stichwort): ?>
-                                <option value="<?= htmlspecialchars($stichwort['stichwort']) ?>">
-                                    <?= htmlspecialchars($stichwort['stichwort']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </td>
+                    <label for="stichwort">Stichwort</label>
+                    <select id="stichwort" name="stichwort" required>
+                        <option value="">Bitte Stichwort auswählen</option>
+                        <?php foreach ($stichworte as $stichwort): ?>
+                            <option value="<?= htmlspecialchars($stichwort['stichwort']) ?>">
+                                <?= htmlspecialchars($stichwort['stichwort']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
                 <!-- Straße Hausnummer -->
-                <td id="dick">
                 <div class="form-group">
-                    <input type="text" id="address-input" name="adresse" placeholder="Linienstraße 128" style="width: 100%;"required>
+                    <label for="address-input">Adresse</label>
+                    <input 
+                        type="text" 
+                        id="address-input" 
+                        name="adresse" 
+                        placeholder="Linienstraße 128" 
+                        required>
                     <input type="hidden" id="latitude" name="latitude">
                     <input type="hidden" id="longitude" name="longitude">
                 </div>
-                </td>
                 
                 <!-- Stadtteil -->
-                <td id="dick">
-                  <div class="form-group">
-                        <input type="text" id="stadtteil" name="stadtteil" placeholder="Bezirk" autocomplete="off" readonly required>
-                    </div>
-                </td>
+                <div class="form-group">
+                    <label for="stadtteil">Stadtteil</label>
+                    <input 
+                        type="text" 
+                        id="stadtteil" 
+                        name="stadtteil" 
+                        placeholder="Bezirk" 
+                        readonly>
+                </div>
 
                 <style>
                     #autocomplete-list {
@@ -308,9 +318,9 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
 
 
                 <!-- Fahrzeug -->
-                <td id="dünn">
-                    <div class="form-group">    
-                        <select id="fahrzeug_name" name="fahrzeug_name" >
+                    <div class="form-group">
+                        <label for="fahrzeug_name">Fahrzeug</label>
+                        <select id="fahrzeug_name" name="fahrzeug_name" required>
                             <?php foreach ($fahrzeuge as $fahrzeug): ?>
                                 <option value="<?= htmlspecialchars($fahrzeug['name']) ?>">
                                     <?= htmlspecialchars($fahrzeug['name']) ?>
@@ -318,12 +328,12 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                             <?php endforeach; ?>
                         </select>
                     </div>
-                   </td>
-                   </tr>
-                 </tbody>
-                </table>
-                <button class="button-container" type="submit" name="save">Speichern</button>
-                            </div>
+
+
+                    <div class="form-group">
+                        <button type="submit" name="save" class="submit-button">Speichern</button>
+                    </div>
+            </div>
             </form>
 
         </section>
