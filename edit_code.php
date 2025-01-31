@@ -20,15 +20,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             // Aktuellen Code überprüfen
-            $stmt = $pdo->prepare("SELECT code FROM personal WHERE id = :$user_id");
+            $stmt = $pdo->prepare("SELECT code FROM personal WHERE id = :user_id");
             $stmt->execute(['user_id' => $user_id]);
             $stored_code = $stmt->fetchColumn();
 
-            if ($stored_code !== $current_code) {
-                $error = "Der aktuelle Zugangscode ist falsch.";
+            if ($stored_code === false) {
+                $error = "Benutzer nicht gefunden oder kein Code gespeichert.";
+            } elseif ((string)$stored_code !== $current_code) {
+                $error = "Der aktuelle Zugangscode ist falsch. (Eingegeben: $current_code, Gespeichert: $stored_code)";
             } else {
                 // Neuen Code speichern
-                $stmt = $pdo->prepare("UPDATE personal SET code = :new_code WHERE id = :$user_id");
+                $stmt = $pdo->prepare("UPDATE personal SET code = :new_code WHERE id = :user_id");
                 $stmt->execute(['new_code' => $new_code, 'user_id' => $user_id]);
 
                 $success = "Dein Zugangscode wurde erfolgreich geändert.";
@@ -43,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
 ?>
 
 <!DOCTYPE html>
