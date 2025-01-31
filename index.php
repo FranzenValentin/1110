@@ -197,14 +197,14 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                         <tr>
                             <!-- Einsatznummer LTS -->
                             <td id="dünn">
-                                <div>
+                            <div class="form-group">
                                     <input type="text" inputmode="numeric"  id="einsatznummer_lts" name="einsatznummer_lts" placeholder="Einsatznummer LTS" >
                                 </div>
                             </td>
 
                             <!-- Alarmzeit -->
                             <td id="dünn">
-                                <div style="position: relative;">
+                                <div class="form-group" style="position: relative;">
                                     <input 
                                         type="datetime-local" 
                                         id="alarmuhrzeit" 
@@ -214,12 +214,12 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                         onblur="showPlaceholder('alarmPlaceholder', this)" 
                                         style="padding-left: 5px;">
                                     <span id="alarmPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Alarmzeit</span>
-                                </div>
+                                </>
                             </td>
 
                             <!-- Zurückzeit -->
                             <td id="dünn">
-                                <div style="position: relative;">
+                                <div  class="form-group" style="position: relative;">
                                     <input 
                                         type="datetime-local" 
                                         id="zurueckzeit" 
@@ -228,7 +228,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                         onblur="showPlaceholder('returnPlaceholder', this)" 
                                         style="padding-left: 5px;">
                                     <span id="returnPlaceholder" style="position: absolute; left: 15px; top: 13px; color: #aaa;">Status 1</span>
-                                </div>
+                                </>
                             </td>
 
                             <script>
@@ -255,7 +255,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
 
                 <!-- Stichwort -->
                 <td id="dick">
-                    <div>
+                <div class="form-group">
                         <select id="stichwort" name="stichwort" required>
                             <option value="">Bitte Stichwort auswählen</option>
                             <?php foreach ($stichworte as $stichwort): ?>
@@ -269,7 +269,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
 
                 <!-- Straße Hausnummer -->
                 <td id="dick">
-                <div>
+                <div class="form-group">
                     <input type="text" id="address-input" name="adresse" placeholder="Linienstraße 128" style="width: 100%;"required>
                     <input type="hidden" id="latitude" name="latitude">
                     <input type="hidden" id="longitude" name="longitude">
@@ -278,7 +278,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                 
                 <!-- Stadtteil -->
                 <td id="dick">
-                    <div>
+                  <div class="form-group">
                         <input type="text" id="stadtteil" name="stadtteil" placeholder="Bezirk" autocomplete="off" readonly required>
                     </div>
                 </td>
@@ -308,7 +308,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
 
                 <!-- Fahrzeug -->
                 <td id="dünn">
-                     <div>
+                    <div class="form-group">    
                         <select id="fahrzeug_name" name="fahrzeug_name" >
                             <?php foreach ($fahrzeuge as $fahrzeug): ?>
                                 <option value="<?= htmlspecialchars($fahrzeug['name']) ?>">
