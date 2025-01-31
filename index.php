@@ -61,7 +61,9 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
 
         <!-- Neuer Alarm -->
         <section id="neuer-alarm">
-            <h2>Neuen Einsatz eintragen</h2>
+        <details>
+        <summary><h2>Neuen Einsatz eintragen</h2></summary>
+            
             <?php
                 try {
                     // Fahrzeuge laden
@@ -190,8 +192,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                 }        
                 
             ?>
-        <details>
-        <summary>Neuen Einsatz eintragen</summary>
+        
             <form method="POST">
                 <div class="responsive-form">
                 
