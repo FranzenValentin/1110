@@ -192,6 +192,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
             ?>
 
             <form method="POST">
+            <div class="responsive-form">
                 <table>
                                 <tbody>
                         <tr>
@@ -322,6 +323,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                  </tbody>
                 </table>
                 <button class="button-container" type="submit" name="save">Speichern</button>
+                            </div>
             </form>
 
         </section>
