@@ -5,13 +5,18 @@ body {
     padding: 0;
     background-color: #f9f9f9;
     color: #333;
+    line-height: 1.6;
 }
 
 header {
-    background-color: #ff4d4d; /* Rot */
+    background-color: #ff4d4d;
     color: white;
-    padding: 20px;
     text-align: center;
+    padding: 20px;
+    position: sticky; /* Fixiert den Header oben */
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
@@ -23,157 +28,105 @@ main {
     padding: 20px;
 }
 
-/* Tabelle */
+/* Tabellen */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px;
-    margin-top: 20px;
-    table-layout: fixed;
+    margin: 20px 0;
+    table-layout: auto;
 }
 
 table th, table td {
     border: 1px solid #ddd;
-    padding: 10px 8px;
+    padding: 10px;
+    font-size: 0.9em;
+    text-align: left;
+    overflow: hidden;
     white-space: nowrap;
-    font-size: 0.8em; /* Kleinere Schrift für Tabellen */
-    overflow: auto;
+    text-overflow: ellipsis;
 }
 
 table th {
-    background-color: #ffcccc; /* Heller Rotton */
+    background-color: #ffcccc;
+    font-weight: bold;
 }
 
-tr:nth-child(even) {
+table tr:nth-child(even) {
     background-color: #f2f2f2;
 }
 
-tr:hover {
-    background-color: #ffdddd; /* Dezentes Highlight */
+table tr:hover {
+    background-color: #ffdddd;
 }
 
 /* Buttons */
 button {
-    background-color: #ff4d4d; /* Rot */
+    background-color: #ff4d4d;
     color: white;
     border: none;
-    text-align: center;
-    padding: 8px 10px;
+    padding: 10px 15px;
     cursor: pointer;
     border-radius: 5px;
-    font-size: 0.9em; /* Kleinere Schrift für Buttons */
+    font-size: 0.9em;
+    transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #e60000; /* Dunkler Rotton */
-}
-
-/* Formular */
-form {
-    font-size: 0.9em; /* Allgemein kleinere Schrift für Formulare */
-}
-
-form div {
-    text-align: center;
-}
-
-form input,
-form select {
-    height: 30px; /* Kleinere Eingabefelder */
-    padding: 5px 8px;
-    text-align: center;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    box-sizing: border-box;
-    vertical-align: middle;
-    width: inherit;
-    height: 38px;
-    color: black;
-    text-overflow: ellipsis;
-    background-color:white;
-}
-
-/* Stichwort-Feld */
-#einsatznummer_lts,
-#stichwort, 
-#adresse,
-#fahrzeug_name,
-#alarmuhrzeit,
-#stadtteil,
-#zurueckzeit {
-    width: 100%; /* Dynamische Breite */
-    max-width: 100%; /* Verhindert Überlauf */
-    box-sizing: border-box; /* Padding und Border in Breitenberechnung einbeziehen */
-}
-
-form button {
-    padding: 8px 10px;
-    font-size: 0.9em;
-}
-
-#Jetzt {
-    width: 29%; /* Vergrößert den Button für bessere Klickbarkeit */
-}
-
-#dünn {
-    width: 13.75%;
-}
-
-#mittel {
-    width: 15%;
-}
-
-#dick {
-    width: 15%;
-}
-
-/* Login-Formular */
-.login-form {
-    max-width: 300px;
-    margin: 50px auto;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.login-form label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-
-.login-form input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-.login-form button {
-    width: 100%;
-    background-color: #ff4d4d;
-    color: white;
-    padding: 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.login-form button:hover {
     background-color: #e60000;
 }
 
-.error {
-    color: red;
-    font-weight: bold;
-    margin-top: 10px;
-    text-align: center;
+/* Formulare */
+form {
+    font-size: 0.9em;
 }
 
-/* Neue Stile für die responsive Eingabe */
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+form input, form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+form input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+form button {
+    width: 100%;
+    font-size: 1em;
+}
+
+/* Fehler- und Erfolgsmeldungen */
+.error, .success {
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.error {
+    color: #e74c3c;
+    background: #fdecea;
+    border: 1px solid #e74c3c;
+}
+
+.success {
+    color: #27ae60;
+    background: #eafaf1;
+    border: 1px solid #27ae60;
+}
+
+/* Responsive Formulare */
 .responsive-form {
     display: flex;
     flex-wrap: wrap;
@@ -183,80 +136,35 @@ form button {
 .form-group {
     display: flex;
     flex-direction: column;
-    width: 100%; /* Standardbreite */
+    width: 100%;
 }
 
-.form-group label {
-    margin-bottom: 5px;
-    font-size: 0.9em;
-    font-weight: bold;
-}
-
-.form-group input,
-.form-group select {
-    padding: 8px;
-    border: 1px solid #ccc;
+/* Login-Formular */
+.login-form {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
     border-radius: 5px;
-    font-size: 1em;
-    width: 100%;
-    box-sizing: border-box;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.submit-button {
-    width: 100%;
+.login-form input {
     padding: 10px;
-    font-size: 1em;
-}
-
-/* Mobile Ansicht */
-@media (max-width: 768px) {
-    .responsive-form {
-        flex-direction: column;
-    }
-
-    .form-group {
-        width: 100%;
-    }
-}
-
-
-    /* Entfernt die Punkte in den Listen */
-    details ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    /* Optional: Styling für die Liste */
-    details ul li {
-        padding: 2px 0;
-    }
-
-    /* Toggle-Button für Filter */
-#toggle-filter-btn {
-    margin-bottom: 10px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    font-size: 1em;
-    cursor: pointer;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
     border-radius: 5px;
 }
 
-#toggle-filter-btn:hover {
-    background-color: #0056b3;
-}
-
-
+/* Vorschlagsliste */
 .suggestions {
-    border: 0px solid #ccc;
+    border: 1px solid #ccc;
     border-radius: 5px;
     max-height: 150px;
     overflow-y: auto;
     background: white;
     position: absolute;
-    width: calc(100% - 2px); /* Gleiche Breite wie das Eingabefeld */
+    width: calc(100% - 2px);
     z-index: 1000;
     list-style-type: none;
     margin: 0;
@@ -274,7 +182,52 @@ form button {
 }
 
 .suggestions li:hover {
-    background-color: #007BFF;
+    background-color: #007bff;
     color: white;
 }
 
+/* Toggle-Button */
+#toggle-filter-btn {
+    margin-bottom: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#toggle-filter-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Mobile Ansicht */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    .responsive-form {
+        flex-direction: column;
+    }
+
+    form input, form select {
+        font-size: 0.9em;
+    }
+
+    .suggestions {
+        max-height: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-form {
+        padding: 15px;
+    }
+
+    button {
+        padding: 8px;
+        font-size: 0.8em;
+    }
+}
