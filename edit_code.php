@@ -61,11 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 0;
             padding: 0;
             background: #f5f5f5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            padding-top: 80px; /* Platz für den fixierten Header */
         }
 
         header {
@@ -75,6 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-align: center;
             padding: 1rem 0;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: fixed; /* Fixiert den Header */
+            top: 0;
+            left: 0;
+            z-index: 1000; /* Immer im Vordergrund */
         }
 
         header h1 {
@@ -89,6 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 10px;
             max-width: 500px;
             width: 90%;
+            margin: 0 auto;
         }
 
         .change-password-form {
@@ -209,4 +210,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </main>
 </body>
 </html>
-
