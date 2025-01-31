@@ -5,18 +5,17 @@ body {
     padding: 0;
     background-color: #f9f9f9;
     color: #333;
-    line-height: 1.6;
 }
 
 header {
     background-color: #ff4d4d;
     color: white;
-    text-align: center;
     padding: 20px;
-    position: sticky; /* Fixiert den Header oben */
+    text-align: center;
+    position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
@@ -32,30 +31,29 @@ main {
 table {
     width: 100%;
     border-collapse: collapse;
-    margin: 20px 0;
-    table-layout: auto;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    table-layout: auto; /* Automatische Breitenanpassung */
 }
 
-table th, table td {
+table th,
+table td {
     border: 1px solid #ddd;
-    padding: 10px;
-    font-size: 0.9em;
+    padding: 8px;
     text-align: left;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    font-size: 0.9em;
+    word-wrap: break-word; /* Text in Zellen umbrechen */
 }
 
 table th {
     background-color: #ffcccc;
-    font-weight: bold;
 }
 
-table tr:nth-child(even) {
+tr:nth-child(even) {
     background-color: #f2f2f2;
 }
 
-table tr:hover {
+tr:hover {
     background-color: #ffdddd;
 }
 
@@ -67,8 +65,7 @@ button {
     padding: 10px 15px;
     cursor: pointer;
     border-radius: 5px;
-    font-size: 0.9em;
-    transition: background-color 0.3s;
+    font-size: 1em;
 }
 
 button:hover {
@@ -77,86 +74,84 @@ button:hover {
 
 /* Formulare */
 form {
-    font-size: 0.9em;
+    font-size: 1em;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 form label {
-    display: block;
-    margin-bottom: 5px;
     font-weight: bold;
+    font-size: 0.9em;
+    margin-bottom: 5px;
 }
 
-form input, form select {
+form input,
+form select {
     width: 100%;
     padding: 10px;
-    margin-bottom: 15px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    font-size: 1em;
     box-sizing: border-box;
-}
-
-form input:focus {
-    border-color: #007bff;
-    outline: none;
 }
 
 form button {
     width: 100%;
+    padding: 10px;
     font-size: 1em;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #0056b3;
 }
 
 /* Fehler- und Erfolgsmeldungen */
-.error, .success {
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 5px;
+.error,
+.success {
     text-align: center;
-    font-weight: bold;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
 }
 
 .error {
-    color: #e74c3c;
-    background: #fdecea;
-    border: 1px solid #e74c3c;
+    background-color: #ffdede;
+    color: #d8000c;
+    border: 1px solid #d8000c;
 }
 
 .success {
-    color: #27ae60;
-    background: #eafaf1;
-    border: 1px solid #27ae60;
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #155724;
 }
 
-/* Responsive Formulare */
-.responsive-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
+/* Details (Zusammenklappbare Bereiche) */
+details ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
 }
 
-.form-group {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
+details ul li {
+    padding: 5px 0;
 }
 
-/* Login-Formular */
-.login-form {
-    max-width: 400px;
-    margin: 50px auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.login-form input {
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-/* Vorschlagsliste */
+/* Vorschläge */
 .suggestions {
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -186,48 +181,51 @@ form button {
     color: white;
 }
 
-/* Toggle-Button */
-#toggle-filter-btn {
-    margin-bottom: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px;
-    font-size: 1em;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-#toggle-filter-btn:hover {
-    background-color: #0056b3;
-}
-
-/* Mobile Ansicht */
+/* Responsive Anpassungen */
 @media (max-width: 768px) {
-    header h1 {
-        font-size: 1.5rem;
+    header {
+        font-size: 1.2em;
+        padding: 15px;
     }
 
-    .responsive-form {
-        flex-direction: column;
+    h1 {
+        font-size: 1.5em;
     }
 
-    form input, form select {
+    form {
+        width: 90%;
+        padding: 15px;
+    }
+
+    table th,
+    table td {
+        font-size: 0.8em;
+        padding: 6px;
+    }
+
+    button {
         font-size: 0.9em;
-    }
-
-    .suggestions {
-        max-height: 120px;
+        padding: 8px;
     }
 }
 
 @media (max-width: 480px) {
-    .login-form {
-        padding: 15px;
+    h1 {
+        font-size: 1.2em;
     }
 
-    button {
-        padding: 8px;
+    form {
+        gap: 10px;
+        padding: 10px;
+    }
+
+    form button {
         font-size: 0.8em;
+    }
+
+    table th,
+    table td {
+        font-size: 0.7em;
+        padding: 5px;
     }
 }
