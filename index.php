@@ -235,6 +235,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                             </div>
 
 
+                            <!--
                             <script>
 
                                 function hidePlaceholder(placeholderId) {
@@ -256,6 +257,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                                     }
                                 }
                             </script>
+                            -->
 
                 <!-- Stichwort -->
                 <div class="form-group">
