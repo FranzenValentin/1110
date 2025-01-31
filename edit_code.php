@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             // Aktuellen Code überprüfen
-            $stmt = $pdo->prepare("SELECT code FROM personal WHERE id = $user_id");
+            $stmt = $pdo->prepare("SELECT code FROM personal WHERE id = :$user_id");
             $stmt->execute(['user_id' => $user_id]);
             $stored_code = $stmt->fetchColumn();
 
@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = "Der aktuelle Zugangscode ist falsch.";
             } else {
                 // Neuen Code speichern
-                $stmt = $pdo->prepare("UPDATE personal SET code = :new_code WHERE id = $user_id");
+                $stmt = $pdo->prepare("UPDATE personal SET code = :new_code WHERE id = :$user_id");
                 $stmt->execute(['new_code' => $new_code, 'user_id' => $user_id]);
 
                 $success = "Dein Zugangscode wurde erfolgreich geändert.";
