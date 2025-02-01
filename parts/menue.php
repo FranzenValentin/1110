@@ -86,7 +86,7 @@
 
     /* Back-Button */
     .back-form {
-        position: absolute;
+        position: fixed;
         top: 20px;
         left: 20px;
         z-index: 100;
@@ -164,9 +164,7 @@
 
     <?php if (basename($_SERVER['PHP_SELF']) !== 'index.php'): ?>
         <div class="back-form">
-            <form method="POST" action="index.php" class="back-form">
-                <button type="submit">Zurück</button>
-            </form>
+            <button type="submit">Zurück</button>
         </div>
     <?php endif; ?>
 </div>
