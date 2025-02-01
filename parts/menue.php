@@ -163,7 +163,7 @@
     </div>
 
     <?php if (basename($_SERVER['PHP_SELF']) !== 'index.php'): ?>
-        <div class="dropdown-menu" id="userMenu">
+        <div>
             <form method="POST" action="index.php" class="back-form">
                 <button type="submit">Zurück</button>
             </form>
