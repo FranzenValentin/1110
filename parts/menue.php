@@ -95,7 +95,6 @@
     .back-form button {
         background-color: #ff4d4d;
         color: white;
-        border: 2px solid black;
         padding: 10px 15px;
         cursor: pointer;
         border-radius: 5px;
