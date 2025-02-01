@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1>Login</h1>
     </header>
     <main>
-        <div class="responsive-form">
+        <div id="box" class="responsive-form">
             <form method="POST" class="login-form" autocomplete="off">
                 <div class="form-group">
                     <label for="username">Benutzername:</label>
