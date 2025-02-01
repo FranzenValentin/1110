@@ -354,7 +354,8 @@ if ($zeitResult) {
 
 
         <!-- Aktueller Dienst -->
-        <section id="aktueller-dienste">
+        <section id="box">
+            <div class="responsive-form">
             <h2>
                 Aktueller Dienst mit dem 
                 <form method="GET" class="dropdown-form" style="display: inline;">
@@ -444,6 +445,7 @@ if ($zeitResult) {
             <?php endif; ?>
 
         </section>
+            </div>
 
 
         <!-- Letzte Einsätze -->
