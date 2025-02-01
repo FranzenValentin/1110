@@ -152,7 +152,7 @@
 
 <div class="menu-container">
     <!-- Drei Striche als Menü-Icon -->
-    <span class="menu-icon" onclick="toggleMenu()">☰</span>
+    <span class="menu-icon" onclick="toggleMenu()">≡</span>
 
     <!-- Dropdown-Menü -->
     <div class="dropdown-menu" id="userMenu">
