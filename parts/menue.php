@@ -19,7 +19,7 @@
         font-size: 26px;
         cursor: pointer;
         user-select: none;
-        padding: 8px 12px;
+        padding: 8px 16px;
         color: white;
         background-color: #ff4d4d;
         border-radius: 5px;
