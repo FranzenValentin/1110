@@ -162,13 +162,13 @@
         <button class="logout-button" onclick="window.location.href='parts/logout.php'">Logout</button>
     </div>
 
-    <div class="dropdown-menu" id="userMenu">
-        <?php if (basename($_SERVER['PHP_SELF']) !== 'index.php'): ?>
+    <?php if (basename($_SERVER['PHP_SELF']) !== 'index.php'): ?>
+        <div class="dropdown-menu" id="userMenu">
             <form method="POST" action="index.php" class="back-form">
                 <button type="submit">Zurück</button>
             </form>
-        <?php endif; ?>
-    </div>
+        </div>
+    <?php endif; ?>
 </div>
 
 
