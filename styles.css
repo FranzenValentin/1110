@@ -108,7 +108,7 @@ form button {
     width: 100%;
     padding: 10px;
     font-size: 1em;
-    background-color: #007bff;
+    background-color: #d8000c;
     color: white;
     border: none;
     border-radius: 5px;
@@ -116,7 +116,7 @@ form button {
 }
 
 form button:hover {
-    background-color: #0056b3;
+    background-color: #d8000c;
 }
 
 /* Fehler- und Erfolgsmeldungen */
@@ -176,7 +176,7 @@ details ul li {
 }
 
 .suggestions li:hover {
-    background-color: #007bff;
+    background-color: #d8000c;
     color: white;
 }
 
