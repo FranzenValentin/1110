@@ -358,7 +358,7 @@ if ($zeitResult) {
             <div class="responsive-form">
             <h2>
                 Aktueller Dienst mit dem 
-                <form method="GET" class="dropdown-form" style="display: inline;">
+                <form method="GET" style="display: inline;">
                     <select name="fahrzeug" onchange="this.form.submit()">
                         <?php foreach ($fahrzeuge as $fahrzeug): ?>
                             <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
