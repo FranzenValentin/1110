@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </header>
     
     <main>
-    <div class="responsive-form">
+    <div id="box" class="responsive-form">
         <form method="POST" class="change-password-form">
             <div class="form-group">
             <label for="current_code">Aktueller Zugangscode:</label>
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-group">
             <button type="submit">Zugangscode ändern</button>
             </div>
-            
+
             <?php if ($error): ?>
                 <p class="error"><?= htmlspecialchars($error) ?></p>
             <?php elseif ($success): ?>
