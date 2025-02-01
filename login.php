@@ -140,18 +140,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             required>
                         <ul id="suggestions" class="suggestions"></ul>
                     </div>
-                </div>  
-                <label for="access_code">Zugangscode: (Standard FW Code)</label>
-                <input 
-                    type="password" 
-                    id="access_code" 
-                    name="access_code" 
-                    inputmode="numeric" 
-                    pattern="[0-9]*" 
-                    placeholder="Code eingeben" 
-                    required>
+                </div> 
 
-                <button type="submit">Anmelden</button>
+                <div class="form-group"> 
+                    <label for="access_code">Zugangscode: (Standard FW Code)</label>
+                        <div class="form-group">
+                            <input 
+                            type="password" 
+                            id="access_code" 
+                            name="access_code" 
+                            inputmode="numeric" 
+                            pattern="[0-9]*" 
+                            placeholder="Code eingeben" 
+                            required>
+                        </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit">Anmelden</button>
+                </div>
         
                 <?php if (isset($_GET['timeout']) && $_GET['timeout'] == 1): ?>
                     <p class='error'>Sie wurden wegen Inaktivität abgemeldet. Bitte melden Sie sich erneut an.</p>
