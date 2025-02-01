@@ -78,7 +78,7 @@ form {
     display: grid;
     flex-wrap: wrap;
     gap: 15px;
-    justify-content: center;
+    justify-content: normal;
     max-width: 100%;
     margin: 0 auto;
     background-color: white;
