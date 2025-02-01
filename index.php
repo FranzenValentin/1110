@@ -353,9 +353,8 @@ if ($zeitResult) {
         <section id="box">
             <div class="responsive-form">
             <h2>
-                Aktueller Dienst mit dem 
-                <form method="GET">
-                    <select name="fahrzeug" onchange="this.form.submit()">
+                Aktueller Dienst mit dem <form method="GET">
+                    <select style="width: max-content;" name="fahrzeug" onchange="this.form.submit()">
                         <?php foreach ($fahrzeuge as $fahrzeug): ?>
                             <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
                                 <?php echo ($fahrzeugId == $fahrzeug['id']) ? 'selected' : ''; ?>>
@@ -364,6 +363,7 @@ if ($zeitResult) {
                         <?php endforeach; ?>
                     </select>
                 </form>
+                
                 <?php echo "vom $inDienstZeit bis zum $ausserDienstZeit"; ?>
             </h2>
 
