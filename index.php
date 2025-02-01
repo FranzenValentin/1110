@@ -447,6 +447,7 @@ if ($zeitResult) {
 
 
         <!-- Letzte Einsätze -->
+        <div class="responsive-form">
         <section id="letzte-einsaetze">
             <h2>Letzte 10 Alarme</h2>
             <table>
@@ -512,6 +513,7 @@ if ($zeitResult) {
                 <button onclick="location.href='historie.php'">Alle Alarme</button>
             </div>
         </section>
+        </div>
 
 
         <!-- letzten 5 Dienste -->
