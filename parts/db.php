@@ -6,7 +6,7 @@ try {
 }
 
 // Datenbankverbindung
-$host = 'localhost:3306'; // Hostname des Servers
+$host = "localhost:" . $_ENV['db.port']; // Hostname des Servers
 $dbname = '1110'; // Name der Datenbank
 $username = 'web126'; // Benutzername
 $password = $_ENV['db.password']; // Passwort

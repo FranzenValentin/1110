@@ -41,7 +41,7 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
 
 $error = null;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
     $inputCode = trim($_POST['access_code']);
     $deviceInfo = $_SERVER['HTTP_USER_AGENT'];
