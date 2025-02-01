@@ -153,7 +153,6 @@ details ul li {
 
 /* Vorschläge */
 .suggestions {
-    border: 1px solid #ccc;
     border-radius: 5px;
     max-height: 150px;
     overflow-y: auto;
