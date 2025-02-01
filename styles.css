@@ -75,8 +75,8 @@ button:hover {
 /* Formulare */
 form {
     font-size: 1em;
-    display: flex;
-    flex-wrap: grid;
+    display: grid;
+    flex-wrap: wrap;
     gap: 15px;
     justify-content: center;
     max-width: 100%;
