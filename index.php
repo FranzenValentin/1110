@@ -60,7 +60,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
     <?php if ($dienstVorhanden): ?>
 
         <!-- Neuer Alarm -->
-        <section id="neuer-alarm">
+        <section id="box">
         <details>
         <summary><h2>Neuen Einsatz eintragen</h2></summary>
             
@@ -448,7 +448,7 @@ if ($zeitResult) {
 
         <!-- Letzte Einsätze -->
         <div class="responsive-form">
-        <section id="letzte-einsaetze">
+        <section id="box" >
             <h2>Letzte 10 Alarme</h2>
             <table>
                 <thead>
