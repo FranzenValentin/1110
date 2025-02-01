@@ -353,8 +353,8 @@ if ($zeitResult) {
         <section id="box">
             <div class="responsive-form">
             <h2>
-                <form method="GET">
                 Aktueller Dienst mit dem 
+                <form method="GET">
                     <select style="width: max-content;" name="fahrzeug" onchange="this.form.submit()">
                         <?php foreach ($fahrzeuge as $fahrzeug): ?>
                             <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
