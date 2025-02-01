@@ -241,7 +241,7 @@ details ul li {
 
 /* Formular */
 .responsive-form {
-    display: flex;
+    display: flow-root;
     flex-wrap: wrap;
     gap: 15px;
     justify-content: center;
