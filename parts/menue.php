@@ -163,7 +163,7 @@
 
     <?php if (basename($_SERVER['PHP_SELF']) !== 'index.php'): ?>
         <div class="back-form">
-            <button type="submit">Zurück</button>
+            <button type="button" onclick="window.location.href='index.php'">Zurück</button>
         </div>
     <?php endif; ?>
 </div>
