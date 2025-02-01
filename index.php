@@ -61,9 +61,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
 
         <!-- Neuer Alarm -->
         <section id="box">
-        <details>
-        <summary><h2>Neuen Einsatz eintragen</h2></summary>
-            
+            <h2>Neuer Alarm</h2>
             <?php
                 try {
                     // Fahrzeuge laden
@@ -303,8 +301,6 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                     </div>
                 </div>
             </form>
-        </details>
-
         </section>
 
 <?php 
