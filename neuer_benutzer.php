@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php include 'parts/menue.php'; ?>
     </header>
     <main>
-        <section id="benutzer-hinzufuegen">
+        <section id="box">
             <h2>Benutzerinformationen</h2>
             <?php if (isset($message)) { echo "<p class='success'>$message</p>"; } ?>
             <?php if (isset($error)) { echo "<p class='error'>$error</p>"; } ?>

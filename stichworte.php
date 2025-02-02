@@ -52,7 +52,7 @@ try {
         <?php endif; ?>
 
         <!-- Formular zum Hinzufügen eines Stichworts -->
-        <form action="" method="POST">
+        <form action="" method="POST" id="box">
             <div>
                 <label for="kategorie">Kategorie:</label>
                 <select id="kategorie" name="kategorie">
