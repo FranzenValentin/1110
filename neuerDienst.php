@@ -142,8 +142,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ?>
                     </tbody>
                 </table>
+                <button type="submit" name="save" onclick="window.location.href='index.php'">Speichern und zurück</button>
             </form>
-        <button type="submit" name="save">Speichern und Weiter</button>
         </section>
         <?php endif; ?>
     </main>
