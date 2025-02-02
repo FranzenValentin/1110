@@ -1,72 +1,76 @@
 <?php
 require_once 'db.php';
 
+$error = '';
+$zuweisungDetails = [];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $anwesende = $_POST['anwesende']; // Array von IDs der anwesenden Personen
+    // Array von IDs der anwesenden Personen aus dem Formular
+    $anwesende = isset($_POST['anwesende']) ? $_POST['anwesende'] : [];
 
     if (empty($anwesende)) {
-        die("Keine anwesenden Personen angegeben.");
-    }
+        $error = "Keine anwesenden Personen angegeben.";
+    } else {
+        try {
+            // Schritt 1: Daten der letzten 3 Monate abrufen
+            $threeMonthsAgo = date('Y-m-d H:i:s', strtotime('-3 months'));
+            $dienstHistoryQuery = "
+                SELECT 
+                    stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id
+                FROM dienste
+                WHERE created_at >= :threeMonthsAgo
+            ";
+            $stmt = $pdo->prepare($dienstHistoryQuery);
+            $stmt->execute(['threeMonthsAgo' => $threeMonthsAgo]);
+            $dienstHistory = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    try {
-        // Schritt 1: Daten der letzten 3 Monate abrufen
-        $threeMonthsAgo = date('Y-m-d H:i:s', strtotime('-3 months'));
-        $dienstHistoryQuery = "
-            SELECT 
-                stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id
-            FROM dienste
-            WHERE created_at >= :threeMonthsAgo
-        ";
-        $stmt = $pdo->prepare($dienstHistoryQuery);
-        $stmt->execute(['threeMonthsAgo' => $threeMonthsAgo]);
-        $dienstHistory = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Zähle Dienste pro Person und Rolle
-        $dienstCounter = [];
-        foreach ($dienstHistory as $dienst) {
-            foreach ($dienst as $role => $personId) {
-                if ($personId) {
-                    $dienstCounter[$role][$personId] = ($dienstCounter[$role][$personId] ?? 0) + 1;
+            // Zähle Dienste pro Person und Rolle
+            $dienstCounter = [];
+            foreach ($dienstHistory as $dienst) {
+                foreach ($dienst as $role => $personId) {
+                    if ($personId) {
+                        $dienstCounter[$role][$personId] = ($dienstCounter[$role][$personId] ?? 0) + 1;
+                    }
                 }
             }
-        }
 
-        // Schritt 2: Filter nach Qualifikationen und gerechte Zuweisung
-        $roles = ['stf_id' => 'stf', 'ma_id' => 'ma', 'atf_id' => 'tf', 'atm_id' => 'tf', 'wtf_id' => 'tf', 'wtm_id' => 'tf'];
-        $zuweisung = []; // Speichert die berechnete Zuweisung
-        $zuweisungDetails = []; // Speichert Details für die Anzeige
+            // Schritt 2: Filter nach Qualifikationen und gerechte Zuweisung
+            $roles = ['stf_id' => 'stf', 'ma_id' => 'ma', 'atf_id' => 'tf', 'atm_id' => 'tf', 'wtf_id' => 'tf', 'wtm_id' => 'tf'];
+            $zuweisung = []; // Speichert die berechnete Zuweisung
+            $zuweisungDetails = []; // Speichert Details für die Anzeige
 
-        foreach ($roles as $role => $qualification) {
-            // Personen mit der benötigten Qualifikation herausfiltern
-            $query = "
-                SELECT id, nachname, vorname
-                FROM personal
-                WHERE id IN (" . implode(',', $anwesende) . ") AND $qualification = 1
-            ";
-            $stmt = $pdo->query($query);
-            $eligiblePersons = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($roles as $role => $qualification) {
+                // Personen mit der benötigten Qualifikation herausfiltern
+                $query = "
+                    SELECT id, nachname, vorname
+                    FROM personal
+                    WHERE id IN (" . implode(',', array_map('intval', $anwesende)) . ") AND $qualification = 1
+                ";
+                $stmt = $pdo->query($query);
+                $eligiblePersons = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            if (empty($eligiblePersons)) {
-                throw new Exception("Keine qualifizierten Personen für die Rolle: $role gefunden.");
+                if (empty($eligiblePersons)) {
+                    throw new Exception("Keine qualifizierten Personen für die Rolle: $role gefunden.");
+                }
+
+                // Personen nach bisheriger Dienstanzahl sortieren (aufsteigend)
+                usort($eligiblePersons, function ($a, $b) use ($dienstCounter, $role) {
+                    $countA = $dienstCounter[$role][$a['id']] ?? 0;
+                    $countB = $dienstCounter[$role][$b['id']] ?? 0;
+                    return $countA <=> $countB;
+                });
+
+                // Wähle die Person mit der geringsten Anzahl
+                $zuweisung[$role] = $eligiblePersons[0]['id'];
+                $zuweisungDetails[$role] = [
+                    'id' => $eligiblePersons[0]['id'],
+                    'name' => $eligiblePersons[0]['vorname'] . ' ' . $eligiblePersons[0]['nachname'],
+                    'dienste' => $dienstCounter[$role][$eligiblePersons[0]['id']] ?? 0,
+                ];
             }
-
-            // Personen nach bisheriger Dienstanzahl sortieren (aufsteigend)
-            usort($eligiblePersons, function ($a, $b) use ($dienstCounter, $role) {
-                $countA = $dienstCounter[$role][$a['id']] ?? 0;
-                $countB = $dienstCounter[$role][$b['id']] ?? 0;
-                return $countA <=> $countB;
-            });
-
-            // Wähle die Person mit der geringsten Anzahl
-            $zuweisung[$role] = $eligiblePersons[0]['id'];
-            $zuweisungDetails[$role] = [
-                'id' => $eligiblePersons[0]['id'],
-                'name' => $eligiblePersons[0]['vorname'] . ' ' . $eligiblePersons[0]['nachname'],
-                'dienste' => $dienstCounter[$role][$eligiblePersons[0]['id']] ?? 0,
-            ];
+        } catch (Exception $e) {
+            $error = $e->getMessage();
         }
-    } catch (Exception $e) {
-        $error = $e->getMessage();
     }
 }
 ?>
