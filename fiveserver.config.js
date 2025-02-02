@@ -1,3 +1,3 @@
 module.exports = {
-    php: "/opt/homebrew/bin/php"
+    php: "/Applications/XAMPP/xamppfiles/bin/php"
 }
