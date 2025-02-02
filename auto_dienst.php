@@ -5,7 +5,6 @@ $error = '';
 $zuweisungDetails = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Array von IDs der anwesenden Personen aus dem Formular
     $anwesende = isset($_POST['anwesende']) ? $_POST['anwesende'] : [];
 
     if (empty($anwesende)) {
@@ -15,7 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Schritt 1: Daten der letzten 3 Monate abrufen
             $threeMonthsAgo = date('Y-m-d H:i:s', strtotime('-3 months'));
 
-            // Abfrage der Dienste innerhalb der letzten 3 Monate
             $dienstHistoryQuery = "
                 SELECT 
                     stf_id, ma_id, atf_id, atm_id, wtf_id, wtm_id
@@ -26,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute(['threeMonthsAgo' => $threeMonthsAgo]);
             $dienstHistory = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Zähle Dienste pro Person und Rolle
             $dienstCounter = [];
             foreach ($dienstHistory as $dienst) {
                 foreach ($dienst as $role => $personId) {
@@ -36,17 +33,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            // Schritt 2: Filter nach Qualifikationen und gerechte Zuweisung
-            $roles = ['stf_id' => 'stf', 'ma_id' => 'ma', 'atf_id' => 'tf', 'atm_id' => 'tf', 'wtf_id' => 'tf', 'wtm_id' => 'tf'];
-            $zuweisung = []; // Speichert die berechnete Zuweisung
-            $zuweisungDetails = []; // Speichert Details für die Anzeige
+            $roles = ['stf_id' => 'stf', 'ma_id' => 'ma', 'atf_id' => 'tf', 'atm_id' => 'none', 'wtf_id' => 'tf', 'wtm_id' => 'none'];
+            $zuweisung = [];
+            $zuweisungDetails = [];
 
             foreach ($roles as $role => $qualification) {
-                // Personen mit der benötigten Qualifikation herausfiltern
                 $query = "
                     SELECT id, nachname, vorname
                     FROM personal
-                    WHERE id IN (" . implode(',', array_map('intval', $anwesende)) . ") AND $qualification = 1
+                    WHERE id IN (" . implode(',', array_map('intval', $anwesende)) . ")
+                    " . ($qualification !== 'none' ? "AND $qualification = 1" : "") . "
                 ";
                 $stmt = $pdo->query($query);
                 $eligiblePersons = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -55,14 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new Exception("Keine qualifizierten Personen für die Rolle: $role gefunden.");
                 }
 
-                // Personen nach bisheriger Dienstanzahl sortieren (aufsteigend)
                 usort($eligiblePersons, function ($a, $b) use ($dienstCounter, $role) {
                     $countA = $dienstCounter[$role][$a['id']] ?? 0;
                     $countB = $dienstCounter[$role][$b['id']] ?? 0;
                     return $countA <=> $countB;
                 });
 
-                // Wähle die Person mit der geringsten Anzahl
                 $zuweisung[$role] = $eligiblePersons[0]['id'];
                 $zuweisungDetails[$role] = [
                     'id' => $eligiblePersons[0]['id'],
@@ -88,6 +82,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
+        }
+
+        #available, #selected {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 150px;
+            padding: 10px;
+            margin: 10px;
+            overflow-y: auto;
+        }
+
+        .person {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            cursor: grab;
+        }
+
+        .person.dragging {
+            opacity: 0.5;
+        }
+
+        .droppable {
+            background-color: #f1f1f1;
+            border: 2px dashed #aaa;
         }
 
         table {
@@ -123,17 +144,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <form method="POST">
-        <label for="anwesende">Anwesende auswählen:</label><br>
-        <select id="anwesende" name="anwesende[]" multiple size="10" required>
+        <div id="available" class="droppable">
+            <h3>Verfügbare Personen</h3>
             <?php
-            // Alle Personen abrufen
             $stmt = $pdo->query("SELECT id, nachname, vorname FROM personal ORDER BY nachname, vorname");
             $personal = $stmt->fetchAll(PDO::FETCH_ASSOC);
             foreach ($personal as $person) {
-                echo "<option value='{$person['id']}'>" . htmlspecialchars($person['vorname'] . ' ' . $person['nachname']) . "</option>";
+                echo "<div class='person' draggable='true' data-id='{$person['id']}'>" . htmlspecialchars($person['vorname'] . ' ' . $person['nachname']) . "</div>";
             }
             ?>
-        </select><br><br>
+        </div>
+
+        <div id="selected" class="droppable">
+            <h3>Anwesende Personen</h3>
+        </div>
+
+        <input type="hidden" id="anwesendeInput" name="anwesende">
         <button type="submit">Zuteilung anzeigen</button>
     </form>
 
@@ -158,5 +184,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </tbody>
         </table>
     <?php endif; ?>
+
+    <script>
+        const available = document.getElementById('available');
+        const selected = document.getElementById('selected');
+        const input = document.getElementById('anwesendeInput');
+
+        let dragged;
+
+        document.querySelectorAll('.person').forEach(person => {
+            person.addEventListener('dragstart', function() {
+                dragged = this;
+                setTimeout(() => this.classList.add('dragging'), 0);
+            });
+
+            person.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+            });
+        });
+
+        [available, selected].forEach(container => {
+            container.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('droppable');
+            });
+
+            container.addEventListener('dragleave', function() {
+                this.classList.remove('droppable');
+            });
+
+            container.addEventListener('drop', function() {
+                this.classList.remove('droppable');
+                this.appendChild(dragged);
+                updateAnwesende();
+            });
+        });
+
+        function updateAnwesende() {
+            const ids = Array.from(selected.children)
+                .filter(child => child.classList.contains('person'))
+                .map(person => person.dataset.id);
+            input.value = ids.join(',');
+        }
+    </script>
 </body>
 </html>
