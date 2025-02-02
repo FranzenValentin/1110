@@ -91,8 +91,10 @@ $tageVorjahr = array_keys($alleTageVorjahr);
         <h1>Einsatzentwicklung</h1>
         <?php include 'parts/menue.php'; ?>
     </header>
-    <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
-    <button id="downloadButton">Diagramm herunterladen</button>
+    <section id="box">
+        <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
+        <button id="downloadButton">Diagramm herunterladen</button>
+    </section>
 
     <script>
 // Daten aus PHP übertragen
