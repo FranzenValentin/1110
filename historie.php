@@ -84,6 +84,7 @@ $totalEntries = $result['totalEntries'];
         <h1>Einsatz Historie</h1>
         <?php include 'parts/menue.php'; ?>
     </header>
+    <main>
         <section id="box">
         <table>
             <thead>
@@ -139,5 +140,6 @@ $totalEntries = $result['totalEntries'];
             <?php endif; ?>
         </div>
     </section>
+    </main>
 </body>
 </html>
