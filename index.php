@@ -433,7 +433,7 @@ if ($zeitResult) {
 
             <?php else: ?>
                 <!-- Keine Dienste vorhanden -->
-                <section>
+                <section id="box">
                     <h2 style="text-align: center;">Zum Anlegen eines Einsatzes muss zuerst ein Dienst eingetragen werden.</h2>
                     <div class="button-container" style="text-align: center;">
                     <button onclick="location.href='neuerDienst.php'" style="padding: 16px 20px;font-size: 1.1em;">Neuer Dienst</button>
