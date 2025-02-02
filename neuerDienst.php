@@ -71,13 +71,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <section id="box">
     <header>
         <h1>Besatzung und Dienstzeiten verwalten</h1>
         <?php include 'parts/menue.php'; ?>
     </header>
     <main>
-        <section id="dienstzeiten">
+        <section id="box">
             <h2>Dienstzeiten und Fahrzeug auswählen</h2>
             <?php if (isset($message)) { echo "<p>$message</p>"; } ?>
             <form method="POST">
@@ -103,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </section>
 
         <?php if ($fahrzeugId && $inDienstZeit && $ausserDienstZeit): ?>
-        <section id="besatzung">
+        <section id="box">
             <h2>Besatzung zuweisen</h2>
             <form method="POST">
                 <input type="hidden" name="fahrzeug" value="<?php echo $fahrzeugId; ?>">
@@ -144,11 +143,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ?>
                     </tbody>
                 </table>
-                <button type="submit" name="save">Speichern</button>
+                <button type="submit" name="save" formaction="index.php">Speichern</button>
             </form>
         </section>
         <?php endif; ?>
     </main>
-    </section>
 </body>
 </html>
