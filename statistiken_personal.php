@@ -162,7 +162,7 @@ try {
 
 <main>
     <!-- Filter für Person und Zeitraum -->
-    <section id="filter">
+    <section id="box">
         <h2>Filter</h2>
         <form method="GET" action="statistiken_personal.php" class="filter-form">
             <label for="person_id">Person:</label>
@@ -186,7 +186,7 @@ try {
     </section>
 
     <!-- Verteilung der Funktionen -->
-    <section id="funktionen-verteilung">
+    <section id="box">
         <?php if (count($funktionenVerteilung) > 0): ?>
             <h2>Funktionen von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?></h2>
             <div style="width: 50%; margin: 0 auto;"> <!-- Begrenze die Breite des Diagramms -->
@@ -278,7 +278,7 @@ try {
 
 
     <!-- Anzeige der Einsätze -->
-    <section id="einsatz-statistik">
+    <section id="box">
         <?php if (count($einsaetze) > 0): ?>
             <h2>Einsätze von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?></h2>
             <p>Von insgesamt <strong><?= htmlspecialchars($totalEinsaetze) ?> Alarmen</strong> war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?>
