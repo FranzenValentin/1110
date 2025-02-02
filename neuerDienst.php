@@ -142,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ?>
                     </tbody>
                 </table>
-                <button type="submit" name="save" onclick="window.location.href='index.php'">Speichern und zurück</button>
+                <button type="submit" name="save">Speichern</button>
             </form>
         </section>
         <?php endif; ?>
