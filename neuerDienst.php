@@ -71,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <section id="box">
     <header>
         <h1>Besatzung und Dienstzeiten verwalten</h1>
         <?php include 'parts/menue.php'; ?>
@@ -148,5 +149,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </section>
         <?php endif; ?>
     </main>
+    </section>
 </body>
 </html>
