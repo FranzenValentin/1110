@@ -148,7 +148,7 @@ try {
 
 <main>
     <!-- Filter für Start- und Enddatum -->
-    <section id="filter">
+    <section id="box">
         <h2>Zeitraum auswählen</h2>
         <form method="GET" action="statistiken.php" class="filter-form">
             <label for="startdatum">Startdatum:</label>
@@ -167,7 +167,7 @@ try {
 
 
     <!-- Anzeige der Statistiken -->
-    <section id="einsatz-statistik">
+    <section id="box">
     <h2>Statistiken für den Zeitraum 
         <?php 
         try {
@@ -202,6 +202,7 @@ try {
 </section>
 
     <!-- Diagramm für häufigste Stichworte -->
+     <section id="box">
         <?php if ($totalEinsaetze != 0): ?>
         <h2>Häufigste Stichworte</h2>    
         <?php endif; ?>
@@ -273,7 +274,9 @@ try {
             });
         </script>
 
-<section>
+    </section>
+
+<section id="box">
     <h2>Heatmap</h2>
     <div id="map" style="width: 100%; height: 700px;"></div>
     <script>
