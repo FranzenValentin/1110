@@ -51,40 +51,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($roles as $role => $qualification) {
                 // Personen mit der benötigten Qualifikation herausfiltern und nicht bereits zugewiesene ausschließen
                 $query = "
-                    SELECT id, nachname, vorname
+                    SELECT id, vorname, nachname
                     FROM personal
-                    WHERE id IN (" . implode(',', array_map('intval', $anwesende)) . ")
-                    " . ($qualification !== 'none' ? "AND $qualification = 1" : "") . "
+                    WHERE qualifikation = :qualification
+                    AND id IN (" . implode(',', array_map('intval', $anwesende)) . ")
                     AND id NOT IN (" . implode(',', array_map('intval', $assignedPersons)) . ")
+                    ORDER BY RAND()
+                    LIMIT 1
                 ";
-                $stmt = $pdo->query($query);
-                $eligiblePersons = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $stmt = $pdo->prepare($query);
+                $stmt->execute(['qualification' => $qualification]);
+                $person = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                if (empty($eligiblePersons)) {
-                    throw new Exception("Keine qualifizierten Personen für die Rolle: $role gefunden.");
+                if ($person) {
+                    $zuweisung[$role] = $person['id'];
+                    $zuweisungDetails[$role] = $person['vorname'] . ' ' . $person['nachname'];
+                    $assignedPersons[] = $person['id'];
+                } else {
+                    $zuweisung[$role] = null;
+                    $zuweisungDetails[$role] = 'Keine passende Person gefunden';
                 }
-
-                // Personen nach bisheriger Dienstanzahl sortieren (aufsteigend)
-                usort($eligiblePersons, function ($a, $b) use ($dienstCounter, $role) {
-                    $countA = $dienstCounter[$role][$a['id']] ?? 0;
-                    $countB = $dienstCounter[$role][$b['id']] ?? 0;
-                    return $countA <=> $countB;
-                });
-
-                // Wähle die Person mit der geringsten Anzahl
-                $selectedPerson = $eligiblePersons[0];
-                $zuweisung[$role] = $selectedPerson['id'];
-                $zuweisungDetails[$role] = [
-                    'id' => $selectedPerson['id'],
-                    'name' => $selectedPerson['vorname'] . ' ' . $selectedPerson['nachname'],
-                    'dienste' => $dienstCounter[$role][$selectedPerson['id']] ?? 0,
-                ];
-
-                // Füge die Person zur Liste der bereits zugewiesenen hinzu
-                $assignedPersons[] = $selectedPerson['id'];
             }
-        } catch (Exception $e) {
-            $error = $e->getMessage();
+
+        } catch (PDOException $e) {
+            $error = "Fehler beim Abrufen der Benutzerdaten: " . $e->getMessage();
         }
     }
 }
