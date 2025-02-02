@@ -83,7 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div>
                     <label for="fahrzeug">Fahrzeug:</label>
                     <select name="fahrzeug" id="fahrzeug" required>
-                        <option value="">Fahrzeug wählen</option>
                         <option value="1" <?php echo ($fahrzeugId == 1) ? 'selected' : ''; ?>>LHF 1110/1</option>
                         <option value="2" <?php echo ($fahrzeugId == 2) ? 'selected' : ''; ?>>LHF 1110/2</option>
                         <option value="3" <?php echo ($fahrzeugId == 3) ? 'selected' : ''; ?>>LHF 1110/3</option>
@@ -143,8 +142,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ?>
                     </tbody>
                 </table>
-                <button type="submit" name="save" formaction="index.php">Speichern</button>
             </form>
+        <button type="submit" name="save">Speichern und Weiter</button>
         </section>
         <?php endif; ?>
     </main>
