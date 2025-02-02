@@ -5,7 +5,8 @@ $error = '';
 $zuweisungDetails = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $anwesende = isset($_POST['anwesende']) ? $_POST['anwesende'] : [];
+    // Array von IDs der anwesenden Personen aus dem Formular
+    $anwesende = isset($_POST['anwesende']) ? explode(',', $_POST['anwesende']) : [];
 
     if (empty($anwesende)) {
         $error = "Keine anwesenden Personen angegeben.";
@@ -33,16 +34,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            $roles = ['stf_id' => 'stf', 'ma_id' => 'ma', 'atf_id' => 'tf', 'atm_id' => 'none', 'wtf_id' => 'tf', 'wtm_id' => 'none'];
+            // Schritt 2: Filter nach Qualifikationen und gerechte Zuweisung
+            $roles = [
+                'stf_id' => 'stf',
+                'ma_id' => 'ma',
+                'atf_id' => 'tf',
+                'atm_id' => 'none',
+                'wtf_id' => 'tf',
+                'wtm_id' => 'none'
+            ];
+
             $zuweisung = [];
             $zuweisungDetails = [];
+            $assignedPersons = []; // Personen, die bereits zugewiesen wurden
 
             foreach ($roles as $role => $qualification) {
+                // Personen mit der benötigten Qualifikation herausfiltern und nicht bereits zugewiesene ausschließen
                 $query = "
                     SELECT id, nachname, vorname
                     FROM personal
                     WHERE id IN (" . implode(',', array_map('intval', $anwesende)) . ")
                     " . ($qualification !== 'none' ? "AND $qualification = 1" : "") . "
+                    AND id NOT IN (" . implode(',', array_map('intval', $assignedPersons)) . ")
                 ";
                 $stmt = $pdo->query($query);
                 $eligiblePersons = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -51,18 +64,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new Exception("Keine qualifizierten Personen für die Rolle: $role gefunden.");
                 }
 
+                // Personen nach bisheriger Dienstanzahl sortieren (aufsteigend)
                 usort($eligiblePersons, function ($a, $b) use ($dienstCounter, $role) {
                     $countA = $dienstCounter[$role][$a['id']] ?? 0;
                     $countB = $dienstCounter[$role][$b['id']] ?? 0;
                     return $countA <=> $countB;
                 });
 
-                $zuweisung[$role] = $eligiblePersons[0]['id'];
+                // Wähle die Person mit der geringsten Anzahl
+                $selectedPerson = $eligiblePersons[0];
+                $zuweisung[$role] = $selectedPerson['id'];
                 $zuweisungDetails[$role] = [
-                    'id' => $eligiblePersons[0]['id'],
-                    'name' => $eligiblePersons[0]['vorname'] . ' ' . $eligiblePersons[0]['nachname'],
-                    'dienste' => $dienstCounter[$role][$eligiblePersons[0]['id']] ?? 0,
+                    'id' => $selectedPerson['id'],
+                    'name' => $selectedPerson['vorname'] . ' ' . $selectedPerson['nachname'],
+                    'dienste' => $dienstCounter[$role][$selectedPerson['id']] ?? 0,
                 ];
+
+                // Füge die Person zur Liste der bereits zugewiesenen hinzu
+                $assignedPersons[] = $selectedPerson['id'];
             }
         } catch (Exception $e) {
             $error = $e->getMessage();
@@ -77,65 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Automatische Dienstzuteilung</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-
-        #available, #selected {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            min-height: 150px;
-            padding: 10px;
-            margin: 10px;
-            overflow-y: auto;
-        }
-
-        .person {
-            padding: 8px;
-            margin: 5px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            cursor: grab;
-        }
-
-        .person.dragging {
-            opacity: 0.5;
-        }
-
-        .droppable {
-            background-color: #f1f1f1;
-            border: 2px dashed #aaa;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f4f4f4;
-        }
-
-        h1 {
-            text-align: center;
-        }
-
-        .error {
-            color: red;
-            font-weight: bold;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Automatische Dienstzuteilung</h1>
