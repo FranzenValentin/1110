@@ -664,7 +664,7 @@ if ($zeitResult) {
             <div class="responsive-form">
                     <h2>Statistiken</h2>
                     <div class="button-container">
-                        <button onclick="location.href='statistiken.php'">Gesamtstatistiken</button>
+                        <button style="margin-bottom: 5px;" onclick="location.href='statistiken.php'">Gesamtstatistiken</button>
                         <button onclick="location.href='statistiken_personal.php?person_id=<?= $userID ?>'">Personal-Statistiken</button>
                         <button onclick="location.href='einsatzentwicklung.php'">Einsatzentwicklung</button>
                     </div>
