@@ -84,60 +84,60 @@ $totalEntries = $result['totalEntries'];
         <h1>Einsatz Historie</h1>
         <?php include 'parts/menue.php'; ?>
     </header>
-
-    <table>
-        <thead>
-            <tr>
-                <th>E-Nr. int. </th>
-                <th>E-Nr. LTS</th>
-                <th>Zeit</th>
-                <th>Stichwort</th>
-                <th>Adresse</th>
-                <th>Personal</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($data as $einsatz): ?>
+        <section id="box">
+        <table>
+            <thead>
                 <tr>
-                    <td><?= htmlspecialchars($einsatz['interne_einsatznummer']) ?></td>
-                    <td><?= htmlspecialchars($einsatz['einsatznummer_lts']) ?></td>
-                    <td>
-                        <?php
-                        $alarmzeit = date('d.m.Y H:i', strtotime($einsatz['alarmuhrzeit']));
-                        $zurueckzeit = date('H:i', strtotime($einsatz['zurueckzeit']));
-                        echo $alarmzeit . ' - ' . $zurueckzeit;
-                        ?>
-                    </td>
-                    <td><?= htmlspecialchars($einsatz['stichwort']) ?></td>
-                    <td><?= htmlspecialchars($einsatz['adresse']) ?></td>
-                    <td>
-                        <details>
-                            <summary>Details</summary>
-                            <ul>
-                                <li>STF: <?= htmlspecialchars($einsatz['stf'] ?? 'N/A') ?></li>
-                                <li>MA: <?= htmlspecialchars($einsatz['ma'] ?? 'N/A') ?></li>
-                                <li>ATF: <?= htmlspecialchars($einsatz['atf'] ?? 'N/A') ?></li>
-                                <li>ATM: <?= htmlspecialchars($einsatz['atm'] ?? 'N/A') ?></li>
-                                <li>WTF: <?= htmlspecialchars($einsatz['wtf'] ?? 'N/A') ?></li>
-                                <li>WTM: <?= htmlspecialchars($einsatz['wtm'] ?? 'N/A') ?></li>
-                                <li>PRAKT: <?= htmlspecialchars($einsatz['prakt'] ?? 'N/A') ?></li>
-                            </ul>
-                        </details>
-                    </td>
+                    <th>E-Nr. int. </th>
+                    <th>E-Nr. LTS</th>
+                    <th>Zeit</th>
+                    <th>Stichwort</th>
+                    <th>Adresse</th>
+                    <th>Personal</th>
                 </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
-
-    <div id="load-more-container">
-        <?php if ($offset + $limit < $totalEntries): ?>
-            <form method="GET" action="historie.php">
-                <input type="hidden" name="offset" value="<?= $offset + $limit ?>">
-                <button type="submit">Mehr Laden</button>
-            </form>
-        <?php else: ?>
-            <p>Alle Einträge geladen.</p>
-        <?php endif; ?>
-    </div>
+            </thead>
+            <tbody>
+                <?php foreach ($data as $einsatz): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($einsatz['interne_einsatznummer']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['einsatznummer_lts']) ?></td>
+                        <td>
+                            <?php
+                            $alarmzeit = date('d.m.Y H:i', strtotime($einsatz['alarmuhrzeit']));
+                            $zurueckzeit = date('H:i', strtotime($einsatz['zurueckzeit']));
+                            echo $alarmzeit . ' - ' . $zurueckzeit;
+                            ?>
+                        </td>
+                        <td><?= htmlspecialchars($einsatz['stichwort']) ?></td>
+                        <td><?= htmlspecialchars($einsatz['adresse']) ?></td>
+                        <td>
+                            <details>
+                                <summary>Details</summary>
+                                <ul>
+                                    <li>STF: <?= htmlspecialchars($einsatz['stf'] ?? 'N/A') ?></li>
+                                    <li>MA: <?= htmlspecialchars($einsatz['ma'] ?? 'N/A') ?></li>
+                                    <li>ATF: <?= htmlspecialchars($einsatz['atf'] ?? 'N/A') ?></li>
+                                    <li>ATM: <?= htmlspecialchars($einsatz['atm'] ?? 'N/A') ?></li>
+                                    <li>WTF: <?= htmlspecialchars($einsatz['wtf'] ?? 'N/A') ?></li>
+                                    <li>WTM: <?= htmlspecialchars($einsatz['wtm'] ?? 'N/A') ?></li>
+                                    <li>PRAKT: <?= htmlspecialchars($einsatz['prakt'] ?? 'N/A') ?></li>
+                                </ul>
+                            </details>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        <div>
+            <?php if ($offset + $limit < $totalEntries): ?>
+                <form method="GET" action="historie.php">
+                    <input type="hidden" name="offset" value="<?= $offset + $limit ?>">
+                    <button type="submit">Mehr Laden</button>
+                </form>
+            <?php else: ?>
+                <p>Alle Einträge geladen.</p>
+            <?php endif; ?>
+        </div>
+    </section>
 </body>
 </html>
