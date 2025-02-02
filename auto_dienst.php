@@ -5,6 +5,7 @@ $error = '';
 $zuweisungDetails = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    var_dump($_POST); // Debugging: Zeige die POST-Daten an
     $anwesende = isset($_POST['anwesende']) ? $_POST['anwesende'] : [];
 
     if (empty($anwesende)) {
@@ -224,6 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const ids = Array.from(selected.children)
                 .filter(child => child.classList.contains('person'))
                 .map(person => person.dataset.id);
+            console.log(ids); // Debugging: Zeige die IDs in der Konsole an
             input.value = ids.join(',');
         }
     </script>
