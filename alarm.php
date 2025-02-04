@@ -1,3 +1,8 @@
+<?php
+require_once 'parts/session_check.php';
+require 'parts/db.php';
+?>
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -5,6 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alarme nachtragen</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=<?= htmlspecialchars($apiKey) ?>&libraries=places"></script>
 </head>
 <body>
     <header>
