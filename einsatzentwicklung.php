@@ -74,14 +74,14 @@ foreach ($alleTageVorjahr as $anzahl) {
 
 // Einsätze Vorjahr bis heute berechnen
 $heute_Vorjahr = 0;
-foreach ($alleTageVorjahr as $tag => $anzahl) {
-    if ($tag > $heute) {
-        $kumuliertheuteVorjahr[] = null; // Null-Werte für Tage nach heute
-    } else {
-        $heute_Vorjahr += $anzahl;
-        $kumuliertheuteVorjahr[] = $heute_Vorjahr;
-    }
-}
+// foreach ($alleTageVorjahr as $tag => $anzahl) {
+//     if ($tag > $heute) {
+//         $kumuliertheuteVorjahr[] = null; // Null-Werte für Tage nach heute
+//     } else {
+//         $heute_Vorjahr += $anzahl;
+//         $kumuliertheuteVorjahr[] = $heute_Vorjahr;
+//     }
+// }
 
 // Entwicklung berechnen
 $differenz = $summeAktuellesJahr - $heute_Vorjahr;
