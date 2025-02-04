@@ -259,6 +259,7 @@ if ($zeitResult) {
             </table>
             <div class="button-container">
                 <button onclick="location.href='historie.php'">Alle Alarme</button>
+                <button onclick="location.href='alarm.php'">Alarm nachtragen</button>
             </div>
         </section>
         </div>
