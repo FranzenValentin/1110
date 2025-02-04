@@ -15,7 +15,7 @@ require 'parts/db.php';
 <body>
     <header>
         <h1>Alarme nachtragen</h1>
-        <?php include 'parts/header.php'; ?>
+        <?php include 'parts/manue.php'; ?>
     </header>
     
     <main>
