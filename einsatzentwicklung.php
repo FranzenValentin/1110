@@ -70,6 +70,12 @@ foreach ($alleTageVorjahr as $anzahl) {
     $kumuliertVorjahr[] = $summeVorjahr;
 }
 
+// Entwicklung berechnen
+$differenz = $summeAktuellesJahr - $summeVorjahr;
+$prozentualeVeränderung = $summeVorjahr > 0 ? round(($differenz / $summeVorjahr) * 100, 1) : 0;
+$farbe = $differenz >= 0 ? "green" : "red";
+
+
 // Labels für die X-Achse (alle Tage)
 $tageAktuellesJahr = array_keys($alleTageAktuellesJahr);
 $tageVorjahr = array_keys($alleTageVorjahr);
@@ -91,6 +97,19 @@ $tageVorjahr = array_keys($alleTageVorjahr);
         <h1>Einsatzentwicklung</h1>
         <?php include 'parts/menue.php'; ?>
     </header>
+
+    <!-- 📊 Entwicklung zum Vorjahr -->
+    <section id="box">
+        <h2>Entwicklung zum Vorjahr</h2>
+        <div id="entwicklung-box" style="padding: 20px; border: 2px solid <?= $farbe ?>; background-color: rgba(255,255,255,0.9); display: inline-block;">
+            <strong>Dieses Jahr:</strong> <?= $summeAktuellesJahr ?> Einsätze<br>
+            <strong>Letztes Jahr bis heute:</strong> <?= $summeVorjahr ?> Einsätze<br>
+            <strong>Veränderung:</strong> <span style="color: <?= $farbe ?>;">
+                <?= ($differenz >= 0 ? "+" : "") . $differenz ?> (<?= ($differenz >= 0 ? "+" : "") . $prozentualeVeränderung ?>%)
+            </span>
+        </div>
+    </section>
+
     <section id="box">
         <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
         <button id="downloadButton">Diagramm herunterladen</button>
