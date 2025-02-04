@@ -225,21 +225,6 @@ const chart = new Chart(ctx, {
                     },
                 },
             },
-            zoom: {
-                zoom: {
-                    wheel: {
-                        enabled: true,
-                    },
-                    pinch: {
-                        enabled: true,
-                    },
-                    mode: 'x',
-                },
-                pan: {
-                    enabled: true,
-                    mode: 'x',
-                },
-            },
         },
         scales: {
             x: {
@@ -288,15 +273,6 @@ const chart = new Chart(ctx, {
             },
         },
     },
-});
-
-// Download-Button für das Diagramm
-const downloadButton = document.getElementById('downloadButton');
-downloadButton.addEventListener('click', () => {
-    const a = document.createElement('a');
-    a.href = chart.toBase64Image();
-    a.download = 'einsatzentwicklung.png';
-    a.click();
 });
 
 </script>
