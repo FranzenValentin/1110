@@ -126,7 +126,6 @@ $tageVorjahr = array_keys($alleTageVorjahr);
 
     <section id="box">
         <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
-        <button id="downloadButton">Diagramm herunterladen</button>
     </section>
 
     </main>
