@@ -21,6 +21,7 @@ if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
             session_destroy();
             header("Content-Type: application/json");
             echo json_encode(['status' => 'inactive']);
+            header('Location: ../login.php?timeout=1');
             exit;
         }
     }
