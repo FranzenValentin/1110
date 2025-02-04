@@ -27,6 +27,7 @@ $alleTageAktuellesJahr = [];
 $alleTageVorjahr = [];
 $kumuliertAktuellesJahr = [];
 $kumuliertVorjahr = [];
+$kumuliertheuteVorjahr = [];
 
 // Alle Tage des vorherigen Jahres initialisieren
 for ($d = 0; $d < 365; $d++) {
@@ -75,9 +76,11 @@ foreach ($alleTageVorjahr as $anzahl) {
 $heute_Vorjahr = 0;
 foreach ($alleTageVorjahr as $tag => $anzahl) {
     if ($tag > $heute) {
-        break; // Stop counting if the date is beyond today
+        $kumuliertheuteVorjahr[] = null; // Null-Werte für Tage nach heute
+    } else {
+        $heute_Vorjahr += $anzahl;
+        $kumuliertheuteVorjahr[] = $heute_Vorjahr;
     }
-    $heute_Vorjahr += $anzahl;
 }
 
 // Entwicklung berechnen
