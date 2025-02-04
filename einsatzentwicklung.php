@@ -65,14 +65,24 @@ foreach ($alleTageAktuellesJahr as $tag => $anzahl) {
     }
 }
 
+//Einsätze Vorjahr komplett
 foreach ($alleTageVorjahr as $anzahl) {
     $summeVorjahr += $anzahl;
     $kumuliertVorjahr[] = $summeVorjahr;
 }
 
+// Einsätze Vorjahr bis heute berechnen
+$heute_Vorjahr = 0;
+foreach ($alleTageVorjahr as $tag => $anzahl) {
+    if ($tag > $heute) {
+        break; // Stop counting if the date is beyond today
+    }
+    $heute_Vorjahr += $anzahl;
+}
+
 // Entwicklung berechnen
-$differenz = $summeAktuellesJahr - $summeVorjahr;
-$prozentualeVeränderung = $summeVorjahr > 0 ? round(($differenz / $summeVorjahr) * 100, 1) : 0;
+$differenz = $summeAktuellesJahr - $heute_Vorjahr;
+$prozentualeVeränderung = $heute_Vorjahr > 0 ? round(($differenz / $heute_Vorjahr) * 100, 1) : 0;
 $farbe = $differenz >= 0 ? "green" : "red";
 
 
