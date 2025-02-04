@@ -115,13 +115,11 @@ $tageVorjahr = array_keys($alleTageVorjahr);
     <!-- 📊 Entwicklung zum Vorjahr -->
     <section id="box">
         <h2>Entwicklung zum Vorjahr</h2>
-        <div id="entwicklung-box" style="padding: 20px; border: 2px solid <?= $farbe ?>; background-color: rgba(255,255,255,0.9); display: inline-block;">
             <strong>Dieses Jahr:</strong> <?= $summeAktuellesJahr ?> Einsätze<br>
             <strong>Letztes Jahr bis heute:</strong> <?= $heute_Vorjahr ?> Einsätze<br>
             <strong>Veränderung:</strong> <span style="color: <?= $farbe ?>;">
                 <?= ($differenz >= 0 ? "+" : "") . $differenz ?> (<?= ($differenz >= 0 ? "+" : "") . $prozentualeVeränderung ?>%)
             </span>
-        </div>
     </section>
 
     <section id="box">
