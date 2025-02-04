@@ -73,9 +73,10 @@ foreach ($alleTageVorjahr as $anzahl) {
 }
 
 // Einsätze Vorjahr bis heute berechnen
+$heuteVorjahrDatum = date('Y-m-d', strtotime('-1 year'));
 $heute_Vorjahr = 0;
 foreach ($alleTageVorjahr as $tag => $anzahl) {
-    if ($tag > $heute) {
+    if ($tag > $heuteVorjahrDatum) {
         break; // Schleife beenden, wenn das Datum nach heute liegt
     } else {
         $heute_Vorjahr += $anzahl;
