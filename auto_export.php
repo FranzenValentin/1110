@@ -127,8 +127,15 @@ try {
 
     // E-Mail-Inhalt
     $mail->isHTML(true);
-    $mail->Subject = "Automatischer Export - Einsätze $monat/$jahr";
-    $mail->Body = "Im Anhang finden Sie den Export der Einsätze für $monat/$jahr.";
+    $mail->Subject = "1110 - Einsatzexport $monat/$jahr";
+    $mail->Body = 
+    "Liebe Wehrleitung,
+    
+    im Anhang findet ihr den Einsatzexport $monat/$jahr.
+    
+    
+    Mit freundlichen Grüßen,
+    Einsatzverwaltungssystem 1110";
 
     // Datei anhängen
     if (file_exists($exportPath)) {
