@@ -110,15 +110,15 @@ $mail = new PHPMailer(true);
 try {
     $mail = new PHPMailer(true); // Stelle sicher, dass PHPMailer korrekt instanziiert ist
     $mail->isSMTP();
-    $mail->Host = 'smtp.web.de'; // KORREKT
+    $mail->Host = 'smtp.ffmitte.de'; // KORREKT
     $mail->SMTPAuth = true;
-    $mail->Username = 'valentinfranzen@web.de'; // GESAMTE E-MAIL als Benutzername
+    $mail->Username = 'einsaetze@ffmitte.de'; // GESAMTE E-MAIL als Benutzername
     $mail->Password = $mailpassword; // NUR App-Passwort verwenden
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // KORREKT für Port 587
     $mail->Port = 587; // KORREKT für Web.de
 
     // Absender und Empfänger
-    $mail->setFrom('valentinfranzen@web.de', 'Feuerwehr Einsätze');
+    $mail->setFrom('einsaetze@ffmitte.de', 'Einsatzverwaltungssystem 1110');
     $mail->addAddress('valentinfranzen@web.de'); // Empfänger
 
     // Debugging aktivieren (nur während der Fehlersuche)
