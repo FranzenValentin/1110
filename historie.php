@@ -1,12 +1,10 @@
 <?php
-require_once 'parts/session_check.php'; // Session-Überprüfung
-require 'parts/db.php'; // Verbindung zur Datenbank herstellen
+require_once 'parts/session_check.php';
+require 'parts/db.php';
 
-// Offset und Limit aus der Anfrage lesen (Standardwerte setzen)
 $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
 $limit = 50;
 
-// Hilfsfunktion: Einsätze laden
 function fetchEinsaetze($pdo, $offset, $limit)
 {
     $sql = "
@@ -32,14 +30,12 @@ function fetchEinsaetze($pdo, $offset, $limit)
     $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
     $stmt->execute();
 
-    // Gesamte Anzahl der Einsätze ermitteln
     $countSql = "SELECT COUNT(*) FROM einsaetze";
     $totalEntries = $pdo->query($countSql)->fetchColumn();
 
     return ['data' => $stmt->fetchAll(PDO::FETCH_ASSOC), 'totalEntries' => $totalEntries];
 }
 
-// Einsätze laden
 $result = fetchEinsaetze($pdo, $offset, $limit);
 $data = $result['data'];
 $totalEntries = $result['totalEntries'];

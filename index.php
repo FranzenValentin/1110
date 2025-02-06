@@ -39,231 +39,220 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
     <script src="https://maps.googleapis.com/maps/api/js?key=<?= htmlspecialchars($apiKey) ?>&libraries=places"></script>
 </head>
 <body>
-<header>
+    <header>
         <h1>Einsatzverwaltungssystem</h1>
         <?php include 'parts/menue.php'; ?>
-</header>
-
+    </header>
 
     <main>
-        
-    <?php if ($dienstVorhanden): 
+        <?php if ($dienstVorhanden): ?>
+            <?php include 'parts/new_alarm.php' ?>
 
-        include 'parts/new_alarm.php'
-        ?>
+            <?php 
+            // Fahrzeuge aus der Datenbank abrufen
+            $query = "SELECT id, name FROM fahrzeuge";
+            $statement = $pdo->prepare($query);
+            $statement->execute();
+            $fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-<?php 
-// Fahrzeuge aus der Datenbank abrufen
-$query = "SELECT id, name FROM fahrzeuge";
-$statement = $pdo->prepare($query);
-$statement->execute();
-$fahrzeuge = $statement->fetchAll(PDO::FETCH_ASSOC);
+            // Fahrzeug-ID setzen (Standard: LHF 1)
+            if (!isset($_GET['fahrzeug'])) {
+                $defaultVehicleQuery = "SELECT id FROM fahrzeuge WHERE name = 'LHF 1' LIMIT 1";
+                $defaultVehicleStmt = $pdo->prepare($defaultVehicleQuery);
+                $defaultVehicleStmt->execute();
+                $fahrzeugId = $defaultVehicleStmt->fetchColumn();
+            } else {
+                $fahrzeugId = (int)$_GET['fahrzeug'];
+            }
 
-// Fahrzeug-ID setzen (Standard: LHF 1)
-if (!isset($_GET['fahrzeug'])) {
-    $defaultVehicleQuery = "SELECT id FROM fahrzeuge WHERE name = 'LHF 1' LIMIT 1";
-    $defaultVehicleStmt = $pdo->prepare($defaultVehicleQuery);
-    $defaultVehicleStmt->execute();
-    $fahrzeugId = $defaultVehicleStmt->fetchColumn();
-} else {
-    $fahrzeugId = (int)$_GET['fahrzeug'];
-}
+            // Standardwerte setzen
+            $inDienstZeit = 'Keine Daten';
+            $ausserDienstZeit = 'Keine Daten';
 
-// Standardwerte setzen
-$inDienstZeit = 'Keine Daten';
-$ausserDienstZeit = 'Keine Daten';
+            // SQL-Abfrage für die zeitlich neuesten Dienstzeiten
+            $zeitQuery = "
+                SELECT inDienstZeit, ausserDienstZeit 
+                FROM dienste 
+                WHERE fahrzeug_id = :fahrzeug_id 
+                ORDER BY STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') DESC 
+                LIMIT 1
+            ";
 
-// SQL-Abfrage für die zeitlich neuesten Dienstzeiten
-$zeitQuery = "
-    SELECT inDienstZeit, ausserDienstZeit 
-    FROM dienste 
-    WHERE fahrzeug_id = :fahrzeug_id 
-    ORDER BY STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') DESC 
-    LIMIT 1
-";
+            if (empty($fahrzeugId)) {
+                $fahrzeugId = 1;
+            }
 
-if (empty($fahrzeugId)) {
-    $fahrzeugId = 1;
-}
+            $zeitStmt = $pdo->prepare($zeitQuery);
+            $zeitStmt->execute([':fahrzeug_id' => $fahrzeugId]);
+            $zeitResult = $zeitStmt->fetch(PDO::FETCH_ASSOC);
 
-$zeitStmt = $pdo->prepare($zeitQuery);
-$zeitStmt->execute([':fahrzeug_id' => $fahrzeugId]);
-$zeitResult = $zeitStmt->fetch(PDO::FETCH_ASSOC);
+            // Zeiten auslesen, falls vorhanden
+            if ($zeitResult) {
+                $inDienstZeit = $zeitResult['inDienstZeit'] ?? 'Keine Daten';
+                $ausserDienstZeit = $zeitResult['ausserDienstZeit'] ?? 'Keine Daten';
+            }
+            ?>
 
-// Zeiten auslesen, falls vorhanden
-if ($zeitResult) {
-    $inDienstZeit = $zeitResult['inDienstZeit'] ?? 'Keine Daten';
-    $ausserDienstZeit = $zeitResult['ausserDienstZeit'] ?? 'Keine Daten';
-}
-?>
+            <!-- Aktueller Dienst -->
+            <section id="box">
+                <div class="responsive-form">
+                    <h2>
+                        Aktueller Dienst mit dem 
+                        <form method="GET">
+                            <select style="width: max-content;" name="fahrzeug" onchange="this.form.submit()">
+                                <?php foreach ($fahrzeuge as $fahrzeug): ?>
+                                    <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
+                                        <?php echo ($fahrzeugId == $fahrzeug['id']) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($fahrzeug['name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </form>
+                        
+                        <?php echo "vom $inDienstZeit bis zum $ausserDienstZeit"; ?>
+                    </h2>
 
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Funktion</th>
+                                <th>Aktuell zugewiesen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            // Besatzungsrollen definieren
+                            $roles = [
+                                'stf' => 'Staffel-Führer',
+                                'ma' => 'Maschinist',
+                                'atf' => 'Angriffstrupp-Führer',
+                                'atm' => 'Angriffstrupp-Mann',
+                                'wtf' => 'Wassertrupp-Führer',
+                                'wtm' => 'Wassertrupp-Mann',
+                                'prakt' => 'Praktikant'
+                            ];
 
-        <!-- Aktueller Dienst -->
-        <section id="box">
-            <div class="responsive-form">
-            <h2>
-                Aktueller Dienst mit dem 
-                <form method="GET">
-                    <select style="width: max-content;" name="fahrzeug" onchange="this.form.submit()">
-                        <?php foreach ($fahrzeuge as $fahrzeug): ?>
-                            <option value="<?php echo htmlspecialchars($fahrzeug['id']); ?>"
-                                <?php echo ($fahrzeugId == $fahrzeug['id']) ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($fahrzeug['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </form>
-                
-                <?php echo "vom $inDienstZeit bis zum $ausserDienstZeit"; ?>
-            </h2>
+                            // Besatzung basierend auf den ermittelten Zeiten und Fahrzeug abrufen
+                            $besatzungStmt = $pdo->prepare("
+                                SELECT * 
+                                FROM dienste 
+                                WHERE fahrzeug_id = :fahrzeug_id 
+                                AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:inDienstZeit, '%d.%m.%Y %H:%i')
+                                AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:ausserDienstZeit, '%d.%m.%Y %H:%i') OR :ausserDienstZeit IS NULL)
+                            ");
+                            $besatzungStmt->execute([
+                                ':fahrzeug_id' => $fahrzeugId,
+                                ':inDienstZeit' => $inDienstZeit,
+                                ':ausserDienstZeit' => $ausserDienstZeit !== 'Keine Daten' ? $ausserDienstZeit : null,
+                            ]);
+                            $besatzung = $besatzungStmt->fetch();
 
+                            foreach ($roles as $key => $label) {
+                                echo "<tr>";
+                                echo "<td>$label</td>";
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Funktion</th>
-                        <th>Aktuell zugewiesen</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    // Besatzungsrollen definieren
-                    $roles = [
-                        'stf' => 'Staffel-Führer',
-                        'ma' => 'Maschinist',
-                        'atf' => 'Angriffstrupp-Führer',
-                        'atm' => 'Angriffstrupp-Mann',
-                        'wtf' => 'Wassertrupp-Führer',
-                        'wtm' => 'Wassertrupp-Mann',
-                        'prakt' => 'Praktikant'
-                    ];
+                                if ($besatzung && $besatzung[$key . '_id']) {
+                                    // Zuweisung der Person abrufen
+                                    $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM personal WHERE id = :id");
+                                    $personStmt->execute([':id' => $besatzung[$key . '_id']]);
+                                    $person = $personStmt->fetch();
 
-                    // Besatzung basierend auf den ermittelten Zeiten und Fahrzeug abrufen
-                    $besatzungStmt = $pdo->prepare("
-                        SELECT * 
-                        FROM dienste 
-                        WHERE fahrzeug_id = :fahrzeug_id 
-                        AND STR_TO_DATE(inDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:inDienstZeit, '%d.%m.%Y %H:%i')
-                        AND (STR_TO_DATE(ausserDienstZeit, '%d.%m.%Y %H:%i') = STR_TO_DATE(:ausserDienstZeit, '%d.%m.%Y %H:%i') OR :ausserDienstZeit IS NULL)
-                    ");
-                    $besatzungStmt->execute([
-                        ':fahrzeug_id' => $fahrzeugId,
-                        ':inDienstZeit' => $inDienstZeit,
-                        ':ausserDienstZeit' => $ausserDienstZeit !== 'Keine Daten' ? $ausserDienstZeit : null,
-                    ]);
-                    $besatzung = $besatzungStmt->fetch();
+                                    // Name anzeigen, falls vorhanden
+                                    echo "<td>" . ($person['name'] ?? '<em>NICHT BESETZT</em>') . "</td>";
+                                } else {
+                                    // Kein Name zugewiesen
+                                    echo "<td><em>NICHT BESETZT</em></td>";
+                                }
 
-                    foreach ($roles as $key => $label) {
-                        echo "<tr>";
-                        echo "<td>$label</td>";
-
-                        if ($besatzung && $besatzung[$key . '_id']) {
-                            // Zuweisung der Person abrufen
-                            $personStmt = $pdo->prepare("SELECT CONCAT(vorname, ' ', nachname) AS name FROM personal WHERE id = :id");
-                            $personStmt->execute([':id' => $besatzung[$key . '_id']]);
-                            $person = $personStmt->fetch();
-
-                            // Name anzeigen, falls vorhanden
-                            echo "<td>" . ($person['name'] ?? '<em>NICHT BESETZT</em>') . "</td>";
-                        } else {
-                            // Kein Name zugewiesen
-                            echo "<td><em>NICHT BESETZT</em></td>";
-                        }
-
-                        echo "</tr>";
-                    }
-                    ?>
-                </tbody>
-            </table>
-            <div class="button-container">
-            <button onclick="location.href='editDienst.php?fahrzeug=<?php echo $fahrzeugId; ?>&dienst=<?php echo $dienstId; ?>'">Dienst bearbeiten</button>
-            <button onclick="location.href='neuerDienst.php'">Weiterer Dienst</button>
-            </div>
-
-            <?php else: ?>
-                <!-- Keine Dienste vorhanden -->
-                <section id="box">
-                    <h2 style="text-align: center;">Zum Anlegen eines Einsatzes muss zuerst ein Dienst eingetragen werden.</h2>
-                    <div class="button-container" style="text-align: center;">
-                    <button onclick="location.href='neuerDienst.php'" style="padding: 16px 20px;font-size: 1.1em;">Neuer Dienst</button>
+                                echo "</tr>";
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                    <div class="button-container">
+                        <button onclick="location.href='editDienst.php?fahrzeug=<?php echo $fahrzeugId; ?>&dienst=<?php echo $dienstId; ?>'">Dienst bearbeiten</button>
+                        <button onclick="location.href='neuerDienst.php'">Weiterer Dienst</button>
                     </div>
-                </section>
-            <?php endif; ?>
-
-        </section>
-            </div>
-
+                </div>
+            </section>
+        <?php else: ?>
+            <!-- Keine Dienste vorhanden -->
+            <section id="box">
+                <h2 style="text-align: center;">Zum Anlegen eines Einsatzes muss zuerst ein Dienst eingetragen werden.</h2>
+                <div class="button-container" style="text-align: center;">
+                    <button onclick="location.href='neuerDienst.php'" style="padding: 16px 20px;font-size: 1.1em;">Neuer Dienst</button>
+                </div>
+            </section>
+        <?php endif; ?>
 
         <!-- Letzte Einsätze -->
         <div class="responsive-form">
-        <section id="box" >
-            <h2>Letzte 10 Alarme</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Interne Einsatznummer</th>
-                        <th>Stichwort</th>
-                        <th>Alarmzeit</th>
-                        <th>Personal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    // SQL-Abfrage: Abrufen der letzten 15 Einsätze mit Besatzung und Personal
-                    $stmt = $pdo->query("
-                        SELECT e.interne_einsatznummer, e.alarmuhrzeit, e.fahrzeug_name, e.stichwort,
-                            p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf,
-                            p4.nachname AS atm, p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
-                        FROM einsaetze e
-                        LEFT JOIN dienste b ON e.dienst_id = b.id
-                        LEFT JOIN personal p1 ON b.stf_id = p1.id
-                        LEFT JOIN personal p2 ON b.ma_id = p2.id
-                        LEFT JOIN personal p3 ON b.atf_id = p3.id
-                        LEFT JOIN personal p4 ON b.atm_id = p4.id
-                        LEFT JOIN personal p5 ON b.wtf_id = p5.id
-                        LEFT JOIN personal p6 ON b.wtm_id = p6.id
-                        LEFT JOIN personal p7 ON b.prakt_id = p7.id
-                        ORDER BY 
-                            CAST(SUBSTRING_INDEX(e.interne_einsatznummer, '_', 1) AS UNSIGNED) DESC,
-                            CAST(SUBSTRING_INDEX(e.interne_einsatznummer, '_', -1) AS UNSIGNED) DESC
-                        LIMIT 10
-                    ");
+            <section id="box" >
+                <h2>Letzte 10 Alarme</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Interne Einsatznummer</th>
+                            <th>Stichwort</th>
+                            <th>Alarmzeit</th>
+                            <th>Personal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        // SQL-Abfrage: Abrufen der letzten 15 Einsätze mit Besatzung und Personal
+                        $stmt = $pdo->query("
+                            SELECT e.interne_einsatznummer, e.alarmuhrzeit, e.fahrzeug_name, e.stichwort,
+                                p1.nachname AS stf, p2.nachname AS ma, p3.nachname AS atf,
+                                p4.nachname AS atm, p5.nachname AS wtf, p6.nachname AS wtm, p7.nachname AS prakt
+                            FROM einsaetze e
+                            LEFT JOIN dienste b ON e.dienst_id = b.id
+                            LEFT JOIN personal p1 ON b.stf_id = p1.id
+                            LEFT JOIN personal p2 ON b.ma_id = p2.id
+                            LEFT JOIN personal p3 ON b.atf_id = p3.id
+                            LEFT JOIN personal p4 ON b.atm_id = p4.id
+                            LEFT JOIN personal p5 ON b.wtf_id = p5.id
+                            LEFT JOIN personal p6 ON b.wtm_id = p6.id
+                            LEFT JOIN personal p7 ON b.prakt_id = p7.id
+                            ORDER BY 
+                                CAST(SUBSTRING_INDEX(e.interne_einsatznummer, '_', 1) AS UNSIGNED) DESC,
+                                CAST(SUBSTRING_INDEX(e.interne_einsatznummer, '_', -1) AS UNSIGNED) DESC
+                            LIMIT 10
+                        ");
 
+                        // Ergebnisse anzeigen
+                        while ($row = $stmt->fetch()) {
+                            // Personal zusammenstellen
+                            $personal = [];
+                            if ($row['stf']) $personal[] = "StF: " . htmlspecialchars($row['stf']);
+                            if ($row['ma']) $personal[] = "Ma: " . htmlspecialchars($row['ma']);
+                            if ($row['atf']) $personal[] = "AtF: " . htmlspecialchars($row['atf']);
+                            if ($row['atm']) $personal[] = "AtM: " . htmlspecialchars($row['atm']);
+                            if ($row['wtf']) $personal[] = "WtF: " . htmlspecialchars($row['wtf']);
+                            if ($row['wtm']) $personal[] = "WtM: " . htmlspecialchars($row['wtm']);
+                            if ($row['prakt']) $personal[] = "Prakt: " . htmlspecialchars($row['prakt']);
 
-                    // Ergebnisse anzeigen
-                    while ($row = $stmt->fetch()) {
-                        // Personal zusammenstellen
-                        $personal = [];
-                        if ($row['stf']) $personal[] = "StF: " . htmlspecialchars($row['stf']);
-                        if ($row['ma']) $personal[] = "Ma: " . htmlspecialchars($row['ma']);
-                        if ($row['atf']) $personal[] = "AtF: " . htmlspecialchars($row['atf']);
-                        if ($row['atm']) $personal[] = "AtM: " . htmlspecialchars($row['atm']);
-                        if ($row['wtf']) $personal[] = "WtF: " . htmlspecialchars($row['wtf']);
-                        if ($row['wtm']) $personal[] = "WtM: " . htmlspecialchars($row['wtm']);
-                        if ($row['prakt']) $personal[] = "Prakt: " . htmlspecialchars($row['prakt']);
-
-                        echo "<tr>
-                                <td>" . htmlspecialchars($row['interne_einsatznummer']) . "</td>
-                                <td>" . htmlspecialchars($row['stichwort']) . "</td>
-                                <td>" . htmlspecialchars($row['alarmuhrzeit']) . "</td>
-                                <td>
-                                    <details>
-                                        <summary>Details anzeigen</summary>
-                                        " . implode('<br>', $personal) . "
-                                    </details>
-                                </td>
-                              </tr>";
-                    }
-                    ?>
-                </tbody>
-            </table>
-            <div class="button-container">
-                <button onclick="location.href='historie.php'">Alle Alarme</button>
-                <button onclick="location.href='alarm.php'">Alarm nachtragen</button>
-            </div>
-        </section>
+                            echo "<tr>
+                                    <td>" . htmlspecialchars($row['interne_einsatznummer']) . "</td>
+                                    <td>" . htmlspecialchars($row['stichwort']) . "</td>
+                                    <td>" . htmlspecialchars($row['alarmuhrzeit']) . "</td>
+                                    <td>
+                                        <details>
+                                            <summary>Details anzeigen</summary>
+                                            " . implode('<br>', $personal) . "
+                                        </details>
+                                    </td>
+                                  </tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
+                <div class="button-container">
+                    <button onclick="location.href='historie.php'">Alle Alarme</button>
+                    <button onclick="location.href='alarm.php'">Alarm nachtragen</button>
+                </div>
+            </section>
         </div>
-
 
         <!-- letzten 5 Dienste -->
         <section id="box">
@@ -371,8 +360,6 @@ if ($zeitResult) {
                             echo "<tr>";
                             echo "<td>" . htmlspecialchars($dienst['inDienstZeit']) . " - " . htmlspecialchars($dienst['ausserDienstZeit']) . " (" . $dauer_formatiert . " h)" . "</td>";
 
-
-                            
                             // Alarme (Stichworte) ausklappbar
                             echo "<td>
                                     <details>
@@ -402,27 +389,23 @@ if ($zeitResult) {
                         ?>
                     </tbody>
                 </table>
-                    <div class="button-container">
-                        <button onclick="location.href='alleDienste.php'">Alle Dienste</button>
-                    </div>
+                <div class="button-container">
+                    <button onclick="location.href='alleDienste.php'">Alle Dienste</button>
+                </div>
             </div>
-            
         </section>
 
         <!-- Navigation als Buttons -->
         <section id="box">
             <div class="responsive-form">
-                    <h2>Statistiken</h2>
-                    <div class="button-container">
-                        <button style="margin-bottom: 5px;" onclick="location.href='statistiken.php'">Gesamtstatistiken</button>
-                        <button onclick="location.href='statistiken_personal.php?person_id=<?= $userID ?>'">Personal-Statistiken</button>
-                        <button onclick="location.href='einsatzentwicklung.php'">Einsatzentwicklung</button>
-                    </div>
+                <h2>Statistiken</h2>
+                <div class="button-container">
+                    <button style="margin-bottom: 5px;" onclick="location.href='statistiken.php'">Gesamtstatistiken</button>
+                    <button onclick="location.href='statistiken_personal.php?person_id=<?= $userID ?>'">Personal-Statistiken</button>
+                    <button onclick="location.href='einsatzentwicklung.php'">Einsatzentwicklung</button>
+                </div>
             </div>
         </section>
-
-
-
 
         <!-- Navigation als Buttons -->
         <section id="box">
@@ -442,120 +425,116 @@ if ($zeitResult) {
                 <div class="button-container">
                     <form action="export_einsaetze.php" method="post">
                         <label for="monat">Monat:</label>
-                            <select id="monat" name="monat" required>
-                                <option value="01">Januar</option>
-                                <option value="02">Februar</option>
-                                <option value="03">März</option>
-                                <option value="04">April</option>
-                                <option value="05">Mai</option>
-                                <option value="06">Juni</option>
-                                <option value="07">Juli</option>
-                                <option value="08">August</option>
-                                <option value="09">September</option>
-                                <option value="10">Oktober</option>
-                                <option value="11">November</option>
-                                <option value="12">Dezember</option>
-                            </select>
+                        <select id="monat" name="monat" required>
+                            <option value="01">Januar</option>
+                            <option value="02">Februar</option>
+                            <option value="03">März</option>
+                            <option value="04">April</option>
+                            <option value="05">Mai</option>
+                            <option value="06">Juni</option>
+                            <option value="07">Juli</option>
+                            <option value="08">August</option>
+                            <option value="09">September</option>
+                            <option value="10">Oktober</option>
+                            <option value="11">November</option>
+                            <option value="12">Dezember</option>
+                        </select>
 
                         <label for="jahr">Jahr:</label>
-                            <input type="number" id="jahr" name="jahr" value="<?= date('Y') ?>" required>
+                        <input type="number" id="jahr" name="jahr" value="<?= date('Y') ?>" required>
 
-                <button type="submit">Einsätze exportieren</button>
-
+                        <button type="submit">Einsätze exportieren</button>
+                    </form>
                 </div>
             </div>
         </section>
     </main>
+
     <script>
-    function initAutocomplete() {
-        const addressInput = document.getElementById("address-input");
-        const latitudeEl = document.getElementById("latitude");
-        const longitudeEl = document.getElementById("longitude");
-        const districtEl = document.getElementById("stadtteil"); // Das Stadtteil-Feld
+        function initAutocomplete() {
+            const addressInput = document.getElementById("address-input");
+            const latitudeEl = document.getElementById("latitude");
+            const longitudeEl = document.getElementById("longitude");
+            const districtEl = document.getElementById("stadtteil"); // Das Stadtteil-Feld
 
-        const berlinBounds = {
-            north: 52.6755,
-            south: 52.3383,
-            east: 13.7612,
-            west: 13.0884,
-        };
+            const berlinBounds = {
+                north: 52.6755,
+                south: 52.3383,
+                east: 13.7612,
+                west: 13.0884,
+            };
 
-        const options = {
-            types: ["geocode", "establishment"], // Parks und andere Orte einbeziehen
-            componentRestrictions: { country: "DE" },
-            fields: ["address_components", "geometry", "name"], // Name für Orte wie Parks hinzufügen
-        };
+            const options = {
+                types: ["geocode", "establishment"], // Parks und andere Orte einbeziehen
+                componentRestrictions: { country: "DE" },
+                fields: ["address_components", "geometry", "name"], // Name für Orte wie Parks hinzufügen
+            };
 
-        const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
-        autocomplete.setBounds(new google.maps.LatLngBounds(
-            { lat: berlinBounds.south, lng: berlinBounds.west },
-            { lat: berlinBounds.north, lng: berlinBounds.east }
-        ));
-        autocomplete.setOptions({ strictBounds: true });
+            const autocomplete = new google.maps.places.Autocomplete(addressInput, options);
+            autocomplete.setBounds(new google.maps.LatLngBounds(
+                { lat: berlinBounds.south, lng: berlinBounds.west },
+                { lat: berlinBounds.north, lng: berlinBounds.east }
+            ));
+            autocomplete.setOptions({ strictBounds: true });
 
-        autocomplete.addListener("place_changed", () => {
-            const place = autocomplete.getPlace();
+            autocomplete.addListener("place_changed", () => {
+                const place = autocomplete.getPlace();
 
-            if (!place.geometry || !place.geometry.location) {
-                alert("Koordinaten konnten nicht bestimmt werden.");
-                return;
-            }
-
-            const latitude = place.geometry.location.lat();
-            const longitude = place.geometry.location.lng();
-            latitudeEl.value = latitude.toFixed(10); // Genauigkeit von 10 Dezimalstellen
-            longitudeEl.value = longitude.toFixed(10);
-
-            // Adresse oder Parkname ermitteln
-            const placeName = place.name || ""; // Name des Ortes, z. B. Parkname
-            let formattedAddress = placeName;
-
-            // Kreuzungen erkennen
-            const intersection = place.address_components.find(comp => comp.types.includes("intersection"));
-            if (intersection) {
-                formattedAddress = intersection.long_name;
-            } else {
-                // Standard: Straße und Hausnummer kombinieren
-                const street = place.address_components.find(comp => comp.types.includes("route"));
-                const streetNumber = place.address_components.find(comp => comp.types.includes("street_number"));
-
-                formattedAddress = street ? street.long_name : "";
-                if (streetNumber) {
-                    formattedAddress += " " + streetNumber.long_name;
+                if (!place.geometry || !place.geometry.location) {
+                    alert("Koordinaten konnten nicht bestimmt werden.");
+                    return;
                 }
+
+                const latitude = place.geometry.location.lat();
+                const longitude = place.geometry.location.lng();
+                latitudeEl.value = latitude.toFixed(10); // Genauigkeit von 10 Dezimalstellen
+                longitudeEl.value = longitude.toFixed(10);
+
+                // Adresse oder Parkname ermitteln
+                const placeName = place.name || ""; // Name des Ortes, z. B. Parkname
+                let formattedAddress = placeName;
+
+                // Kreuzungen erkennen
+                const intersection = place.address_components.find(comp => comp.types.includes("intersection"));
+                if (intersection) {
+                    formattedAddress = intersection.long_name;
+                } else {
+                    // Standard: Straße und Hausnummer kombinieren
+                    const street = place.address_components.find(comp => comp.types.includes("route"));
+                    const streetNumber = place.address_components.find(comp => comp.types.includes("street_number"));
+
+                    formattedAddress = street ? street.long_name : "";
+                    if (streetNumber) {
+                        formattedAddress += " " + streetNumber.long_name;
+                    }
+                    addressInput.value = formattedAddress.trim();
+                }
+
+                // Setze die berechnete Adresse in das Eingabefeld
                 addressInput.value = formattedAddress.trim();
-            }
 
-            
+                // Stadtteil ermitteln
+                const district = place.address_components.find(comp =>
+                    comp.types.includes("sublocality") || 
+                    comp.types.includes("locality") || 
+                    comp.types.includes("administrative_area_level_2")
+                );
 
-            // Setze die berechnete Adresse in das Eingabefeld
-            addressInput.value = formattedAddress.trim();
+                if (district) {
+                    // Entferne das Präfix "Bezirk" und setze nur den Stadtteil
+                    districtEl.value = district.long_name.replace(/^Bezirk\s+/i, "").trim();
+                } else {
+                    districtEl.value = "Stadtteil nicht gefunden"; // Fallback
+                }
 
+                // Debug: Stadtteil prüfen
+                console.log("Gefundener Stadtteil: ", district ? district.long_name : "Kein Stadtteil");
+                console.log("Ort gefunden: ", placeName);
+            });
+        }
 
-            // Stadtteil ermitteln
-            const district = place.address_components.find(comp =>
-                comp.types.includes("sublocality") || 
-                comp.types.includes("locality") || 
-                comp.types.includes("administrative_area_level_2")
-            );
-
-            if (district) {
-                // Entferne das Präfix "Bezirk" und setze nur den Stadtteil
-                districtEl.value = district.long_name.replace(/^Bezirk\s+/i, "").trim();
-            } else {
-                districtEl.value = "Stadtteil nicht gefunden"; // Fallback
-            }
-
-
-            // Debug: Stadtteil prüfen
-            console.log("Gefundener Stadtteil: ", district ? district.long_name : "Kein Stadtteil");
-            console.log("Ort gefunden: ", placeName);
-        });
-    }
-
-    // Initialisierung der Autocomplete-Funktion, nachdem die Seite geladen ist
-    document.addEventListener("DOMContentLoaded", initAutocomplete);
-
-</script>
+        // Initialisierung der Autocomplete-Funktion, nachdem die Seite geladen ist
+        document.addEventListener("DOMContentLoaded", initAutocomplete);
+    </script>
 </body>
 </html>

@@ -29,8 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Benutzer hinzufügen">
-    <title>Neuen Benutzer hinzufügen
-    </title>
+    <title>Neuen Benutzer hinzufügen</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -51,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div>
                    <br />
                 </div>
-                
                 <div>
                     <button type="submit">Benutzer hinzufügen</button>
                 </div>

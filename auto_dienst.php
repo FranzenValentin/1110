@@ -5,14 +5,13 @@ $error = '';
 $zuweisungDetails = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    var_dump($_POST); // Debugging: Zeige die POST-Daten an
+    var_dump($_POST);
     $anwesende = isset($_POST['anwesende']) ? $_POST['anwesende'] : [];
 
     if (empty($anwesende)) {
         $error = "Keine anwesenden Personen angegeben.";
     } else {
         try {
-            // Schritt 1: Daten der letzten 3 Monate abrufen
             $threeMonthsAgo = date('Y-m-d H:i:s', strtotime('-3 months'));
 
             $dienstHistoryQuery = "
@@ -225,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const ids = Array.from(selected.children)
                 .filter(child => child.classList.contains('person'))
                 .map(person => person.dataset.id);
-            console.log(ids); // Debugging: Zeige die IDs in der Konsole an
+            console.log(ids);
             input.value = ids.join(',');
         }
     </script>

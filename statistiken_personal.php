@@ -22,7 +22,6 @@ try {
     $personalStmt = $pdo->query("SELECT id, CONCAT(vorname, ' ', nachname) AS name FROM personal ORDER BY nachname");
     $personal = $personalStmt->fetchAll(PDO::FETCH_ASSOC);
 
-
     // Einsätze und Verteilungen nur abrufen, wenn eine Person ausgewählt ist
     $einsaetze = [];
     $funktionenVerteilung = [];
@@ -77,7 +76,6 @@ try {
         ':enddatum' => $enddatum
         ]);
         $funktionenVerteilung = $funktionenStmt->fetchAll(PDO::FETCH_ASSOC);
-
 
         // Gesamtanzahl der Einsätze im Zeitraum
         $totalEinsaetzeStmt = $pdo->prepare("
@@ -274,8 +272,6 @@ try {
             <p>Keine Daten zur Verteilung der Funktionen verfügbar.</p>
         <?php endif; ?>
     </section>
-
-
 
     <!-- Anzeige der Einsätze -->
     <section id="box">

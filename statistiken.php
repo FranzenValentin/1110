@@ -98,9 +98,6 @@ try {
     $error = "Fehler beim Laden der Daten nach Kategorien: " . htmlspecialchars($e->getMessage());
 }
 
-
-
-
 // Heatmap-Daten aus der Datenbank abrufen
 try {
     $pinQuery = $pdo->prepare("
@@ -117,10 +114,7 @@ try {
 } catch (PDOException $e) {
     $error = "Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage());
 }
-
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="de">
@@ -135,10 +129,6 @@ try {
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-
-
-
 </head>
 <body>
 <header>
@@ -165,49 +155,48 @@ try {
         </form>
     </section>
 
-
     <!-- Anzeige der Statistiken -->
     <section id="box">
-    <h2>Statistiken für den Zeitraum 
-        <?php 
-        try {
-            // Startdatum und Enddatum in DateTime-Objekte umwandeln
-            $startdatumObj = new DateTime($startdatum);
-            $enddatumObj = new DateTime($enddatum);
+        <h2>Statistiken für den Zeitraum 
+            <?php 
+            try {
+                // Startdatum und Enddatum in DateTime-Objekte umwandeln
+                $startdatumObj = new DateTime($startdatum);
+                $enddatumObj = new DateTime($enddatum);
 
-            // Zeitraum korrekt formatieren und anzeigen
-            echo htmlspecialchars($startdatumObj->format('d.m.Y')) . " bis " . htmlspecialchars($enddatumObj->format('d.m.Y'));
-        } catch (Exception $e) {
-            echo "Ungültiger Zeitraum"; // Fallback-Anzeige bei Fehlern
-        }
-        ?>
-    </h2>
-    <?php if (isset($error)): ?>
-        <p><?= htmlspecialchars($error) ?></p>
-    <?php else: ?>
-        <p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($totalEinsaetze) ?></strong></p>
+                // Zeitraum korrekt formatieren und anzeigen
+                echo htmlspecialchars($startdatumObj->format('d.m.Y')) . " bis " . htmlspecialchars($enddatumObj->format('d.m.Y'));
+            } catch (Exception $e) {
+                echo "Ungültiger Zeitraum"; // Fallback-Anzeige bei Fehlern
+            }
+            ?>
+        </h2>
+        <?php if (isset($error)): ?>
+            <p><?= htmlspecialchars($error) ?></p>
+        <?php else: ?>
+            <p>Gesamtanzahl der Einsätze: <strong><?= htmlspecialchars($totalEinsaetze) ?></strong></p>
 
             <?php if (!empty($einsaetzeNachKategorie)): ?>
-                    <?php foreach ($einsaetzeNachKategorie as $kategorie): ?>
-                            <strong><?= htmlspecialchars($kategorie['kategorie']) ?>:</strong> 
-                            <?= htmlspecialchars($kategorie['anzahl']) ?>
-                            </br>
-                    <?php endforeach; ?>
+                <?php foreach ($einsaetzeNachKategorie as $kategorie): ?>
+                    <strong><?= htmlspecialchars($kategorie['kategorie']) ?>:</strong> 
+                    <?= htmlspecialchars($kategorie['anzahl']) ?>
+                    </br>
+                <?php endforeach; ?>
             <?php endif; ?>
 
-        <?php if ($totalEinsaetze != 0): ?>
-            <p>Durchschnittliche Einsatzdauer: <strong><?= htmlspecialchars(round($durchschnittsdauer, 2)) ?> Minuten</strong></p>
+            <?php if ($totalEinsaetze != 0): ?>
+                <p>Durchschnittliche Einsatzdauer: <strong><?= htmlspecialchars(round($durchschnittsdauer, 2)) ?> Minuten</strong></p>
+            <?php endif; ?>
         <?php endif; ?>
-    <?php endif; ?>
-</section>
+    </section>
 
     <!-- Diagramm für häufigste Stichworte -->
-     <section id="box">
+    <section id="box">
         <?php if ($totalEinsaetze != 0): ?>
-        <h2>Häufigste Stichworte</h2>    
+            <h2>Häufigste Stichworte</h2>    
         <?php endif; ?>
         
-        <canvas id="stichwortChart" ></canvas>
+        <canvas id="stichwortChart"></canvas>
         <script>
             const stichwortLabels = <?= json_encode(array_column($stichworte, 'stichwort')) ?>;
             const stichwortData = <?= json_encode(array_column($stichworte, 'anzahl')) ?>;
@@ -273,130 +262,119 @@ try {
                 }
             });
         </script>
-
     </section>
 
-<section id="box">
-    <h2>Heatmap</h2>
-    <div id="map" style="width: 100%; height: 700px;"></div>
-    <script>
-    // Karte initialisieren
-    const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
+    <section id="box">
+        <h2>Heatmap</h2>
+        <div id="map" style="width: 100%; height: 700px;"></div>
+        <script>
+            // Karte initialisieren
+            const map = L.map('map').setView([52.5200, 13.4050], 11); // Berlin-Zentrum
 
-    // Tile Layer hinzufügen (OpenStreetMap)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+            // Tile Layer hinzufügen (OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
 
-    // Cluster-Gruppe erstellen
-    const markers = L.markerClusterGroup({
-        disableClusteringAtZoom: 15 // Gruppierung wird ab Zoom-Level 15 aufgehoben
-    });
-
-    // Pin-Daten aus der Datenbank
-    const pinData = <?= json_encode($pinData) ?>;
-
-    // Koordinaten gruppieren
-    const groupedPins = {};
-    pinData.forEach(pin => {
-        const key = `${pin.latitude},${pin.longitude}`;
-        if (!groupedPins[key]) {
-            groupedPins[key] = { coords: [parseFloat(pin.latitude), parseFloat(pin.longitude)], details: [] };
-        }
-        groupedPins[key].details.push(pin);
-    });
-
-    // Punkte verarbeiten
-    Object.values(groupedPins).forEach(group => {
-        const { coords, details } = group;
-
-        // Sicherstellen, dass die Koordinaten valide sind
-        if (!coords || coords.some(coord => isNaN(coord))) {
-            return; // Überspringt Einsätze ohne gültige Koordinaten
-        }
-
-        if (details.length === 1) {
-            // Einzelner Punkt
-            const pin = details[0];
-            const redIcon = L.divIcon({
-                className: 'custom-div-icon',
-                html: "<div style='background-color: red; width: 10px; height: 10px; border-radius: 50%;'></div>",
-                iconSize: [10, 10],
-                iconAnchor: [5, 5] // Zentriert den Marker
-            });
-            const marker = L.marker(coords, { icon: redIcon });
-
-            // Popup-Inhalt
-            marker.bindPopup(`
-                <strong>Stichwort:</strong> ${pin.stichwort}<br>
-                <strong>Datum:</strong> ${pin.alarmuhrzeit}
-            `);
-
-            // Marker zur Cluster-Gruppe hinzufügen
-            markers.addLayer(marker);
-
-        } else {
-            // Gruppierte Punkte
-            const count = details.length;
-            const markerSize = 15 + count; // Größe anpassen
-
-            const groupIcon = L.divIcon({
-                className: 'custom-div-icon',
-                html: `<div style='
-                    background-color: red;
-                    width: ${markerSize}px;
-                    height: ${markerSize}px;
-                    border-radius: 50%;
-                    color: white;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 12px;
-                    font-weight: bold;
-                '>${count}</div>`,
-                iconSize: [markerSize, markerSize],
-                iconAnchor: [markerSize / 2, markerSize / 2] // Zentriert den Marker
+            // Cluster-Gruppe erstellen
+            const markers = L.markerClusterGroup({
+                disableClusteringAtZoom: 15 // Gruppierung wird ab Zoom-Level 15 aufgehoben
             });
 
-            const marker = L.marker(coords, { icon: groupIcon });
+            // Pin-Daten aus der Datenbank
+            const pinData = <?= json_encode($pinData) ?>;
 
-            // Popup-Inhalt für Gruppierungen
-            const popupContent = `
-                <strong>Einsatzdetails (${count}):</strong>
-                <ul>
-                    ${details
-                        .map(
-                            detail =>
-                                `<li>
-                                    <strong>Stichwort:</strong> ${detail.stichwort}<br>
-                                    <strong>Datum:</strong> ${detail.alarmuhrzeit}<br>
-                                </li>`
-                        )
-                        .join('')}
-                </ul>
-            `;
-            marker.bindPopup(popupContent);
+            // Koordinaten gruppieren
+            const groupedPins = {};
+            pinData.forEach(pin => {
+                const key = `${pin.latitude},${pin.longitude}`;
+                if (!groupedPins[key]) {
+                    groupedPins[key] = { coords: [parseFloat(pin.latitude), parseFloat(pin.longitude)], details: [] };
+                }
+                groupedPins[key].details.push(pin);
+            });
 
-            // Marker zur Cluster-Gruppe hinzufügen
-            markers.addLayer(marker);
-        }
-    });
+            // Punkte verarbeiten
+            Object.values(groupedPins).forEach(group => {
+                const { coords, details } = group;
 
+                // Sicherstellen, dass die Koordinaten valide sind
+                if (!coords || coords.some(coord => isNaN(coord))) {
+                    return; // Überspringt Einsätze ohne gültige Koordinaten
+                }
 
-    // Cluster-Gruppe zur Karte hinzufügen
-    map.addLayer(markers);
-</script>
+                if (details.length === 1) {
+                    // Einzelner Punkt
+                    const pin = details[0];
+                    const redIcon = L.divIcon({
+                        className: 'custom-div-icon',
+                        html: "<div style='background-color: red; width: 10px; height: 10px; border-radius: 50%;'></div>",
+                        iconSize: [10, 10],
+                        iconAnchor: [5, 5] // Zentriert den Marker
+                    });
+                    const marker = L.marker(coords, { icon: redIcon });
 
+                    // Popup-Inhalt
+                    marker.bindPopup(`
+                        <strong>Stichwort:</strong> ${pin.stichwort}<br>
+                        <strong>Datum:</strong> ${pin.alarmuhrzeit}
+                    `);
 
+                    // Marker zur Cluster-Gruppe hinzufügen
+                    markers.addLayer(marker);
 
+                } else {
+                    // Gruppierte Punkte
+                    const count = details.length;
+                    const markerSize = 15 + count; // Größe anpassen
 
+                    const groupIcon = L.divIcon({
+                        className: 'custom-div-icon',
+                        html: `<div style='
+                            background-color: red;
+                            width: ${markerSize}px;
+                            height: ${markerSize}px;
+                            border-radius: 50%;
+                            color: white;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 12px;
+                            font-weight: bold;
+                        '>${count}</div>`,
+                        iconSize: [markerSize, markerSize],
+                        iconAnchor: [markerSize / 2, markerSize / 2] // Zentriert den Marker
+                    });
 
+                    const marker = L.marker(coords, { icon: groupIcon });
 
+                    // Popup-Inhalt für Gruppierungen
+                    const popupContent = `
+                        <strong>Einsatzdetails (${count}):</strong>
+                        <ul>
+                            ${details
+                                .map(
+                                    detail =>
+                                        `<li>
+                                            <strong>Stichwort:</strong> ${detail.stichwort}<br>
+                                            <strong>Datum:</strong> ${detail.alarmuhrzeit}<br>
+                                        </li>`
+                                )
+                                .join('')}
+                        </ul>
+                    `;
+                    marker.bindPopup(popupContent);
 
-</section>
+                    // Marker zur Cluster-Gruppe hinzufügen
+                    markers.addLayer(marker);
+                }
+            });
 
-
+            // Cluster-Gruppe zur Karte hinzufügen
+            map.addLayer(markers);
+        </script>
+    </section>
 </main>
 </body>
 </html>

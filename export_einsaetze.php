@@ -50,7 +50,7 @@ $sheet->getStyle('A1')->applyFromArray([
 // Header für die Tabelle
 $headers = [
     'A2' => 'Interne Einsatznummer',
-    'B2' => 'Einsatznummer',
+    'B2' => 'Einsatznummer LTS',
     'C2' => 'Stichwort',
     'D2' => 'Alarmzeit',
     'E2' => 'Zurückzeit',

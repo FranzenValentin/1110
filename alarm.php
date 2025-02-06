@@ -17,10 +17,10 @@ require 'parts/db.php';
         <h1>Alarme nachtragen</h1>
         <?php include 'parts/menue.php'; ?>
     </header>
-    
+
     <main>
         <?php include 'parts/new_alarm.php'; ?>
     </main>
-    
+
 </body>
 </html>

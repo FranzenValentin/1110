@@ -43,7 +43,7 @@ function loadEnv($filePath)
 
             // Entferne Anführungszeichen, falls vorhanden
             $value = trim($value, '"\'');
-            
+
             // Speichere die Variable in $_ENV und $_SERVER
             $_ENV[$key] = $value;
             $_SERVER[$key] = $value;

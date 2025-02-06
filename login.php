@@ -109,12 +109,10 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') 
         document.addEventListener("DOMContentLoaded", function () {
             const usernameInput = document.getElementById("username");
 
-            // Beim Klicken in das Eingabefeld wird der Text gelöscht
             usernameInput.addEventListener("focus", function () {
                 usernameInput.value = "";
             });
 
-            // Setze den letzten Benutzer, falls vorhanden
             const lastUser = "<?= htmlspecialchars($lastLoggedUser ?? '') ?>";
             if (lastUser) {
                 usernameInput.value = lastUser;
@@ -132,8 +130,8 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') 
                 <div class="form-group">
                     <label for="username">Benutzername:</label>
                     <div class="form-group">
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             id="username" 
                             name="username" 
                             placeholder="Vorname Nachname" 
@@ -171,7 +169,7 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') 
         const usernameInput = document.getElementById("username");
         const suggestionsList = document.getElementById("suggestions");
 
-        // Event: Eingabe in das Benutzernamenfeld
+        // Event: E ingabe in das Benutzernamenfeld
         usernameInput.addEventListener("input", async () => {
             const query = usernameInput.value.trim();
             if (query.length < 2) {

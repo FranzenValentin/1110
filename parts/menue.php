@@ -5,7 +5,7 @@
         margin: 0;
         padding: 0;
     }
-
+    
     /* Menü-Container */
     .menu-container {
         position: absolute;
@@ -53,7 +53,8 @@
         font-size: 1em;
     }
 
-    .dropdown-menu a, .dropdown-menu button {
+    .dropdown-menu a, 
+    .dropdown-menu button {
         display: block;
         width: 100%;
         padding: 12px;
@@ -67,7 +68,8 @@
         transition: background-color 0.3s ease-in-out;
     }
 
-    .dropdown-menu a:hover, .dropdown-menu button:hover {
+    .dropdown-menu a:hover,
+    .dropdown-menu button:hover {
         background-color: #f1f1f1;
     }
 
@@ -127,7 +129,8 @@
             width: 150px;
         }
 
-        .dropdown-menu a, .dropdown-menu button {
+        .dropdown-menu a,
+        .dropdown-menu button {
             font-size: 12px;
             padding: 10px;
         }
@@ -143,7 +146,8 @@
             width: 130px;
         }
 
-        .dropdown-menu a, .dropdown-menu button {
+        .dropdown-menu a,
+        .dropdown-menu button {
             font-size: 11px;
             padding: 8px;
         }
@@ -156,7 +160,9 @@
 
     <!-- Dropdown-Menü -->
     <div class="dropdown-menu" id="userMenu">
-        <h3><?php echo htmlspecialchars($firstName . ' ' . $lastName); ?></h3>
+        <h3>
+            <?php echo htmlspecialchars($firstName . ' ' . $lastName); ?>
+        </h3>
         <a href="edit_code.php">Code bearbeiten</a>
         <button class="logout-button" onclick="window.location.href='parts/logout.php'">Logout</button>
     </div>
@@ -167,8 +173,6 @@
         </div>
     <?php endif; ?>
 </div>
-
-
 
 <script>
     function toggleMenu() {

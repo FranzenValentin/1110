@@ -2,10 +2,9 @@
 require_once 'parts/session_check.php';
 require 'parts/db.php';
 
-$user_id = $_SESSION['last_user_id']; // Benutzer-ID aus der Session
+$user_id = $_SESSION['last_user_id'];
 $error = $success = "";
 
-// Wenn das Formular abgeschickt wird
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $current_code = trim($_POST['current_code']);
     $new_code = trim($_POST['new_code']);
@@ -19,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Der neue Zugangscode muss mindestens 4 Ziffern lang sein.";
     } else {
         try {
-            // Aktuellen Code überprüfen
             $stmt = $pdo->prepare("SELECT code FROM personal WHERE id = :user_id");
             $stmt->execute(['user_id' => $user_id]);
             $stored_code = $stmt->fetchColumn();
@@ -29,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif ((string)$stored_code !== $current_code) {
                 $error = "Der aktuelle Zugangscode ist falsch. (Eingegeben: $current_code, Gespeichert: $stored_code)";
             } else {
-                // Neuen Code speichern
                 $stmt = $pdo->prepare("UPDATE personal SET code = :new_code WHERE id = :user_id");
                 $stmt->execute(['new_code' => $new_code, 'user_id' => $user_id]);
 
