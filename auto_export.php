@@ -3,7 +3,7 @@ session_start();
 require 'parts/db.php';
 
 try {
-    loadEnv(__DIR__ . '/../../config.env');
+    loadEnv(__DIR__ . '/../config.env');
 } catch (Exception $e) {
     echo "Fehler: " . $e->getMessage();
 }
