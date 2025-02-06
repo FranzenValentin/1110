@@ -1,5 +1,5 @@
 <?php
-require_once 'parts/session_check.php';
+//require_once 'parts/session_check.php';
 require 'parts/db.php';
 
 $autoloadPath = "../vendor/autoload.php";
