@@ -109,14 +109,14 @@ $mail = new PHPMailer(true);
 
 try {
     $mail->isSMTP();
-    $mail->Host = 'einsaetze.ffmitte.de'; // SMTP-Server
+    $mail->Host = ' smtp.web.de'; // SMTP-Server
     $mail->SMTPAuth = true;
-    $mail->Username = 'portal'; // Benutzername
+    $mail->Username = 'valentinfranzen'; // Benutzername
     $mail->Password = $mailpassword;    // Passwort
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-    $mail->Port = 465;
+    $mail->Port = 587;
 
-    $mail->setFrom('portal@einsaetze.ffmitte.de', 'Feuerwehr Einsätze');
+    $mail->setFrom('valentinfranzen@web.de', 'Feuerwehr Einsätze');
     $mail->addAddress('valentinfranzen@web.de');
     //$mail->addAddress('recipient2@example.com'); // Weitere Empfänger
 
