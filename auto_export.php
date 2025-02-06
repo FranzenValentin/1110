@@ -108,28 +108,42 @@ $writer->save($exportPath);
 $mail = new PHPMailer(true);
 
 try {
+    $mail = new PHPMailer(true); // Stelle sicher, dass PHPMailer korrekt instanziiert ist
     $mail->isSMTP();
-    $mail->Host = ' smtp.web.de'; // SMTP-Server
+    $mail->Host = 'smtp.web.de'; // KORREKT
     $mail->SMTPAuth = true;
-    $mail->Username = 'valentinfranzen'; // Benutzername
-    $mail->Password = $mailpassword;    // Passwort
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-    $mail->Port = 587;
+    $mail->Username = 'valentinfranzen@web.de'; // GESAMTE E-MAIL als Benutzername
+    $mail->Password = $mailpassword; // NUR App-Passwort verwenden
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // KORREKT für Port 587
+    $mail->Port = 587; // KORREKT für Web.de
 
+    // Absender und Empfänger
     $mail->setFrom('valentinfranzen@web.de', 'Feuerwehr Einsätze');
-    $mail->addAddress('valentinfranzen@web.de');
-    //$mail->addAddress('recipient2@example.com'); // Weitere Empfänger
+    $mail->addAddress('valentinfranzen@web.de'); // Empfänger
 
+    // Debugging aktivieren (nur während der Fehlersuche)
+    $mail->SMTPDebug = 2; 
+    $mail->Debugoutput = 'html';
+
+    // E-Mail-Inhalt
     $mail->isHTML(true);
     $mail->Subject = "Automatischer Export - Einsätze $monat/$jahr";
     $mail->Body = "Im Anhang finden Sie den Export der Einsätze für $monat/$jahr.";
-    $mail->addAttachment($exportPath);
+
+    // Datei anhängen
+    if (file_exists($exportPath)) {
+        $mail->addAttachment($exportPath);
+    } else {
+        echo "Fehler: Anhang nicht gefunden!";
+        exit;
+    }
 
     $mail->send();
     echo "E-Mail erfolgreich gesendet.";
 } catch (Exception $e) {
     echo "E-Mail konnte nicht gesendet werden. Fehler: {$mail->ErrorInfo}";
 }
+
 
 // Temporäre Datei löschen
 unlink($exportPath);
