@@ -1,5 +1,10 @@
 <?php
-//require_once 'parts/session_check.php';
+session_start();
+if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
+    header('Location: ../login.php');
+    exit("Zugriff verweigert. Bitte melden Sie sich an.");
+}
+
 require 'parts/db.php';
 
 $autoloadPath = "../vendor/autoload.php";
