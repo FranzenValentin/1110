@@ -110,18 +110,19 @@ $mail = new PHPMailer(true);
 try {
     $mail = new PHPMailer(true); // Stelle sicher, dass PHPMailer korrekt instanziiert ist
     $mail->isSMTP();
-    $mail->Host = 'smtp.ffmitte.de'; // KORREKT
+    $mail->Host = 'smtp.ionos.de'; // IONOS SMTP-Server
     $mail->SMTPAuth = true;
-    $mail->Username = 'einsaetze@ffmitte.de'; // GESAMTE E-MAIL als Benutzername
-    $mail->Password = $mailpassword; // NUR App-Passwort verwenden
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // KORREKT für Port 587
-    $mail->Port = 587; // KORREKT für Web.de
+    $mail->Username = 'einsaetze@ffmitte.de'; // Deine IONOS-E-Mail-Adresse
+    $mail->Password = $mailpassword; // NUR App-Passwort oder reguläres Passwort verwenden
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // STARTTLS für Port 587
+    $mail->Port = 587; // 587 für STARTTLS, alternativ 465 für SSL
 
     // Absender und Empfänger
     $mail->setFrom('einsaetze@ffmitte.de', 'Einsatzverwaltungssystem 1110');
-    $mail->addAddress('valentinfranzen@web.de'); // Empfänger
+    $mail->addAddress('valentinfranzen@web.de'); // Empfänger-Adresse
+    //$mail->addAddress('zweiter-empfaenger@beispiel.de'); // Falls weitere Empfänger gewünscht
 
-    // Debugging aktivieren (nur während der Fehlersuche)
+    // Debugging aktivieren (nur während der Fehlersuche, danach auskommentieren)
     $mail->SMTPDebug = 2; 
     $mail->Debugoutput = 'html';
 
