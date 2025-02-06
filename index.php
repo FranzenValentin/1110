@@ -419,6 +419,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
         </section>
 
         <!--Export -->
+        <!-- 
         <section id="box">
             <div class="responsive-form">
                 <h2>Export der Einsätze</h2>
@@ -448,6 +449,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
                 </div>
             </div>
         </section>
+        -->
     </main>
 
     <script>
