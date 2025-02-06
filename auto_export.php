@@ -121,21 +121,15 @@ try {
     $mail->setFrom('einsaetze@ffmitte.de', 'Einsatzverwaltungssystem 1110');
     $mail->addAddress('valentinfranzen@web.de'); // Empfänger
 
-    // Debugging aktivieren (nur während der Fehlersuche, danach auskommentieren)
-    $mail->SMTPDebug = 2; 
-    $mail->Debugoutput = 'html';
-
     // E-Mail-Inhalt
     $mail->isHTML(true);
     $mail->Subject = "1110 - Einsatzexport $monat/$jahr";
-    $mail->Body = 
-    "Liebe Wehrleitung,
     
-    im Anhang findet ihr den Einsatzexport $monat/$jahr.
-    
-    
-    Mit freundlichen Grüßen,
-    Einsatzverwaltungssystem 1110";
+    // Mehrzeiliger HTML-Text für eine bessere Formatierung in der E-Mail
+    $mail->Body = nl2br("Liebe Wehrleitung,\n\n"
+        . "im Anhang findet ihr den Einsatzexport für $monat/$jahr.\n\n"
+        . "Mit freundlichen Grüßen,\n"
+        . "Einsatzverwaltungssystem 1110");
 
     // Datei anhängen
     if (file_exists($exportPath)) {
