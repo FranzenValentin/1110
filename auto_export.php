@@ -109,7 +109,7 @@ $mail = new PHPMailer(true);
 
 try {
     $mail->isSMTP();
-    $mail->Host = 'einsaetze.ffmitte.de'; // SMTP-Server
+    $mail->Host = 'smtp.einsaetze.ffmitte.de'; // SMTP-Server
     $mail->SMTPAuth = true;
     $mail->Username = 'portal@einsaetze.ffmitte.de'; // Benutzername
     $mail->Password = $mailpassword;    // Passwort
