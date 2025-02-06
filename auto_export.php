@@ -111,7 +111,7 @@ try {
     $mail->isSMTP();
     $mail->Host = 'einsaetze.ffmitte.de'; // SMTP-Server
     $mail->SMTPAuth = true;
-    $mail->Username = 'portal@einsaetze.ffmitte.de'; // Benutzername
+    $mail->Username = 'portal'; // Benutzername
     $mail->Password = $mailpassword;    // Passwort
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
     $mail->Port = 465;
