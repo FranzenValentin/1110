@@ -130,6 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
 <?php include 'parts/menue.php'; ?>
 </header>
 <main>
+    <section id="box">
     <form method="POST" action="">
         <h2>In Dienst Zeit:</h2>
         <input type="datetime-local" name="inDienstZeit" value="<?php echo htmlspecialchars($inDienstZeit); ?>" required>
@@ -183,6 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             <button type="submit" name="save">Speichern</button>
         </div>
     </form>
+    </section>
 </main>
 </body>
 </html>
