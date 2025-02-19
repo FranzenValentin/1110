@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
 
                 $message = "Besatzung und Zeiten erfolgreich gespeichert.";
-                header("Location: " . $_SERVER['PHP_SELF']);
+                header("Location: index.php");
                 exit;
             }
         } catch (PDOException $e) {
