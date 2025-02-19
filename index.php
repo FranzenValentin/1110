@@ -48,6 +48,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
         <?php if ($dienstVorhanden): ?>
             <?php include 'parts/new_alarm.php' ?>
 
+            <!-- Aktueller Dienst -->
             <?php 
             // Fahrzeuge aus der Datenbank abrufen
             $query = "SELECT id, name FROM fahrzeuge";
@@ -93,7 +94,6 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
             }
             ?>
 
-            <!-- Aktueller Dienst -->
             <section id="box">
                 <div class="responsive-form">
                     <h2>
