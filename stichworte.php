@@ -70,5 +70,6 @@ try {
             </div>
         </form>
     </main>
+    <script src="js/session_timeout.js"></script>
 </body>
 </html>

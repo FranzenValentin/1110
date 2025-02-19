@@ -186,5 +186,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     </form>
     </section>
 </main>
+<script src="js/session_timeout.js"></script>
 </body>
 </html>

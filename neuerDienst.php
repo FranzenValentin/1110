@@ -145,5 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </section>
         <?php endif; ?>
     </main>
+    <script src="js/session_timeout.js"></script>
 </body>
 </html>

@@ -137,5 +137,6 @@ $totalEntries = $result['totalEntries'];
         </div>
     </section>
     </main>
+    <script src="js/session_timeout.js"></script>
 </body>
 </html>

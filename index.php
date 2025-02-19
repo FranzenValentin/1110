@@ -452,8 +452,7 @@ $dienstVorhanden = $dienstResult ? 1 : 0;
         -->
     </main>
 
-    <script>
-        <?php include 'parts/google_maps.js'; ?>
-    </script>
+    <script src="parts/google_maps.js"></script>
+    <script src="js/session_timeout.js"></script>
 </body>
 </html>
