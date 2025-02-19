@@ -22,6 +22,6 @@ require 'parts/db.php';
         <?php include 'parts/new_alarm.php'; ?>
     </main>
     <script src="parts/google_maps.js"></script>
-    <script src="js/session_timeout.js"></script>
+    <script src="parts/session_timeout.js"></script>
 </body>
 </html>

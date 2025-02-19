@@ -309,6 +309,6 @@ try {
         <?php endif; ?>
     </section>
 </main>
-<script src="js/session_timeout.js"></script>
+<script src="parts/session_timeout.js"></script>
 </body>
 </html>

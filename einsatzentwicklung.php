@@ -275,6 +275,6 @@ const chart = new Chart(ctx, {
 });
 
 </script>
-<script src="js/session_timeout.js"></script>
+<script src="parts/session_timeout.js"></script>
 </body>
 </html>
