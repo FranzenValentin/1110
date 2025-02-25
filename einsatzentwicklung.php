@@ -186,9 +186,7 @@ $tageVorjahr = array_keys($alleTageVorjahr);
     <section id="box">
         <canvas id="einsatzEntwicklungChart" width="800" height="400"></canvas>
     </section>
-
     </main>
-
     <script>
 
 // Debugging: Prüfen, ob die Daten aus PHP korrekt übernommen wurden
