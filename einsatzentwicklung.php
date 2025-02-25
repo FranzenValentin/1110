@@ -89,38 +89,35 @@ $differenz = $summeAktuellesJahr - $heute_Vorjahr;
 $prozentualeVeränderung = $heute_Vorjahr > 0 ? round(($differenz / $heute_Vorjahr) * 100, 1) : 0;
 $farbe = $differenz >= 0 ? "green" : "red";
 
-// Funktion zur Berechnung der linearen Regression
-function linearRegression($x, $y) {
-    $n = count($x);
-    $sumX = array_sum($x);
-    $sumY = array_sum($y);
-    $sumXY = 0;
-    $sumX2 = 0;
+// Funktion zur Berechnung der exponentiellen Glättung
+function exponentialSmoothing($data, $alpha) {
+    $smoothed = [];
+    $smoothed[0] = $data[0]; // Initialwert ist der erste Datenpunkt
 
-    for ($i = 0; $i < $n; $i++) {
-        $sumXY += $x[$i] * $y[$i];
-        $sumX2 += $x[$i] * $x[$i];
+    for ($i = 1; $i < count($data); $i++) {
+        $smoothed[$i] = $alpha * $data[$i] + (1 - $alpha) * $smoothed[$i - 1];
     }
 
-    $m = ($n * $sumXY - $sumX * $sumY) / ($n * $sumX2 - $sumX * $sumX);
-    $b = ($sumY - $m * $sumX) / $n;
-
-    return ['m' => $m, 'b' => $b];
+    return $smoothed;
 }
 
-// Prognose für das aktuelle Jahr berechnen
+// Daten für die Glättung vorbereiten
 $tageBisHeute = array_keys($alleTageAktuellesJahr);
 $kumuliertBisHeute = array_values($kumuliertAktuellesJahr);
 
-// Nur die Tage bis heute für die Regression verwenden
-$regressionDaten = linearRegression(range(1, count($tageBisHeute)), $kumuliertBisHeute);
-$m = $regressionDaten['m'];
-$b = $regressionDaten['b'];
+// Wählen eines Glättungsfaktors (0.1 - 0.3 ist üblich für kurzfristige Prognosen)
+$alpha = 0.2;
 
-// Prognose für das gesamte Jahr
+// Anwenden der exponentiellen Glättung auf bisherige Daten
+$smoothedData = exponentialSmoothing($kumuliertBisHeute, $alpha);
+
+// Prognose für das gesamte Jahr basierend auf der letzten bekannten Glättung
 $prognoseAktuellesJahr = [];
-for ($i = 1; $i <= 365; $i++) {
-    $prognoseAktuellesJahr[] = $m * $i + $b;
+$lastValue = end($smoothedData); // Letzter geglätteter Wert
+
+for ($i = count($kumuliertBisHeute) + 1; $i <= 365; $i++) {
+    $lastValue = $alpha * $lastValue + (1 - $alpha) * $lastValue; // Fortlaufende Glättung
+    $prognoseAktuellesJahr[] = $lastValue;
 }
 
 // Labels für die X-Achse (alle Tage)
