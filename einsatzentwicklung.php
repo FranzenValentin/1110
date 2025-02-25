@@ -84,7 +84,7 @@ foreach ($alleTageVorjahr as $tag => $anzahl) {
     }
 }
 
-echo $anzahl;
+echo $tag;
 
 // Entwicklung berechnen
 $differenz = $summeAktuellesJahr - $heute_Vorjahr;
