@@ -92,6 +92,10 @@ $farbe = $differenz >= 0 ? "green" : "red";
 // Funktion zur Berechnung der exponentiellen Glättung
 function exponentialSmoothing($data, $alpha) {
     $smoothed = [];
+    
+    // Falls keine Daten vorhanden sind, gib ein leeres Array zurück
+    if (empty($data)) return $smoothed;
+
     $smoothed[0] = $data[0]; // Initialwert ist der erste Datenpunkt
 
     for ($i = 1; $i < count($data); $i++) {
@@ -101,24 +105,34 @@ function exponentialSmoothing($data, $alpha) {
     return $smoothed;
 }
 
-// Daten für die Glättung vorbereiten
-$tageBisHeute = array_keys($alleTageAktuellesJahr);
-$kumuliertBisHeute = array_values($kumuliertAktuellesJahr);
+// Sicherstellen, dass es genug Werte für die Glättung gibt
+if (count($kumuliertAktuellesJahr) > 1) {
+    // Alpha-Wert für die Glättung
+    $alpha = 0.2;
 
-// Wählen eines Glättungsfaktors (0.1 - 0.3 ist üblich für kurzfristige Prognosen)
-$alpha = 0.2;
+    // Entferne Null-Werte aus den kumulierten Einsätzen (Null-Werte nach heute)
+    $kumuliertBisHeute = array_filter($kumuliertAktuellesJahr, function ($v) {
+        return $v !== null;
+    });
 
-// Anwenden der exponentiellen Glättung auf bisherige Daten
-$smoothedData = exponentialSmoothing($kumuliertBisHeute, $alpha);
+    // Exponentielle Glättung auf die bisherigen kumulierten Einsätze anwenden
+    $smoothedData = exponentialSmoothing(array_values($kumuliertBisHeute), $alpha);
 
-// Prognose für das gesamte Jahr basierend auf der letzten bekannten Glättung
-$prognoseAktuellesJahr = [];
-$lastValue = end($smoothedData); // Letzter geglätteter Wert
+    // Prognose für das Jahr erstellen
+    $prognoseAktuellesJahr = [];
+    $lastValue = end($smoothedData);
 
-for ($i = count($kumuliertBisHeute) + 1; $i <= 365; $i++) {
-    $lastValue = $alpha * $lastValue + (1 - $alpha) * $lastValue; // Fortlaufende Glättung
-    $prognoseAktuellesJahr[] = $lastValue;
+    for ($i = count($kumuliertBisHeute) + 1; $i <= 365; $i++) {
+        $lastValue = $alpha * $lastValue + (1 - $alpha) * $lastValue; // Fortlaufende Glättung
+        $prognoseAktuellesJahr[] = round($lastValue);
+    }
+} else {
+    // Falls keine Daten existieren, gib eine leere Prognose zurück
+    $prognoseAktuellesJahr = array_fill(0, 365, null);
 }
+
+// Sicherstellen, dass die Prognose so viele Werte hat wie Tage im Jahr
+$prognoseAktuellesJahr = array_values($prognoseAktuellesJahr);
 
 // Labels für die X-Achse (alle Tage)
 $tageAktuellesJahr = array_keys($alleTageAktuellesJahr);
@@ -171,6 +185,11 @@ const aktuellesDatum = new Date(<?= json_encode(date('Y-m-d')) ?>);
 const aktuellesDatumIndex = tageAktuellesJahr.indexOf(aktuellesDatum.toISOString().split('T')[0]);
 
 const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
+
+// Entferne `null`-Werte aus der Prognose, damit die Linie fortgeführt wird
+const gefiltertePrognoseEinsätze = prognoseEinsätze.map((value, index) => {
+    return value !== null ? value : kumuliertAktuellesJahr[index];
+});
 
 function createGradient(ctx, x, y, radius) {
     const gradient = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
