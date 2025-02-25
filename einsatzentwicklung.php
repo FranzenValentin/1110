@@ -138,7 +138,7 @@ $kumuliertBisHeute = array_filter($kumuliertAktuellesJahr, function ($v) {
 $alpha = 0.3; // Erhöht die Reaktionsgeschwindigkeit auf Veränderungen (standard: 0.2)
 $beta = 0.15; // Leichter erhöhter Trend-Anteil (standard: 0.1)
 $gamma = 0.2; // Saisonale Effekte stärker betonen (standard: 0.1)
-$seasonLength = 30; // Monatliche Zyklen statt 12 Monate (besser für tägliche Daten)
+$seasonLength = 12; // Monatliche Zyklen statt 12 Monate (besser für tägliche Daten)
 $forecastPeriods = 90; // Kürzere Vorhersage (3 Monate statt 1 Jahr)
 
 // Sicherstellen, dass genug Daten für die Prognose vorhanden sind
