@@ -84,8 +84,6 @@ foreach ($alleTageVorjahr as $tag => $anzahl) {
     }
 }
 
-echo $tag;
-
 // Entwicklung berechnen
 $differenz = $summeAktuellesJahr - $heute_Vorjahr;
 $prozentualeVeränderung = $heute_Vorjahr > 0 ? round(($differenz / $heute_Vorjahr) * 100, 1) : 0;
@@ -114,6 +112,7 @@ function exponentialSmoothingWithTrend($data, $alpha, $beta) {
 if (count($kumuliertAktuellesJahr) > 2) {
     $alpha = 0.2; // Glättungsfaktor für Werte
     $beta = 0.1;  // Glättungsfaktor für den Trend
+    $heute = date('Y-m-d'); // Heutiges Datum
 
     // Entferne Null-Werte aus den kumulierten Einsätzen (Null-Werte nach heute)
     $kumuliertBisHeute = array_filter($kumuliertAktuellesJahr, function ($v) {
@@ -125,22 +124,23 @@ if (count($kumuliertAktuellesJahr) > 2) {
     $smoothedData = $glättung['smoothed'];
     $trendData = $glättung['trend'];
 
-    // Prognose für das Jahr basierend auf dem letzten Wert + Trend
-    $prognoseAktuellesJahr = [];
+    // 🛠️ **Exakten Index für das heutige Datum finden**
+    $tageArray = array_keys($alleTageAktuellesJahr);
+    $letzterBekannterIndex = array_search($heute, $tageArray);
 
-    // 🛠️ Starte Prognose erst ab heute
-    $letzterBekannterIndex = count($kumuliertBisHeute) - 1;
+    if ($letzterBekannterIndex === false) {
+        // Falls das heutige Datum nicht in den Daten enthalten ist, das letzte bekannte Datum nehmen
+        $letzterBekannterIndex = count($kumuliertBisHeute) - 1;
+    }
+
     $lastValue = $smoothedData[$letzterBekannterIndex];
     $lastTrend = $trendData[$letzterBekannterIndex];
 
+    // Prognose für das Jahr basierend auf dem letzten Wert + Trend
+    $prognoseAktuellesJahr = array_fill(0, 365, null); // Alle Werte auf NULL setzen
     for ($i = $letzterBekannterIndex + 1; $i < 365; $i++) {
         $lastValue += $lastTrend;  // Trend hinzufügen
         $prognoseAktuellesJahr[$i] = round($lastValue);
-    }
-
-    // Setze alle Prognose-Werte **vor heute** auf `null`, damit sie nicht angezeigt werden
-    for ($i = 0; $i <= $letzterBekannterIndex; $i++) {
-        $prognoseAktuellesJahr[$i] = null;
     }
 } else {
     // Falls keine Daten existieren, gib eine leere Prognose zurück
