@@ -84,48 +84,27 @@ foreach ($alleTageVorjahr as $tag => $anzahl) {
     }
 }
 
-// Entwicklung berechnen
-$differenz = $summeAktuellesJahr - $heute_Vorjahr;
-$prozentualeVeränderung = $heute_Vorjahr > 0 ? round(($differenz / $heute_Vorjahr) * 100, 1) : 0;
-$farbe = $differenz >= 0 ? "green" : "red";
-
-// Funktion zur Berechnung der linearen Regression
-function linearRegression($x, $y) {
-    $n = count($x);
-    $sumX = array_sum($x);
-    $sumY = array_sum($y);
-    $sumXY = 0;
-    $sumX2 = 0;
-
-    for ($i = 0; $i < $n; $i++) {
-        $sumXY += $x[$i] * $y[$i];
-        $sumX2 += $x[$i] * $x[$i];
-    }
-
-    $m = ($n * $sumXY - $sumX * $sumY) / ($n * $sumX2 - $sumX * $sumX);
-    $b = ($sumY - $m * $sumX) / $n;
-
-    return ['m' => $m, 'b' => $b];
-}
-
 // Prognose für das aktuelle Jahr berechnen
-$heuteIndex = array_search($heute, $tageAktuellesJahr);
-$bisherigeTage = $heuteIndex + 1;
+$heuteIndex = array_search($heute, $tageAktuellesJahr); // Index des heutigen Tages im Jahr
+$bisherigeTage = $heuteIndex + 1; // Anzahl der Tage bis heute im aktuellen Jahr
 
+// Durchschnittliche Einsätze pro Tag basierend auf den bisherigen Daten
 if ($bisherigeTage > 0) {
     $durchschnittProTag = $summeAktuellesJahr / $bisherigeTage;
 } else {
-    $durchschnittProTag = 0;
+    $durchschnittProTag = 0; // Fallback, falls keine Daten vorliegen
 }
 
+// Prognose für das gesamte Jahr
 $prognoseAktuellesJahr = [];
-$aktuellerStand = $summeAktuellesJahr;
+$aktuellerStand = $summeAktuellesJahr; // Startwert ist der aktuelle Stand
 
 for ($i = 0; $i < 365; $i++) {
+    // Für vergangene Tage den tatsächlichen Wert, für zukünftige Tage den Durchschnitt
     if ($i < $bisherigeTage) {
-        $prognoseAktuellesJahr[] = $kumuliertAktuellesJahr[$i];
+        $prognoseAktuellesJahr[] = $kumuliertAktuellesJahr[$i]; // Tatsächliche Werte verwenden
     } else {
-        $aktuellerStand += $durchschnittProTag;
+        $aktuellerStand += $durchschnittProTag; // Prognosewert hinzufügen
         $prognoseAktuellesJahr[] = $aktuellerStand;
     }
 }
