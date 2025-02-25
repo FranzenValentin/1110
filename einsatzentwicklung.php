@@ -125,12 +125,20 @@ if (count($kumuliertAktuellesJahr) > 2) {
 
     // Prognose für das Jahr basierend auf dem letzten Wert + Trend
     $prognoseAktuellesJahr = [];
-    $lastValue = end($smoothedData);
-    $lastTrend = end($trendData);
 
-    for ($i = count($kumuliertBisHeute) + 1; $i <= 365; $i++) {
+    // 🛠️ Starte Prognose erst ab heute
+    $letzterBekannterIndex = count($kumuliertBisHeute) - 1;
+    $lastValue = $smoothedData[$letzterBekannterIndex];
+    $lastTrend = $trendData[$letzterBekannterIndex];
+
+    for ($i = $letzterBekannterIndex + 1; $i < 365; $i++) {
         $lastValue += $lastTrend;  // Trend hinzufügen
-        $prognoseAktuellesJahr[] = round($lastValue);
+        $prognoseAktuellesJahr[$i] = round($lastValue);
+    }
+
+    // Setze alle Prognose-Werte **vor heute** auf `null`, damit sie nicht angezeigt werden
+    for ($i = 0; $i <= $letzterBekannterIndex; $i++) {
+        $prognoseAktuellesJahr[$i] = null;
     }
 } else {
     // Falls keine Daten existieren, gib eine leere Prognose zurück
