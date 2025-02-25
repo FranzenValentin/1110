@@ -135,11 +135,11 @@ $kumuliertBisHeute = array_filter($kumuliertAktuellesJahr, function ($v) {
 });
 
 // Parameter für die Holt-Winters-Prognose
-$alpha = 0.2; // Glättung für das Niveau
-$beta = 0.1;  // Glättung für den Trend
-$gamma = 0.1; // Glättung für die Saisonalität
-$seasonLength = 3; // Saisonlänge (z. B. 12 Monate)
-$forecastPeriods = 365 - count($kumuliertBisHeute); // Anzahl der Prognosetage
+$alpha = 0.3; // Erhöht die Reaktionsgeschwindigkeit auf Veränderungen (standard: 0.2)
+$beta = 0.15; // Leichter erhöhter Trend-Anteil (standard: 0.1)
+$gamma = 0.2; // Saisonale Effekte stärker betonen (standard: 0.1)
+$seasonLength = 30; // Monatliche Zyklen statt 12 Monate (besser für tägliche Daten)
+$forecastPeriods = 90; // Kürzere Vorhersage (3 Monate statt 1 Jahr)
 
 // Sicherstellen, dass genug Daten für die Prognose vorhanden sind
 if (count($kumuliertBisHeute) < $seasonLength * 2) {
