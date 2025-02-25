@@ -129,18 +129,28 @@ function holtWinters($data, $alpha, $beta, $gamma, $seasonLength, $forecastPerio
     return $forecast;
 }
 
-// Holt-Winters-Prognose berechnen
+// Entferne Null-Werte aus den kumulierten Einsätzen (Null-Werte nach heute)
+$kumuliertBisHeute = array_filter($kumuliertAktuellesJahr, function ($v) {
+    return $v !== null;
+});
+
+// Parameter für die Holt-Winters-Prognose
 $alpha = 0.2; // Glättung für das Niveau
 $beta = 0.1;  // Glättung für den Trend
 $gamma = 0.1; // Glättung für die Saisonalität
 $seasonLength = 12; // Saisonlänge (z. B. 12 Monate)
 $forecastPeriods = 365 - count($kumuliertBisHeute); // Anzahl der Prognosetage
 
-// Holt-Winters-Prognose berechnen
-$prognoseAktuellesJahr = holtWinters(array_values($kumuliertBisHeute), $alpha, $beta, $gamma, $seasonLength, $forecastPeriods);
+// Sicherstellen, dass genug Daten für die Prognose vorhanden sind
+if (count($kumuliertBisHeute) < $seasonLength * 2) {
+    $prognoseAktuellesJahr = array_fill(0, 365, null); // Keine Prognose möglich
+} else {
+    // Holt-Winters-Prognose berechnen
+    $prognoseAktuellesJahr = holtWinters(array_values($kumuliertBisHeute), $alpha, $beta, $gamma, $seasonLength, $forecastPeriods);
 
-// Sicherstellen, dass die Prognose 365 Werte hat
-$prognoseAktuellesJahr = array_merge($kumuliertBisHeute, $prognoseAktuellesJahr);
+    // Sicherstellen, dass die Prognose 365 Werte hat
+    $prognoseAktuellesJahr = array_merge($kumuliertBisHeute, $prognoseAktuellesJahr);
+}
 
 // Labels für die X-Achse (alle Tage)
 $tageAktuellesJahr = array_keys($alleTageAktuellesJahr);
