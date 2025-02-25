@@ -84,6 +84,8 @@ foreach ($alleTageVorjahr as $tag => $anzahl) {
     }
 }
 
+echo $anzahl;
+
 // Entwicklung berechnen
 $differenz = $summeAktuellesJahr - $heute_Vorjahr;
 $prozentualeVeränderung = $heute_Vorjahr > 0 ? round(($differenz / $heute_Vorjahr) * 100, 1) : 0;
@@ -126,14 +128,10 @@ if (count($kumuliertAktuellesJahr) > 2) {
     // Prognose für das Jahr basierend auf dem letzten Wert + Trend
     $prognoseAktuellesJahr = [];
 
-
-    // 🛠️ **Exakten Index für das heutige Datum finden**
-    $letzterBekannterIndex = array_search($heute, array_keys($alleTageAktuellesJahr));
-
-    if ($letzterBekannterIndex === false) {
-        // Falls das heutige Datum nicht in den Daten enthalten ist, das letzte bekannte Datum nehmen
-        $letzterBekannterIndex = count($kumuliertBisHeute) - 1;
-    }
+    // 🛠️ Starte Prognose erst ab heute
+    $letzterBekannterIndex = count($kumuliertBisHeute) - 1;
+    $lastValue = $smoothedData[$letzterBekannterIndex];
+    $lastTrend = $trendData[$letzterBekannterIndex];
 
     for ($i = $letzterBekannterIndex + 1; $i < 365; $i++) {
         $lastValue += $lastTrend;  // Trend hinzufügen
