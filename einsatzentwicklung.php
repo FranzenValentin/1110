@@ -186,10 +186,6 @@ const aktuellesDatumIndex = tageAktuellesJahr.indexOf(aktuellesDatum.toISOString
 
 const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
 
-// Entferne `null`-Werte aus der Prognose, damit die Linie fortgeführt wird
-const gefiltertePrognoseEinsätze = prognoseEinsätze.map((value, index) => {
-    return value !== null ? value : kumuliertAktuellesJahr[index];
-});
 
 function createGradient(ctx, x, y, radius) {
     const gradient = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
