@@ -194,7 +194,7 @@ const kumuliertVorjahr = <?= json_encode($kumuliertVorjahr) ?>;
 const prognoseAktuellesJahr = <?= json_encode($prognoseAktuellesJahr) ?>;
 
 // Prüfen, ob Prognose-Daten korrekt geladen wurden
-if (!prognoseEinsätze || prognoseEinsätze.length === 0) {
+if (!prognoseAktuellesJahr || prognoseAktuellesJahr.length === 0) {
     console.warn("⚠️ WARNUNG: Keine Prognose-Werte erhalten!");
 }
 
