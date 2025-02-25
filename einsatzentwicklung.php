@@ -89,41 +89,47 @@ $differenz = $summeAktuellesJahr - $heute_Vorjahr;
 $prozentualeVeränderung = $heute_Vorjahr > 0 ? round(($differenz / $heute_Vorjahr) * 100, 1) : 0;
 $farbe = $differenz >= 0 ? "green" : "red";
 
-// Funktion zur Berechnung der exponentiellen Glättung
-function exponentialSmoothing($data, $alpha) {
-    $smoothed = [];
-    
-    // Falls keine Daten vorhanden sind, gib ein leeres Array zurück
-    if (empty($data)) return $smoothed;
+// Funktion zur Berechnung der exponentiellen Glättung mit Trendentwicklung
+function exponentialSmoothingWithTrend($data, $alpha, $beta) {
+    if (empty($data)) return [];
 
-    $smoothed[0] = $data[0]; // Initialwert ist der erste Datenpunkt
+    $smoothed = [];
+    $trend = [];
+
+    // Initialisierung mit den ersten Datenpunkten
+    $smoothed[0] = $data[0];
+    $trend[0] = $data[1] - $data[0]; // Starttrend
 
     for ($i = 1; $i < count($data); $i++) {
-        $smoothed[$i] = $alpha * $data[$i] + (1 - $alpha) * $smoothed[$i - 1];
+        $smoothed[$i] = $alpha * $data[$i] + (1 - $alpha) * ($smoothed[$i - 1] + $trend[$i - 1]);
+        $trend[$i] = $beta * ($smoothed[$i] - $smoothed[$i - 1]) + (1 - $beta) * $trend[$i - 1];
     }
 
-    return $smoothed;
+    return ['smoothed' => $smoothed, 'trend' => $trend];
 }
 
-// Sicherstellen, dass es genug Werte für die Glättung gibt
-if (count($kumuliertAktuellesJahr) > 1) {
-    // Alpha-Wert für die Glättung
-    $alpha = 0.2;
+// Sicherstellen, dass genug Werte für die Glättung vorhanden sind
+if (count($kumuliertAktuellesJahr) > 2) {
+    $alpha = 0.2; // Glättungsfaktor für Werte
+    $beta = 0.1;  // Glättungsfaktor für den Trend
 
     // Entferne Null-Werte aus den kumulierten Einsätzen (Null-Werte nach heute)
     $kumuliertBisHeute = array_filter($kumuliertAktuellesJahr, function ($v) {
         return $v !== null;
     });
 
-    // Exponentielle Glättung auf die bisherigen kumulierten Einsätze anwenden
-    $smoothedData = exponentialSmoothing(array_values($kumuliertBisHeute), $alpha);
+    // Berechnung der geglätteten Werte und Trends
+    $glättung = exponentialSmoothingWithTrend(array_values($kumuliertBisHeute), $alpha, $beta);
+    $smoothedData = $glättung['smoothed'];
+    $trendData = $glättung['trend'];
 
-    // Prognose für das Jahr erstellen
+    // Prognose für das Jahr basierend auf dem letzten Wert + Trend
     $prognoseAktuellesJahr = [];
     $lastValue = end($smoothedData);
+    $lastTrend = end($trendData);
 
     for ($i = count($kumuliertBisHeute) + 1; $i <= 365; $i++) {
-        $lastValue = $alpha * $lastValue + (1 - $alpha) * $lastValue; // Fortlaufende Glättung
+        $lastValue += $lastTrend;  // Trend hinzufügen
         $prognoseAktuellesJahr[] = round($lastValue);
     }
 } else {
@@ -133,6 +139,7 @@ if (count($kumuliertAktuellesJahr) > 1) {
 
 // Sicherstellen, dass die Prognose so viele Werte hat wie Tage im Jahr
 $prognoseAktuellesJahr = array_values($prognoseAktuellesJahr);
+
 
 // Labels für die X-Achse (alle Tage)
 $tageAktuellesJahr = array_keys($alleTageAktuellesJahr);
@@ -173,12 +180,23 @@ $tageVorjahr = array_keys($alleTageVorjahr);
     </main>
 
     <script>
+
+// Debugging: Prüfen, ob die Daten aus PHP korrekt übernommen wurden
+console.log("Tage Aktuelles Jahr:", <?= json_encode($tageAktuellesJahr) ?>);
+console.log("Kumulierte Einsätze Aktuelles Jahr:", <?= json_encode($kumuliertAktuellesJahr) ?>);
+console.log("Prognose Einsätze Aktuelles Jahr:", <?= json_encode($prognoseAktuellesJahr) ?>);
+
 // Daten aus PHP übertragen
 const tageAktuellesJahr = <?= json_encode($tageAktuellesJahr) ?>;
 const kumuliertAktuellesJahr = <?= json_encode($kumuliertAktuellesJahr) ?>;
 const tageVorjahr = <?= json_encode($tageVorjahr) ?>;
 const kumuliertVorjahr = <?= json_encode($kumuliertVorjahr) ?>;
 const prognoseAktuellesJahr = <?= json_encode($prognoseAktuellesJahr) ?>;
+
+// Prüfen, ob Prognose-Daten korrekt geladen wurden
+if (!prognoseEinsätze || prognoseEinsätze.length === 0) {
+    console.warn("⚠️ WARNUNG: Keine Prognose-Werte erhalten!");
+}
 
 // Aktuelles Datum von PHP
 const aktuellesDatum = new Date(<?= json_encode(date('Y-m-d')) ?>);
