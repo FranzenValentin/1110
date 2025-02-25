@@ -89,67 +89,53 @@ $differenz = $summeAktuellesJahr - $heute_Vorjahr;
 $prozentualeVeränderung = $heute_Vorjahr > 0 ? round(($differenz / $heute_Vorjahr) * 100, 1) : 0;
 $farbe = $differenz >= 0 ? "green" : "red";
 
-// Funktion zur Berechnung der exponentiellen Glättung mit Trendentwicklung
-function exponentialSmoothingWithTrend($data, $alpha, $beta) {
-    if (empty($data)) return [];
+function holtWinters($data, $alpha, $beta, $gamma, $seasonLength, $forecastPeriods) {
+    $n = count($data);
+    if ($n < $seasonLength * 2) {
+        return []; // Nicht genug Daten für Saisonalität
+    }
 
-    $smoothed = [];
+    // Initialisierung
+    $level = [];
     $trend = [];
+    $seasonal = [];
+    $forecast = [];
 
-    // Initialisierung mit den ersten Datenpunkten
-    $smoothed[0] = $data[0];
-    $trend[0] = $data[1] - $data[0]; // Starttrend
+    // Initiale Werte für Level, Trend und Saisonalität
+    $level[0] = $data[0];
+    $trend[0] = 0;
 
-    for ($i = 1; $i < count($data); $i++) {
-        $smoothed[$i] = $alpha * $data[$i] + (1 - $alpha) * ($smoothed[$i - 1] + $trend[$i - 1]);
-        $trend[$i] = $beta * ($smoothed[$i] - $smoothed[$i - 1]) + (1 - $beta) * $trend[$i - 1];
+    for ($i = 0; $i < $seasonLength; $i++) {
+        $seasonal[$i] = $data[$i] - $level[0];
     }
 
-    return ['smoothed' => $smoothed, 'trend' => $trend];
+    // Berechnung der geglätteten Werte
+    for ($i = 1; $i < $n; $i++) {
+        $level[$i] = $alpha * ($data[$i] - $seasonal[$i % $seasonLength]) + (1 - $alpha) * ($level[$i - 1] + $trend[$i - 1]);
+        $trend[$i] = $beta * ($level[$i] - $level[$i - 1]) + (1 - $beta) * $trend[$i - 1];
+        $seasonal[$i % $seasonLength] = $gamma * ($data[$i] - $level[$i]) + (1 - $gamma) * $seasonal[$i % $seasonLength];
+    }
+
+    // Prognose für zukünftige Perioden
+    for ($i = $n; $i < $n + $forecastPeriods; $i++) {
+        $forecast[$i - $n] = $level[$n - 1] + $trend[$n - 1] * ($i - $n + 1) + $seasonal[$i % $seasonLength];
+    }
+
+    return $forecast;
 }
 
-// Sicherstellen, dass genug Werte für die Glättung vorhanden sind
-if (count($kumuliertAktuellesJahr) > 2) {
-    $alpha = 0.2; // Glättungsfaktor für Werte
-    $beta = 0.1;  // Glättungsfaktor für den Trend
-    $heute = date('Y-m-d'); // Heutiges Datum
+// Holt-Winters-Prognose berechnen
+$alpha = 0.2; // Glättung für das Niveau
+$beta = 0.1;  // Glättung für den Trend
+$gamma = 0.1; // Glättung für die Saisonalität
+$seasonLength = 12; // Saisonlänge (z. B. 12 Monate)
+$forecastPeriods = 365 - count($kumuliertBisHeute); // Anzahl der Prognosetage
 
-    // Entferne Null-Werte aus den kumulierten Einsätzen (Null-Werte nach heute)
-    $kumuliertBisHeute = array_filter($kumuliertAktuellesJahr, function ($v) {
-        return $v !== null;
-    });
+// Holt-Winters-Prognose berechnen
+$prognoseAktuellesJahr = holtWinters(array_values($kumuliertBisHeute), $alpha, $beta, $gamma, $seasonLength, $forecastPeriods);
 
-    // Berechnung der geglätteten Werte und Trends
-    $glättung = exponentialSmoothingWithTrend(array_values($kumuliertBisHeute), $alpha, $beta);
-    $smoothedData = $glättung['smoothed'];
-    $trendData = $glättung['trend'];
-
-    // 🛠️ **Exakten Index für das heutige Datum finden**
-    $tageArray = array_keys($alleTageAktuellesJahr);
-    $letzterBekannterIndex = array_search($heute, $tageArray);
-
-    if ($letzterBekannterIndex === false) {
-        // Falls das heutige Datum nicht in den Daten enthalten ist, das letzte bekannte Datum nehmen
-        $letzterBekannterIndex = count($kumuliertBisHeute) - 1;
-    }
-
-    $lastValue = $smoothedData[$letzterBekannterIndex];
-    $lastTrend = $trendData[$letzterBekannterIndex];
-
-    // Prognose für das Jahr basierend auf dem letzten Wert + Trend
-    $prognoseAktuellesJahr = array_fill(0, 365, null); // Alle Werte auf NULL setzen
-    for ($i = $letzterBekannterIndex + 1; $i < 365; $i++) {
-        $lastValue += $lastTrend;  // Trend hinzufügen
-        $prognoseAktuellesJahr[$i] = round($lastValue);
-    }
-} else {
-    // Falls keine Daten existieren, gib eine leere Prognose zurück
-    $prognoseAktuellesJahr = array_fill(0, 365, null);
-}
-
-// Sicherstellen, dass die Prognose so viele Werte hat wie Tage im Jahr
-$prognoseAktuellesJahr = array_values($prognoseAktuellesJahr);
-
+// Sicherstellen, dass die Prognose 365 Werte hat
+$prognoseAktuellesJahr = array_merge($kumuliertBisHeute, $prognoseAktuellesJahr);
 
 // Labels für die X-Achse (alle Tage)
 $tageAktuellesJahr = array_keys($alleTageAktuellesJahr);
