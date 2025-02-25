@@ -108,6 +108,7 @@ function linearRegression($x, $y) {
     return ['m' => $m, 'b' => $b];
 }
 
+// Prognose für das aktuelle Jahr berechnen
 $heuteIndex = array_search($heute, $tageAktuellesJahr);
 $bisherigeTage = $heuteIndex + 1;
 
@@ -119,10 +120,16 @@ if ($bisherigeTage > 0) {
 
 $prognoseAktuellesJahr = [];
 $aktuellerStand = $summeAktuellesJahr;
+
 for ($i = 0; $i < 365; $i++) {
-    $aktuellerStand += ($i < $bisherigeTage) ? 0 : $durchschnittProTag;
-    $prognoseAktuellesJahr[] = $aktuellerStand;
+    if ($i < $bisherigeTage) {
+        $prognoseAktuellesJahr[] = $kumuliertAktuellesJahr[$i];
+    } else {
+        $aktuellerStand += $durchschnittProTag;
+        $prognoseAktuellesJahr[] = $aktuellerStand;
+    }
 }
+
 
 // Labels für die X-Achse (alle Tage)
 $tageAktuellesJahr = array_keys($alleTageAktuellesJahr);
