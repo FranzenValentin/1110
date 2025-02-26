@@ -372,6 +372,8 @@ const chart = new Chart(ctx, {
         },
     },
 });
+
+console.log("Skalen:", context.chart.scales);
 </script>
 <script src="parts/session_timeout.js"></script>
 </body>
