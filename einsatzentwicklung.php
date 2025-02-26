@@ -225,7 +225,7 @@ function createGradient(ctx, x, y, radius) {
 const chart = new Chart(ctx, {
     type: 'bar', // Standardtyp ist Balkendiagramm
     data: {
-        labels: labels,
+        labels: labels, // Monatliche Labels für das Balkendiagramm
         datasets: [
             {
                 label: 'Kumuliert <?= $jahr ?> (Linie)',
@@ -317,7 +317,8 @@ const chart = new Chart(ctx, {
             },
         },
         scales: {
-            x: {
+            x: { // X-Achse für das Balkendiagramm (Monate)
+                type: 'category',
                 title: {
                     display: true,
                     text: 'Monate',
