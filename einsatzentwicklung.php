@@ -228,7 +228,7 @@ const chart = new Chart(ctx, {
         labels: labels, // Monatliche Labels für das Balkendiagramm
         datasets: [
             {
-                label: 'Kumuliert <?= $jahr ?> (Linie)',
+                label: 'Einsätze <?= $jahr ?> ',
                 data: kumuliertAktuellesJahr,
                 borderColor: 'rgba(255, 99, 132, 1)', // Rot
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -258,7 +258,7 @@ const chart = new Chart(ctx, {
                 },
             },
             {
-                label: 'Kumuliert <?= $vorjahr ?> (Linie)',
+                label: 'Einsätze <?= $vorjahr ?> ',
                 data: kumuliertVorjahr,
                 borderColor: 'rgba(54, 162, 235, 1)', // Blau
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
@@ -284,18 +284,18 @@ const chart = new Chart(ctx, {
                 pointHoverRadius: 0,
             },
             {
-                label: 'Einsätze <?= $jahr ?> (Balken)',
+                label: 'Monatiliche Einsätze <?= $jahr ?>',
                 data: dataAktuellesJahr,
-                backgroundColor: 'rgba(255, 99, 132, 0.7)', // Rot
-                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.5)', // Rot
+                borderColor: 'rgba(255, 99, 132, 0.7)',
                 borderWidth: 1,
                 yAxisID: 'y-right', // Rechte Y-Achse
             },
             {
-                label: 'Einsätze <?= $vorjahr ?> (Balken)',
+                label: 'Monatliche Einsätze <?= $vorjahr ?>',
                 data: dataVorjahr,
-                backgroundColor: 'rgba(54, 162, 235, 0.7)', // Blau
-                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.5)', // Blau
+                borderColor: 'rgba(54, 162, 235, 0.7)',
                 borderWidth: 1,
                 yAxisID: 'y-right', // Rechte Y-Achse
             },
