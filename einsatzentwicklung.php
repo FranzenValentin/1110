@@ -219,8 +219,8 @@ const chart = new Chart(ctx, {
             {
                 label: 'Kumuliert <?= $jahr ?> (Linie)',
                 data: kumuliertAktuellesJahr,
-                borderColor: 'rgba(75, 192, 192, 1)', // Türkis
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)', // Rot
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 fill: false,
                 tension: 0.4,
                 type: 'line', // Liniendiagramm
@@ -242,11 +242,11 @@ const chart = new Chart(ctx, {
                 pointRadius: 0,
                 pointHoverRadius: 0,
             },
-            {   
+            {
                 label: 'Prognose <?= $jahr ?>',
                 data: prognoseAktuellesJahr,
-                borderColor: 'rgba(255, 159, 64, 1)', // Orange
-                backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)', // Rot (gestrichelt)
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 fill: false,
                 type: 'line', // Liniendiagramm
                 yAxisID: 'y-left', // Linke Y-Achse
@@ -266,8 +266,8 @@ const chart = new Chart(ctx, {
             {
                 label: 'Einsätze <?= $vorjahr ?> (Balken)',
                 data: dataVorjahr,
-                backgroundColor: 'rgba(153, 102, 255, 0.7)', // Lila
-                borderColor: 'rgba(153, 102, 255, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.7)', // Blau
+                borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1,
                 yAxisID: 'y-right', // Rechte Y-Achse
             },
