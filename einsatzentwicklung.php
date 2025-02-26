@@ -138,7 +138,7 @@ $kumuliertBisHeute = array_filter($kumuliertAktuellesJahr, function ($v) {
 $alpha = 0.2; // Erhöht die Reaktionsgeschwindigkeit auf Veränderungen (standard: 0.2)
 $beta = 0.1; // Leichter erhöhter Trend-Anteil (standard: 0.1)
 $gamma = 0.2; // Saisonale Effekte stärker betonen (standard: 0.1)
-//$seasonLength = 1; // Monatliche Zyklen statt 12 Monate (besser für tägliche Daten)
+$seasonLength = 1; // Monatliche Zyklen statt 12 Monate (besser für tägliche Daten)
 $forecastPeriods = 365; // Kürzere Vorhersage (3 Monate statt 1 Jahr)
 
 // Sicherstellen, dass genug Daten für die Prognose vorhanden sind
@@ -227,25 +227,25 @@ const chart = new Chart(ctx, {
         labels: tageAktuellesJahr,
         datasets: [
             {
-                label: 'Kumuliert <?= $jahr ?>',
-                data: kumuliertAktuellesJahr,
-                borderColor: (context) => {
-                    const index = context.dataIndex;
-                    return kumuliertAktuellesJahr[index] > kumuliertAktuellesJahr[index - 1] ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)';
-                },
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                fill: false,
-                tension: 0.4,
-                pointRadius: (context) => {
-                    const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 10 : 0;
-                },
-                pointHoverRadius: 10,
-                pointBackgroundColor: (context) => {
-                    const index = context.dataIndex;
-                    if (index === aktuellesDatumIndex) {
-                        const x = context.chart.scales.x.getPixelForValue(tageAktuellesJahr[index]);
-                        const y = context.chart.scales.y.getPixelForValue(kumuliertAktuellesJahr[index]);
+            label: 'Kumuliert <?= $jahr ?>',
+            data: kumuliertAktuellesJahr,
+            borderColor: (context) => {
+                const index = context.dataIndex;
+                return kumuliertAktuellesJahr[index] > kumuliertAktuellesJahr[index - 1] ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)';
+            },
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            fill: false,
+            tension: 0.4,
+            pointRadius: (context) => {
+                const index = context.dataIndex;
+                return index === aktuellesDatumIndex ? 10 : 0;
+            },
+            pointHoverRadius: 10,
+            pointBackgroundColor: (context) => {
+                const index = context.dataIndex;
+                if (index === aktuellesDatumIndex) {
+                const x = context.chart.scales.x.getPixelForValue(tageAktuellesJahr[index]);
+                const y = context.chart.scales.y.getPixelForValue(kumuliertAktuellesJahr[index]);
                         return createGradient(ctx, x, y, 10);
                     }
                     return 'rgba(255, 99, 132, 1)';
