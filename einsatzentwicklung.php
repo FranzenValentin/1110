@@ -260,10 +260,9 @@ const chart = new Chart(ctx, {
                 borderColor: 'rgba(255, 159, 64, 1)',
                 backgroundColor: 'rgba(255, 159, 64, 0.2)',
                 fill: false,
-                tension: 0.4,
-                borderDash: [5, 5],
-                pointRadius: 0,
-                pointHoverRadius: 0,
+                type: 'line', // Liniendiagramm
+                yAxisID: 'y-left', // Linke Y-Achse
+                xAxisID: 'x-line', // Separate X-Achse für das Liniendiagramm
             },
         ],
     },
