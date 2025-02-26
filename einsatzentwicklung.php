@@ -207,6 +207,7 @@ const dataAktuellesJahr = <?= json_encode($dataAktuellesJahr) ?>; // Einsätze a
 const dataVorjahr = <?= json_encode($dataVorjahr) ?>; // Einsätze Vorjahr
 const kumuliertAktuellesJahr = <?= json_encode($kumuliertAktuellesJahr) ?>; // Kumulierte Einsätze aktuelles Jahr
 const kumuliertVorjahr = <?= json_encode($kumuliertVorjahr) ?>; // Kumulierte Einsätze Vorjahr
+const prognoseAktuellesJahr = <?= json_encode($prognoseAktuellesJahr) ?>;
 
 const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
 
