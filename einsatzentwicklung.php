@@ -326,6 +326,21 @@ const chart = new Chart(ctx, {
                 },
             },
         },
+        animations: {
+            radius: {
+                duration: 1500,
+                easing: 'easeIn',
+                loop: true,
+                from: (context) => {
+                    const index = context.dataIndex;
+                    return index === aktuellesDatumIndex ? 3 : 0;
+                },
+                to: (context) => {
+                    const index = context.dataIndex;
+                    return index === aktuellesDatumIndex ? 10 : 0;
+                },
+            },
+        },
     },
 });
 </script>
