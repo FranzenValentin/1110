@@ -211,6 +211,10 @@ const prognoseAktuellesJahr = <?= json_encode($prognoseAktuellesJahr) ?>;
 
 const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
 
+// Aktuelles Datum von PHP
+const aktuellesDatum = new Date(<?= json_encode(date('Y-m-d')) ?>);
+const aktuellesDatumIndex = tageAktuellesJahr.indexOf(aktuellesDatum.toISOString().split('T')[0]);
+
 const chart = new Chart(ctx, {
     type: 'bar', // Standardtyp ist Balkendiagramm
     data: {
