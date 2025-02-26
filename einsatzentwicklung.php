@@ -200,187 +200,55 @@ $dataVorjahr = array_values($monthlyVorjahr); // Einsätze Vorjahr
     </main>
     <script>
 
-// Debugging: Prüfen, ob die Daten aus PHP korrekt übernommen wurden
-console.log("Tage Aktuelles Jahr:", <?= json_encode($tageAktuellesJahr) ?>);
-console.log("Kumulierte Einsätze Aktuelles Jahr:", <?= json_encode($kumuliertAktuellesJahr) ?>);
-console.log("Prognose Einsätze Aktuelles Jahr:", <?= json_encode($prognoseAktuellesJahr) ?>);
-
 // Daten aus PHP übertragen
-const tageAktuellesJahr = <?= json_encode($tageAktuellesJahr) ?>;
-const kumuliertAktuellesJahr = <?= json_encode($kumuliertAktuellesJahr) ?>;
-const tageVorjahr = <?= json_encode($tageVorjahr) ?>;
-const kumuliertVorjahr = <?= json_encode($kumuliertVorjahr) ?>;
-const prognoseAktuellesJahr = <?= json_encode($prognoseAktuellesJahr) ?>;
-
-// Prüfen, ob Prognose-Daten korrekt geladen wurden
-if (!prognoseAktuellesJahr || prognoseAktuellesJahr.length === 0) {
-    console.warn("⚠️ WARNUNG: Keine Prognose-Werte erhalten!");
-}
-
-// Aktuelles Datum von PHP
-const aktuellesDatum = new Date(<?= json_encode(date('Y-m-d')) ?>);
-const aktuellesDatumIndex = tageAktuellesJahr.indexOf(aktuellesDatum.toISOString().split('T')[0]);
+const labels = <?= json_encode($labels) ?>; // Monatsnamen
+const dataAktuellesJahr = <?= json_encode($dataAktuellesJahr) ?>; // Einsätze aktuelles Jahr
+const dataVorjahr = <?= json_encode($dataVorjahr) ?>; // Einsätze Vorjahr
+const kumuliertAktuellesJahr = <?= json_encode($kumuliertAktuellesJahr) ?>; // Kumulierte Einsätze aktuelles Jahr
+const kumuliertVorjahr = <?= json_encode($kumuliertVorjahr) ?>; // Kumulierte Einsätze Vorjahr
 
 const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
 
-
-function createGradient(ctx, x, y, radius) {
-    const gradient = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
-    gradient.addColorStop(0, 'rgba(255, 99, 132, 1)');
-    gradient.addColorStop(1, 'rgba(255, 99, 132, 0)');
-    return gradient;
-}
-
 const chart = new Chart(ctx, {
-    type: 'line',
+    type: 'bar', // Standardtyp ist Balkendiagramm
     data: {
-        labels: tageAktuellesJahr,
+        labels: labels,
         datasets: [
             {
-            label: 'Kumuliert <?= $jahr ?>',
-            data: kumuliertAktuellesJahr,
-            borderColor: (context) => {
-                const index = context.dataIndex;
-                return kumuliertAktuellesJahr[index] > kumuliertAktuellesJahr[index - 1] ? 'rgba(75, 192, 192, 1)' : 'rgba(255, 99, 132, 1)';
-            },
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            fill: false,
-            tension: 0.4,
-            pointRadius: (context) => {
-                const index = context.dataIndex;
-                return index === aktuellesDatumIndex ? 10 : 0;
-            },
-            pointHoverRadius: 10,
-            pointBackgroundColor: (context) => {
-                const index = context.dataIndex;
-                if (index === aktuellesDatumIndex) {
-                const x = context.chart.scales.x.getPixelForValue(tageAktuellesJahr[index]);
-                const y = context.chart.scales.y.getPixelForValue(kumuliertAktuellesJahr[index]);
-                        return createGradient(ctx, x, y, 10);
-                    }
-                    return 'rgba(255, 99, 132, 1)';
-                },
-                pointBorderColor: 'rgba(255, 99, 132, 0)',
-                pointBorderWidth: (context) => {
-                    const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 3 : 1;
-                },
+                label: 'Einsätze <?= $jahr ?> (Balken)',
+                data: dataAktuellesJahr,
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+                yAxisID: 'y-right', // Rechte Y-Achse
             },
             {
-                label: 'Kumuliert <?= $vorjahr ?>',
-                data: kumuliertVorjahr,
+                label: 'Einsätze <?= $vorjahr ?> (Balken)',
+                data: dataVorjahr,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
                 borderColor: 'rgba(54, 162, 235, 1)',
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderWidth: 1,
+                yAxisID: 'y-right', // Rechte Y-Achse
+            },
+            {
+                label: 'Kumuliert <?= $jahr ?> (Linie)',
+                data: kumuliertAktuellesJahr,
+                borderColor: 'rgba(255, 99, 132, 1)',
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 fill: false,
                 tension: 0.4,
-                pointRadius: 0,
-                pointHoverRadius: 0,
+                type: 'line', // Liniendiagramm
+                yAxisID: 'y-left', // Linke Y-Achse
             },
             {
-                label: 'Prognose <?= $jahr ?>',
-                data: prognoseAktuellesJahr,
+                label: 'Kumuliert <?= $vorjahr ?> (Linie)',
+                data: kumuliertVorjahr,
                 borderColor: 'rgba(255, 159, 64, 1)',
                 backgroundColor: 'rgba(255, 159, 64, 0.2)',
                 fill: false,
                 tension: 0.4,
-                borderDash: [5, 5],
-                pointRadius: 0,
-                pointHoverRadius: 0,
-            },
-        ],
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top',
-                onClick: (e, legendItem) => {
-                    const index = legendItem.datasetIndex;
-                    const meta = chart.getDatasetMeta(index);
-                    meta.hidden = !meta.hidden;
-                    chart.update();
-                },
-            },
-            tooltip: {
-                enabled: true,
-                callbacks: {
-                    label: function (context) {
-                        const total = kumuliertAktuellesJahr[context.dataIndex];
-                        const previousTotal = kumuliertVorjahr[context.dataIndex] || 0;
-                        const diff = total - previousTotal;
-                        const percentChange = previousTotal > 0 ? ((diff / previousTotal) * 100).toFixed(1) : 0;
-                        return [
-                            `${context.dataset.label}: ${context.raw} Einsätze`,
-                            `Differenz zum Vorjahr: ${diff} (${percentChange}%)`,
-                        ];
-                    },
-                },
-            },
-        },
-        scales: {
-            x: {
-                type: 'category',
-                title: {
-                    display: true,
-                    text: 'Monate',
-                },
-                ticks: {
-                    callback: function (value, index) {
-                        const date = new Date(tageAktuellesJahr[index]);
-                        const monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
-                        return monthNames[date.getMonth()];
-                    },
-                    maxTicksLimit: 12,
-                    autoSkip: true,
-                },
-                grid: {
-                    display: true,
-                },
-            },
-            y: {
-                beginAtZero: true,
-                title: {
-                    display: true,
-                    text: 'Kumulierte Einsätze',
-                },
-                grid: {
-                    color: 'rgba(200, 200, 200, 0.3)',
-                },
-            },
-        },
-        animations: {
-            radius: {
-                duration: 1500,
-                easing: 'easeIn',
-                loop: true,
-                from: (context) => {
-                    const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 3 : 0;
-                },
-                to: (context) => {
-                    const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 10 : 0;
-                },
-            },
-        },
-    },
-    type: 'bar', // Balkendiagramm
-    data: {
-        labels: <?= json_encode($labels) ?>, // Monatsnamen
-        datasets: [
-            {
-                label: 'Einsätze <?= $jahr ?>',
-                data: <?= json_encode($dataAktuellesJahr) ?>, // Einsätze aktuelles Jahr
-                backgroundColor: 'rgba(75, 192, 192, 0.6)', // Farbe für aktuelles Jahr
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1,
-            },
-            {
-                label: 'Einsätze <?= $vorjahr ?>',
-                data: <?= json_encode($dataVorjahr) ?>, // Einsätze Vorjahr
-                backgroundColor: 'rgba(54, 162, 235, 0.6)', // Farbe für Vorjahr
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1,
+                type: 'line', // Liniendiagramm
+                yAxisID: 'y-left', // Linke Y-Achse
             },
         ],
     },
@@ -409,14 +277,26 @@ const chart = new Chart(ctx, {
                     display: false,
                 },
             },
-            y: {
+            'y-left': { // Linke Y-Achse
+                position: 'left',
                 beginAtZero: true,
                 title: {
                     display: true,
-                    text: 'Anzahl Einsätze',
+                    text: 'Kumulierte Einsätze',
                 },
                 grid: {
                     color: 'rgba(200, 200, 200, 0.3)',
+                },
+            },
+            'y-right': { // Rechte Y-Achse
+                position: 'right',
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Monatliche Einsätze',
+                },
+                grid: {
+                    display: false, // Keine Gitterlinien für die rechte Y-Achse
                 },
             },
         },
