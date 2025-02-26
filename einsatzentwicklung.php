@@ -202,6 +202,7 @@ $dataVorjahr = array_values($monthlyVorjahr); // Einsätze Vorjahr
 
 // Daten aus PHP übertragen
 const labels = <?= json_encode($labels) ?>; // Monatsnamen
+const tageAktuellesJahr = <?= json_encode($tageAktuellesJahr) ?>; // Tägliche Daten (für Liniendiagramm)
 const dataAktuellesJahr = <?= json_encode($dataAktuellesJahr) ?>; // Einsätze aktuelles Jahr
 const dataVorjahr = <?= json_encode($dataVorjahr) ?>; // Einsätze Vorjahr
 const kumuliertAktuellesJahr = <?= json_encode($kumuliertAktuellesJahr) ?>; // Kumulierte Einsätze aktuelles Jahr
