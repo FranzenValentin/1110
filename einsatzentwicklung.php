@@ -108,8 +108,8 @@ function linearRegression($x, $y) {
 
     // Steigung (m) und y-Achsenabschnitt (b) berechnen
     $m = ($n * $sumXY - $sumX * $sumY) / ($n * $sumX2 - $sumX * $sumX);
-    $b = ($sumY - $m * $sumX) / $n;
-
+    //$b = ($sumY - $m * $sumX) / $n;
+    $b = 0;
     return ['m' => $m, 'b' => $b];
 }
 
