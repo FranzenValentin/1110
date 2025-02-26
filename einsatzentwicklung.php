@@ -127,6 +127,9 @@ $regression = linearRegression($x, $y);
 $m = $regression['m']; // Steigung
 $b = $regression['b']; // y-Achsenabschnitt
 
+// Index des heutigen Tages in den tageAktuellesJahr-Daten finden
+$aktuellesDatumIndex = array_search($heute, $tageAktuellesJahr);
+
 // Prognose für das gesamte Jahr berechnen
 $prognoseAktuellesJahr = [];
 for ($i = 1; $i <= 365; $i++) {
