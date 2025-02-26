@@ -242,6 +242,9 @@ const chart = new Chart(ctx, {
                 type: 'line', // Liniendiagramm
                 yAxisID: 'y-left', // Linke Y-Achse
                 xAxisID: 'x-line', // Separate X-Achse für das Liniendiagramm
+                borderDash: [5, 5],
+                pointRadius: 0,
+                pointHoverRadius: 0,
             },
             {
                 label: 'Kumuliert <?= $vorjahr ?> (Linie)',
@@ -253,6 +256,9 @@ const chart = new Chart(ctx, {
                 type: 'line', // Liniendiagramm
                 yAxisID: 'y-left', // Linke Y-Achse
                 xAxisID: 'x-line', // Separate X-Achse für das Liniendiagramm
+                borderDash: [5, 5],
+                pointRadius: 0,
+                pointHoverRadius: 0,
             },
             {
                 label: 'Prognose <?= $jahr ?>',
@@ -263,6 +269,9 @@ const chart = new Chart(ctx, {
                 type: 'line', // Liniendiagramm
                 yAxisID: 'y-left', // Linke Y-Achse
                 xAxisID: 'x-line', // Separate X-Achse für das Liniendiagramm
+                borderDash: [5, 5],
+                pointRadius: 0,
+                pointHoverRadius: 0,
             },
         ],
     },
