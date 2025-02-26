@@ -239,6 +239,7 @@ const chart = new Chart(ctx, {
                 tension: 0.4,
                 type: 'line', // Liniendiagramm
                 yAxisID: 'y-left', // Linke Y-Achse
+                xAxisID: 'x-line', // Separate X-Achse für das Liniendiagramm
             },
             {
                 label: 'Kumuliert <?= $vorjahr ?> (Linie)',
@@ -249,6 +250,7 @@ const chart = new Chart(ctx, {
                 tension: 0.4,
                 type: 'line', // Liniendiagramm
                 yAxisID: 'y-left', // Linke Y-Achse
+                xAxisID: 'x-line', // Separate X-Achse für das Liniendiagramm
             },
         ],
     },
@@ -276,6 +278,11 @@ const chart = new Chart(ctx, {
                 grid: {
                     display: false,
                 },
+            },
+            'x-line': { // X-Achse für das Liniendiagramm (Tage)
+                type: 'category',
+                labels: tageAktuellesJahr, // Tägliche Labels
+                display: false, // Diese Achse nicht anzeigen
             },
             'y-left': { // Linke Y-Achse
                 position: 'left',
