@@ -94,39 +94,23 @@ $differenz = $summeAktuellesJahr - $heute_Vorjahr;
 $prozentualeVeränderung = $heute_Vorjahr > 0 ? round(($differenz / $heute_Vorjahr) * 100, 1) : 0;
 $farbe = $differenz >= 0 ? "green" : "red";
 
-function holtWinters($data, $alpha, $beta, $gamma, $seasonLength, $forecastPeriods) {
-    $n = count($data);
-    if ($n < $seasonLength * 2) {
-        return []; // Nicht genug Daten für Saisonalität
+function linearRegression($x, $y) {
+    $n = count($x);
+    $sumX = array_sum($x);
+    $sumY = array_sum($y);
+    $sumXY = 0;
+    $sumX2 = 0;
+
+    for ($i = 0; $i < $n; $i++) {
+        $sumXY += $x[$i] * $y[$i];
+        $sumX2 += $x[$i] * $x[$i];
     }
 
-    // Initialisierung
-    $level = [];
-    $trend = [];
-    $seasonal = [];
-    $forecast = [];
+    // Steigung (m) und y-Achsenabschnitt (b) berechnen
+    $m = ($n * $sumXY - $sumX * $sumY) / ($n * $sumX2 - $sumX * $sumX);
+    $b = ($sumY - $m * $sumX) / $n;
 
-    // Initiale Werte für Level, Trend und Saisonalität
-    $level[0] = $data[0];
-    $trend[0] = 0;
-
-    for ($i = 0; $i < $seasonLength; $i++) {
-        $seasonal[$i] = $data[$i] - $level[0];
-    }
-
-    // Berechnung der geglätteten Werte
-    for ($i = 1; $i < $n; $i++) {
-        $level[$i] = $alpha * ($data[$i] - $seasonal[$i % $seasonLength]) + (1 - $alpha) * ($level[$i - 1] + $trend[$i - 1]);
-        $trend[$i] = $beta * ($level[$i] - $level[$i - 1]) + (1 - $beta) * $trend[$i - 1];
-        $seasonal[$i % $seasonLength] = $gamma * ($data[$i] - $level[$i]) + (1 - $gamma) * $seasonal[$i % $seasonLength];
-    }
-
-    // Prognose für zukünftige Perioden
-    for ($i = $n; $i < $n + $forecastPeriods; $i++) {
-        $forecast[$i - $n] = $level[$n - 1] + $trend[$n - 1] * ($i - $n + 1) + $seasonal[$i % $seasonLength];
-    }
-
-    return $forecast;
+    return ['m' => $m, 'b' => $b];
 }
 
 // Entferne Null-Werte aus den kumulierten Einsätzen (Null-Werte nach heute)
@@ -134,22 +118,19 @@ $kumuliertBisHeute = array_filter($kumuliertAktuellesJahr, function ($v) {
     return $v !== null;
 });
 
-// Parameter für die Holt-Winters-Prognose
-$alpha = 0.2; // Erhöht die Reaktionsgeschwindigkeit auf Veränderungen (standard: 0.2)
-$beta = 0.1; // Leichter erhöhter Trend-Anteil (standard: 0.1)
-$gamma = 0.2; // Saisonale Effekte stärker betonen (standard: 0.1)
-$seasonLength = 1; // Monatliche Zyklen statt 12 Monate (besser für tägliche Daten)
-$forecastPeriods = 365; // Kürzere Vorhersage (3 Monate statt 1 Jahr)
+// X-Werte (Tage) und Y-Werte (kumulierte Einsätze)
+$x = range(1, count($kumuliertBisHeute)); // Tage als numerische Werte
+$y = array_values($kumuliertBisHeute); // Kumulierte Einsätze
 
-// Sicherstellen, dass genug Daten für die Prognose vorhanden sind
-if (count($kumuliertBisHeute) < $seasonLength * 2) {
-    $prognoseAktuellesJahr = array_fill(0, 365, null); // Keine Prognose möglich
-} else {
-    // Holt-Winters-Prognose berechnen
-    $prognoseAktuellesJahr = holtWinters(array_values($kumuliertBisHeute), $alpha, $beta, $gamma, $seasonLength, $forecastPeriods);
+// Lineare Regression berechnen
+$regression = linearRegression($x, $y);
+$m = $regression['m']; // Steigung
+$b = $regression['b']; // y-Achsenabschnitt
 
-    // Sicherstellen, dass die Prognose 365 Werte hat
-    $prognoseAktuellesJahr = array_merge($kumuliertBisHeute, $prognoseAktuellesJahr);
+// Prognose für das gesamte Jahr berechnen
+$prognoseAktuellesJahr = [];
+for ($i = 1; $i <= 365; $i++) {
+    $prognoseAktuellesJahr[] = $m * $i + $b;
 }
 
 // Labels für die X-Achse (alle Tage)
