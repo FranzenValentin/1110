@@ -258,14 +258,14 @@ const chart = new Chart(ctx, {
             {
                 label: 'Einsätze <?= $jahr ?> (Balken)',
                 data: dataAktuellesJahr,
-                backgroundColor: 'rgba(255, 159, 64, 0,2)',
+                backgroundColor: 'rgba(255, 159, 64, 0,6)',
                 borderWidth: 1,
                 yAxisID: 'y-right', // Rechte Y-Achse
             },
             {
                 label: 'Einsätze <?= $vorjahr ?> (Balken)',
                 data: dataVorjahr,
-                backgroundColor: 'rgba(255, 99, 132, 0,2)',
+                backgroundColor: 'rgba(255, 99, 133, 0.6)',
                 borderWidth: 1,
                 yAxisID: 'y-right', // Rechte Y-Achse
             },
