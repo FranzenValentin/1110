@@ -130,7 +130,7 @@ $b = $regression['b']; // y-Achsenabschnitt
 // Prognose für das gesamte Jahr berechnen
 $prognoseAktuellesJahr = [];
 for ($i = 1; $i <= 365; $i++) {
-    if ($i <= $aktuellesDatumIndex) {
+    if ($i <= $tag) {
         // Für Tage vor dem heutigen Datum: null setzen
         $prognoseAktuellesJahr[] = null;
     } else {
