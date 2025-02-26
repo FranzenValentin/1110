@@ -235,21 +235,22 @@ const chart = new Chart(ctx, {
                 pointRadius: (context) => {
                 const index = context.dataIndex;
                 return index === aktuellesDatumIndex ? 10 : 0;
-            },
-            pointHoverRadius: 10,
-            pointBackgroundColor: (context) => {
-                const index = context.dataIndex;
-                if (index === aktuellesDatumIndex) {
-                const x = context.chart.scales.x.getPixelForValue(tageAktuellesJahr[index]);
-                const y = context.chart.scales.y.getPixelForValue(kumuliertAktuellesJahr[index]);
-                        return createGradient(ctx, x, y, 10);
-                    }
-                    return 'rgba(255, 99, 132, 1)';
-                },
-                pointBorderColor: 'rgba(255, 99, 132, 0)',
-                pointBorderWidth: (context) => {
+            },      
+                pointHoverRadius: 10,
+                pointBackgroundColor: (context) => {
                     const index = context.dataIndex;
-                    return index === aktuellesDatumIndex ? 3 : 1;
+                    if (index === aktuellesDatumIndex) {
+                    const x = context.chart.scales.x.getPixelForValue(tageAktuellesJahr[index]);
+                    const y = context.chart.scales.y.getPixelForValue(kumuliertAktuellesJahr[index]);
+                            return createGradient(ctx, x, y, 10);
+                        }
+                        return 'rgba(255, 99, 132, 1)';
+                    },
+                    pointBorderColor: 'rgba(255, 99, 132, 0)',
+                    pointBorderWidth: (context) => {
+                        const index = context.dataIndex;
+                        return index === aktuellesDatumIndex ? 3 : 1;
+                    },
                 },
             },
             {
