@@ -136,6 +136,35 @@ for ($i = 1; $i <= 365; $i++) {
 // Labels für die X-Achse (alle Tage)
 $tageAktuellesJahr = array_keys($alleTageAktuellesJahr);
 $tageVorjahr = array_keys($alleTageVorjahr);
+
+
+// Funktion zur monatlichen Aggregation der Daten
+function aggregateMonthly($data, $year) {
+    $monthlyData = array_fill(1, 12, 0); // Array für 12 Monate, initialisiert mit 0
+
+    foreach ($data as $tag => $anzahl) {
+        $date = new DateTime($tag);
+        if ($date->format('Y') == $year) {
+            $month = (int)$date->format('n'); // Monat als Zahl (1-12)
+            $monthlyData[$month] += $anzahl;
+        }
+    }
+
+    return $monthlyData;
+}
+
+// Monatliche Daten für das aktuelle Jahr und das Vorjahr berechnen
+$monthlyAktuellesJahr = aggregateMonthly($alleTageAktuellesJahr, $jahr);
+$monthlyVorjahr = aggregateMonthly($alleTageVorjahr, $vorjahr);
+
+// Monatsnamen für die X-Achse
+$monthNames = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+
+// Daten für das Balkendiagramm
+$labels = $monthNames; // X-Achsen-Labels
+$dataAktuellesJahr = array_values($monthlyAktuellesJahr); // Einsätze aktuelles Jahr
+$dataVorjahr = array_values($monthlyVorjahr); // Einsätze Vorjahr
+
 ?>
 
 <!DOCTYPE html>
@@ -331,6 +360,63 @@ const chart = new Chart(ctx, {
                 to: (context) => {
                     const index = context.dataIndex;
                     return index === aktuellesDatumIndex ? 10 : 0;
+                },
+            },
+        },
+    },
+    type: 'bar', // Balkendiagramm
+    data: {
+        labels: <?= json_encode($labels) ?>, // Monatsnamen
+        datasets: [
+            {
+                label: 'Einsätze <?= $jahr ?>',
+                data: <?= json_encode($dataAktuellesJahr) ?>, // Einsätze aktuelles Jahr
+                backgroundColor: 'rgba(75, 192, 192, 0.6)', // Farbe für aktuelles Jahr
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+            },
+            {
+                label: 'Einsätze <?= $vorjahr ?>',
+                data: <?= json_encode($dataVorjahr) ?>, // Einsätze Vorjahr
+                backgroundColor: 'rgba(54, 162, 235, 0.6)', // Farbe für Vorjahr
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+            },
+        ],
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            tooltip: {
+                enabled: true,
+                callbacks: {
+                    label: function (context) {
+                        return `${context.dataset.label}: ${context.raw} Einsätze`;
+                    },
+                },
+            },
+        },
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Monate',
+                },
+                grid: {
+                    display: false,
+                },
+            },
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Anzahl Einsätze',
+                },
+                grid: {
+                    color: 'rgba(200, 200, 200, 0.3)',
                 },
             },
         },
