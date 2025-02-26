@@ -108,7 +108,6 @@ function linearRegression($x, $y) {
 
     // Steigung (m) und y-Achsenabschnitt (b) berechnen
     $m = ($n * $sumXY - $sumX * $sumY) / ($n * $sumX2 - $sumX * $sumX);
-    //$b = ($sumY - $m * $sumX) / $n;
     $b = 0;
     return ['m' => $m, 'b' => $b];
 }
@@ -127,13 +126,17 @@ $regression = linearRegression($x, $y);
 $m = $regression['m']; // Steigung
 $b = $regression['b']; // y-Achsenabschnitt
 
+// Labels für die X-Achse (alle Tage)
+$tageAktuellesJahr = array_keys($alleTageAktuellesJahr);
+$tageVorjahr = array_keys($alleTageVorjahr);
+
 // Index des heutigen Tages in den tageAktuellesJahr-Daten finden
 $aktuellesDatumIndex = array_search($heute, $tageAktuellesJahr);
 
 // Prognose für das gesamte Jahr berechnen
 $prognoseAktuellesJahr = [];
 for ($i = 1; $i <= 365; $i++) {
-    if ($i <= $tag) {
+    if ($i <= $aktuellesDatumIndex) {
         // Für Tage vor dem heutigen Datum: null setzen
         $prognoseAktuellesJahr[] = null;
     } else {
@@ -141,11 +144,6 @@ for ($i = 1; $i <= 365; $i++) {
         $prognoseAktuellesJahr[] = $m * $i + $b;
     }
 }
-
-// Labels für die X-Achse (alle Tage)
-$tageAktuellesJahr = array_keys($alleTageAktuellesJahr);
-$tageVorjahr = array_keys($alleTageVorjahr);
-
 
 // Funktion zur monatlichen Aggregation der Daten
 function aggregateMonthly($data, $year) {
