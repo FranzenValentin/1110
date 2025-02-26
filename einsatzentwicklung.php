@@ -215,6 +215,13 @@ const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
 const aktuellesDatum = new Date(<?= json_encode(date('Y-m-d')) ?>);
 const aktuellesDatumIndex = tageAktuellesJahr.indexOf(aktuellesDatum.toISOString().split('T')[0]);
 
+function createGradient(ctx, x, y, radius) {
+    const gradient = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
+    gradient.addColorStop(0, 'rgba(255, 99, 132, 1)');
+    gradient.addColorStop(1, 'rgba(255, 99, 132, 0)');
+    return gradient;
+}
+
 const chart = new Chart(ctx, {
     type: 'bar', // Standardtyp ist Balkendiagramm
     data: {
