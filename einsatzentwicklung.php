@@ -246,7 +246,7 @@ const chart = new Chart(ctx, {
                     const index = context.dataIndex;
                     if (index === aktuellesDatumIndex) {
                         const x = context.chart.scales['x-line'].getPixelForValue(tageAktuellesJahr[index]);
-                        const y = context.chart.scales.['y-left'].getPixelForValue(kumuliertAktuellesJahr[index]);
+                        const y = context.chart.scales['y-left'].getPixelForValue(kumuliertAktuellesJahr[index]);
                         return createGradient(ctx, x, y, 10); // Verlauf für den blinkenden Punkt
                     }
                     return 'rgba(255, 99, 132, 1)';
