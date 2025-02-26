@@ -221,7 +221,7 @@ const chart = new Chart(ctx, {
         labels: labels,
         datasets: [
             {
-                label: 'Einsätze <?= $jahr ?> ',
+                label: 'Kumuliert <?= $jahr ?> (Linie)',
                 data: kumuliertAktuellesJahr,
                 borderColor: 'rgba(255, 99, 132, 1)', // Rot
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -230,11 +230,28 @@ const chart = new Chart(ctx, {
                 type: 'line', // Liniendiagramm
                 yAxisID: 'y-left', // Linke Y-Achse
                 xAxisID: 'x-line', // Separate X-Achse für das Liniendiagramm
-                pointRadius: 0,
-                pointHoverRadius: 0,
+                pointRadius: (context) => {
+                    const index = context.dataIndex;
+                    return index === aktuellesDatumIndex ? 10 : 0; // Punkt nur am heutigen Datum anzeigen
+                },
+                pointHoverRadius: 10,
+                pointBackgroundColor: (context) => {
+                    const index = context.dataIndex;
+                    if (index === aktuellesDatumIndex) {
+                        const x = context.chart.scales.x.getPixelForValue(tageAktuellesJahr[index]);
+                        const y = context.chart.scales.y.getPixelForValue(kumuliertAktuellesJahr[index]);
+                        return createGradient(ctx, x, y, 10); // Verlauf für den blinkenden Punkt
+                    }
+                    return 'rgba(255, 99, 132, 1)';
+                },
+                pointBorderColor: 'rgba(255, 99, 132, 0)',
+                pointBorderWidth: (context) => {
+                    const index = context.dataIndex;
+                    return index === aktuellesDatumIndex ? 3 : 1;
+                },
             },
             {
-                label: 'Einsätze <?= $vorjahr ?> ',
+                label: 'Kumuliert <?= $vorjahr ?> (Linie)',
                 data: kumuliertVorjahr,
                 borderColor: 'rgba(54, 162, 235, 1)', // Blau
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
@@ -243,7 +260,7 @@ const chart = new Chart(ctx, {
                 type: 'line', // Liniendiagramm
                 yAxisID: 'y-left', // Linke Y-Achse
                 xAxisID: 'x-line', // Separate X-Achse für das Liniendiagramm
-                pointRadius: 0,
+                pointRadius: 0, // Keine Punkte für das Vorjahr
                 pointHoverRadius: 0,
             },
             {
@@ -256,22 +273,22 @@ const chart = new Chart(ctx, {
                 yAxisID: 'y-left', // Linke Y-Achse
                 xAxisID: 'x-line', // Separate X-Achse für das Liniendiagramm
                 borderDash: [5, 5], // Gestrichelte Linie
-                pointRadius: 0,
+                pointRadius: 0, // Keine Punkte für die Prognose
                 pointHoverRadius: 0,
             },
             {
-                label: 'Monatliche Einsätze <?= $jahr ?>',
+                label: 'Einsätze <?= $jahr ?> (Balken)',
                 data: dataAktuellesJahr,
-                backgroundColor: 'rgba(255, 99, 132, 0.5)', // Rot
-                borderColor: 'rgba(255, 99, 132, 0.7)',
+                backgroundColor: 'rgba(255, 99, 132, 0.7)', // Rot
+                borderColor: 'rgba(255, 99, 132, 1)',
                 borderWidth: 1,
                 yAxisID: 'y-right', // Rechte Y-Achse
             },
             {
-                label: 'Monatliche Einsätze <?= $vorjahr ?>',
+                label: 'Einsätze <?= $vorjahr ?> (Balken)',
                 data: dataVorjahr,
-                backgroundColor: 'rgba(54, 162, 235, 0.5)', // Blau
-                borderColor: 'rgba(54, 162, 235, 0.7)',
+                backgroundColor: 'rgba(54, 162, 235, 0.7)', // Blau
+                borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 1,
                 yAxisID: 'y-right', // Rechte Y-Achse
             },
