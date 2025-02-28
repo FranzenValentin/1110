@@ -126,6 +126,9 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') 
     </header>
     <main>
         <div id="box" class="responsive-form">
+            <?php if ($error): ?>
+                <p class="error"><?= htmlspecialchars($error) ?></p>
+            <?php endif; ?>
             <form method="POST" class="login-form" autocomplete="off">
                 <div class="form-group">
                     <label for="username">Benutzername:</label>
@@ -163,10 +166,6 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST') 
                 <?php endif; ?>
             </form>
         </div>
-        
-        <?php if ($error): ?>
-            <p class="error"><?= htmlspecialchars($error) ?></p>
-        <?php endif; ?>
     </main>
 
     <script>
