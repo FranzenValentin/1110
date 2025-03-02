@@ -361,7 +361,7 @@ const chart = new Chart(ctx, {
                     display: false, // Keine Gitterlinien für die rechte Y-Achse
                 },
                 ticks: {
-                    values: [20, 40, 60, 80, 100, 120,], // Nur diese Werte anzeigen
+                    values: [15, 30, 45, 60, 75, 90, 105, 120], // Nur diese Werte anzeigen
                 },  
             },
         },
