@@ -371,7 +371,7 @@ const chart = new Chart(ctx, {
                 },
                 ticks: {
                     stepSize: 15, // Schrittweite der Y-Achse
-                    max: maxRight + 10, // Maximalwert der Y-Achse
+                    max: maxRight + 100, // Maximalwert der Y-Achse
                     callback: function (value) {
                         return value; // Werte der rechten Y-Achse anzeigen
                     },
