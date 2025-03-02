@@ -362,7 +362,7 @@ const chart = new Chart(ctx, {
             'y-right': { // Rechte Y-Achse (Monatliche Einsätze)
                 position: 'right',
                 beginAtZero: true,
-                max: 160, // Maximalwert der Y-Achse
+                max: MaxRight, // Maximalwert der Y-Achse
                 title: {
                     display: true,
                     text: 'Monatliche Einsätze',
