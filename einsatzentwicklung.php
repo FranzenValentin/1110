@@ -222,6 +222,11 @@ const ctx = document.getElementById('einsatzEntwicklungChart').getContext('2d');
 const aktuellesDatum = new Date(<?= json_encode(date('Y-m-d')) ?>);
 const aktuellesDatumIndex = tageAktuellesJahr.indexOf(aktuellesDatum.toISOString().split('T')[0]);
 
+// Maximalen Wert für beide Achsen berechnen
+const maxLeft = Math.max(...kumuliertAktuellesJahr.filter(v => v !== null)); // Maximalwert der linken Y-Achse
+const maxRight = Math.max(...dataAktuellesJahr); // Maximalwert der rechten Y-Achse
+const maxValue = Math.max(maxLeft, maxRight); // Größter Wert beider Achsen
+
 function createGradient(ctx, x, y, radius) {
     const gradient = ctx.createRadialGradient(x, y, radius * 0.1, x, y, radius);
     gradient.addColorStop(0, 'rgba(255, 99, 132, 1)');
@@ -349,6 +354,10 @@ const chart = new Chart(ctx, {
                 grid: {
                     color: 'rgba(200, 200, 200, 0.3)', // Farbe der Gitterlinien
                 },
+                ticks: {
+                    stepSize: 100, // Schrittweite der Y-Achse
+                    max: maxValue, // Maximalwert der Y-Achse
+                },
             },
             'y-right': { // Rechte Y-Achse (Monatliche Einsätze)
                 position: 'right',
@@ -361,6 +370,8 @@ const chart = new Chart(ctx, {
                     display: false, // Keine eigenen Gitterlinien zeichnen
                 },
                 ticks: {
+                    stepSize: 100, // Schrittweite der Y-Achse
+                    max: maxValue, // Maximalwert der Y-Achse
                     callback: function (value) {
                         return value; // Werte der rechten Y-Achse anzeigen
                     },
