@@ -370,7 +370,7 @@ const chart = new Chart(ctx, {
                     display: false, // Keine eigenen Gitterlinien zeichnen
                 },
                 ticks: {
-                    stepSize: 100, // Schrittweite der Y-Achse
+                    stepSize: 50, // Schrittweite der Y-Achse
                     max: maxRight, // Maximalwert der Y-Achse
                     callback: function (value) {
                         return value; // Werte der rechten Y-Achse anzeigen
