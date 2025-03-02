@@ -361,11 +361,12 @@ const chart = new Chart(ctx, {
                     display: false, // Keine Gitterlinien für die rechte Y-Achse
                 },
                 ticks: {
-                    values: [15, 30, 45, 60, 75, 90, 105, 120], // Nur diese Werte anzeigen
+                    stepSize: 15,
                     callback: function (value) {
-                        return value + ' Einsätze';
-                    },
-                },  
+                        const allowedValues = [15, 30, 45, 60, 75, 90, 105, 120];
+                        return allowedValues.includes(value) ? value : null;
+                    }
+                } 
             },
         },
         animations: {
