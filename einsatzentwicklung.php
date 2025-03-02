@@ -224,7 +224,7 @@ const aktuellesDatumIndex = tageAktuellesJahr.indexOf(aktuellesDatum.toISOString
 
 // Maximalen Wert für beide Achsen berechnen
 const maxLeft = Math.max(...kumuliertAktuellesJahr.filter(v => v !== null)); // Maximalwert der linken Y-Achse
-const maxRight = Math.max(...dataAktuellesJahr); // Maximalwert der rechten Y-Achse
+const maxRight = Math.max(...dataVorjahr); // Maximalwert der rechten Y-Achse
 const maxValue = Math.max(maxLeft, maxRight); // Größter Wert beider Achsen
 
 function createGradient(ctx, x, y, radius) {
