@@ -360,6 +360,9 @@ const chart = new Chart(ctx, {
                 grid: {
                     display: false, // Keine Gitterlinien für die rechte Y-Achse
                 },
+                ticks: {
+                    values: [20, 40, 60, 80, 100, 120,], // Nur diese Werte anzeigen
+                },  
             },
         },
         animations: {
