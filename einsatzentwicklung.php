@@ -339,7 +339,7 @@ const chart = new Chart(ctx, {
                 labels: tageAktuellesJahr, // Tägliche Labels
                 display: false, // Diese Achse nicht anzeigen
             },
-            'y-left': { // Linke Y-Achse
+            'y-left': { // Linke Y-Achse (Kumulierte Einsätze)
                 position: 'left',
                 beginAtZero: true,
                 title: {
@@ -347,10 +347,10 @@ const chart = new Chart(ctx, {
                     text: 'Kumulierte Einsätze',
                 },
                 grid: {
-                    color: 'rgba(200, 200, 200, 0.3)',
+                    color: 'rgba(200, 200, 200, 0.3)', // Farbe der Gitterlinien
                 },
             },
-            'y-right': { // Rechte Y-Achse
+            'y-right': { // Rechte Y-Achse (Monatliche Einsätze)
                 position: 'right',
                 beginAtZero: true,
                 title: {
@@ -358,7 +358,12 @@ const chart = new Chart(ctx, {
                     text: 'Monatliche Einsätze',
                 },
                 grid: {
-                    display: true, // Keine Gitterlinien für die rechte Y-Achse
+                    display: false, // Keine eigenen Gitterlinien zeichnen
+                },
+                ticks: {
+                    callback: function (value) {
+                        return value; // Werte der rechten Y-Achse anzeigen
+                    },
                 },
             },
         },
