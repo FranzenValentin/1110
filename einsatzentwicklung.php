@@ -362,7 +362,7 @@ const chart = new Chart(ctx, {
             'y-right': { // Rechte Y-Achse (Monatliche Einsätze)
                 position: 'right',
                 beginAtZero: true,
-                max: 120, // Maximalwert der Y-Achse
+                max: 160, // Maximalwert der Y-Achse
                 title: {
                     display: true,
                     text: 'Monatliche Einsätze',
@@ -371,7 +371,7 @@ const chart = new Chart(ctx, {
                     display: false, // Keine eigenen Gitterlinien zeichnen
                 },
                 ticks: {
-                    stepSize: 15, // Schrittweite der Y-Achse
+                    stepSize: 20, // Schrittweite der Y-Achse
                     callback: function (value) {
                         return value; // Werte der rechten Y-Achse anzeigen
                     },
