@@ -148,7 +148,7 @@
                     $response = curl_exec($ch);
                     curl_close($ch);
 
-                    echo "Telegram-Antwort: " . $response;
+                   // echo "Telegram-Antwort: " . $response;
 
                 echo "<p style='color: green;'>Einsatz wurde erfolgreich gespeichert.</p>";
             } catch (Exception $e) {
