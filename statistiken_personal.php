@@ -133,7 +133,7 @@ try {
             $dienstzeitStmt = $pdo->prepare("
             SELECT SUM(TIMESTAMPDIFF(MINUTE, 
                 STR_TO_DATE(b.inDienstZeit, '%d.%m.%Y %H:%i'), 
-                STR_TO_DATE(b.outDienstZeit, '%d.%m.%Y %H:%i')
+                STR_TO_DATE(b.ausserDienstZeit, '%d.%m.%Y %H:%i')
             )) AS dienstMinuten
             FROM dienste b
             WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
