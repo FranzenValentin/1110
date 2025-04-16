@@ -297,14 +297,19 @@ try {
     <section id="box">
         <?php if (count($einsaetze) > 0): ?>
             <h2>Einsätze von <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?></h2>
-            <p>Von insgesamt <strong><?= htmlspecialchars($totalEinsaetze) ?> Alarmen</strong> war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?>
-                bei <strong><?= htmlspecialchars($personEinsaetze) ?> Alarmen</strong> beteiligt. Das entspricht <strong><?= htmlspecialchars($prozent) ?>%</strong>.
-                Insgesamt war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?>
-                in diesem Zeitraum <strong><?= htmlspecialchars($stunden) ?> Stunden und <?= htmlspecialchars($minuten) ?> Minuten</strong> im Einsatz. </p>
-                <p>
-                    Insgesamt war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
-                    in diesem Zeitraum <strong><?= $dienstStunden ?> Stunden und <?= $dienstRestMinuten ?> Minuten</strong> im Dienst eingetragen.
-                </p>
+            <p>
+                <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> war im ausgewählten Zeitraum bei 
+                <strong><?= htmlspecialchars($personEinsaetze) ?> von <?= htmlspecialchars($totalEinsaetze) ?> Alarmen</strong> im Einsatz – 
+                das entspricht einer Beteiligung von <strong><?= htmlspecialchars($prozent) ?>%</strong>.
+            </p>
+            <p>
+                Die gesamte Einsatzdauer beträgt <strong><?= htmlspecialchars($stunden) ?> Stunden und <?= htmlspecialchars($minuten) ?> Minuten</strong>.
+            </p>
+            <p>
+                Zusätzlich war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> insgesamt 
+                <strong><?= $dienstStunden ?> Stunden und <?= $dienstRestMinuten ?> Minuten</strong> im Dienst eingetragen.
+            </p>
+
             <table>
                 <thead>
                 <tr>
