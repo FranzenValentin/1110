@@ -153,7 +153,7 @@
                     $data = [
                         'chat_id' => $chat_id,
                         'text' => $einsatztext,
-                        'parse_mode' => 'Markdown'
+                        'parse_mode' => 'HTML'
                     ];
 
                     $ch = curl_init();
