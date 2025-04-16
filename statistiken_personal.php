@@ -305,7 +305,6 @@ try {
                     Insgesamt war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
                     in diesem Zeitraum <strong><?= $dienstStunden ?> Stunden und <?= $dienstRestMinuten ?> Minuten</strong> im Dienst eingetragen.
                 </p>
-
             <table>
                 <thead>
                 <tr>
