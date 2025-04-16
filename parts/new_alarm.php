@@ -130,7 +130,7 @@
                 }
 
                 // Beispiel-Einsatzdaten
-                    $einsatztext = "🚨 *Neuer Alarm!*\n\n📍 Stadtteil: $stadtteil\n🔥 Stichwort: $stichwort\n🕒 Alarmzeit: $alarmuhrzeit \n🕒 dauer: $einsatzdauer";
+                    $einsatztext = "🚨 *Neuer Alarm für das $fahrzeug_name!*\n\n📍 Stadtteil: $stadtteil\n🔥 Stichwort: $stichwort\n🕒 Alarmzeit: $alarmuhrzeit \n🕒 dauer: $einsatzdauer";
 
                     // Telegram senden
                     $url = "https://api.telegram.org/bot$bot_token/sendMessage";
