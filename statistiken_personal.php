@@ -128,6 +128,27 @@ try {
         // Dauer in Stunden und Minuten umrechnen
         $stunden = floor($gesamtDauer / 60);
         $minuten = $gesamtDauer % 60;
+
+        // Gesamte Dienstzeit berechnen
+            $dienstzeitStmt = $pdo->prepare("
+            SELECT SUM(TIMESTAMPDIFF(MINUTE, 
+                STR_TO_DATE(b.inDienstZeit, '%d.%m.%Y %H:%i'), 
+                STR_TO_DATE(b.outDienstZeit, '%d.%m.%Y %H:%i')
+            )) AS dienstMinuten
+            FROM dienste b
+            WHERE :personId IN (b.stf_id, b.ma_id, b.atf_id, b.atm_id, b.wtf_id, b.wtm_id, b.prakt_id)
+            AND STR_TO_DATE(b.inDienstZeit, '%d.%m.%Y %H:%i') 
+                BETWEEN STR_TO_DATE(:startdatum, '%d.%m.%Y %H:%i') AND STR_TO_DATE(:enddatum, '%d.%m.%Y %H:%i')
+            ");
+            $dienstzeitStmt->execute([
+            ':personId' => $personId,
+            ':startdatum' => $startdatum,
+            ':enddatum' => $enddatum
+            ]);
+            $dienstMinuten = $dienstzeitStmt->fetchColumn();
+            $dienstStunden = floor($dienstMinuten / 60);
+            $dienstRestMinuten = $dienstMinuten % 60;
+
     }
 } catch (PDOException $e) {
     die("Datenbankfehler: " . htmlspecialchars($e->getMessage()));
@@ -279,7 +300,11 @@ try {
             <p>Von insgesamt <strong><?= htmlspecialchars($totalEinsaetze) ?> Alarmen</strong> war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?>
                 bei <strong><?= htmlspecialchars($personEinsaetze) ?> Alarmen</strong> beteiligt. Das entspricht <strong><?= htmlspecialchars($prozent) ?>%</strong>.
                 Insgesamt war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?>
-                in diesem Zeitraum <strong><?= htmlspecialchars($stunden) ?> Stunden und <?= htmlspecialchars($minuten) ?> Minuten</strong> im Einsatz.</p>
+                in diesem Zeitraum <strong><?= htmlspecialchars($stunden) ?> Stunden und <?= htmlspecialchars($minuten) ?> Minuten</strong> im Einsatz. </p>
+                <p>
+                    Insgesamt war <?= htmlspecialchars(array_column($personal, 'name', 'id')[$personId]) ?> 
+                    in diesem Zeitraum <strong><?= $dienstStunden ?> Stunden und <?= $dienstRestMinuten ?> Minuten</strong> im Dienst eingetragen.
+                </p>
 
             <table>
                 <thead>
