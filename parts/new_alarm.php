@@ -129,8 +129,30 @@
                     $einsatzdauer = sprintf("%02d:%02d", $diff->h + ($diff->d * 24), $diff->i); // berücksichtigt auch Tage!
                 }
 
-                // Beispiel-Einsatzdaten
-                    $einsatztext = "🚨 *Alarm - $fahrzeug_name*\n\n📟 Stichwort: $stichwort\n📍 Stadtteil: $stadtteil\n🕒 Alarmzeit: $alarmuhrzeit \n⏳ Dauer: $einsatzdauer h";
+                //Einsatznummer erstellen
+
+                $einsatzQuery = "
+                    SELECT interne_einsatznummer 
+                    FROM einsaetze 
+                    ORDER BY 
+                        CAST(SUBSTRING_INDEX(interne_einsatznummer, '_', 1) AS UNSIGNED) DESC,
+                        CAST(SUBSTRING_INDEX(interne_einsatznummer, '_', -1) AS UNSIGNED) DESC
+                    LIMIT 1
+                ";
+
+                $einsatzStmt = $pdo->prepare($einsatzQuery);
+                $einsatzStmt->execute();
+                $letzteEinsatznummer = $einsatzStmt->fetchColumn(); // z. B. "2025_015"
+
+                $teile = explode('_', $letzteEinsatznummer);
+                $jahr = $teile[0];
+                $nummer = str_pad(((int)$teile[1]) + 1, 3, '0', STR_PAD_LEFT);
+
+                $naechsteEinsatznummer = $jahr . '_' . $nummer; // z. B. "2025_016"
+
+
+                // Telegram
+                    $einsatztext = "🚨 *Alarm - $fahrzeug_name*\n*$naechsteEinsatznummer*\n\n📟 Stichwort: $stichwort\n📍 Stadtteil: $stadtteil\n🕒 Alarmzeit: $alarmuhrzeit \n⏳ Dauer: $einsatzdauer h";
 
                     // Telegram senden
                     $url = "https://api.telegram.org/bot$bot_token/sendMessage";
