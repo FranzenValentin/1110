@@ -11,6 +11,8 @@ $dbname = '1110'; // Name der Datenbank
 $username = 'web126'; // Benutzername
 $password = $_ENV['db.password']; // Passwort
 $apiKey = $_ENV['GOOGLE_MAPS_API_KEY'] ?? null;
+$bot_token = $_ENV['BOT_TOKEN'];
+$chat_id = $_ENV['CHAT_ID'];
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
