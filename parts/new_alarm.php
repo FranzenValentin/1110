@@ -117,19 +117,20 @@
                     ':longitude' => $longitude
                 ]);
 
-                $format = "d.m.y H:i";
+                $format = "d.m.Y H:i";
 
                 $start = DateTime::createFromFormat($format, $alarmuhrzeit);
                 $ende = DateTime::createFromFormat($format, $zurueckzeit);
 
                 $einsatzdauer = null;
 
-                $diff = $start->diff($ende);
-                $einsatzdauer = sprintf("%02d:%02d", $diff->h, $diff->i);
-                
+                if ($start && $ende) {
+                    $diff = $start->diff($ende);
+                    $einsatzdauer = sprintf("%02d:%02d", $diff->h + ($diff->d * 24), $diff->i); // berücksichtigt auch Tage!
+                }
 
                 // Beispiel-Einsatzdaten
-                    $einsatztext = "🚨 *Neuer Alarm - $fahrzeug_name*\n\n📟 Stichwort: $stichwort\n📍 Stadtteil: $stadtteil\n🕒 Alarmzeit: $alarmuhrzeit \n⏳ Dauer: $einsatzdauer";
+                    $einsatztext = "🚨 *Neuer Alarm - $fahrzeug_name*\n\n📟 Stichwort: $stichwort\n📍 Stadtteil: $stadtteil\n🕒 Alarmzeit: $alarmuhrzeit \n⏳ auer: $einsatzdauer";
 
                     // Telegram senden
                     $url = "https://api.telegram.org/bot$bot_token/sendMessage";
