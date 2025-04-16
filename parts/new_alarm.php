@@ -146,7 +146,7 @@
 
 
                 // Telegram
-                    $einsatztext = "🚨 *Alarm - $fahrzeug_name*\n#️⃣*$letzteEinsatznummer*\n\n📟 Stichwort: $stichwort\n📍 Stadtteil: $stadtteil\n🕒 Alarmzeit: $alarmuhrzeit \n⏳ Dauer: $einsatzdauer h";
+                    $einsatztext = "🚨 *Alarm - $fahrzeug_name*\n#️⃣ *$letzteEinsatznummer*\n\n📟 Stichwort: $stichwort\n📍 Stadtteil: $stadtteil\n🕒 Alarmzeit: $alarmuhrzeit \n⏳ Dauer: $einsatzdauer h";
 
                     // Telegram senden
                     $url = "https://api.telegram.org/bot$bot_token/sendMessage";
