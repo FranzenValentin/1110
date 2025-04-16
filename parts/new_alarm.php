@@ -145,7 +145,7 @@
                 $letzteEinsatznummer = $einsatzStmt->fetchColumn(); // z. B. "2025_015"
 
                 // Telegram
-                    $einsatztext = "🚨 <b>Alarm - $fahrzeug_name</b>\n#️⃣ <b>$letzteEinsatznummer<b>\n\n📟 Stichwort: $stichwort\n📍 Stadtteil: $stadtteil\n🕒 Alarmzeit: $alarmuhrzeit \n⏳ Dauer: $einsatzdauer h";
+                    $einsatztext = "🚨 <b>Alarm - $fahrzeug_name</b>\n#️⃣ <b>$letzteEinsatznummer</b>\n\n📟 Stichwort: $stichwort\n📍 Stadtteil: $stadtteil\n🕒 Alarmzeit: $alarmuhrzeit \n⏳ Dauer: $einsatzdauer h";
 
                     // Telegram senden
                     $url = "https://api.telegram.org/bot$bot_token/sendMessage";
