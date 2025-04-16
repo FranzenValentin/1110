@@ -124,13 +124,12 @@
 
                 $einsatzdauer = null;
 
-                if ($start && $ende) {
-                    $diff = $start->diff($ende);
-                    $einsatzdauer = sprintf("%02d:%02d", $diff->h, $diff->i);
-                }
+                $diff = $start->diff($ende);
+                $einsatzdauer = sprintf("%02d:%02d", $diff->h, $diff->i);
+                
 
                 // Beispiel-Einsatzdaten
-                    $einsatztext = "🚨 *Neuer Alarm für das $fahrzeug_name!*\n\n📍 Stadtteil: $stadtteil\n🔥 Stichwort: $stichwort\n🕒 Alarmzeit: $alarmuhrzeit \n🕒 dauer: $einsatzdauer";
+                    $einsatztext = "🚨 *Neuer Alarm - $fahrzeug_name*\n\n📟 Stichwort: $stichwort\n📍 Stadtteil: $stadtteil\n🕒 Alarmzeit: $alarmuhrzeit \n⏳ Dauer: $einsatzdauer";
 
                     // Telegram senden
                     $url = "https://api.telegram.org/bot$bot_token/sendMessage";
