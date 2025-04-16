@@ -144,15 +144,9 @@
                 $einsatzStmt->execute();
                 $letzteEinsatznummer = $einsatzStmt->fetchColumn(); // z. B. "2025_015"
 
-                $teile = explode('_', $letzteEinsatznummer);
-                $jahr = $teile[0];
-                $nummer = str_pad(((int)$teile[1]) + 1, 3, '0', STR_PAD_LEFT);
-
-                $naechsteEinsatznummer = $jahr . '_' . $nummer; // z. B. "2025_016"
-
 
                 // Telegram
-                    $einsatztext = "🚨 *Alarm - $fahrzeug_name*\n*$naechsteEinsatznummer*\n\n📟 Stichwort: $stichwort\n📍 Stadtteil: $stadtteil\n🕒 Alarmzeit: $alarmuhrzeit \n⏳ Dauer: $einsatzdauer h";
+                    $einsatztext = "🚨 *Alarm - $fahrzeug_name*\n#️⃣*$letzteEinsatznummer*\n\n📟 Stichwort: $stichwort\n📍 Stadtteil: $stadtteil\n🕒 Alarmzeit: $alarmuhrzeit \n⏳ Dauer: $einsatzdauer h";
 
                     // Telegram senden
                     $url = "https://api.telegram.org/bot$bot_token/sendMessage";
