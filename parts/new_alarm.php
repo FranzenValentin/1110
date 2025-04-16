@@ -144,7 +144,6 @@
                 $einsatzStmt->execute();
                 $letzteEinsatznummer = $einsatzStmt->fetchColumn(); // z. B. "2025_015"
 
-
                 // Telegram
                     $einsatztext = "🚨 *Alarm - $fahrzeug_name*\n#️⃣ *$letzteEinsatznummer*\n\n📟 Stichwort: $stichwort\n📍 Stadtteil: $stadtteil\n🕒 Alarmzeit: $alarmuhrzeit \n⏳ Dauer: $einsatzdauer h";
 
