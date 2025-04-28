@@ -121,10 +121,21 @@ $kumuliertBisHeute = array_filter($kumuliertAktuellesJahr, function ($v) {
 $x = range(1, count($kumuliertBisHeute)); // Tage als numerische Werte
 $y = array_values($kumuliertBisHeute); // Kumulierte Einsätze
 
-// Lineare Regression berechnen
-$regression = linearRegression($x, $y);
-$m = $regression['m']; // Steigung
-$b = $regression['b']; // y-Achsenabschnitt
+// Startdatum (Jahresanfang)
+$startDate = new DateTime("$jahr-01-01");
+$heuteDate = new DateTime(date('Y-m-d'));
+
+// Tagesdifferenz berechnen (z.B. 27.04 = 116. Tag im Jahr)
+$tageSeitJahresanfang = $startDate->diff($heuteDate)->days + 1; // +1, damit 1.1 = Tag 1
+
+// Kumulierte Einsätze bis heute zählen
+$kumuliertBisHeute = array_filter($kumuliertAktuellesJahr, function ($v) {
+    return $v !== null;
+});
+$einsaetzeBisHeute = end($kumuliertBisHeute); // Letzter kumulierter Wert
+
+// Steigung einfach berechnen
+$m = $einsaetzeBisHeute / $tageSeitJahresanfang;
 
 // Labels für die X-Achse (alle Tage)
 $tageAktuellesJahr = array_keys($alleTageAktuellesJahr);
@@ -141,7 +152,7 @@ for ($i = 1; $i <= 365; $i++) {
         $prognoseAktuellesJahr[] = null;
     } else {
         // Für Tage ab dem heutigen Datum: Prognose berechnen
-        $prognoseAktuellesJahr[] = $m * $i + $b;
+        $prognoseAktuellesJahr[] = $m * $i;
     }
 }
 
