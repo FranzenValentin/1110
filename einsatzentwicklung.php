@@ -141,7 +141,7 @@ for ($i = 1; $i <= 365; $i++) {
         $prognoseAktuellesJahr[] = null;
     } else {
         // Für Tage ab dem heutigen Datum: Prognose berechnen
-        $prognoseAktuellesJahr[] = $m * $i + $b;
+        $prognoseAktuellesJahr[] = $m * $i + $b+20;
     }
 }
 
