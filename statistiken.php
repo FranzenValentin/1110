@@ -32,6 +32,28 @@ try {
     $enddatum = null;
 }
 
+// ==== NEUER BLOCK: Durchschnittliche Einsätze pro 12 Stunden ==== 
+try {
+    // DateTime-Objekte aus den formatierten Strings erstellen
+    $startObj = new DateTime($startdatum);
+    $endObj   = new DateTime($enddatum);
+
+    // Gesamte Zeitspanne in Sekunden
+    $diffInSeconds = $endObj->getTimestamp() - $startObj->getTimestamp();
+
+    // Anzahl der 12-Stunden-Segmente (z.B. 36 Stunden → 3 Segmente)
+    $segments = $diffInSeconds / (12 * 3600);
+
+    // Durchschnitt (Schutz gegen Division durch 0)
+    $avgPro12h = $segments > 0 
+        ? $totalEinsaetze / $segments 
+        : 0;
+} catch (Exception $e) {
+    // Im Fehlerfall auf null setzen
+    $avgPro12h = null;
+}
+
+
 try {
     // Gesamtanzahl der Einsätze
     $totalStmt = $pdo->prepare("
@@ -188,6 +210,13 @@ try {
                 <p>Durchschnittliche Einsatzdauer: <strong><?= htmlspecialchars(round($durchschnittsdauer, 2)) ?> Minuten</strong></p>
             <?php endif; ?>
         <?php endif; ?>
+
+        <?php if ($totalEinsaetze > 0 && $avgPro12h !== null): ?>
+            <p>Durchschnittliche Einsätze pro 12 Stunden: 
+            <strong><?= htmlspecialchars(round($avgPro12h, 2)) ?></strong>
+            </p>
+        <?php endif; ?>
+
     </section>
 
     <!-- Diagramm für häufigste Stichworte -->
