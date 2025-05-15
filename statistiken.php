@@ -115,67 +115,6 @@ try {
     $error = "Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage());
 }
 
-// … euer Session- und Datumskram …
-
-try {
-    // 1) Total, Ø-Dauer und Summe der Dienst-Minuten in einem Rutsch holen
-    $statsStmt = $pdo->prepare("
-        SELECT
-          COUNT(*) AS total,
-          AVG(
-            TIMESTAMPDIFF(
-              MINUTE,
-              STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i'),
-              STR_TO_DATE(zurueckzeit,   '%d.%m.%Y %H:%i')
-            )
-          ) AS avgMin,
-          COALESCE(
-            SUM(
-              TIMESTAMPDIFF(
-                MINUTE,
-                STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i'),
-                STR_TO_DATE(zurueckzeit,   '%d.%m.%Y %H:%i')
-              )
-            ), 0
-          ) AS sumMin
-        FROM einsaetze
-        WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i')
-              BETWEEN STR_TO_DATE(:start, '%Y-%m-%d %H:%i:%s')
-                  AND STR_TO_DATE(:end,   '%Y-%m-%d %H:%i:%s')
-          AND zurueckzeit IS NOT NULL
-    ");
-    $statsStmt->execute([
-      ':start' => $startdatum,
-      ':end'   => $enddatum
-    ]);
-    $row = $statsStmt->fetch();
-
-    $totalEinsaetze     = (int)   $row['total'];
-    $durchschnittsdauer = (float) $row['avgMin'];
-    $gesamtMinuten      = (int)   $row['sumMin'];
-
-    // 2) Ø Einsätze pro 12 Dienststunden berechnen
-    // Debug-Ausgabe: Rohdaten für die Berechnung
-echo '<section id="box">';
-echo '<h2>Debug: Basis-Daten für Ø Einsätze pro 12 Dienststunden</h2>';
-echo '<ul>';
-echo '<li><strong>Gesamt Einsätze (total):</strong> '      . htmlspecialchars($totalEinsaetze)     . '</li>';
-echo '<li><strong>Ø Einsatzdauer (avgMin) in Minuten:</strong> ' . htmlspecialchars(round($durchschnittsdauer,2)) . '</li>';
-echo '<li><strong>Gesamt Dienst-Minuten (sumMin):</strong> '  . htmlspecialchars($gesamtMinuten)      . '</li>';
-echo '</ul>';
-echo '</section>';
-
-    //    12 h = 720 Minuten
-    if ($gesamtMinuten > 0) {
-        $avgPro12Diensth = $totalEinsaetze * 720 / $gesamtMinuten;
-    } else {
-        $avgPro12Diensth = null;
-    }
-
-} catch (PDOException $e) {
-    $error = "Fehler beim Laden der Statistiken: " . htmlspecialchars($e->getMessage());
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -250,13 +189,6 @@ echo '</section>';
                 <p>Durchschnittliche Einsatzdauer: <strong><?= htmlspecialchars(round($durchschnittsdauer, 2)) ?> Minuten</strong></p>
             <?php endif; ?>
         <?php endif; ?>
-
-        <?php if ($avgPro12Diensth !== null): ?>
-        <p>Ø Einsätze pro 12 Dienststunden: 
-            <strong><?= htmlspecialchars(round($avgPro12Diensth, 2)) ?></strong>
-        </p>
-        <?php endif; ?>
-
 
     </section>
 
