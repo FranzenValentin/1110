@@ -32,40 +32,6 @@ try {
     $enddatum = null;
 }
 
-// ==== NEUER BLOCK: Gesamte Dienstzeit berechnen ====
-try {
-    $sumStmt = $pdo->prepare("
-        SELECT 
-          SUM(
-            TIMESTAMPDIFF(
-              MINUTE,
-              STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i'),
-              STR_TO_DATE(zurueckzeit,   '%d.%m.%Y %H:%i')
-            )
-          ) AS gesamtMinuten
-        FROM einsaetze
-        WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i')
-          BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s')
-              AND STR_TO_DATE(:enddatum,   '%Y-%m-%d %H:%i:%s')
-    ");
-    $sumStmt->execute([
-      ':startdatum' => $startdatum,
-      ':enddatum'   => $enddatum
-    ]);
-    $gesamtMinuten = $sumStmt->fetch()['gesamtMinuten'] ?? 0;
-} catch (PDOException $e) {
-    $gesamtMinuten = 0;
-}
-// Ø Einsätze pro 12 Dienststunden
-if ($gesamtMinuten > 0) {
-    // 12 Stunden = 720 Minuten
-    $avgPro12Diensth = $totalEinsaetze * 720 / $gesamtMinuten;
-} else {
-    $avgPro12Diensth = null;
-}
-
-
-
 try {
     // Gesamtanzahl der Einsätze
     $totalStmt = $pdo->prepare("
@@ -147,6 +113,38 @@ try {
     $pinData = $pinQuery->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $error = "Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage());
+}
+
+// ==== NEUER BLOCK: Gesamte Dienstzeit berechnen ====
+try {
+    $sumStmt = $pdo->prepare("
+        SELECT 
+          SUM(
+            TIMESTAMPDIFF(
+              MINUTE,
+              STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i'),
+              STR_TO_DATE(zurueckzeit,   '%d.%m.%Y %H:%i')
+            )
+          ) AS gesamtMinuten
+        FROM einsaetze
+        WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i')
+          BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s')
+              AND STR_TO_DATE(:enddatum,   '%Y-%m-%d %H:%i:%s')
+    ");
+    $sumStmt->execute([
+      ':startdatum' => $startdatum,
+      ':enddatum'   => $enddatum
+    ]);
+    $gesamtMinuten = $sumStmt->fetch()['gesamtMinuten'] ?? 0;
+} catch (PDOException $e) {
+    $gesamtMinuten = 0;
+}
+// Ø Einsätze pro 12 Dienststunden
+if ($gesamtMinuten > 0) {
+    // 12 Stunden = 720 Minuten
+    $avgPro12Diensth = $totalEinsaetze * 720 / $gesamtMinuten;
+} else {
+    $avgPro12Diensth = null;
 }
 ?>
 
