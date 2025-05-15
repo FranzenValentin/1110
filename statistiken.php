@@ -32,26 +32,38 @@ try {
     $enddatum = null;
 }
 
-// ==== NEUER BLOCK: Durchschnittliche Einsätze pro 12 Stunden ==== 
+// ==== NEUER BLOCK: Gesamte Dienstzeit berechnen ====
 try {
-    // DateTime-Objekte aus den formatierten Strings erstellen
-    $startObj = new DateTime($startdatum);
-    $endObj   = new DateTime($enddatum);
-
-    // Gesamte Zeitspanne in Sekunden
-    $diffInSeconds = $endObj->getTimestamp() - $startObj->getTimestamp();
-
-    // Anzahl der 12-Stunden-Segmente (z.B. 36 Stunden → 3 Segmente)
-    $segments = $diffInSeconds / (12 * 3600);
-
-    // Durchschnitt (Schutz gegen Division durch 0)
-    $avgPro12h = $segments > 0 
-        ? $totalEinsaetze / $segments 
-        : 0;
-} catch (Exception $e) {
-    // Im Fehlerfall auf null setzen
-    $avgPro12h = null;
+    $sumStmt = $pdo->prepare("
+        SELECT 
+          SUM(
+            TIMESTAMPDIFF(
+              MINUTE,
+              STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i'),
+              STR_TO_DATE(zurueckzeit,   '%d.%m.%Y %H:%i')
+            )
+          ) AS gesamtMinuten
+        FROM einsaetze
+        WHERE STR_TO_DATE(alarmuhrzeit, '%d.%m.%Y %H:%i')
+          BETWEEN STR_TO_DATE(:startdatum, '%Y-%m-%d %H:%i:%s')
+              AND STR_TO_DATE(:enddatum,   '%Y-%m-%d %H:%i:%s')
+    ");
+    $sumStmt->execute([
+      ':startdatum' => $startdatum,
+      ':enddatum'   => $enddatum
+    ]);
+    $gesamtMinuten = $sumStmt->fetch()['gesamtMinuten'] ?? 0;
+} catch (PDOException $e) {
+    $gesamtMinuten = 0;
 }
+// Ø Einsätze pro 12 Dienststunden
+if ($gesamtMinuten > 0) {
+    // 12 Stunden = 720 Minuten
+    $avgPro12Diensth = $totalEinsaetze * 720 / $gesamtMinuten;
+} else {
+    $avgPro12Diensth = null;
+}
+
 
 
 try {
@@ -211,11 +223,12 @@ try {
             <?php endif; ?>
         <?php endif; ?>
 
-        <?php if ($totalEinsaetze > 0 && $avgPro12h !== null): ?>
-            <p>Durchschnittliche Einsätze pro 12 Stunden: 
-            <strong><?= htmlspecialchars(round($avgPro12h, 2)) ?></strong>
-            </p>
+        <?php if ($avgPro12Diensth !== null): ?>
+        <p>Ø Einsätze pro 12 Dienststunden: 
+            <strong><?= htmlspecialchars(round($avgPro12Diensth, 2)) ?></strong>
+        </p>
         <?php endif; ?>
+
 
     </section>
 
