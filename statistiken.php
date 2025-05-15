@@ -155,6 +155,16 @@ try {
     $gesamtMinuten      = (int)   $row['sumMin'];
 
     // 2) Ø Einsätze pro 12 Dienststunden berechnen
+    // Debug-Ausgabe: Rohdaten für die Berechnung
+echo '<section id="box">';
+echo '<h2>Debug: Basis-Daten für Ø Einsätze pro 12 Dienststunden</h2>';
+echo '<ul>';
+echo '<li><strong>Gesamt Einsätze (total):</strong> '      . htmlspecialchars($totalEinsaetze)     . '</li>';
+echo '<li><strong>Ø Einsatzdauer (avgMin) in Minuten:</strong> ' . htmlspecialchars(round($durchschnittsdauer,2)) . '</li>';
+echo '<li><strong>Gesamt Dienst-Minuten (sumMin):</strong> '  . htmlspecialchars($gesamtMinuten)      . '</li>';
+echo '</ul>';
+echo '</section>';
+
     //    12 h = 720 Minuten
     if ($gesamtMinuten > 0) {
         $avgPro12Diensth = $totalEinsaetze * 720 / $gesamtMinuten;
