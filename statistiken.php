@@ -115,7 +115,6 @@ try {
     $error = "Fehler beim Laden der Daten: " . htmlspecialchars($e->getMessage());
 }
 
-<?php
 // … euer Session- und Datumskram …
 
 try {
