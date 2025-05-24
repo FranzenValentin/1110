@@ -1,0 +1,36 @@
+{
+  "name": "xibosignage/oauth2-xibo-cms",
+  "description": "A Xibo CMS provider for league/oauth2-client",
+  "keywords": [
+    "oauth",
+    "oauth2",
+    "client",
+    "authorization",
+    "authentication",
+    "idp",
+    "identity",
+    "sso",
+    "single sign on",
+    "xibo",
+    "xibo cms"
+  ],
+  "homepage": "http://xibo.org.uk",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Xibo Signage Ltd",
+      "homepage": "https://xibo.org.uk"
+    }
+  ],
+  "require": {
+    "php": ">=5.6.0",
+    "league/oauth2-client": "^2.4",
+    "psr/log": "1.1.*"
+  },
+  "require-dev": {
+    "monolog/monolog": "^1.22"
+  },
+  "autoload": {
+    "psr-4": { "Xibo\\OAuth2\\Client\\" : "src/" }
+  }
+}
