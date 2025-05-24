@@ -1,5 +1,0 @@
-{
-  "name": "Schedule Reminder",
-  "class": "\\Xibo\\XTR\\ScheduleReminderTask",
-  "options": []
-}

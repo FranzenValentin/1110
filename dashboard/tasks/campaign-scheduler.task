@@ -1,5 +1,0 @@
-{
-  "name": "Campaign Scheduler",
-  "class": "\\Xibo\\XTR\\CampaignSchedulerTask",
-  "options": {}
-}

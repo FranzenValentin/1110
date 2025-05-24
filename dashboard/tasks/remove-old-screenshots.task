@@ -1,5 +1,0 @@
-{
-  "name": "Remove Old Display Screenshots",
-  "class": "\\Xibo\\XTR\\RemoveOldScreenshotsTask",
-  "options": []
-}

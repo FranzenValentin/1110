@@ -1,5 +1,0 @@
-{
-  "name": "Widget Sync",
-  "class": "\\Xibo\\XTR\\WidgetSyncTask",
-  "options": {}
-}
